@@ -1,0 +1,13 @@
+# 사이트 메타데이터 설정
+baseURL: "https://in-jun.github.io/"
+title: "In-Jun's Development Blog"
+languageCode: "ko-kr"
+
+# Permalink 설정
+permalinks:
+  post: "/:year/:month/:title/"
+
+# Social media 링크 설정
+social:
+  - name: "GitHub"
+    url: "https://github.com/in-jun"
