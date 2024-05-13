@@ -2,6 +2,7 @@
 baseURL: "https://blog.injunweb.com/"
 title: "In-Jun's Development Blog"
 languageCode: "ko-kr"
+theme: ["PaperMod"]
 
 # Permalink 설정
 permalinks:
