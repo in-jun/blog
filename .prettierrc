@@ -1,0 +1,18 @@
+{
+  "overrides": [
+    {
+      "files": "*.yml",
+      "options": {
+        "tabWidth": 2,
+        "useTabs": false
+      }
+    },
+    {
+      "files": "*.md",
+      "options": {
+        "tabWidth": 4,
+        "useTabs": false
+      }
+    }
+  ]
+}
