@@ -1,14 +1,71 @@
-# 사이트 메타데이터 설정
 baseURL: "https://blog.injunweb.com/"
 title: "In-Jun's Development Blog"
 languageCode: "ko-kr"
-theme: ["PaperMod"]
+paginate: 5
+theme: "PaperMod"
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+pygmentsUseClasses: true
 
-# Permalink 설정
-permalinks:
-  post: "/:year/:month/:title/"
+params:
+  env: "production"
+  title: "In-Jun's Development Blog"
+  description: "Here is In-Jun's blog."
+  keywords: ["Blog", "Portfolio", "PaperMod"]
+  author: "Me"
+  DateFormat: "January 2, 2006"
+  defaultTheme: "auto"
+  ShowReadingTime: true
+  ShowShareButtons: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: true
+  ShowRssButtonInSectionTermList: true
+  UseHugoToc: true
+  disableSpecial1stPost: false
+  disableScrollToTop: false
+  comments: false
+  hidemeta: false
+  hideSummary: false
+  showtoc: false
+  tocopen: false
 
-# Social media 링크 설정
-social:
-  - name: "GitHub"
-    url: "https://github.com/in-jun"
+  assets:
+    favicon: "<link>"
+    favicon16x16: "<link>"
+    favicon32x32: "<link>"
+    apple_touch_icon: "<link>"
+    safari_pinned_tab: "<link>"
+
+  label:
+    text: "In-Jun's Blog"
+    icon: "/apple-touch-icon.png"
+    iconHeight: 35
+
+  homeInfoParams:
+    Title: "Hi there 👋"
+    Content: "Welcome to my blog"
+
+  socialIcons:
+    - name: "github"
+      url: "https://github.com/in-jun"
+    - name: "linkedin"
+      url: "https://www.linkedin.com/in/in-jun"
+
+menu:
+  main:
+    - identifier: "categories"
+      name: "categories"
+      url: "/categories/"
+      weight: 10
+    - identifier: "tags"
+      name: "tags"
+      url: "/tags/"
+      weight: 20
+
+markup:
+  highlight:
+    noClasses: false
