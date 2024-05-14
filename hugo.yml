@@ -56,14 +56,28 @@ params:
 
 menu:
   main:
+    - identifier: "Home"
+      name: "Home"
+      url: "/"
+      weight: 10
     - identifier: "Categories"
       name: "Categories"
       url: "/categories/"
-      weight: 10
+      weight: 20
     - identifier: "Tags"
       name: "Tags"
       url: "/tags/"
-      weight: 20
+      weight: 30
+    - identifier: "Search"
+      name: "Search"
+      url: "/search/"
+      weight: 40
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
 
 markup:
   highlight:
