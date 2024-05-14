@@ -56,12 +56,12 @@ params:
 
 menu:
   main:
-    - identifier: "categories"
-      name: "categories"
+    - identifier: "Categories"
+      name: "Categories"
       url: "/categories/"
       weight: 10
-    - identifier: "tags"
-      name: "tags"
+    - identifier: "Tags"
+      name: "Tags"
       url: "/tags/"
       weight: 20
 
