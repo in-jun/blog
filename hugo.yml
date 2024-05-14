@@ -33,7 +33,7 @@ params:
   tocopen: false
 
   assets:
-    favicon: "<link>"
+    favicon: "image.png"
     favicon16x16: "<link>"
     favicon32x32: "<link>"
     apple_touch_icon: "<link>"
@@ -41,7 +41,7 @@ params:
 
   label:
     text: "In-Jun's Blog"
-    icon: "/apple-touch-icon.png"
+    icon: "icon.png"
     iconHeight: 35
 
   homeInfoParams:
