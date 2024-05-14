@@ -18,7 +18,6 @@ params:
   DateFormat: "January 2, 2006"
   defaultTheme: "auto"
   ShowReadingTime: true
-  ShowShareButtons: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowCodeCopyButtons: true
