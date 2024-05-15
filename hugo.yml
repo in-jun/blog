@@ -33,7 +33,7 @@ params:
   tocopen: false
 
   assets:
-    favicon: "image.png"
+    favicon: "icon.png"
     favicon16x16: "<link>"
     favicon32x32: "<link>"
     apple_touch_icon: "<link>"
