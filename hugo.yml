@@ -45,7 +45,7 @@ params:
     iconHeight: 35
 
   homeInfoParams:
-    Title: "About Me / 자기 소개"
+    Title: "About Me / 자기소개"
     Content: |
       안녕하세요, 백엔드 분야를 탐구 중인 황인준입니다.
       항상 책임감과 도전 정신을 가지고 매진하여 최선을 다하겠습니다.
