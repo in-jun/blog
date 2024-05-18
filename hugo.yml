@@ -12,7 +12,7 @@ pygmentsUseClasses: true
 params:
   env: "production"
   title: "In-Jun's Development Blog"
-  description: "Here is In-Jun's blog."
+  description: "이 블로그는 제가 매일 개발하면서 겪는 일들을 기록하고, 그 과정에서 배운 것들과 제 생각을 공유하는 공간입니다. 여기서는 제 작업 진행 상황을 일지 형태로 남기고, 문제를 해결하면서 터득한 방법들을 여러분과 나누고자 합니다."
   keywords: ["Blog", "Portfolio", "PaperMod"]
   author: "Me"
   DateFormat: "January 2, 2006"
