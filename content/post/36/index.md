@@ -1,5 +1,5 @@
 +++
-title = 'Git 브랜치 전략: Git Flow와 GitHub Flow 분석'
+title = 'Git 브랜치 규칙: Git Flow와 GitHub Flow 분석'
 categories = ["programming"]
 tags = ["git", "버전 관리", "협업", "git flow", "github flow", "소프트웨어 개발 방법론"]
 date = 2024-07-10T08:01:40+09:00
@@ -19,6 +19,8 @@ Git Flow는 2010년 Vincent Driessen이 제안한 모델로, 소프트웨어 개
 5. Hotfix: 출시된 버전의 긴급 버그를 수정하는 브랜치
 
 ### Git Flow의 작동 방식
+
+![git-flow](image-1.png)
 
 Git Flow의 워크플로우는 다음과 같이 진행된다:
 
@@ -53,6 +55,8 @@ GitHub Flow는 GitHub에서 제안한 더 간단한 브랜치 전략이다. 이 
 2. Feature: 새로운 기능 개발이나 버그 수정을 위한 브랜치
 
 ### GitHub Flow의 작동 방식
+
+![github-flow](image-2.png)
 
 GitHub Flow의 워크플로우는 다음과 같이 진행된다:
 
