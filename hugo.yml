@@ -1,7 +1,8 @@
 baseURL: "https://blog.injunweb.com/"
 title: "In-Jun's Development Blog"
 languageCode: "ko-kr"
-paginate: 5
+pagination:
+  pagerSize: 10
 theme: "PaperMod"
 enableRobotsTXT: true
 buildDrafts: false
