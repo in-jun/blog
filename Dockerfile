@@ -1,6 +1,17 @@
 FROM hugomods/hugo:latest as builder
 WORKDIR /src
-COPY . .
+COPY .gitmodules .
+COPY themes/PaperMod/themes.toml themes/PaperMod/
+RUN git submodule update --init --recursive
+COPY config.toml .
+COPY hugo.toml .
+COPY hugo.yaml .
+COPY hugo.json .
+COPY content/ content/
+COPY static/ static/
+COPY data/ data/
+COPY assets/ assets/
+COPY layouts/ layouts/
 RUN hugo --minify
 
 FROM nginx:alpine
