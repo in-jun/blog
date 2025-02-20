@@ -1,10 +1,9 @@
-+++
-title = 'ERD(Entity Relationship Diagram)란'
-date = 2024-05-25T16:02:12+09:00
-tags = ["ERD", "Database"]
-categories = ["programming"]
-draft = false
-+++
+---
+title: "ERD(Entity Relationship Diagram)란"
+date: 2024-05-25T16:02:12+09:00
+draft: false
+tags: ["ERD", "Database"]
+---
 
 > ERD(Entity Relationship Diagram)란 데이터베이스의 구조를 시각적으로 표현한 것이다. ERD는 데이터베이스의 테이블 간의 관계를 나타내며, 데이터베이스의 설계와 구조를 이해하기 쉽게 도와준다.
 

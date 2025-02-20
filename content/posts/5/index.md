@@ -1,10 +1,9 @@
-+++
-title = 'Spring boot 알아보기'
-date = 2024-05-16T22:14:17+09:00
-tags = ["Spring", "Spring boot"]
-categories = ["programming"]
-draft = false
-+++
+---
+title: "Spring boot 알아보기"
+date: 2024-05-16T22:14:17+09:00
+draft: false
+tags: ["Spring", "Spring boot"]
+---
 
 ![spring](image.png)
 
