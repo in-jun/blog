@@ -14,7 +14,7 @@ enableEmoji: true
 pygmentsUseClasses: true
 
 minify:
-  disableXML: true
+  disableXML: false
   minifyOutput: true
 
 languages:
@@ -74,7 +74,6 @@ params:
   description: "A blog about DevOps, Cloud Computing, and Software Engineering"
   keywords: ["DevOps", "Cloud", "AWS", "Kubernetes", "Docker", "Backend"]
   author: "In-Jun Hwang"
-  DateFormat: "2006-01-02"
   defaultTheme: auto
 
   ShowShareButtons: true
@@ -109,10 +108,14 @@ params:
     isCaseSensitive: false
     shouldSort: true
     location: 0
-    distance: 1000
-    threshold: 0.4
-    minMatchCharLength: 0
+    distance: 500
+    threshold: 0.3
+    minMatchCharLength: 2
     keys: ["title", "permalink", "summary", "content"]
+
+  seo:
+    enableOpenGraph: true
+    enableTwitterCards: true
 
 markup:
   goldmark:
