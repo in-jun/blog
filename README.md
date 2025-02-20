@@ -4,4 +4,4 @@
 
 ## 소개
 
--   **Blog**: [Blog](https://blog.injunweb.com)
+-   **Blog**: [Blog](https://blog.injun.dev)
