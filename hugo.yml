@@ -76,6 +76,11 @@ params:
   author: "In-Jun Hwang"
   defaultTheme: auto
 
+  editPost:
+    URL: "https://github.com/in-jun/blog/tree/main/content"
+    Text: "Suggest Changes"
+    appendFilePath: true
+
   ShowShareButtons: true
   ShowReadingTime: true
   ShowPostNavLinks: true
