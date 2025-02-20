@@ -1,10 +1,17 @@
-+++
-title = 'Git 브랜치 규칙: Git Flow와 GitHub Flow 분석'
-categories = ["programming"]
-tags = ["git", "버전 관리", "협업", "git flow", "github flow", "소프트웨어 개발 방법론"]
-date = 2024-07-10T08:01:40+09:00
-draft = false
-+++
+---
+title: "Git 브랜치 규칙: Git Flow와 GitHub Flow 비교"
+date: 2024-07-10T08:01:40+09:00
+draft: false
+tags:
+    [
+        "git",
+        "버전 관리",
+        "협업",
+        "git flow",
+        "github flow",
+        "소프트웨어 개발 방법론",
+    ]
+---
 
 현대 소프트웨어 개발에서 버전 관리는 필수 불가결한 요소다. Git은 분산 버전 관리 시스템으로, 여러 개발자가 동시에 작업할 수 있는 환경을 제공한다. Git의 장점을 최대한 활용하기 위해서는 체계적인 브랜치 전략이 필요하다. 이 글에서는 가장 널리 사용되는 두 가지 Git 브랜치 전략인 Git Flow와 GitHub Flow를 심층적으로 분석하고 비교해 본다.
 
