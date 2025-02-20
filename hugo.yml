@@ -1,79 +1,66 @@
-baseURL: "https://blog.injunweb.com/"
+baseURL: "https://blog.injun.dev/"
 title: "In-Jun's Development Blog"
-languageCode: "ko-kr"
+defaultContentLanguage: "ko"
 pagination:
-  pagerSize: 10
-theme: "PaperMod"
+  pagerSize: 5
+theme: [PaperMod]
+
+enableInlineShortcodes: true
 enableRobotsTXT: true
 buildDrafts: false
 buildFuture: false
 buildExpired: false
+enableEmoji: true
 pygmentsUseClasses: true
 
-params:
-  env: "production"
-  title: "In-Jun's Development Blog"
-  description: "이 블로그는 제가 매일 개발하면서 겪는 일들을 기록하고, 그 과정에서 배운 것들과 제 생각을 공유하는 공간입니다. 여기서는 제 작업 진행 상황을 일지 형태로 남기고, 문제를 해결하면서 터득한 방법들을 여러분과 나누고자 합니다."
-  keywords: ["Blog", "Portfolio", "PaperMod"]
-  author: "Me"
-  DateFormat: "January 2, 2006"
-  defaultTheme: "auto"
-  ShowReadingTime: true
-  ShowPostNavLinks: true
-  ShowBreadCrumbs: true
-  ShowCodeCopyButtons: true
-  ShowWordCount: true
-  ShowRssButtonInSectionTermList: true
-  UseHugoToc: true
-  disableSpecial1stPost: false
-  disableScrollToTop: false
-  comments: false
-  hidemeta: false
-  hideSummary: false
-  showtoc: false
-  tocopen: false
+minify:
+  disableXML: true
+  minifyOutput: true
 
-  assets:
-    favicon: "icon.png"
-    favicon16x16: "<link>"
-    favicon32x32: "<link>"
-    apple_touch_icon: "<link>"
-    safari_pinned_tab: "<link>"
+languages:
+  ko:
+    languageName: "한국어"
+    weight: 1
+    taxonomies:
+      tag: tags
+      series: series
+    menu:
+      main:
+        - name: "Tags"
+          url: "/tags/"
+          weight: 10
+        - name: "Series"
+          url: "/series/"
+          weight: 20
+        - name: "Search"
+          url: "/search/"
+          weight: 30
+    params:
+      homeInfoParams:
+        Title: "About Me"
+        Content: "안녕하세요, DevOps 분야를 탐구 중인 황인준입니다."
 
-  label:
-    text: "In-Jun's Blog"
-    icon: "icon.png"
-    iconHeight: 35
-
-  homeInfoParams:
-    Title: "About Me"
-    Content: |
-      안녕하세요, DevOps 분야를 탐구 중인 황인준입니다.
-
-  socialIcons:
-    - name: "github"
-      url: "https://github.com/in-jun"
-    - name: "linkedin"
-      url: "https://www.linkedin.com/in/in-jun"
-
-menu:
-  main:
-    - identifier: "Home"
-      name: "Home"
-      url: "/"
-      weight: 10
-    - identifier: "Categories"
-      name: "Categories"
-      url: "/categories/"
-      weight: 20
-    - identifier: "Tags"
-      name: "Tags"
-      url: "/tags/"
-      weight: 30
-    - identifier: "Search"
-      name: "Search"
-      url: "/search/"
-      weight: 40
+  en:
+    languageName: "English"
+    weight: 2
+    taxonomies:
+      tag: tags
+      series: series
+    menu:
+      main:
+        - name: "Tags"
+          url: "/tags/"
+          weight: 10
+        - name: "Series"
+          url: "/series/"
+          weight: 20
+        - name: "Search"
+          url: "/search/"
+          weight: 30
+    params:
+      homeInfoParams:
+        Title: "About Me"
+        Content: "Hello, I'm In-Jun, exploring the field of DevOps."
 
 outputs:
   home:
@@ -81,6 +68,57 @@ outputs:
     - RSS
     - JSON
 
+params:
+  env: production
+  title: "In-Jun's Development Blog"
+  description: "A blog about DevOps, Cloud Computing, and Software Engineering"
+  keywords: ["DevOps", "Cloud", "AWS", "Kubernetes", "Docker", "Backend"]
+  author: "In-Jun Hwang"
+  DateFormat: "2006-01-02"
+  defaultTheme: auto
+
+  ShowShareButtons: true
+  ShowReadingTime: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: true
+  ShowToc: true
+  TocOpen: true
+
+  assets:
+    disableHLJS: true
+    favicon: "icon.png"
+    favicon16x16: "icon.png"
+    favicon32x32: "icon.png"
+    apple_touch_icon: "icon.png"
+    safari_pinned_tab: "icon.png"
+
+  label:
+    text: "In-Jun's Blog"
+    icon: "icon.png"
+    iconHeight: 35
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/in-jun"
+    - name: linkedin
+      url: "https://www.linkedin.com/in/in-jun"
+
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
+
 markup:
+  goldmark:
+    renderer:
+      unsafe: true
   highlight:
     noClasses: false
+    lineNos: true
+    style: monokai
