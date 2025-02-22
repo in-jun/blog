@@ -12,7 +12,6 @@ tags:
         "Compatibility",
         "Installation Guide",
     ]
-series: ["Ubuntu Guide"]
 ---
 
 ## What is Wine?

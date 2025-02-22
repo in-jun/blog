@@ -4,7 +4,6 @@ date: 2025-02-23T04:51:24+09:00
 draft: false
 description: "Ubuntu 24.04 LTS에서 Windows 프로그램을 실행하기 위한 Wine 설치와 설정 방법을 설명합니다."
 tags: ["Ubuntu", "Linux", "Wine", "Windows", "호환성", "설치가이드"]
-series: ["Ubuntu 가이드"]
 ---
 
 ## Wine이란?
