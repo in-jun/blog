@@ -7,8 +7,6 @@ tags: ["Ubuntu", "Linux", "Wine", "Windows", "호환성", "설치가이드"]
 series: ["Ubuntu 가이드"]
 ---
 
-# Ubuntu 24.04 LTS에 Wine 설치하기
-
 ## Wine이란?
 
 Wine(Wine Is Not an Emulator)은 Ubuntu 24.04 LTS를 포함한 Linux, macOS, BSD와 같은 UNIX 호환 운영체제에서 Windows 프로그램을 실행할 수 있는 호환성 레이어이다.
