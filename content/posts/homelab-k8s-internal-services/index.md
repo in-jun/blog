@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 내부 서비스 접근 구성하기"
+title: "홈랩 #4 - 내부 서비스 접근 구성하기"
 date: 2025-02-25T11:37:43+09:00
 draft: false
 description: "홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고 내부 네트워크를 구성하는 방법을 설명한다."
 tags: ["kubernetes", "homelab", "traefik", "ingress", "gitops"]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요

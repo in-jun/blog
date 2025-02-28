@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 스토리지 구성하기"
+title: "홈랩 #3 - 쿠버네티스 스토리지 구성하기"
 date: 2025-02-25T08:05:41+09:00
 draft: false
 description: "홈랩 쿠버네티스 환경에 Longhorn 분산 스토리지 시스템을 설치하고 구성하는 방법을 설명한다."
 tags: ["kubernetes", "homelab", "longhorn", "storage", "gitops", "argocd"]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요

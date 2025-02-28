@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 시크릿 관리하기"
+title: "홈랩 #6 - Vault를 활용한 시크릿 관리"
 date: 2025-02-26T16:20:14+09:00
 draft: false
 description: "홈랩 쿠버네티스 환경에 HashiCorp Vault를 설치하고 안전한 시크릿 관리 시스템을 구축하는 방법을 설명한다."
 tags: ["kubernetes", "homelab", "vault", "secrets", "gitops", "security"]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요

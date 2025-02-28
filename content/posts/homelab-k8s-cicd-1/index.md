@@ -1,5 +1,5 @@
 ---
-title: "홈랩 쿠버네티스 CI/CD 구축하기 (1)"
+title: "홈랩 #7 - CI/CD 구축해서 배포 자동화하기 (1)"
 date: 2025-02-28T04:32:32+09:00
 draft: false
 description: "홈랩 쿠버네티스 환경에 CI/CD 시스템의 기반이 되는 Harbor 레지스트리, Argo Events, Argo Workflows를 설치하는 방법을 설명한다."
@@ -13,7 +13,7 @@ tags:
         "argo-workflows",
         "gitops",
     ]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요

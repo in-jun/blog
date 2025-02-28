@@ -1,5 +1,5 @@
 ---
-title: "홈랩 쿠버네티스 CI/CD 구축하기 (2)"
+title: "홈랩 #8 - CI/CD 구축해서 배포 자동화하기 (2)"
 date: 2025-02-28T07:47:18+09:00
 draft: false
 description: "홈랩 쿠버네티스 환경에서 GitOps 기반의 프로젝트 자동화 시스템을 구축하고 완전한 CI/CD 파이프라인을 완성하는 방법을 설명한다."
@@ -14,7 +14,7 @@ tags:
         "argo-workflows",
         "helm",
     ]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요
