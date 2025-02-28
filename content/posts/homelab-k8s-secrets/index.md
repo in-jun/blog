@@ -528,8 +528,6 @@ argo-cd:
               emptyDir: {}
 ```
 
-이 설정은 ArgoCD Repo Server에 사이드카 컨테이너를 추가하고 플러그인 바이너리를 설치하는 과정이다.
-
 ### 2. ArgoCD용 Vault 역할 생성
 
 Vault에 접속하여 ArgoCD용 정책과 역할을 생성한다:
