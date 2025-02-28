@@ -227,6 +227,13 @@ addEventListener("fetch", (event) => {
 });
 ```
 
+이 코드는 다음과 같은 주요 기능을 제공한다:
+
+1. **기본 인증**: 사용자 이름과 비밀번호로 요청을 인증한다.
+2. **IP 주소 검증**: 클라이언트 IP 형식이 유효한지 확인한다.
+3. **DNS 레코드 업데이트**: Cloudflare API를 사용하여 DNS 레코드를 업데이트한다.
+4. **응답 처리**: 성공 또는 실패 상태를 JSON 형식으로 반환한다.
+
 5. "Save and Deploy" 버튼을 클릭한다.
 6. 배포가 완료되면 Worker 이름을 확인한다. 이 이름(예: `your-worker.workers.dev`)을 라우터 설정에 사용할 것이다.
 
@@ -319,6 +326,8 @@ spec:
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
 ```
 
+이 명령어는 Traefik 파드에 접속하여 인증서 정보가 저장된 acme.json 파일의 내용을 확인한다. jq는 JSON 데이터를 보기 좋게 형식화한다.
+
 정상적으로 인증서가 발급되면 `acme.json` 파일에 인증서 정보가 저장된다. 이후 Traefik은 인증서 만료 시점이 다가오면 자동으로 갱신한다.
 
 ## 테스트 애플리케이션 배포
@@ -375,6 +384,12 @@ spec:
               - name: hello-world
                 port: 80
 ```
+
+이 매니페스트는 세 가지 리소스를 정의한다:
+
+1. **Deployment**: nginxdemos/hello 이미지를 실행하는 파드를 배포한다.
+2. **Service**: 배포된 파드에 접근할 수 있는 서비스를 생성한다.
+3. **IngressRoute**: hello.injunweb.com 도메인을 통해 서비스에 접근할 수 있도록 라우팅 규칙을 설정한다.
 
 다음 명령으로 애플리케이션을 배포한다:
 
