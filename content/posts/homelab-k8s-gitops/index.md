@@ -86,6 +86,8 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
+이 명령어는 Helm 설치 스크립트를 다운로드하여 실행 권한을 부여한 후 실행한다. 스크립트는 운영체제를 감지하여 적절한 버전의 Helm을 자동으로 설치한다.
+
 설치가 완료되었는지 확인한다:
 
 ```bash
@@ -106,6 +108,8 @@ version.BuildInfo{Version:"v3.12.0", GitCommit:"...", GitTreeState:"clean", GoVe
 kubectl create namespace argocd
 ```
 
+이 명령어는 ArgoCD 전용 네임스페이스를 생성하여 다른 애플리케이션과 리소스 충돌 없이 독립적으로 운영할 수 있게 한다.
+
 성공하면 `namespace/argocd created` 메시지가 출력된다.
 
 ### Step 3: ArgoCD Helm 차트 설치
@@ -117,6 +121,8 @@ helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 ```
 
+이 명령어는 ArgoCD의 공식 Helm 차트 저장소를 추가하고 최신 정보로 업데이트한다.
+
 그리고 ArgoCD를 설치한다:
 
 ```bash
@@ -124,7 +130,8 @@ helm upgrade --install argocd argo/argo-cd \
   --namespace argocd
 ```
 
-`upgrade --install` 옵션은 이미 설치되어 있으면 업그레이드하고, 없으면 새로 설치한다는 의미다.
+`upgrade --install` 옵션은 이미 설치되어 있으면 업그레이드하고, 없으면 새로 설치한다는 의미다. 이렇게 함으로써 동일한 명령어로 설치와 업데이트를 모두 처리할 수 있어 편리하다.
+
 설치가 정상적으로 완료되면 다음과 비슷한 메시지가 표시된다:
 
 ```
@@ -172,6 +179,8 @@ ArgoCD에 처음 로그인하려면 초기 비밀번호가 필요하다. 기본 
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 
+이 명령어는 쿠버네티스 시크릿에서 ArgoCD의 초기 관리자 비밀번호를 추출한다. 시크릿은 base64로 인코딩되어 있으므로 디코딩하여 평문으로 표시한다.
+
 이 명령어는 base64로 인코딩된 비밀번호를 디코딩하여 보여준다. 출력된 비밀번호는 랜덤하게 생성된 값이며, 나중에 웹 UI에서 변경할 수 있다.
 
 예: `uLxMkS7H2L8A9jZ`와 같은 값이 출력된다.
@@ -184,7 +193,9 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
-이 명령어는 로컬 컴퓨터의 8080 포트를 ArgoCD 서버의 443 포트(HTTPS)로 연결한다. 명령어를 실행한 터미널을 열어둔 상태로 유지해야 한다. 다음과 같은 메시지가 표시된다:
+이 명령어는 로컬 컴퓨터의 8080 포트를 ArgoCD 서버의 443 포트(HTTPS)로 연결한다. 이렇게 하면 로컬에서 웹 브라우저를 통해 ArgoCD UI에 접근할 수 있다.
+
+명령어를 실행한 터미널을 열어둔 상태로 유지해야 한다. 다음과 같은 메시지가 표시된다:
 
 ```
 Forwarding from 127.0.0.1:8080 -> 8080
@@ -274,7 +285,7 @@ spec:
             - CreateNamespace=true # 필요시 네임스페이스 자동 생성
 ```
 
-이 매니페스트는 첫 번째 Git 저장소(app-of-apps)를 가리키며, 그 안의 Helm 차트를 적용한다.
+이 매니페스트는 ArgoCD가 첫 번째 Git 저장소(app-of-apps)를 모니터링하여 변경 사항이 있을 때마다 자동으로 동기화하도록 설정한다. `syncPolicy.automated` 섹션의 설정으로 인해 삭제된 리소스도 자동으로 제거되고, 수동으로 변경된 리소스도 원래 상태로 복구된다.
 
 다음 명령어로 이 매니페스트를 클러스터에 적용한다:
 
@@ -314,7 +325,7 @@ spec:
             - CreateNamespace=true
 ```
 
-이 매니페스트는 두 번째 Git 저장소(k8s-resource)를 가리키며, 그 중에서도 `applicationset.yaml` 파일만 가져온다.
+이 매니페스트는 두 번째 Git 저장소(k8s-resource)를 가리키며, 그 중에서도 `applicationset.yaml` 파일만 가져온다. 이 파일은 다양한 애플리케이션을 자동으로 생성하는 ApplicationSet을 정의한다.
 
 ### 저장소 2: k8s-resource 구조 설계
 
@@ -334,6 +345,8 @@ k8s-resource/
         ├── templates/
         └── values.yaml
 ```
+
+이 구조는 각 애플리케이션이 독립적인 Helm 차트로 관리되도록 하여 모듈성과 재사용성을 높인다.
 
 ### Step 3: ApplicationSet 설정
 
@@ -388,6 +401,8 @@ spec:
                     - ServerSideApply=true
                     - CreateNamespace=true
 ```
+
+이 ApplicationSet은 `apps/*` 패턴에 맞는 모든 디렉토리를 찾아 각각에 대해 ArgoCD 애플리케이션을 생성한다. 디렉토리 이름은 애플리케이션 이름과 네임스페이스 이름으로 사용된다.
 
 > **위 ApplicationSet의 동작 방식**
 >
