@@ -94,7 +94,7 @@ harbor:
                 size: 15Gi
 ```
 
-위 설정에서 주목할 점은 `harborAdminPassword`에 Vault 참조가 사용되었다는 것이다. ArgoCD의 Vault 플러그인을 통해 실제 배포 시 이 값이 Vault에서 가져온 값으로 대체된다.
+위 설정에서 주목할 점은 `harborAdminPassword`에 Vault 참조가 사용되었다는 것이다. ArgoCD의 Vault 플러그인을 통해 실제 배포 시 이 값이 Vault에서 가져온 값으로 대체된다. 또한 레지스트리 스토리지로 15GB의 볼륨을 할당한다.
 
 이제 Traefik IngressRoute를 만들어 Harbor UI에 접근할 수 있게 한다. `templates/ingressroute.yaml` 파일을 생성한다:
 
@@ -129,7 +129,12 @@ spec:
                 namespace: harbor
 ```
 
-여기서는 세부 경로별로 적절한 서비스(portal 또는 core)로 라우팅하도록 설정했다. 또한 대용량 이미지 업로드를 위한 미들웨어도 필요하다. `templates/middleware.yaml` 파일을 생성한다:
+여기서는 두 가지 라우팅 규칙을 정의한다:
+
+1. 기본 경로(`/`)는 Harbor 웹 포털로 라우팅
+2. API, 서비스, 레지스트리 경로는 Harbor 코어 서비스로 라우팅
+
+또한 대용량 이미지 업로드를 위한 미들웨어도 필요하다. `templates/middleware.yaml` 파일을 생성한다:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -144,7 +149,7 @@ spec:
         retryExpression: ""
 ```
 
-이 미들웨어는 대용량 파일 업로드를 처리하기 위한 버퍼 설정을 담당한다.
+이 미들웨어는 대용량 파일 업로드를 처리하기 위한 버퍼 설정을 담당한다. 최대 요청 크기와 메모리 버퍼 크기를 약 1GB로 설정하여 큰 컨테이너 이미지도 원활하게 업로드할 수 있게 한다.
 
 ### 변경 사항 커밋 및 배포
 
@@ -301,7 +306,7 @@ argo-workflows:
         authMode: "server"
 ```
 
-간단한 설정으로 시작하고, 필요에 따라 추가 설정을 할 수 있다.
+간단한 설정으로 시작하고, 필요에 따라 추가 설정을 할 수 있다. 여기서는 서버 인증 모드만 지정했다.
 
 Traefik IngressRoute를 만들어 Argo Workflows UI에 접근할 수 있게 한다. `templates/ingressroute.yaml` 파일을 생성한다:
 
@@ -322,6 +327,8 @@ spec:
               - name: argo-workflows-server
                 port: 2746
 ```
+
+이 라우트는 `argo-workflows.injunweb.com` 호스트로 들어오는 요청을 Argo Workflows 서버로 라우팅한다.
 
 ### 변경 사항 커밋 및 배포
 
@@ -368,6 +375,8 @@ spec:
             auth: none
 ```
 
+이 매니페스트는 NATS 기반의 EventBus를 생성한다. NATS는 경량 메시징 시스템으로, 이벤트 소스와 센서 간의 통신을 담당한다. 3개의 복제본을 생성하여 고가용성을 보장한다.
+
 ### GitHub EventSource 생성
 
 GitHub 웹훅을 받기 위한 EventSource를 생성한다:
@@ -405,6 +414,12 @@ spec:
 EOF
 ```
 
+이 매니페스트는 GitHub 저장소의 푸시 이벤트를 수신하는 EventSource를 생성한다.
+
+-   포트 12000으로 웹훅을 수신한다
+-   injunweb/example-repo 저장소의 푸시 이벤트를 감지한다
+-   GitHub API 토큰은 'github-access' 시크릿에서 가져온다
+
 이제 EventBus와 EventSource의 상태를 확인할 수 있다:
 
 ```bash
@@ -435,6 +450,8 @@ docker tag nginx:alpine harbor.injunweb.com/injunweb/nginx:test
 docker push harbor.injunweb.com/injunweb/nginx:test
 ```
 
+이 명령어는 nginx 이미지를 가져와서 Harbor 레지스트리의 태그를 붙이고 푸시한다.
+
 #### Argo Workflows에서 간단한 워크플로우 실행
 
 간단한 워크플로우 YAML 파일을 생성한다 (`hello-world.yaml`):
@@ -454,6 +471,8 @@ spec:
               command: [cowsay]
               args: ["Hello World!"]
 ```
+
+이 워크플로우는 docker/whalesay 이미지를 사용하여 "Hello World!" 메시지를 출력한다.
 
 워크플로우를 실행한다:
 
