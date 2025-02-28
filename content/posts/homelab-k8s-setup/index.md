@@ -1,10 +1,10 @@
 ---
-title: "쓸만한 홈랩 쿠버네티스 클러스터 구축기"
+title: "홈랩 #1 - 집에서 쿠버네티스를? 쓸만한 홈랩 클러스터 만들기"
 date: 2025-02-24T07:26:52+09:00
 draft: false
 description: "홈랩 쿠버네티스 클러스터를 구축하는 과정을 단계별로 설명한다."
 tags: ["kubernetes", "homelab", "dell", "optiplex", "k8s"]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 시리즈 소개

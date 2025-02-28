@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 외부 접근 구성하기"
+title: "홈랩 #5 - 외부에서도 접속할 수 있게 만들기"
 date: 2025-02-26T14:07:36+09:00
 draft: false
 description: "홈랩 쿠버네티스 클러스터에 외부 접근을 설정하고 Cloudflare를 이용한 DDNS를 구성하는 방법을 설명한다."
 tags: ["kubernetes", "homelab", "traefik", "cloudflare", "ddns", "gitops"]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요

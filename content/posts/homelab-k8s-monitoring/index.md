@@ -1,5 +1,5 @@
 ---
-title: "홈랩 쿠버네티스 모니터링 구축하기"
+title: "홈랩 #9 - 모니터링 시스템 구축하기"
 date: 2025-02-28T08:46:48+09:00
 draft: false
 description: "홈랩 쿠버네티스 환경에 Prometheus, Grafana, Loki를 설치하여 간단한 모니터링 시스템을 구축하는 방법을 설명한다."
@@ -13,7 +13,7 @@ tags:
         "loki",
         "gitops",
     ]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요

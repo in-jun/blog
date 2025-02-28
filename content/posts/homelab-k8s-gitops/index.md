@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스에 GitOps 도입하기"
+title: "홈랩 #2 - ArgoCD를 활용한 GitOps 환경 구축"
 date: 2025-02-25T03:06:44+09:00
 draft: false
 description: "홈랩 쿠버네티스 환경에 ArgoCD를 설치하여 GitOps 기반 인프라를 구축하는 방법을 설명한다."
 tags: ["kubernetes", "homelab", "gitops", "argocd", "helm"]
-series: ["홈랩 쿠버네티스"]
+series: ["홈랩"]
 ---
 
 ## 개요
@@ -304,7 +304,7 @@ spec:
             recurse: false # 하위 디렉토리 검색 안 함
             include: "applicationset.yaml" # applicationset.yaml 파일만 포함
     destination:
-        server: {{ .Values.spec.destination.server }} # Helm 값에서 서버 주소 가져옴
+        server: { { .Values.spec.destination.server } } # Helm 값에서 서버 주소 가져옴
         namespace: argocd
     syncPolicy:
         automated:
