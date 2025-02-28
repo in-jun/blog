@@ -65,6 +65,8 @@ dependencies:
       repository: "https://prometheus-community.github.io/helm-charts"
 ```
 
+이 파일은 Prometheus Community에서 제공하는 kube-prometheus-stack 차트의 68.1.0 버전을 사용하도록 정의한다.
+
 ### values.yaml 생성
 
 `values.yaml` 파일을 다음과 같이 작성한다:
@@ -188,6 +190,8 @@ spec:
               - name: kube-prometheus-stack-grafana
                 port: 80
 ```
+
+이 IngressRoute는 내부 네트워크에서만 접근 가능하도록 `intweb`과 `intwebsec` 엔트리포인트를 사용한다. `prometheus.injunweb.com`은 Prometheus 서버로, `grafana.injunweb.com`은 Grafana로 라우팅된다.
 
 ### 변경사항 커밋 및 배포
 
