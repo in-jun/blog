@@ -108,11 +108,23 @@ sudo systemctl restart containerd
 sudo kubeadm config images pull
 ```
 
+위 명령어를 실행하면 아래와 같은 과정이 진행된다:
+
+1. 패키지 관리자 업데이트 및 필요한 의존성 설치
+2. 도커 저장소 추가 및 도커 설치
+3. 쿠버네티스 저장소 추가 및 kubelet, kubeadm, kubectl 설치
+4. 스왑 비활성화 (쿠버네티스 요구사항)
+5. iptables 설정 및 커널 모듈 로드
+6. containerd 설정 및 재시작
+7. 필요한 쿠버네티스 이미지 다운로드
+
 모든 노드에 필요한 패키지 설치가 완료되었다면, 이제 마스터 노드에서만 아래 명령어를 실행하여 쿠버네티스 클러스터를 초기화한다.
 
 ```bash
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 ```
+
+`--pod-network-cidr` 옵션은 파드 네트워크의 IP 주소 범위를 지정하며, 여기서는 Calico 네트워크 플러그인에 맞게 설정했다.
 
 초기화가 완료되면 다음과 같은 메시지가 출력된다.
 
@@ -144,11 +156,15 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
+이 명령어는 쿠버네티스 관리자 설정 파일을 현재 사용자 디렉토리로 복사하고 적절한 권한을 부여하여 kubectl 명령어를 실행할 수 있게 한다.
+
 이제 쿠버네티스 클러스터는 구성되었지만, 노드 간 통신을 위한 네트워크 플러그인이 필요하다. 마스터 노드에서 아래 명령어를 실행하여 Calico 네트워크 플러그인을 설치한다. Calico를 선택한 이유는 높은 성능과 보안 정책 지원 때문이다. Calico는 BGP를 사용하여 효율적인 네트워크 라우팅을 제공하고, 네트워크 정책을 통해 파드 간 트래픽을 세밀하게 제어할 수 있다.
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
 ```
+
+이 명령어는 Calico의 모든 필수 구성 요소를 설치하여 노드 간 네트워크 통신이 가능하도록 한다.
 
 ## 로드밸런서 설치
 
@@ -159,6 +175,8 @@ kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
 ```
+
+이 명령어는 MetalLB의 컨트롤러와 스피커 컴포넌트를 설치한다.
 
 설치가 제대로 되었는지 다음 명령어로 확인한다.
 
