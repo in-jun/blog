@@ -65,6 +65,8 @@ spec:
         - 192.168.0.200-192.168.0.201
 ```
 
+이 매니페스트는 MetalLB가 로드밸런서 서비스에 할당할 수 있는 IP 주소 풀을 정의한다. 내부용과 외부용 서비스를 위해 두 개의 IP(192.168.0.200-201)를 포함한다.
+
 `apps/traefik/templates/l2advertisement.yaml` 파일:
 
 ```yaml
@@ -77,6 +79,8 @@ spec:
     ipAddressPools:
         - traefik-ip-pool
 ```
+
+이 매니페스트는 MetalLB의 Layer 2 모드 광고 설정을 정의한다. 이를 통해 정의된 IP 주소 풀이 네트워크에 광고되어 트래픽을 라우팅할 수 있게 된다.
 
 ### 2. Helm 차트 구성
 
@@ -94,6 +98,8 @@ dependencies:
       version: "33.2.1"
       repository: "https://traefik.github.io/charts"
 ```
+
+이 파일은 Traefik Helm 차트의 버전과 저장소 정보를 정의한다. 공식 Traefik 차트 저장소에서 v33.2.1 버전을 사용할 것이다.
 
 `apps/traefik/values.yaml` 파일에는 다양한 설정이 포함되어 있다. 주요 부분만 설명하겠다:
 
@@ -137,7 +143,7 @@ ports:
             certResolver: "letsencrypt"
 ```
 
-여기서 `web`과 `websecure`는 외부용 엔트리포인트, `intweb`과 `intwebsec`는 내부용 엔트리포인트이다. 각 엔트리포인트는 다른 포트를 사용하지만, 외부에는 동일한 표준 포트(80, 443)로 노출된다.
+여기서 `web`과 `websecure`는 외부용 엔트리포인트, `intweb`과 `intwebsec`는 내부용 엔트리포인트이다. 각 엔트리포인트는 다른 포트를 사용하지만, 외부에는 동일한 표준 포트(80, 443)로 노출된다. `expose` 설정을 통해 각 엔트리포인트가 어떤 서비스(내부 또는 외부)에 노출될지 결정한다.
 
 #### Let's Encrypt 설정
 
@@ -151,7 +157,7 @@ certificatesResolvers:
             storage: /data/acme.json
 ```
 
-이 설정은 Let's Encrypt를 사용하여 SSL/TLS 인증서를 자동으로 발급하고 갱신하도록 한다. 참고로 Let's Encrypt의 HTTP 챌린지 방식은 외부에서 접근이 가능해야 인증서 발급이 가능하다. 따라서 인증서 발급은 다음 글에서 다룰 외부 접근 설정이 완료된 이후에 정상적으로 동작할 것이다.
+이 설정은 Let's Encrypt를 사용하여 SSL/TLS 인증서를 자동으로 발급하고 갱신하도록 한다. HTTP 챌린지 방식은 도메인에 대한 제어권을 증명하기 위해 HTTP 요청을 사용한다. 인증서 발급은 다음 글에서 다룰 외부 접근 설정이 완료된 이후에 정상적으로 동작할 것이다.
 
 #### 내부/외부 서비스 분리
 
@@ -176,7 +182,7 @@ service:
 1. **기본 서비스**: 이름이 `traefik`으로, IP 주소 `192.168.0.201`을 가지며, 외부에서 접근 가능한 서비스를 위한 것이다.
 2. **내부용 서비스**: 이름이 `traefik-internal`로, IP 주소 `192.168.0.200`을 가지며, 내부 관리 서비스를 위한 것이다.
 
-참고로 이 IP 주소들은 DHCP 서버 설정에서 제외되어야 충돌이 발생하지 않는다. 홈 네트워크에서 사용 중인 라우터의 DHCP 범위를 확인하고 필요하다면 이 두 IP를 제외하도록 설정하자.
+`metallb.universe.tf/loadBalancerIPs` 어노테이션을 사용하여 각 서비스에 특정 IP를 할당한다. 이 IP 주소들은 DHCP 서버 설정에서 제외되어야 충돌이 발생하지 않는다.
 
 #### 권한 및 인증서 설정
 
@@ -209,7 +215,7 @@ podSecurityContext:
     runAsUser: 65532
 ```
 
-이 설정은 인증서 저장을 위한 볼륨 권한을 설정하고, Longhorn 스토리지 클래스를 사용하여 데이터를 저장한다.
+이 설정은 인증서 저장을 위한 볼륨 권한을 설정하고, Longhorn 스토리지 클래스를 사용하여 데이터를 저장한다. 초기화 컨테이너를 사용하여 적절한 권한과 소유권을 설정함으로써 Traefik이 인증서 파일을 안전하게 저장하고 관리할 수 있게 한다.
 
 ### 3. GitOps로 배포하기
 
@@ -262,6 +268,8 @@ spec:
                 port: 80
 ```
 
+이 매니페스트는 `argocd.injunweb.com` 호스트에 대한 요청을 내부 엔트리포인트(`intweb`, `intwebsec`)를 통해 ArgoCD 서버로 라우팅한다.
+
 Longhorn UI를 위한 `apps/longhorn-system/templates/ingressroute.yaml` 파일:
 
 ```yaml
@@ -281,6 +289,8 @@ spec:
               - name: longhorn-frontend
                 port: 80
 ```
+
+이 매니페스트는 `longhorn.injunweb.com` 호스트에 대한 요청을 내부 엔트리포인트를 통해 Longhorn 프론트엔드 서비스로 라우팅한다.
 
 생성한 매니페스트 파일들을 Git 저장소에 추가한다:
 
@@ -306,6 +316,8 @@ ingressRoute:
         entryPoints: ["intweb", "intwebsec"]
 ```
 
+이 설정은 Traefik 대시보드를 `traefik.injunweb.com/dashboard` 경로를 통해 접근할 수 있도록 한다. `api@internal` 서비스는 Traefik 내부 API를 가리키며, 이를 통해 대시보드가 구현된다.
+
 ### 2. 로컬 호스트 설정
 
 내부 서비스에 쉽게 접근하기 위해 호스트 파일을 수정한다:
@@ -321,6 +333,8 @@ sudo vim /etc/hosts
 ```
 192.168.0.200 traefik.injunweb.com argocd.injunweb.com longhorn.injunweb.com
 ```
+
+이렇게 하면 도메인 이름이 내부 IP(192.168.0.200)로 확인되어 내부 서비스에 접근할 수 있다.
 
 저장 후 종료한다.
 
