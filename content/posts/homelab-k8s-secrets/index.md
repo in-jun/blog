@@ -9,7 +9,7 @@ series: ["홈랩"]
 
 ## 개요
 
-이전 글에서는 홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고 외부 접근을 구성했다. 이번 글에서는 쿠버네티스 클러스터에서 민감한 정보(비밀번호, API 키, 인증서 등)를 안전하게 관리하기 위한 HashiCorp Vault 설치와 구성 방법을 다룬다.
+[이전 글](homelab-k8s-external-access)에서는 홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고 외부 접근을 구성했다. 이번 글에서는 쿠버네티스 클러스터에서 민감한 정보(비밀번호, API 키, 인증서 등)를 안전하게 관리하기 위한 HashiCorp Vault 설치와 구성 방법을 다룬다.
 
 ![Vault Logo](image.png)
 
@@ -695,4 +695,4 @@ ArgoCD에서 애플리케이션을 생성할 때 "argocd-vault-plugin"을 Config
 
 이번 글에서는 홈랩 쿠버네티스 클러스터에 Vault를 설치하고, 안전한 시크릿 관리 시스템을 구축하는 방법을 알아보았다. 또한 ArgoCD Vault Plugin과 Vault Secrets Operator를 통해 GitOps 방식으로 시크릿을 관리하는 방법도 살펴보았다.
 
-다음 글에서는 CI/CD 파이프라인을 구축하는 방법을 알아볼 것이다.
+[다음 글](homelab-k8s-cicd-1)에서는 CI/CD 파이프라인을 구축하는 방법을 알아볼 것이다.
