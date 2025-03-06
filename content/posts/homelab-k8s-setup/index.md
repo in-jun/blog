@@ -43,7 +43,7 @@ series: ["홈랩"]
 
 ![네트워크 다이어그램](image-5.png)
 
-[이전 포스트](/posts/ubuntu-2404-lts-set-static-ip)를 참고하여 각 노드에 고정 IP를 할당했다. 쿠버네티스 클러스터에서는 노드 간 통신이 매우 중요하기 때문에 고정 IP 설정이 필수적이다. DHCP로 할당된 IP는 재부팅 시 변경될 수 있어 클러스터 안정성을 해칠 수 있다. 또한 고정 IP를 사용하면 서비스 디스커버리와 로드밸런싱 구성이 훨씬 간편해진다.
+[이전 포스트](ubuntu-2404-lts-set-static-ip)를 참고하여 각 노드에 고정 IP를 할당했다. 쿠버네티스 클러스터에서는 노드 간 통신이 매우 중요하기 때문에 고정 IP 설정이 필수적이다. DHCP로 할당된 IP는 재부팅 시 변경될 수 있어 클러스터 안정성을 해칠 수 있다. 또한 고정 IP를 사용하면 서비스 디스커버리와 로드밸런싱 구성이 훨씬 간편해진다.
 
 ## 쿠버네티스 설치
 
@@ -190,11 +190,11 @@ kubectl get pods -n metallb-system
 
 ARP와 NDP에 대해 더 알아보려면 다음 글을 참고하면 된다:
 
--   [ARP 프로토콜 작동 방식](/posts/how-arp-protocol-works/)
--   [IPv6 NDP 이해하기](/posts/understanding-ipv6-ndp/)
+-   [ARP 프로토콜 작동 방식](how-arp-protocol-works)
+-   [IPv6 NDP 이해하기](understanding-ipv6-ndp)
 
 ### 마치며
 
 지금까지의 과정을 통해 기본적인 쿠버네티스 클러스터를 구축하고 MetalLB를 사용하여 로드밸런서까지 설정했다. 이제 기본적인 쿠버네티스 환경이 준비되었다.
 
-다음 글에서는 이 기반 위에 ArgoCD를 설치하고 Git 레포지토리와 연동하여 GitOps의 기반을 구축하는 방법을 알아볼 것이다.
+[다음 글](homelab-k8s-gitops)에서는 이 기반 위에 ArgoCD를 설치하고 Git 레포지토리와 연동하여 GitOps의 기반을 구축하는 방법을 알아볼 것이다.
