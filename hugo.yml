@@ -75,6 +75,7 @@ params:
   keywords: ["DevOps", "Cloud", "AWS", "Kubernetes", "Docker", "Backend"]
   author: "In-Jun Hwang"
   defaultTheme: auto
+  images: ["images/og-image.png"]
 
   editPost:
     URL: "https://github.com/in-jun/blog/tree/main/content"
@@ -92,15 +93,15 @@ params:
 
   assets:
     disableHLJS: true
-    favicon: "icon.png"
-    favicon16x16: "icon.png"
-    favicon32x32: "icon.png"
-    apple_touch_icon: "icon.png"
-    safari_pinned_tab: "icon.png"
+    favicon: "images/icon.png"
+    favicon16x16: "images/icon.png"
+    favicon32x32: "images/icon.png"
+    apple_touch_icon: "images/icon.png"
+    safari_pinned_tab: "images/icon.png"
 
   label:
     text: "In-Jun's Blog"
-    icon: "icon.png"
+    icon: "images/icon.png"
     iconHeight: 35
 
   socialIcons:
