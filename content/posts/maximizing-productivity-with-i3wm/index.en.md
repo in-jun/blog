@@ -82,7 +82,7 @@ Since i3wm provides a keyboard-centric environment, it's important to learn the 
 -   **$mod + r**: Resize mode
 -   **$mod + space**: Toggle between tiling and floating mode
 
-Unlike vim, i3wm uses jkl; as directional keys. This can be changed to the hjkl style in the configuration file if needed. Personally, I found using jkl; as directional keys more convenient.
+Unlike vim, i3wm uses jkl; as directional keys. This can be changed to the hjkl style in the configuration file if needed. Personally, I found using hjkl as directional keys more convenient.
 
 ### Workspace Management
 
