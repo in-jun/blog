@@ -1,7 +1,7 @@
-FROM hugomods/hugo:latest as builder
+FROM hugomods/hugo:latest AS builder
 WORKDIR /src
 COPY . .
-RUN git submodule update --init --recursive && \
+RUN git clone --depth 1 https://github.com/adityatelange/hugo-PaperMod.git themes/PaperMod && \
     hugo --minify
 
 FROM nginx:alpine
