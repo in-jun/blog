@@ -70,9 +70,7 @@ outputs:
 params:
   env: production
 
-  author:
-    name: "In-Jun"
-    email: "me@injun.dev"
+  author: "In-Jun"
 
   description: "A blog about DevOps, Cloud Computing, and Software Engineering"
   keywords: ["DevOps", "Cloud", "AWS", "Kubernetes", "Docker", "Backend"]
