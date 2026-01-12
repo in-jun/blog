@@ -1,7 +1,10 @@
-# 블로그에 오신 것을 환영합니다!
+# Blog
 
-이 블로그는 저의 개발 일지입니다. 경험, 그리고 배운 점들을 공유하는 공간입니다.
+My personal blog about DevOps and Software Engineering.
 
-## 소개
+Visit: [blog.injun.dev](https://blog.injun.dev)
 
--   **Blog**: [Blog](https://blog.injun.dev)
+## Tech Stack
+
+- Hugo
+- [Hugo Clean Theme](https://github.com/in-jun/hugo-clean-theme)
