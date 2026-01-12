@@ -1,3 +1,4 @@
 [submodule "themes/clean-theme"]
 	path = themes/clean-theme
 	url = https://github.com/in-jun/hugo-clean-theme.git
+	branch = main
