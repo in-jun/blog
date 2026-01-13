@@ -25,7 +25,9 @@ NodePort는 설정이 간단하지만 포트 번호를 기억해야 하는 불�
 
 ### Traefik을 선택한 이유
 
-처음에는 Nginx Ingress Controller를 설치했었다. 그러나 Let's Encrypt 인증서 발급을 위해 cert-manager를 별도로 설치하고 적절한 ClusterIssuer를 구성해야 했다. 설정이 복잡했고, 특히 사용자 정의 헤더와 미들웨어 구성에서 여러 번 실패했다. 결국 더 통합된 솔루션을 찾게 되었고, Traefik은 필요한 모든 기능이 단일 패키지로 제공되어 선택하게 되었다.
+처음에는 Nginx Ingress Controller를 설치했었다. 그러나 Let's Encrypt 인증서 발급을 위해 cert-manager를 별도로 설치하고 적절한 ClusterIssuer를 구성해야 했다. 설정이 복잡했고, 특히 사용자 정의 헤더와 미들웨어 구성에서 여러 번 실패했다.
+
+결국 더 통합된 솔루션을 찾게 되었고, Traefik은 필요한 모든 기능이 단일 패키지로 제공되어 선택하게 되었다.
 
 Traefik의 주요 장점:
 

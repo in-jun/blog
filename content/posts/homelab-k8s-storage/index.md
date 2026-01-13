@@ -143,7 +143,7 @@ longhorn:
 
 -   **defaultDataPath**: Longhorn이 노드에서 데이터를 저장할 경로다. 기본값은 `/var/lib/longhorn`이다.
 -   **defaultDataLocality**: `best-effort`로 설정하면 가능한 경우 데이터를 워크로드가 실행 중인 노드에 저장하여 성능을 향상시킨다.
--   **replicaAutoBalance**: `best-effort`로 설정하면 복제본이 노드 간에 자동으로 균형있게 분배되어 노드 간 스토리지 사용량 불균형을 방지한다.
+-   **replicaAutoBalance**: `best-effort`로 설정하면 복제본이 노드 간에 자동으로 균형있게 분배된다. 이를 통해 노드 간 스토리지 사용량 불균형을 방지한다.
 -   **preUpgradeChecker.jobEnabled**: Longhorn 업그레이드 전 사전 검사 작업을 비활성화한다. ArgoCD에서는 이 값을 `false`로 설정해야 오류 없이 동작한다.
 
 변경사항을 커밋하고 푸시한다:
@@ -269,6 +269,6 @@ kubectl exec -it volume-test -- df -h /data
 
 이제 홈랩 쿠버네티스 클러스터에 분산 스토리지 시스템을 구축했다. Longhorn은 홈랩 환경에 적합한 경량 스토리지 솔루션으로, 충분한 데이터 보호 기능을 제공하면서도 리소스 요구사항이 적다.
 
-이전에는 NFS나 로컬 스토리지의 한계로 인해 스테이트풀 애플리케이션을 안정적으로 운영하기 어려웠지만, Longhorn을 통해 클라우드와 유사한 수준의 스토리지 인프라를 홈랩에서도 구축할 수 있게 되었다.
+이전에는 NFS나 로컬 스토리지의 한계로 인해 스테이트풀 애플리케이션을 안정적으로 운영하기 어려웠다. 하지만 Longhorn을 통해 클라우드와 유사한 수준의 스토리지 인프라를 홈랩에서도 구축할 수 있게 되었다.
 
 [다음 글](homelab-k8s-internal-services)에서는 홈랩에 외부 접근이 가능하도록 설정하는 방법을 알아볼 것이다.

@@ -18,7 +18,7 @@ series: ["Homelab"]
 
 ## Overview
 
-In the [previous post](homelab-k8s-cicd-2), we completed the CI/CD system and built a project automation system. This guide explores how to build a basic monitoring system for the homelab Kubernetes cluster. We will install Prometheus and Grafana and configure basic dashboards to provide an at-a-glance view of cluster status. Additionally, we will install Loki for log collection to create an integrated monitoring environment.
+In the [previous post](homelab-k8s-cicd-2), we completed the CI/CD system and built a project automation system. This guide explores how to build a basic monitoring system for the homelab Kubernetes cluster. We will install Prometheus and Grafana and configure basic dashboards to provide an at-a-glance view of cluster status. We will also install Loki for log collection to create an integrated monitoring environment.
 
 ![Grafana](image.png)
 
@@ -342,7 +342,7 @@ You can now access the following URLs in your web browser:
 
 Kube-Prometheus-Stack provides several useful dashboards by default. When you access Grafana, click the "Dashboards" icon in the left menu and check the list of pre-configured dashboards in the "Browse" section.
 
-In particular, the "Kubernetes / Compute Resources" related dashboards in the "General" folder are very useful for understanding cluster resource usage. Additionally, the "Node Exporter" related dashboards allow you to check detailed system metrics for each node, which helps with hardware-level monitoring.
+In particular, the "Kubernetes / Compute Resources" related dashboards in the "General" folder are very useful for understanding cluster resource usage. The "Node Exporter" related dashboards allow you to check detailed system metrics for each node, which helps with hardware-level monitoring.
 
 ## Exploring Logs with Loki
 

@@ -21,11 +21,11 @@ There are several methods for exposing Kubernetes services externally in a homel
 2. **LoadBalancer**: Use load balancer implementations like MetalLB
 3. **Ingress**: Define rules for routing HTTP/HTTPS traffic to services
 
-NodePort is simple to configure but requires remembering port numbers. LoadBalancer requires a separate IP for each service. In contrast, an ingress controller provides various features such as URL path and hostname-based routing, SSL/TLS termination, and authentication, making it the most suitable method for homelab environments.
+NodePort is simple to configure but requires remembering port numbers. LoadBalancer requires a separate IP for each service. In contrast, an ingress controller provides various features such as URL path and hostname-based routing, SSL/TLS termination, and authentication. This makes it the most suitable method for homelab environments.
 
 ### Why Traefik Was Chosen
 
-Initially, I installed the Nginx Ingress Controller. However, it required separately installing cert-manager for Let's Encrypt certificate issuance and configuring an appropriate ClusterIssuer. The configuration was complex, and I encountered several failures particularly with custom headers and middleware configuration. Eventually, I sought a more integrated solution, and Traefik was chosen because it provides all necessary features in a single package.
+Initially, I installed the Nginx Ingress Controller. However, it required separately installing cert-manager for Let's Encrypt certificate issuance and configuring an appropriate ClusterIssuer. The configuration was complex, and I encountered several failures particularly with custom headers and middleware configuration. Eventually, I sought a more integrated solution. Traefik was chosen because it provides all necessary features in a single package.
 
 Key advantages of Traefik:
 
@@ -65,7 +65,7 @@ spec:
         - 192.168.0.200-192.168.0.201
 ```
 
-This manifest defines an IP address pool that MetalLB can allocate to LoadBalancer services. It includes two IPs (192.168.0.200-201) for internal and external services.
+This manifest defines an IP address pool that MetalLB can allocate to LoadBalancer services. The pool includes two IPs (192.168.0.200-201) for internal and external services.
 
 `apps/traefik/templates/l2advertisement.yaml` file:
 
@@ -80,7 +80,7 @@ spec:
         - traefik-ip-pool
 ```
 
-This manifest defines MetalLB's Layer 2 mode advertisement configuration. This allows the defined IP address pool to be advertised on the network so traffic can be routed.
+This manifest defines MetalLB's Layer 2 mode advertisement configuration. The defined IP address pool is advertised on the network so traffic can be routed.
 
 ### 2. Helm Chart Configuration
 
@@ -143,7 +143,7 @@ ports:
             certResolver: "letsencrypt"
 ```
 
-Here, `web` and `websecure` are external entrypoints, while `intweb` and `intwebsec` are internal entrypoints. Each entrypoint uses different ports internally but is exposed externally on the same standard ports (80, 443). The `expose` setting determines which service (internal or external) each entrypoint is exposed to.
+Here, `web` and `websecure` are external entrypoints, while `intweb` and `intwebsec` are internal entrypoints. Each entrypoint uses different ports internally but is exposed externally on the same standard ports (80, 443). The `expose` setting determines which service each entrypoint is exposed to (internal or external).
 
 #### Let's Encrypt Configuration
 
@@ -157,7 +157,7 @@ certificatesResolvers:
             storage: /data/acme.json
 ```
 
-This configuration enables automatic issuance and renewal of SSL/TLS certificates using Let's Encrypt. The HTTP challenge method uses HTTP requests to prove control over the domain. Certificate issuance will work properly after external access configuration is completed, which will be covered in the next post.
+This configuration enables automatic issuance and renewal of SSL/TLS certificates using Let's Encrypt. The HTTP challenge method uses HTTP requests to prove control over the domain. Certificate issuance will work properly after external access configuration is completed. This will be covered in the next post.
 
 #### Internal/External Service Separation
 
@@ -182,7 +182,7 @@ This configuration creates two separate services:
 1. **Default service**: Named `traefik`, with IP address `192.168.0.201`, for externally accessible services.
 2. **Internal service**: Named `traefik-internal`, with IP address `192.168.0.200`, for internal management services.
 
-The `metallb.universe.tf/loadBalancerIPs` annotation assigns specific IPs to each service. These IP addresses should be excluded from DHCP server settings to avoid conflicts.
+The `metallb.universe.tf/loadBalancerIPs` annotation assigns specific IPs to each service. Exclude these IP addresses from DHCP server settings to avoid conflicts.
 
 #### Permissions and Certificate Configuration
 
@@ -215,7 +215,7 @@ podSecurityContext:
     runAsUser: 65532
 ```
 
-This configuration sets up volume permissions for certificate storage and uses the Longhorn storage class to persist data. By using an init container to set appropriate permissions and ownership, Traefik can securely store and manage certificate files.
+This configuration sets up volume permissions for certificate storage and uses the Longhorn storage class to persist data. An init container sets appropriate permissions and ownership. This allows Traefik to securely store and manage certificate files.
 
 ### 3. Deploying with GitOps
 
@@ -316,7 +316,7 @@ ingressRoute:
         entryPoints: ["intweb", "intwebsec"]
 ```
 
-This configuration makes the Traefik dashboard accessible through the `traefik.injunweb.com/dashboard` path. The `api@internal` service points to Traefik's internal API, through which the dashboard is implemented.
+This configuration makes the Traefik dashboard accessible through the `traefik.injunweb.com/dashboard` path. The `api@internal` service points to Traefik's internal API. The dashboard is implemented through this internal API.
 
 ### 2. Local Host Configuration
 
@@ -334,7 +334,7 @@ Add the following line to the hosts file:
 192.168.0.200 traefik.injunweb.com argocd.injunweb.com longhorn.injunweb.com
 ```
 
-This resolves the domain names to the internal IP (192.168.0.200), allowing access to internal services.
+This resolves the domain names to the internal IP (192.168.0.200). You can now access internal services.
 
 Save and exit.
 

@@ -37,21 +37,21 @@ Add the following DNS records in the Cloudflare dashboard:
 -   A record: `injunweb.com` → Public IP address
 -   A record: `*.injunweb.com` → Public IP address (wildcard subdomain)
 
-Configuring a wildcard subdomain (`*.injunweb.com`) allows all subdomains that are not separately registered to resolve to the same IP. This makes management convenient because you don't need to add a DNS record every time you add a new service. For example, subdomains like `hello.injunweb.com`, `blog.injunweb.com`, and `api.injunweb.com` all connect to the same IP without separate configuration. Traefik then routes to the appropriate service based on the hostname.
+Configuring a wildcard subdomain (`*.injunweb.com`) allows all subdomains that are not separately registered to resolve to the same IP. This makes management convenient because you don't need to add a DNS record every time you add a new service. For example, subdomains like `hello.injunweb.com`, `blog.injunweb.com`, and `api.injunweb.com` all connect to the same IP without separate configuration. Traefik routes to the appropriate service based on the hostname.
 
-Cloudflare's proxy feature (orange cloud icon) provides several security features including DDoS protection, caching, and Web Application Firewall (WAF). When this feature is enabled, requests are routed through Cloudflare's servers, which also has the effect of hiding the actual IP address of the domain.
+Cloudflare's proxy feature (orange cloud icon) provides several security features including DDoS protection, caching, and Web Application Firewall (WAF). When this feature is enabled, requests are routed through Cloudflare's servers. This also has the effect of hiding the actual IP address of the domain.
 
 Cloudflare's SSL/TLS setting should be set to "Full" mode to encrypt the connection between Cloudflare and the server as well.
 
 ### 2. Dynamic DNS (DDNS) Configuration
 
-Home internet connections typically use dynamic IPs, so DDNS configuration is necessary. Initially, I tried existing DDNS services like No-IP, DuckDNS, and Dyn. However, these services had several limitations:
+Home internet connections typically use dynamic IPs, so DDNS configuration is necessary. Initially, I tried existing DDNS services like No-IP, DuckDNS, and Dyn. These services had several limitations:
 
 1. **Subdomain limitations**: Most free plans provided only a limited number of subdomains.
 2. **Renewal requirements**: Free services usually required manual renewal every 30 days.
 3. **Limited customization**: Fine-grained control through APIs was difficult.
 
-Since I was already managing the domain with Cloudflare, developing a custom DDNS solution using Cloudflare's API and Workers was a better choice. This approach resolved all limitations and made it easy to manage wildcard domains and multiple subdomains in particular.
+Since I was already managing the domain with Cloudflare, developing a custom DDNS solution using Cloudflare's API and Workers was a better choice. This approach resolved all limitations. It made managing wildcard domains and multiple subdomains particularly easy.
 
 #### Cloudflare Worker Implementation
 
@@ -262,7 +262,7 @@ This code provides the following key features:
 
 #### TP-Link Router DDNS Configuration
 
-DDNS configuration options vary widely across router manufacturers. For TP-Link routers, most natively support well-known DDNS providers such as No-IP and DynDNS. I initially tried to use these default services, but decided to use custom DDNS configuration due to the limitations mentioned above.
+DDNS configuration options vary widely across router manufacturers. For TP-Link routers, most natively support well-known DDNS providers such as No-IP and DynDNS. I initially tried to use these default services. However, I decided to use custom DDNS configuration due to the limitations mentioned above.
 
 Fortunately, TP-Link routers provide a "Custom" DDNS service option:
 
@@ -277,7 +277,7 @@ Fortunately, TP-Link routers provide a "Custom" DDNS service option:
     - **Domain Name**: The domain name to update
       (Replace "your-worker.workers.dev" with your Worker URL here, and keep [USERNAME], [PASSWORD], and [DOMAIN] as-is. The router automatically substitutes these with the appropriate values.)
 
-The URL format was particularly tricky. Initially, I filled in the actual values but it did not work. After several attempts, I discovered that placeholders like [USERNAME], [PASSWORD], and [DOMAIN] must be left as-is for the router to automatically substitute them. Additionally, requests sent by the router did not include its own IP address as a query parameter. Instead, the Worker had to use Cloudflare's "CF-Connecting-IP" header to obtain the IP of the requesting client.
+The URL format was particularly tricky. Initially, I filled in the actual values but it did not work. After several attempts, I discovered that placeholders like [USERNAME], [PASSWORD], and [DOMAIN] must be left as-is for the router to automatically substitute them. Additionally, requests sent by the router did not include its own IP address as a query parameter. The Worker had to use Cloudflare's "CF-Connecting-IP" header to obtain the IP of the requesting client.
 
 ### 3. Router Port Forwarding Configuration
 
@@ -292,7 +292,7 @@ Finally, port forwarding must be configured on the router so that incoming traff
 
 5.  Save and apply the settings.
 
-The important point is to set the Internal Server IP to **192.168.0.201**. This completely isolates the internal load balancer (192.168.0.200) from outside access. This prevents the risk of accidentally exposing management services to the outside.
+The important point is to set the Internal Server IP to **192.168.0.201**. This completely isolates the internal load balancer (192.168.0.200) from outside access, preventing the risk of accidentally exposing management services to the outside.
 
 ## Configuring External Service Routing
 
@@ -316,7 +316,7 @@ spec:
                 port: 80
 ```
 
-The key point here is setting the `entryPoints` to `web` and `websecure` to make it accessible from outside. In the earlier Traefik configuration, these entry points are connected to the external load balancer (192.168.0.201).
+The key point here is setting the `entryPoints` to `web` and `websecure` to make it accessible from outside. In the earlier Traefik configuration, these entry points connect to the external load balancer (192.168.0.201).
 
 ## Verifying Let's Encrypt Certificate Issuance
 
@@ -326,9 +326,9 @@ Once external access is available, Let's Encrypt can verify domain ownership thr
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
 ```
 
-This command accesses the Traefik pod and checks the contents of the acme.json file where certificate information is stored. jq formats the JSON data for readability.
+This command accesses the Traefik pod and checks the contents of the acme.json file where certificate information is stored. The jq command formats the JSON data for readability.
 
-When certificates are issued successfully, certificate information is stored in the `acme.json` file. Traefik then automatically renews certificates when their expiration approaches.
+When certificates are issued successfully, certificate information is stored in the `acme.json` file. Traefik automatically renews certificates when their expiration approaches.
 
 ## Deploying a Test Application
 
@@ -421,7 +421,7 @@ Now access the following URLs from an external network (e.g., mobile data networ
 -   https://longhorn.injunweb.com - Not accessible (as intended)
 -   https://hello.injunweb.com - Accessible
 
-Verify that internal management services are not accessible from outside, and only the test application is accessible from outside. This demonstrates that the service separation strategy is working as intended.
+Verify that internal management services are not accessible from outside and only the test application is accessible from outside. This demonstrates that the service separation strategy is working as intended.
 
 ## Conclusion
 
