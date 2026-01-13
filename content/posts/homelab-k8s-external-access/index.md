@@ -37,9 +37,13 @@ Cloudflare 대시보드에서 다음 DNS 레코드를 추가한다:
 -   A 레코드: `injunweb.com` → 공인 IP 주소
 -   A 레코드: `*.injunweb.com` → 공인 IP 주소 (와일드카드 서브도메인)
 
-와일드카드 서브도메인(`*.injunweb.com`)을 설정하면 별도로 등록하지 않은 모든 서브도메인이 동일한 IP로 연결된다. 이는 새로운 서비스를 추가할 때마다 DNS 레코드를 추가하지 않아도 되므로 관리가 편리하다. 예를 들어 `hello.injunweb.com`, `blog.injunweb.com`, `api.injunweb.com` 등 어떤 서브도메인도 별도 설정 없이 동일한 IP로 연결되고, Traefik이 호스트 이름에 따라 적절한 서비스로 라우팅한다.
+와일드카드 서브도메인(`*.injunweb.com`)을 설정하면 별도로 등록하지 않은 모든 서브도메인이 동일한 IP로 연결된다. 이는 새로운 서비스를 추가할 때마다 DNS 레코드를 추가하지 않아도 되므로 관리가 편리하다.
 
-Cloudflare의 프록시 기능(주황색 구름 아이콘)은 DDoS 방어, 캐싱, 웹 애플리케이션 방화벽(WAF) 등 여러 보안 기능을 제공한다. 이 기능이 활성화되면 요청이 Cloudflare 서버를 통해 라우팅되며, 이는 도메인의 실제 IP 주소를 숨기는 효과도 있다.
+예를 들어 `hello.injunweb.com`, `blog.injunweb.com`, `api.injunweb.com` 등 어떤 서브도메인도 별도 설정 없이 동일한 IP로 연결되고, Traefik이 호스트 이름에 따라 적절한 서비스로 라우팅한다.
+
+Cloudflare의 프록시 기능(주황색 구름 아이콘)은 DDoS 방어, 캐싱, 웹 애플리케이션 방화벽(WAF) 등 여러 보안 기능을 제공한다. 이 기능이 활성화되면 요청이 Cloudflare 서버를 통해 라우팅된다.
+
+이는 도메인의 실제 IP 주소를 숨기는 효과도 있다.
 
 Cloudflare의 SSL/TLS 설정은 "Full" 모드로 설정하여 Cloudflare와 서버 간의 연결도 암호화한다.
 
@@ -51,7 +55,9 @@ Cloudflare의 SSL/TLS 설정은 "Full" 모드로 설정하여 Cloudflare와 서�
 2. **갱신 필요**: 무료 서비스는 보통 30일마다 수동 갱신이 필요했다.
 3. **맞춤 설정 제한**: API를 통한 세밀한 제어가 어려웠다.
 
-이미 Cloudflare로 도메인을 관리하고 있었기 때문에, Cloudflare의 API와 Worker를 활용한 커스텀 DDNS 솔루션을 개발하는 것이 더 나은 선택이었다. 이 방법으로 모든 제한사항을 해결할 수 있었고, 특히 와일드카드 도메인과 다중 서브도메인을 손쉽게 관리할 수 있게 되었다.
+이미 Cloudflare로 도메인을 관리하고 있었기 때문에, Cloudflare의 API와 Worker를 활용한 커스텀 DDNS 솔루션을 개발하는 것이 더 나은 선택이었다. 이 방법으로 모든 제한사항을 해결할 수 있었다.
+
+특히 와일드카드 도메인과 다중 서브도메인을 손쉽게 관리할 수 있게 되었다.
 
 #### Cloudflare Worker 구현
 
@@ -277,7 +283,9 @@ addEventListener("fetch", (event) => {
     - **Domain Name**: 업데이트할 도메인 이름
       (여기서 "your-worker.workers.dev"를 Worker URL로 교체하고, [USERNAME], [PASSWORD], [DOMAIN]은 그대로 유지한다. 이 값들은 라우터가 자동으로 적절한 값으로 대체한다)
 
-URL 양식은 특히 까다로웠다. 처음에는 실제 값으로 채워넣었으나 작동하지 않았고, 여러 시도 끝에 [USERNAME], [PASSWORD], [DOMAIN] 같은 플레이스홀더를 그대로 두어야 라우터가 자동으로 대체한다는 것을 알게 되었다. 또한, 라우터가 보내는 요청에는 그 자체의 IP 주소가 쿼리 파라미터로 포함되지 않았다. 대신 Worker에서 Cloudflare의 "CF-Connecting-IP" 헤더를 사용해 요청한 클라이언트의 IP를 얻어와야 했다.
+URL 양식은 특히 까다로웠다. 처음에는 실제 값으로 채워넣었으나 작동하지 않았고, 여러 시도 끝에 [USERNAME], [PASSWORD], [DOMAIN] 같은 플레이스홀더를 그대로 두어야 라우터가 자동으로 대체한다는 것을 알게 되었다.
+
+또한, 라우터가 보내는 요청에는 그 자체의 IP 주소가 쿼리 파라미터로 포함되지 않았다. 대신 Worker에서 Cloudflare의 "CF-Connecting-IP" 헤더를 사용해 요청한 클라이언트의 IP를 얻어와야 했다.
 
 ### 3. 라우터 포트포워딩 설정
 

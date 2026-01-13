@@ -9,7 +9,7 @@ series: ["Homelab"]
 
 ## Overview
 
-In the [previous post](homelab-k8s-setup), we installed a homelab Kubernetes cluster and completed the basic configuration. This post provides a detailed guide on installing and configuring ArgoCD to manage cluster components using the GitOps approach. The GitOps methodology offers various benefits such as version control, collaboration, and automation by managing infrastructure as code.
+In the [previous post](homelab-k8s-setup), we installed a homelab Kubernetes cluster and completed the basic configuration. This post provides a detailed guide on installing and configuring ArgoCD to manage cluster components using the GitOps approach. The GitOps methodology manages infrastructure as code, offering various benefits such as version control, collaboration, and automation.
 
 ## What is GitOps?
 
@@ -75,7 +75,7 @@ ArgoCD can be installed in several ways, but here we use Helm, a Kubernetes pack
 >
 > Helm is a package manager for Kubernetes. It plays a similar role to apt or yum on Linux, and Homebrew on macOS.
 > It allows you to easily install, upgrade, and delete complex Kubernetes applications by packaging them into "Charts."
-> Helm charts contain multiple Kubernetes manifest files and configuration values, enabling you to deploy complex applications to Kubernetes with a single command.
+> Helm charts contain multiple Kubernetes manifest files and configuration values. This enables you to deploy complex applications to Kubernetes with a single command.
 
 First, install Helm:
 
@@ -107,7 +107,7 @@ In Kubernetes, namespaces are used to logically separate resources. Create a ded
 kubectl create namespace argocd
 ```
 
-This command creates a dedicated namespace for ArgoCD, allowing it to operate independently without resource conflicts with other applications.
+This command creates a dedicated namespace for ArgoCD. This allows it to operate independently without resource conflicts with other applications.
 
 If successful, the message `namespace/argocd created` will be displayed.
 
@@ -129,7 +129,7 @@ helm upgrade --install argocd argo/argo-cd \
   --namespace argocd
 ```
 
-The `upgrade --install` option means it will upgrade if already installed, or install new if not. This approach is convenient because it handles both installation and updates with the same command.
+The `upgrade --install` option means it will upgrade if already installed, or install new if not. This approach handles both installation and updates with the same command, making it very convenient.
 
 When the installation completes successfully, a message similar to the following will be displayed:
 
@@ -178,7 +178,7 @@ To log in to ArgoCD for the first time, you need the initial password. The defau
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 
-This command extracts the initial admin password for ArgoCD from a Kubernetes secret. Since secrets are base64 encoded, it decodes them to display as plain text.
+This command extracts the initial admin password for ArgoCD from a Kubernetes secret. Since secrets are base64 encoded, it decodes them and displays them as plain text.
 
 This command decodes and displays the base64 encoded password. The output password is a randomly generated value that can be changed later in the web UI.
 
@@ -192,7 +192,7 @@ Example: A value like `uLxMkS7H2L8A9jZ` will be output.
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
-This command connects local port 8080 to port 443 (HTTPS) of the ArgoCD server. This allows you to access the ArgoCD UI through a web browser locally.
+This command connects local port 8080 to port 443 (HTTPS) of the ArgoCD server. You can now access the ArgoCD UI through a web browser locally.
 
 You must keep the terminal where you executed the command open. The following message will be displayed:
 
@@ -207,7 +207,7 @@ Forwarding from [::1]:8080 -> 8080
 
 Now access `https://localhost:8080` in your web browser.
 
-**Note**: Since ArgoCD uses HTTPS by default, you may encounter certificate errors in your browser such as "This connection is not secure." In a development environment, you can ignore this and proceed. (Advanced → Proceed to unsafe site)
+**Note**: Since ArgoCD uses HTTPS by default, you may encounter certificate errors in your browser such as "This connection is not secure." In a development environment, you can ignore this and proceed (Advanced → Proceed to unsafe site).
 
 Enter the following information on the login screen:
 
@@ -255,7 +255,7 @@ app-of-apps/
 └── values.yaml           # Values configuration file
 ```
 
-This structure follows the Helm chart format. The `infra-apps-root.yaml` file defines an ArgoCD application that points to the ApplicationSet in the second repository (k8s-resource).
+This structure follows the Helm chart format. The `infra-apps-root.yaml` file defines an ArgoCD application. This application points to the ApplicationSet in the second repository (k8s-resource).
 
 ### Step 1: Configure Root Application
 
@@ -284,7 +284,7 @@ spec:
             - CreateNamespace=true # Automatically create namespace if needed
 ```
 
-This manifest configures ArgoCD to monitor the first Git repository (app-of-apps) and automatically synchronize whenever there are changes. Due to the `syncPolicy.automated` section settings, deleted resources are also automatically removed, and manually changed resources are restored to their original state.
+This manifest configures ArgoCD to monitor the first Git repository (app-of-apps) and automatically synchronize whenever there are changes. The `syncPolicy.automated` section ensures that deleted resources are automatically removed and manually changed resources are restored to their original state.
 
 Apply this manifest to the cluster with the following command:
 
@@ -324,7 +324,7 @@ spec:
             - CreateNamespace=true
 ```
 
-This manifest points to the second Git repository (k8s-resource) and retrieves only the `applicationset.yaml` file. This file defines an ApplicationSet that automatically creates various applications.
+This manifest points to the second Git repository (k8s-resource) and retrieves only the `applicationset.yaml` file. This ApplicationSet automatically creates various applications.
 
 ### Repository 2: k8s-resource Structure Design
 
@@ -399,7 +399,7 @@ spec:
                     - CreateNamespace=true
 ```
 
-This ApplicationSet finds all directories matching the `apps/*` pattern and creates an ArgoCD application for each one. Directory names are used as application names and namespace names.
+This ApplicationSet finds all directories matching the `apps/*` pattern and creates an ArgoCD application for each one. Each directory name is used as both the application name and namespace name.
 
 > **How This ApplicationSet Works**
 >
@@ -424,13 +424,13 @@ This ApplicationSet performs the following tasks:
 1. Finds all subdirectories in the `apps` directory of the `k8s-resource` repository.
 2. Automatically creates an ArgoCD application for each subdirectory (e.g., `apps/example-app`).
 3. Each created application uses the Helm chart from that directory.
-4. Each application is deployed to a namespace with the same name as the directory. (e.g., contents of the `example-app` directory are deployed to the `example-app` namespace)
+4. Each application is deployed to a namespace with the same name as the directory (e.g., contents of the `example-app` directory are deployed to the `example-app` namespace).
 
 ## Complete GitOps Workflow
 
 Now that all configuration is complete, the complete GitOps workflow can be summarized as follows:
 
-1. **Initial Setup**: We directly applied the `app-of-apps.yaml` manifest to the cluster. (`kubectl apply -f app-of-apps.yaml`)
+1. **Initial Setup**: We directly applied the `app-of-apps.yaml` manifest to the cluster (`kubectl apply -f app-of-apps.yaml`).
 
 2. **First Synchronization**:
 
@@ -452,14 +452,13 @@ Now that all configuration is complete, the complete GitOps workflow can be summ
 >
 > This structure may seem complex at first, but it greatly improves scalability and manageability:
 >
-> 1. **Centralized Management**: All infrastructure configuration is managed in Git repositories, making it easy to track changes and collaborate.
+> 1. **Centralized Management**: All infrastructure configuration is managed in Git repositories. This makes it easy to track changes and collaborate.
 >
-> 2. **Automated Deployment**: To add a new application, you simply add a new directory to the Git repository.
->    ArgoCD automatically detects and deploys it.
+> 2. **Automated Deployment**: To add a new application, you simply add a new directory to the Git repository. ArgoCD automatically detects and deploys it.
 >
-> 3. **Consistent Configuration**: All applications are managed with the same patterns and structure, making it easy for new team members to understand and work with.
+> 3. **Consistent Configuration**: All applications are managed with the same patterns and structure. This makes it easy for new team members to understand and work with.
 >
-> 4. **Cluster State Synchronization**: ArgoCD continuously compares the Git repository and cluster states and automatically adjusts when there are differences. This prevents "drift," which is configuration differences.
+> 4. **Cluster State Synchronization**: ArgoCD continuously compares the Git repository and cluster states and automatically adjusts when there are differences. This prevents "drift," which refers to configuration differences.
 
 ## Conclusion
 

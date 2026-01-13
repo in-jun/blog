@@ -13,11 +13,15 @@ This series covers the process of installing a Kubernetes cluster in a homelab e
 
 ![Cluster](image.png)
 
-The hardware setup consists of five Dell OptiPlex Micro units as nodes and TP-Link router and switch for networking. The Dell OptiPlex Micro is a mini PC with low power consumption and can be purchased affordably on the used market. The models purchased are equipped with 9th generation i5 CPUs, 16GB RAM, and 256GB SSDs, providing sufficient specifications to handle Kubernetes workloads.
+The hardware setup consists of five Dell OptiPlex Micro units as nodes and TP-Link router and switch for networking. The Dell OptiPlex Micro is a mini PC with low power consumption and can be purchased affordably on the used market.
+
+The models purchased are equipped with 9th generation i5 CPUs, 16GB RAM, and 256GB SSDs, providing sufficient specifications to handle Kubernetes workloads.
 
 ## OS Installation
 
-First, an operating system must be installed on each node. The Dell OptiPlex Micro units originally came with Windows 10 installed. This was removed and replaced with Ubuntu 24.04 LTS Server (CLI). The server version of Ubuntu was chosen because it has no GUI, resulting in lower resource usage and is optimized for server environments like Kubernetes. Additionally, LTS versions provide long-term support with high stability and continuous security updates, making them suitable for server operations.
+First, an operating system must be installed on each node. The Dell OptiPlex Micro units originally came with Windows 10 installed. This was removed and replaced with Ubuntu 24.04 LTS Server (CLI).
+
+The server version of Ubuntu was chosen because it has no GUI, resulting in lower resource usage and is optimized for server environments like Kubernetes. Additionally, LTS versions provide long-term support with high stability and continuous security updates, making them suitable for server operations.
 
 To install, create a bootable USB drive and proceed with the following steps.
 
@@ -43,7 +47,9 @@ Once the operating system installation is complete, the network must be configur
 
 ![Network diagram](image-5.png)
 
-Following the [previous post](ubuntu-2404-lts-set-static-ip), static IPs were assigned to each node. In a Kubernetes cluster, inter-node communication is critical, making static IP configuration essential. IPs assigned via DHCP can change upon reboot, potentially compromising cluster stability. Additionally, using static IPs makes service discovery and load balancing configuration much simpler.
+Following the [previous post](ubuntu-2404-lts-set-static-ip), static IPs were assigned to each node. In a Kubernetes cluster, inter-node communication is critical, making static IP configuration essential.
+
+IPs assigned via DHCP can change upon reboot, potentially compromising cluster stability. Additionally, using static IPs makes service discovery and load balancing configuration much simpler.
 
 ## Kubernetes Installation
 
@@ -158,7 +164,9 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 These commands copy the Kubernetes administrator configuration file to the current user directory and grant appropriate permissions to enable kubectl command execution.
 
-The Kubernetes cluster is now configured, but a network plugin is needed for inter-node communication. Execute the following command on the master node to install the Calico network plugin. Calico was chosen for its high performance and security policy support. Calico uses BGP to provide efficient network routing and allows fine-grained control of inter-pod traffic through network policies.
+The Kubernetes cluster is now configured, but a network plugin is needed for inter-node communication. Execute the following command on the master node to install the Calico network plugin.
+
+Calico was chosen for its high performance and security policy support. Calico uses BGP to provide efficient network routing and allows fine-grained control of inter-pod traffic through network policies.
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
@@ -168,7 +176,9 @@ This command installs all essential Calico components to enable inter-node netwo
 
 ## Load Balancer Installation
 
-To expose services within the cluster to the outside, a load balancer must be installed. MetalLB is used here. MetalLB is a load balancer commonly used in on-premises environments where, unlike cloud environments, a load balancer is not provided by default. MetalLB was chosen because it enables the implementation of LoadBalancer-type services in Kubernetes even in bare-metal environments. This allows services to be exposed externally in a manner similar to cloud environments, maintaining consistency in development experience.
+To expose services within the cluster to the outside, a load balancer must be installed. MetalLB is used here. MetalLB is a load balancer commonly used in on-premises environments where, unlike cloud environments, a load balancer is not provided by default.
+
+MetalLB was chosen because it enables the implementation of LoadBalancer-type services in Kubernetes even in bare-metal environments. This allows services to be exposed externally in a manner similar to cloud environments, maintaining consistency in development experience.
 
 Install MetalLB with the following command.
 
