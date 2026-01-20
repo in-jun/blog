@@ -1,85 +1,111 @@
 ---
-title: "Dijkstra's Algorithm Explained"
+title: "The Complete Guide to Dijkstra's Algorithm"
 date: 2024-06-17T16:52:43+09:00
-tags: ["Dijkstra", "Dijkstra's", "Algorithm", "Shortest Path"]
-description: "Dijkstra's algorithm, invented by Dutch computer scientist Edsger W. Dijkstra in 1956, is a fundamental algorithm for finding the shortest paths from a starting vertex to all other vertices in a graph. It uses a greedy algorithm approach and achieves O(E log V) time complexity through a priority queue implementation with a Min Heap structure. While it cannot handle negative edge weights and requires the Bellman-Ford algorithm for such cases, it is widely applied in real-world scenarios including network routing protocols (OSPF), GPS navigation systems, social network path finding, and game AI pathfinding."
+tags: ["Dijkstra", "algorithm", "shortest-path", "graph", "priority-queue", "greedy-algorithm"]
+description: "A comprehensive guide covering the history of Dijkstra's algorithm invented at an Amsterdam cafe in 20 minutes in 1956, its greedy algorithm-based working principles, O(E log V) implementation using priority queues, negative weight constraints and solutions, and real-world applications including OSPF routing and GPS navigation."
 draft: false
 ---
 
-## Dijkstra's Algorithm
-
-Dijkstra's algorithm is one of the most important algorithms for finding the shortest paths in a graph. It finds the shortest path from a starting vertex to all other vertices in a weighted graph. The algorithm is similar to breadth-first search (BFS) as it explores the graph while keeping track of the shortest known distance to each vertex.
+Dijkstra's algorithm is the quintessential algorithm for finding the shortest paths from a starting vertex to all other vertices in a weighted graph, invented by Dutch computer scientist Edsger Wybe Dijkstra in 1956 and still serving as a core component in numerous fields including network routing, GPS navigation, and game AI. The algorithm uses a greedy algorithm approach to make optimal choices at each step, and achieves an efficient time complexity of O(E log V) through priority queue implementation, making it practical for large-scale graphs.
 
 ## History of Dijkstra's Algorithm
 
-Edsger W. Dijkstra, a Dutch computer scientist, invented Dijkstra's algorithm in 1956. It is one of the most famous and widely used algorithms in graph theory. Dijkstra reportedly designed the algorithm entirely in his head without using pen and paper. The algorithm plays a crucial role in numerous real-world applications. These include network routing, GPS navigation, and social network analysis. The OSPF (Open Shortest Path First) routing protocol, a cornerstone of modern internet routing, is based on Dijkstra's algorithm. The shortest path finding features in map applications we use daily also utilize variations of this algorithm.
+> **What is Dijkstra's Algorithm?**
+>
+> An algorithm that finds the shortest paths from a single starting vertex to all other vertices in a weighted graph, with the constraint that all edge weights must be non-negative.
+
+Dijkstra's algorithm was born in Amsterdam, Netherlands in 1956, when 26-year-old Edsger W. Dijkstra reportedly conceived the algorithm in approximately 20 minutes while taking a break at an Amsterdam cafe with his fiancée. At the time, Dijkstra was working as a programmer for the ARMAC, an early computer at the Mathematical Centre (Mathematisch Centrum), and while searching for a problem that non-expert audiences could understand for a demonstration of the new computer, he chose the problem of finding the shortest route between two cities.
+
+Interestingly, Dijkstra later revealed in an interview that he designed this algorithm entirely in his head without using pen and paper, explaining that "one of the advantages of not using pen and paper is that you are almost forced to avoid unnecessary complexity." The algorithm was published in 1959 in the journal Numerische Mathematik under the title "A Note on Two Problems in Connexion with Graphs," and although this paper was only 3 pages long, it is regarded as one of the most influential papers in computer science history.
+
+Dijkstra went on to make pioneering contributions in various areas of computer science including structured programming, the THE operating system, and the semaphore concept. He received the Turing Award in 1972 for "fundamental contributions to programming languages" and continued to make tremendous contributions to the advancement of computer science until his passing in 2002.
 
 ## How the Algorithm Works
 
-Dijkstra's algorithm uses a greedy algorithm approach. At each step, it selects the vertex with the shortest distance from the starting vertex among the currently discovered vertices. It then updates the paths to other vertices through this selected vertex. The key principle is that once a vertex's shortest distance is determined, it never changes. This property is mathematically proven under the assumption that all edge weights are non-negative. The algorithm progressively expands from the starting vertex, confirming the shortest path to each vertex. This method efficiently finds the shortest paths to all vertices.
+Dijkstra's algorithm uses a greedy algorithm approach, repeatedly selecting the vertex with the shortest distance from the starting vertex among currently discovered vertices and updating the paths to other vertices through this selected vertex.
 
-### Steps
+### Core Principle: Optimal Substructure
 
-1. Initialize an array to store the distance from the source vertex to each vertex.
+The correctness of Dijkstra's algorithm is based on the optimal substructure property of the shortest path problem, which states that "if the shortest path from A to C passes through B, then the sub-path from A to B must also be the shortest path from A to B." Additionally, under the premise that all edge weights are non-negative, it is mathematically proven that once a vertex's shortest distance is finalized, it never changes. This property justifies the algorithm's greedy approach.
 
-2. Mark the source vertex as visited.
+### Algorithm Execution Steps
 
-3. Add the source vertex to a queue.
+**Step 1: Initialization**
 
-4. Repeat the following until the queue is empty:
+Create an array to store the distance from the starting vertex to each vertex and initialize all values to infinity (INF), set only the starting vertex's distance to 0, and insert the starting vertex into the priority queue as a (distance 0, starting vertex) pair.
 
-    1. Remove a vertex from the queue.
+**Step 2: Select Minimum Distance Vertex**
 
-    2. Explore the neighbors of the vertex.
+Extract the vertex with the shortest distance from the priority queue. If this vertex has already been processed (the distance extracted from the queue is greater than the currently recorded distance), ignore it and select the next vertex.
 
-    3. If the distance from the source vertex to the neighbor is greater than the distance from the source vertex to the current vertex plus the distance from the current vertex to the neighbor, then update the distance from the source vertex to the neighbor.
+**Step 3: Update Adjacent Vertex Distances (Relaxation)**
 
-    4. Mark the neighbor as visited and add it to the queue.
+For all adjacent vertices connected to the selected vertex, calculate the distance of the "starting vertex → current vertex → adjacent vertex" path. If this value is smaller than the previously recorded distance to the adjacent vertex, update the distance and insert that vertex into the priority queue.
 
-When updating the distance from the source vertex to a neighbor, use a priority queue to explore the vertex with the smallest distance first.
+**Step 4: Repeat**
 
-## Role of the Priority Queue
+Repeat Steps 2 and 3 until the priority queue is empty. When all vertices have been processed, the shortest distance from the starting vertex to each vertex is stored in the array.
 
-The priority queue plays a crucial role in Dijkstra's algorithm. The reason for using a priority queue instead of a regular queue is directly related to the algorithm's efficiency. If a regular queue is used, finding the vertex with the shortest distance requires iterating through all vertices, which takes O(V) time. However, with a priority queue using a Min Heap structure, the minimum value can be extracted in O(log V) time.
+### Working Example
 
-### Min Heap Structure
+Assume we have the following graph. Starting from vertex 1, we find the shortest distance to all vertices.
 
-A priority queue is internally implemented as a Min Heap data structure. This is a complete binary tree where the parent node always has a smaller value than its child nodes. This structure allows both insertion (push) and minimum value extraction (pop) operations to be performed in O(log V) time complexity. Since the smallest value is always at the root of the heap, checking the minimum value is possible in O(1) time.
+```
+Vertices: 1, 2, 3, 4
+Edges: 1→2 (weight 4), 1→3 (weight 1), 2→3 (weight 2), 2→4 (weight 5), 3→4 (weight 8)
+```
 
-### Comparison with and without Priority Queue
+1. Initialization: dist = [0, INF, INF, INF], queue = [(0, 1)]
+2. Select vertex 1: Update dist[2] = 4, dist[3] = 1, queue = [(1, 3), (4, 2)]
+3. Select vertex 3 (distance 1): Update dist[4] = 1+8=9, queue = [(4, 2), (9, 4)]
+4. Select vertex 2 (distance 4): dist[4] = min(9, 4+5=9) = 9 (no change)
+5. Select vertex 4 (distance 9): No adjacent vertices
+6. Result: dist = [0, 4, 1, 9]
 
-Without a priority queue, each step requires a linear search through all unvisited vertices to find the one with the minimum distance, resulting in an overall time complexity of O(V^2). In contrast, using a priority queue requires extracting each vertex from the queue once (O(V log V)) and updating distances for each edge once (O(E log V)). This improves the overall time complexity to O((V + E) log V). In typical graphs where the number of edges is sufficiently larger than the number of vertices, this can be expressed as O(E log V).
+## Priority Queue and Time Complexity
 
-### Example Code
+The efficiency of Dijkstra's algorithm largely depends on whether a priority queue is used. Using a priority queue allows finding the minimum distance vertex in O(log V) each time, greatly improving the overall time complexity.
 
-> Using a priority queue allows us to quickly find the vertex with the smallest distance from the source vertex when updating the distance from the source vertex to a neighbor.
+### Min Heap-Based Priority Queue
+
+A priority queue is internally implemented as a Min Heap data structure, which is a complete binary tree where parent nodes always have smaller values than their child nodes. Since the smallest value is always at the root of the heap, checking the minimum value is possible in O(1), while insertion (push) and minimum value extraction (pop) operations are performed in O(log V), which is the height of the tree.
+
+### Time Complexity Analysis
+
+**With Priority Queue: O((V + E) log V) or O(E log V)**
+
+Each vertex is extracted from the priority queue at most once, taking O(V log V) time. Distance update and queue insertion operations are performed at most once for each edge, taking O(E log V) time. Therefore, the overall time complexity is O((V + E) log V). In connected graphs where E ≥ V - 1, this is generally expressed as O(E log V).
+
+**Without Priority Queue: O(V²)**
+
+When implementing with arrays, a linear search taking O(V) time is required at each step to find the minimum distance vertex, resulting in a total time complexity of O(V²) for V vertices. While this has the advantage of simpler implementation, it is slower than the priority queue version in most cases.
+
+**Sparse Graphs vs Dense Graphs**
+
+In sparse graphs (E ≈ V), the priority queue version achieves O(V log V), which is much faster than the array version's O(V²). In dense graphs (E ≈ V²), the priority queue version becomes O(V² log V), which can be slower than the array version's O(V²). Since sparse graphs are more common in real-world applications, the priority queue implementation is generally preferred.
+
+## Implementation Example
+
+Here is a C++ implementation of Dijkstra's algorithm using a priority queue.
 
 ```cpp
 #include <iostream>
-#include <limits.h>
 #include <vector>
 #include <queue>
-using std::cin;
-using std::cout;
-using std::greater;
-using std::pair;
-using std::priority_queue;
-using std::vector;
+using namespace std;
 
-#define INF 1000000000
+#define INF 1e9
 
-int main()
-{
-    int n, m;
+int main() {
+    int n, m; // n: number of vertices, m: number of edges
     cin >> n >> m;
 
-    vector<vector<pair<int, int>>> graph(n + 1);
-    vector<int> dist(n + 1, INF);
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    vector<vector<pair<int, int>>> graph(n + 1); // adjacency list
+    vector<int> dist(n + 1, INF); // shortest distance array
 
-    for (int i = 0; i < m; i++)
-    {
-        int a, b, c;
+    // Graph input
+    for (int i = 0; i < m; i++) {
+        int a, b, c; // edge from a to b with weight c
         cin >> a >> b >> c;
         graph[a].push_back({b, c});
     }
@@ -87,116 +113,121 @@ int main()
     int start, end;
     cin >> start >> end;
 
+    // Priority queue: (distance, vertex) - min heap based on distance
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
     dist[start] = 0;
     pq.push({0, start});
 
-    while (!pq.empty())
-    {
+    while (!pq.empty()) {
         int cost = pq.top().first;
         int cur = pq.top().second;
         pq.pop();
 
-        if (dist[cur] < cost)
-        {
-            continue;
-        }
+        // Skip if already processed
+        if (dist[cur] < cost) continue;
 
-        for(vector<pair<int,int>> next : graph[cur])
-        {
-            int nextNode = next.first;
-            int nextCost = next.second;
+        // Explore adjacent vertices and update distances
+        for (auto& edge : graph[cur]) {
+            int next = edge.first;
+            int nextCost = edge.second;
 
-            if (dist[nextNode] > cost + nextCost)
-            {
-                dist[nextNode] = cost + nextCost;
-                pq.push({dist[nextNode], nextNode});
+            if (dist[next] > cost + nextCost) {
+                dist[next] = cost + nextCost;
+                pq.push({dist[next], next});
             }
         }
     }
 
-    cout << dist[end] << '
-';
+    if (dist[end] == INF) {
+        cout << "No path" << '\n';
+    } else {
+        cout << dist[end] << '\n';
+    }
 
     return 0;
 }
 ```
 
-## Time Complexity Analysis
+### Code Explanation
 
-The time complexity of Dijkstra's algorithm varies depending on the implementation method. The optimal implementation approach differs based on the characteristics of the graph.
+- `graph`: Stores the graph in adjacency list format, where `graph[a]` stores (destination vertex, weight) pairs for edges starting from vertex a.
+- `dist`: An array storing the shortest distance from the starting vertex to each vertex, initialized to infinity.
+- `pq`: A priority queue implemented as a min heap that stores (distance, vertex) pairs with smaller distances extracted first.
+- `if (dist[cur] < cost) continue`: An optimization condition that skips vertices already processed via a shorter path.
 
-### With Priority Queue: O((V + E) log V) or O(E log V)
+## The Negative Weight Problem
 
-In the priority queue implementation, each vertex is extracted from the queue at most once, taking O(V log V) time. Each edge undergoes distance update and queue insertion operations at most once, taking O(E log V) time. Therefore, the overall time complexity is O((V + E) log V). In a connected graph, since E ≥ V - 1, this is generally expressed as O(E log V). Here, V represents the number of vertices and E represents the number of edges.
-
-### Without Priority Queue: O(V^2)
-
-When implementing with arrays instead of a priority queue, finding the vertex with minimum distance at each step takes O(V) time. For V vertices, this results in a total time complexity of O(V^2). This approach is simpler to implement but is generally slower than using a priority queue. However, it can be efficient for very dense graphs.
-
-### Performance in Dense vs Sparse Graphs
-
-A dense graph has approximately E ≈ V^2 edges. In this case, the priority queue version has a time complexity of O(V^2 log V), which can be slower than the array version's O(V^2). In contrast, a sparse graph has approximately E ≈ V edges. For sparse graphs, the priority queue version achieves O(V log V), which is much faster than the array version's O(V^2). Since sparse graphs are more common in real-world applications, the priority queue implementation is generally preferred.
-
-## Negative Weight Problem
-
-Dijkstra's algorithm has an important constraint: all edge weights must be non-negative. It cannot guarantee correct results for graphs with negative weights.
+Dijkstra's algorithm has an important constraint that all edge weights must be non-negative, and it cannot guarantee correct results for graphs with negative weights.
 
 ### Why It Fails with Negative Weights
 
-The core principle of Dijkstra's algorithm is that once a vertex's shortest distance is determined, it never changes. When negative weights exist, a path through a vertex that was already finalized might later be discovered to be shorter, breaking this assumption. For example, if the distance from vertex A to B is finalized as 5, a later discovered path through C might be shorter: A→C (distance 10) + C→B (distance -8) = 2. Since the algorithm already finalized B, it won't consider this path, producing an incorrect result.
+The core assumption of Dijkstra's algorithm is that "once a vertex's shortest distance is finalized, it never changes." When negative weights exist, a path through an already finalized vertex might later be discovered to be shorter, breaking this assumption.
 
-### Counterexample
+**Counterexample**
 
-Consider a simple graph. Suppose we want to find the shortest path from vertex 1 to vertex 3. The edges are: 1→2 (weight 5), 1→3 (weight 2), and 2→3 (weight -4). Dijkstra's algorithm first finalizes vertex 3 with distance 2, then finalizes vertex 2 with distance 5. However, the actual shortest path is 1→2→3 with distance 1. The algorithm misses this path because it finalized vertex 3 too early.
+```
+Vertices: 1, 2, 3
+Edges: 1→2 (weight 5), 1→3 (weight 2), 2→3 (weight -4)
+Start vertex: 1, Target vertex: 3
+```
+
+Dijkstra's algorithm execution:
+1. Start from vertex 1, dist = [0, INF, INF]
+2. Finalize vertex 3 with distance 2 (1→3 path)
+3. Finalize vertex 2 with distance 5 (1→2 path)
+4. Result: shortest distance to vertex 3 = 2
+
+Actual shortest path:
+- 1→2→3 path: 5 + (-4) = 1
+- Correct answer: 1
+
+Dijkstra's algorithm produces an incorrect result because it finalized vertex 3 too early and failed to consider the 1→2→3 path.
 
 ### Handling Negative Weights
 
-For graphs with negative weights, the Bellman-Ford algorithm must be used. This algorithm has a time complexity of O(VE), which is slower than Dijkstra's. However, it correctly handles negative weights and can detect the presence of negative cycles. The Bellman-Ford algorithm should only be used when there are no negative cycles. If a negative cycle exists, the shortest path is undefined.
+For graphs with negative weights, the Bellman-Ford algorithm must be used. This algorithm has a time complexity of O(VE), which is slower than Dijkstra's, but it correctly handles negative weights and can also detect the presence of negative cycles.
 
 ## Real-World Applications
 
-Dijkstra's algorithm has not only theoretical value but is also widely used in the real world. It is a core technology in many services we use daily.
+Dijkstra's algorithm has not only theoretical value but is also widely used in the real world. It is a core technology behind many services we use daily.
 
 ### Network Routing Protocol (OSPF)
 
-OSPF (Open Shortest Path First), one of the internet's routing protocols, uses Dijkstra's algorithm to calculate the optimal path for data packet transmission across a network. Each router calculates the shortest paths from itself to all other routers based on network topology information. Link costs (bandwidth, delay time, etc.) are used as weights to select the most efficient path.
+OSPF (Open Shortest Path First), one of the internet's representative internal routing protocols, uses Dijkstra's algorithm to calculate the optimal path for data packet transmission across a network. First standardized as RFC 1131 in 1989, it has been a core component in large enterprise networks and Internet Service Provider (ISP) networks ever since. Each router collects network topology information through Link State Advertisements (LSAs) and runs Dijkstra's algorithm to calculate the shortest paths from itself to all other routers.
 
 ### GPS Navigation Systems
 
-Automotive navigation systems use Dijkstra's algorithm or its variants (such as the A* algorithm) to calculate the shortest path from origin to destination. The road network is modeled as a graph, with intersections as vertices and roads as edges. Edge weights are set considering various factors such as distance, estimated travel time, and tolls. The system can dynamically recalculate routes by reflecting real-time traffic information.
-
-### Social Network Path Finding
-
-Features in social networking services that verify the "six degrees of separation" theory or find connection paths between two users utilize Dijkstra's algorithm. Users are modeled as vertices and friendship relationships as edges. If all edge weights are set equally, the shortest path represents the minimum number of connection steps. LinkedIn's "How you're connected" feature and Facebook's friend recommendation system use this principle.
+Automotive navigation and map applications like Google Maps and Kakao Maps use Dijkstra's algorithm or its variants (such as the A* algorithm) to calculate the shortest path from origin to destination, modeling the road network as a graph with intersections as vertices and roads as edges. Edge weights are set considering not just simple distance but various factors including estimated travel time, tolls, and road classifications. The feature that dynamically recalculates routes reflecting real-time traffic information is also based on this algorithm.
 
 ### Game AI Pathfinding
 
-When NPCs (Non-Player Characters) or enemy characters in games track players or move to target locations, they primarily use the A* algorithm, a variant of Dijkstra's algorithm. The map is represented as a grid or graph, with each cell or node as a vertex and possible movement paths as edges. The A* algorithm improves performance by adding a heuristic function to Dijkstra's, prioritizing exploration toward the goal. It is an essential technology in real-time strategy (RTS) games and role-playing games (RPGs).
+When NPCs (Non-Player Characters) or enemy characters in games track players or move to target locations, they primarily use the A* algorithm, a variant of Dijkstra's. A* guides the search direction toward the goal by additionally considering the estimated distance to the target (heuristic), allowing it to find paths faster than Dijkstra's. Optimized versions of this algorithm are used even in real-time strategy (RTS) games like StarCraft and Age of Empires when hundreds of units move simultaneously.
 
-## Comparison with Other Algorithms
+### Social Network Analysis
 
-Besides Dijkstra's, several other algorithms solve the shortest path problem. Each has different characteristics and applicable situations.
+LinkedIn's "How you're connected" feature and Facebook's friend recommendation system use Dijkstra's algorithm to find the shortest connection path between two users. By modeling users as vertices and friendship relationships as edges, with all edge weights set to 1, the shortest path represents the minimum number of connection steps.
 
-### Bellman-Ford Algorithm
+## Comparison with Other Shortest Path Algorithms
 
-The Bellman-Ford algorithm allows negative weights and has a time complexity of O(VE). It has the advantage of being able to detect negative cycles. It is slower than Dijkstra's algorithm but more versatile. It performs V-1 relaxation operations on all edges to find shortest paths. It is suitable for problems where negative weights naturally occur, such as currency arbitrage or network flow problems.
+Besides Dijkstra's, several other algorithms solve the shortest path problem, each with different characteristics and applicable situations.
 
-### Floyd-Warshall Algorithm
+| Algorithm | Time Complexity | Negative Weights | Negative Cycle Detection | Characteristics |
+|-----------|-----------------|------------------|--------------------------|-----------------|
+| Dijkstra | O(E log V) | Not supported | Not supported | Single source, fastest |
+| Bellman-Ford | O(VE) | Supported | Supported | Single source, handles negative weights |
+| Floyd-Warshall | O(V³) | Supported | Detection only | All-pairs shortest paths |
+| A* | O(E log V)* | Not supported | Not supported | Goal-oriented search, requires heuristic |
 
-The Floyd-Warshall algorithm calculates shortest paths between all vertex pairs at once. It has a time complexity of O(V^3). It uses dynamic programming, making implementation simple. It is used when shortest paths between all pairs are needed, not just from a single source. It is efficient for small graphs or when all path information is needed. It can also handle negative weights but cannot handle negative cycles.
+*The time complexity of A* varies depending on heuristic quality and can be much faster than Dijkstra's with an ideal heuristic.
 
-### A* Algorithm
+### Algorithm Selection Guide
 
-The A* algorithm is a variant of Dijkstra's algorithm that adds a heuristic function. It considers the estimated distance to the goal, making the search more goal-oriented. With an appropriate heuristic, it can find the shortest path much faster than Dijkstra's. If the heuristic doesn't overestimate the actual distance (is admissible), it guarantees an optimal solution. It is the most widely used pathfinding algorithm in game development, robotics, and navigation systems.
+- **Non-negative weights, single source**: Dijkstra's algorithm
+- **Negative weights present, single source**: Bellman-Ford algorithm
+- **All-pairs shortest paths needed**: Floyd-Warshall algorithm
+- **Clear target location with usable heuristic**: A* algorithm
 
-### Advantages
+## Conclusion
 
-- Dijkstra's algorithm can find the shortest path from a source vertex to all other vertices in a graph.
-- Using a priority queue achieves efficient time complexity of O(E log V).
-- It always guarantees an optimal solution for graphs without negative weights.
-
-### Disadvantages
-
-- Dijkstra's algorithm cannot be used on graphs with negative weights.
-- It only works from a single source, so finding all-pairs shortest paths requires running it V times.
-- Priority queue implementation requires additional memory.
+Dijkstra's algorithm was conceived by Edsger W. Dijkstra in just 20 minutes at an Amsterdam cafe in 1956. It efficiently finds the shortest paths from a starting vertex to all other vertices in a weighted graph using a greedy algorithm approach. Using a priority queue (Min Heap) achieves a time complexity of O(E log V), making it particularly efficient for sparse graphs. While it has the constraint that all edge weights must be non-negative, requiring the Bellman-Ford algorithm for negative weights, most real-world applications involve only non-negative weights, making Dijkstra's algorithm well-suited. It is used as a core component in numerous fields of modern computing including the OSPF routing protocol, GPS navigation, game AI pathfinding, and social network analysis, and is regarded as one of the most influential algorithms in computer science history.

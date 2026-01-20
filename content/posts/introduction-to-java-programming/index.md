@@ -1,296 +1,627 @@
 ---
-title: "JAVA 알아보기"
+title: "Java 완벽 가이드: 역사부터 핵심 문법까지"
 date: 2024-05-16T08:30:54+09:00
-tags: ["JAVA"]
+tags: ["Java", "Programming", "OOP", "JVM"]
+description: "Java의 탄생 배경과 발전 역사, Write Once Run Anywhere 철학, JVM 동작 원리, 객체지향 프로그래밍의 4대 원칙, 클래스와 인터페이스, 제네릭과 컬렉션 프레임워크까지 Java 프로그래밍의 핵심을 체계적으로 정리"
 draft: false
 ---
 
-## 자바 알아보기
+Java는 1995년 Sun Microsystems에서 James Gosling이 이끄는 팀에 의해 개발된 객체지향 프로그래밍 언어로, "Write Once, Run Anywhere(한 번 작성하면 어디서나 실행)"라는 슬로건 아래 플랫폼 독립적인 실행 환경을 제공하며, 2024년 현재 TIOBE 프로그래밍 언어 순위에서 꾸준히 상위권을 유지하고 있는 세계에서 가장 널리 사용되는 프로그래밍 언어 중 하나이다. 기업용 애플리케이션, 안드로이드 앱, 빅데이터 처리, 웹 서비스 등 다양한 분야에서 핵심 언어로 사용되고 있으며, 강력한 타입 시스템과 풍부한 표준 라이브러리, 그리고 활발한 커뮤니티를 기반으로 지속적으로 발전하고 있다.
 
-### JAVA 란?
+## Java 개요
 
-**JAVA** 는 객체 지향 프로그래밍 언어이다.
-**Sun Microsystems** 에서 개발되었으며, **James Gosling** 이 주도적으로 개발하였다.
-**Write Once, Run Anywhere** 라는 슬로건을 가지고 있으며, 이는 JAVA로 작성된 프로그램은 어떤 플랫폼에서도 실행될 수 있다는 것을 의미한다.
+> **Java란?**
+>
+> Java는 Sun Microsystems(현재 Oracle)에서 개발한 범용 객체지향 프로그래밍 언어로, JVM(Java Virtual Machine) 위에서 실행되어 플랫폼 독립성을 제공하며, 강력한 타입 검사, 자동 메모리 관리(가비지 컬렉션), 멀티스레딩 지원 등의 특징을 가진다.
 
-### JAVA 특징
+### Java의 탄생과 역사
 
-1.  **객체 지향 프로그래밍 언어**
-    -   객체 지향 프로그래밍 언어를 사용하면 코드의 재사용성이 높아지고 유지보수가 쉬워진다.
-2.  **플랫폼 독립성**
-    -   JAVA로 작성된 프로그램은 어떤 플랫폼에서도 실행될 수 있다.
-3.  **멀티 스레드 지원**
-    -   멀티 스레드를 사용하면 여러 작업을 동시에 처리할 수 있어서 프로그램의 성능이 향상된다.
-4.  **동적 로딩 지원**
-    -   동적 로딩을 사용하면 프로그램 실행 시에 필요한 클래스를 동적으로 로딩할 수 있다.
-5.  **예외 처리 지원**
-    -   예외 처리를 사용하면 프로그램 실행 중에 발생한 예외를 처리할 수 있다.
+Java의 역사는 1991년 Sun Microsystems의 "Green Project"에서 시작되었으며, James Gosling, Mike Sheridan, Patrick Naughton이 가전제품에 사용할 프로그래밍 언어를 개발하기 위해 시작한 프로젝트가 Java의 기원이 되었다.
 
-### JAVA 개발 환경 구축
+| 연도 | 버전/이벤트 | 주요 특징 |
+|------|-------------|-----------|
+| **1991** | Green Project 시작 | James Gosling이 Oak 언어 개발 시작 |
+| **1995** | Java 1.0 출시 | "Write Once, Run Anywhere" 슬로건, 웹 애플릿 지원 |
+| **1997** | Java 1.1 | Inner Class, JDBC, JavaBeans 도입 |
+| **1998** | Java 1.2 (J2SE) | Collections Framework, Swing GUI |
+| **2004** | Java 5.0 (1.5) | Generics, Annotations, Enum, Autoboxing |
+| **2006** | Java 6 | 성능 개선, Scripting API |
+| **2010** | Oracle 인수 | Sun Microsystems를 Oracle이 인수 |
+| **2014** | Java 8 (LTS) | Lambda, Stream API, Optional, Date/Time API |
+| **2017** | Java 9 | Module System (Jigsaw), JShell |
+| **2018** | Java 11 (LTS) | var 키워드, HTTP Client API |
+| **2021** | Java 17 (LTS) | Sealed Classes, Pattern Matching |
+| **2023** | Java 21 (LTS) | Virtual Threads, Pattern Matching 확장 |
 
-1.  **JDK(Java Development Kit) 설치**
-    -   JDK를 설치하면 JAVA 프로그램을 개발할 수 있는 환경을 구축할 수 있다.
-2.  **코드 에디터 설치**
-    -   코드 에디터를 설치하면 JAVA 코드를 작성할 수 있다.
-    -   대표적인 코드 에디터: **IntelliJ IDEA**, **Eclipse**
+### Java vs 다른 언어 비교
 
-### JAVA 실행 방법
+| 특성 | Java | C++ | Python | C# |
+|------|------|-----|--------|-----|
+| **패러다임** | 객체지향 | 멀티 패러다임 | 멀티 패러다임 | 객체지향 |
+| **메모리 관리** | 자동 (GC) | 수동 | 자동 (GC) | 자동 (GC) |
+| **플랫폼** | 크로스 플랫폼 (JVM) | 네이티브 | 크로스 플랫폼 | 주로 Windows |
+| **타입 시스템** | 정적 | 정적 | 동적 | 정적 |
+| **실행 방식** | 컴파일+인터프리터 | 컴파일 | 인터프리터 | 컴파일 |
+| **성능** | 중상 | 최상 | 낮음 | 중상 |
+| **학습 난이도** | 중간 | 높음 | 낮음 | 중간 |
 
-1.  **컴파일**
-    -   JAVA 소스 코드를 컴파일하면 바이트 코드가 생성된다.
-    -   컴파일 명령어: `javac HelloWorld.java`
-2.  **실행**
-    -   바이트 코드를 실행하면 JAVA 프로그램이 실행된다.
-    -   실행 명령어: `java HelloWorld`
+## JVM과 Java 실행 환경
 
-## JAVA 기본 문법
+> **JVM이란?**
+>
+> JVM(Java Virtual Machine)은 Java 바이트코드를 실행하는 가상 머신으로, 운영체제와 하드웨어에 독립적인 실행 환경을 제공하여 Java의 "Write Once, Run Anywhere" 철학을 실현하는 핵심 컴포넌트이다.
 
-### 연사자와 반복분
+### Java 실행 과정
 
-1.  **연산자**
-    -   JAVA에서는 다양한 연산자를 제공한다.
-    -   대표적인 연산자: `+`, `-`, `*`, `/`, `%`
-    -   연산자를 사용하면 특정 작업을 수행할 수 있다.
-    -   ```java
-         int a = 10;
-         int b = 20;
-         int c = a + b;
-         System.out.println(c);
-        ```
-2.  **반복문**
-    -   JAVA에서는 다양한 반복문을 제공한다.
-    -   대표적인 반복문: `for`, `while`, `do-while`
-    -   반복문을 사용하면 특정 작업을 반복해서 수행할 수 있다.
-    -   ```java
-         for (int i = 0; i < 10; i++) {
-             System.out.println(i);
-         }
-        ```
+Java 프로그램의 실행 과정은 소스 코드 작성부터 JVM에서의 실행까지 여러 단계를 거치며, 이 과정에서 컴파일러와 JVM이 핵심적인 역할을 수행한다.
 
-### 매서드와 필드
+```
+소스 코드 (.java)
+       ↓ javac (컴파일러)
+바이트코드 (.class)
+       ↓ 클래스 로더
+JVM 메모리 로드
+       ↓ JIT 컴파일러/인터프리터
+네이티브 코드 실행
+```
 
-1.  **매서드**
+### JDK, JRE, JVM 관계
 
-    -   클래스에 정의된 함수이다.
-    -   특정 작업을 수행할 수 있다.
-    -   코드의 재사용성이 높아진다.
-    -   ```java
-         class Car {
-             String color;
-             int speed;
+| 구성요소 | 설명 | 포함 요소 |
+|----------|------|-----------|
+| **JVM** | Java 바이트코드 실행 | Execution Engine, Memory Management |
+| **JRE** | Java 실행 환경 | JVM + 표준 라이브러리 |
+| **JDK** | Java 개발 키트 | JRE + 컴파일러(javac) + 개발 도구 |
 
-             void drive() {
-                 System.out.println("Driving...");
-             }
-         }
-        ```
+### Java 컴파일과 실행
 
-2.  **필드**
+Java 프로그램을 실행하기 위해서는 먼저 소스 코드를 컴파일하여 바이트코드를 생성한 후, JVM에서 실행해야 한다.
 
-    -   클래스에 정의된 변수이다.
-    -   객체의 상태를 나타낼 수 있다.
-    -   객체의 상태를 저장할 수 있다.
-    -   ```java
-         class Car {
-             String color;
-             int speed;
-         }
-        ```
+```java
+// HelloWorld.java
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+```
 
-### 클래스와 객체
+```bash
+# 컴파일: .java → .class (바이트코드)
+javac HelloWorld.java
 
-1.  **클래스**
-    -   JAVA에서는 클래스를 사용하여 객체를 만들 수 있다.
-    -   클래스는 객체를 만들기 위한 틀이다.
-    -   객체를 만들 수 있고, 객체를 사용하여 작업을 수행할 수 있다.
-    -   ```java
-         class Car {
-             String color;
-             int speed;
-         }
-        ```
-2.  **객체**
+# 실행: JVM이 바이트코드 실행
+java HelloWorld
+```
 
-    -   JAVA에서는 클래스를 사용하여 객체를 만들 수 있다.
-    -   객체는 클래스의 인스턴스이다.
-    -   클래스에 정의된 필드와 메서드를 사용할 수 있다.
-    -   ```java
-         Car myCar = new Car();
-         myCar.color = "Red";
-         myCar.speed = 100;
+## 객체지향 프로그래밍의 4대 원칙
 
-        ```
+Java는 객체지향 프로그래밍(OOP) 언어로서 캡슐화, 상속, 다형성, 추상화라는 네 가지 핵심 원칙을 기반으로 설계되었으며, 이 원칙들을 이해하고 적절히 활용하면 유지보수가 용이하고 확장 가능한 코드를 작성할 수 있다.
 
-### 생성자
+### 캡슐화 (Encapsulation)
 
-1.  **생성자**
+> **캡슐화란?**
+>
+> 캡슐화는 데이터(필드)와 해당 데이터를 처리하는 메서드를 하나의 단위(클래스)로 묶고, 외부에서 직접 접근을 제한하여 데이터의 무결성을 보호하는 객체지향의 핵심 원칙이다.
 
-    -   객체를 초기화하는 데 사용된다.
-    -   클래스의 이름과 동일한 이름을 가진다.
-    -   사용하면 객체를 만들 때 필요한 초기화 작업을 수행할 수 있다.
-    -   ```java
-         class Car {
-             String color;
-             int speed;
+```java
+public class BankAccount {
+    // private 필드로 외부 접근 차단
+    private double balance;
+    private String accountNumber;
 
-             Car(String color, int speed) {
-                 this.color = color;
-                 this.speed = speed;
-             }
-         }
-        ```
+    // 생성자
+    public BankAccount(String accountNumber, double initialBalance) {
+        this.accountNumber = accountNumber;
+        this.balance = initialBalance;
+    }
+
+    // getter로 읽기 허용
+    public double getBalance() {
+        return balance;
+    }
+
+    // 검증 로직이 포함된 메서드로 데이터 변경
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
+    }
+
+    public boolean withdraw(double amount) {
+        if (amount > 0 && balance >= amount) {
+            balance -= amount;
+            return true;
+        }
+        return false;
+    }
+}
+```
+
+### 상속 (Inheritance)
+
+> **상속이란?**
+>
+> 상속은 기존 클래스(부모 클래스)의 필드와 메서드를 새로운 클래스(자식 클래스)가 물려받아 코드를 재사용하고 확장하는 메커니즘으로, Java에서는 `extends` 키워드를 사용하며 단일 상속만 지원한다.
+
+```java
+// 부모 클래스
+public class Vehicle {
+    protected String brand;
+    protected int year;
+
+    public Vehicle(String brand, int year) {
+        this.brand = brand;
+        this.year = year;
+    }
+
+    public void start() {
+        System.out.println("Vehicle is starting...");
+    }
+
+    public void stop() {
+        System.out.println("Vehicle is stopping...");
+    }
+}
+
+// 자식 클래스
+public class Car extends Vehicle {
+    private int numberOfDoors;
+
+    public Car(String brand, int year, int numberOfDoors) {
+        super(brand, year);  // 부모 생성자 호출
+        this.numberOfDoors = numberOfDoors;
+    }
+
+    // 메서드 오버라이딩
+    @Override
+    public void start() {
+        System.out.println("Car engine is starting...");
+    }
+
+    // 자식 클래스만의 메서드
+    public void honk() {
+        System.out.println("Beep beep!");
+    }
+}
+```
+
+### 다형성 (Polymorphism)
+
+> **다형성이란?**
+>
+> 다형성은 하나의 인터페이스나 부모 클래스 타입으로 여러 가지 구현체를 다룰 수 있는 능력으로, 메서드 오버라이딩(런타임 다형성)과 메서드 오버로딩(컴파일타임 다형성)을 통해 구현된다.
+
+```java
+// 다형성 예제
+public class PolymorphismExample {
+    public static void main(String[] args) {
+        // 부모 타입으로 자식 객체 참조 (업캐스팅)
+        Vehicle myVehicle = new Car("Toyota", 2023, 4);
+        myVehicle.start();  // "Car engine is starting..." 출력
+
+        // 메서드 오버로딩 예제
+        Calculator calc = new Calculator();
+        System.out.println(calc.add(5, 3));       // int 버전
+        System.out.println(calc.add(5.0, 3.0));   // double 버전
+        System.out.println(calc.add(1, 2, 3));    // 세 개 인자 버전
+    }
+}
+
+class Calculator {
+    // 메서드 오버로딩: 같은 이름, 다른 매개변수
+    public int add(int a, int b) {
+        return a + b;
+    }
+
+    public double add(double a, double b) {
+        return a + b;
+    }
+
+    public int add(int a, int b, int c) {
+        return a + b + c;
+    }
+}
+```
+
+### 추상화 (Abstraction)
+
+> **추상화란?**
+>
+> 추상화는 복잡한 시스템에서 핵심적인 개념이나 기능만을 추출하여 간단한 인터페이스로 표현하는 것으로, Java에서는 추상 클래스(abstract class)와 인터페이스(interface)를 통해 구현된다.
+
+```java
+// 추상 클래스
+public abstract class Animal {
+    protected String name;
+
+    public Animal(String name) {
+        this.name = name;
+    }
+
+    // 추상 메서드: 구현 없음, 자식 클래스에서 반드시 구현
+    public abstract void makeSound();
+
+    // 일반 메서드: 구현 있음
+    public void sleep() {
+        System.out.println(name + " is sleeping...");
+    }
+}
+
+// 구현 클래스
+public class Dog extends Animal {
+    public Dog(String name) {
+        super(name);
+    }
+
+    @Override
+    public void makeSound() {
+        System.out.println(name + " says: Woof!");
+    }
+}
+
+public class Cat extends Animal {
+    public Cat(String name) {
+        super(name);
+    }
+
+    @Override
+    public void makeSound() {
+        System.out.println(name + " says: Meow!");
+    }
+}
+```
+
+## 인터페이스와 추상 클래스
 
 ### 인터페이스
 
-1.  **인터페이스**
-    -   클래스의 일종이다.
-    -   클래스에 정의된 메서드를 구현할 수 있다.
-    -   다형성을 구현할 수 있다.
-    -   ```java
-         interface Animal {
-             void eat();
-             void sleep();
-         }
-        ```
+인터페이스는 클래스가 구현해야 하는 메서드의 시그니처를 정의하는 계약(contract)으로, Java 8부터 default 메서드와 static 메서드도 포함할 수 있게 되었으며, 다중 구현이 가능하여 다중 상속의 한계를 보완한다.
 
-### 상속
+```java
+// 인터페이스 정의
+public interface Flyable {
+    // 추상 메서드 (public abstract 생략)
+    void fly();
 
-1. **상속**
+    // Java 8+ default 메서드
+    default void land() {
+        System.out.println("Landing...");
+    }
 
-    - 클래스의 특성을 다른 클래스에게 물려주는 것을 말한다.
-    - 코드의 재사용성이 높아진다.
-    - 클래스의 계층 구조를 만들 수 있다.
-    - ```java
-       class Animal {
-           void eat() {
-               System.out.println("Eating...");
-           }
-       }
+    // Java 8+ static 메서드
+    static void checkWeather() {
+        System.out.println("Checking weather conditions...");
+    }
+}
 
-       class Dog extends Animal {
-           void bark() {
-               System.out.println("Barking...");
-           }
-       }
-      ```
+public interface Swimmable {
+    void swim();
+}
 
-### 오버라이딩
+// 다중 인터페이스 구현
+public class Duck implements Flyable, Swimmable {
+    @Override
+    public void fly() {
+        System.out.println("Duck is flying!");
+    }
 
-1.  **오버라이딩**
+    @Override
+    public void swim() {
+        System.out.println("Duck is swimming!");
+    }
+}
+```
 
-    -   부모 클래스에 정의된 메서드를 자식 클래스에서 재정의하는 것을 말한다.
-    -   다형성을 구현할 수 있다.
-    -   ```java
-         class Animal {
-             void eat() {
-                 System.out.println("Eating...");
-             }
-         }
+### 추상 클래스 vs 인터페이스
 
-         class Dog extends Animal {
-             void eat() {
-                 System.out.println("Eating dog food...");
-             }
-         }
-        ```
+| 특성 | 추상 클래스 | 인터페이스 |
+|------|-------------|------------|
+| **키워드** | abstract class | interface |
+| **상속/구현** | extends (단일) | implements (다중) |
+| **생성자** | 가능 | 불가능 |
+| **필드** | 모든 접근 제어자 | public static final만 |
+| **메서드** | 모든 종류 | public (Java 8+: default, static) |
+| **사용 목적** | IS-A 관계, 공통 기능 | CAN-DO 관계, 계약 정의 |
 
-### 오버로딩
+## 제네릭 (Generics)
 
-1.  **오버로딩**
+> **제네릭이란?**
+>
+> 제네릭은 클래스나 메서드에서 사용할 데이터 타입을 컴파일 시점에 지정하여 타입 안전성을 보장하고 형변환의 번거로움을 줄여주는 기능으로, Java 5에서 도입되었다.
 
-    -   같은 이름의 메서드를 여러 개 정의하는 것을 말한다.
-    -   메서드의 이름을 동일하게 유지하면서 다양한 매개변수를 사용할 수 있다.
-    -   ```java
-         class Calculator {
-             int add(int a, int b) {
-                 return a + b;
-             }
+```java
+// 제네릭 클래스
+public class Box<T> {
+    private T content;
 
-             int add(int a, int b, int c) {
-                 return a + b + c;
-             }
-         }
-        ```
+    public void set(T content) {
+        this.content = content;
+    }
 
-### 추상화와 다형성
+    public T get() {
+        return content;
+    }
+}
 
-1.  **추상화**
-    -   객체의 공통적인 특성을 추출하는 것을 말한다.
-    -   객체의 공통적인 특성을 나타낼 수 있다.
-    -   ```java
-         abstract class Animal {
-             abstract void eat();
-         }
-        ```
-        > **abstract**란?
-        >
-        > -   추상 클래스나 추상 메서드를 정의할 때 사용된다.
-        > -   추상 클래스나 추상 메서드는 구현되지 않은 메서드를 가지고 있다.
-2.  **다형성**
+// 제네릭 메서드
+public class GenericUtils {
+    public static <T> void printArray(T[] array) {
+        for (T element : array) {
+            System.out.println(element);
+        }
+    }
 
-    -   객체의 다양한 형태를 나타내는 것을 말한다.
-    -   ```java
-         class Animal {
-             void eat() {
-                 System.out.println("Eating...");
-             }
-         }
+    // 제한된 타입 파라미터
+    public static <T extends Number> double sum(T[] numbers) {
+        double total = 0.0;
+        for (T number : numbers) {
+            total += number.doubleValue();
+        }
+        return total;
+    }
+}
 
-         class Dog extends Animal {
-             void eat() {
-                 System.out.println("Eating dog food...");
-             }
-         }
-        ```
+// 사용 예제
+public class GenericExample {
+    public static void main(String[] args) {
+        Box<String> stringBox = new Box<>();
+        stringBox.set("Hello");
+        String str = stringBox.get();  // 형변환 불필요
 
-### 제네릭
+        Box<Integer> intBox = new Box<>();
+        intBox.set(123);
+        Integer num = intBox.get();
 
-1.  **제네릭**
+        Integer[] numbers = {1, 2, 3, 4, 5};
+        System.out.println(GenericUtils.sum(numbers));
+    }
+}
+```
 
-    -   클래스나 메서드를 정의할 때 타입을 파라미터로 사용하는 것이다.
-    -   ```java
-         class Box<T> {
-             T value;
+### 와일드카드
 
-             Box(T value) {
-                 this.value = value;
-             }
-         }
-        ```
+```java
+// 무제한 와일드카드
+public void printList(List<?> list) {
+    for (Object item : list) {
+        System.out.println(item);
+    }
+}
 
-### 컬렉션 프레임워크
+// 상한 제한 와일드카드 (읽기용)
+public double sumOfList(List<? extends Number> list) {
+    double sum = 0.0;
+    for (Number num : list) {
+        sum += num.doubleValue();
+    }
+    return sum;
+}
 
-1.  **컬렉션 프레임워크**
+// 하한 제한 와일드카드 (쓰기용)
+public void addNumbers(List<? super Integer> list) {
+    list.add(1);
+    list.add(2);
+}
+```
 
-    -   데이터를 저장하고 관리하는 데 사용되는 클래스들의 집합을 말한다.
-    -   JAVA에서는 다양한 컬렉션 프레임워크를 제공한다.
-    -   ```java
-            import java.util.ArrayList;
-            import java.util.HashSet;
-            import java.util.HashMap;
-        ```
+## 컬렉션 프레임워크
 
-2.  **List**
-    -   List는 순서가 있는 데이터를 저장하는 데 사용되는 인터페이스이다.
-    -   ```java
-         List<String> list = new ArrayList<>();
-         list.add("Java");
-         list.add("Python");
-         list.add("C++");
-        ```
-3.  **Set**
-    -   Set은 순서가 없는 데이터를 저장하는 데 사용되는 인터페이스이다.
-    -   ```java
-         Set<String> set = new HashSet<>();
-         set.add("Java");
-         set.add("Python");
-         set.add("C++");
-        ```
-4.  **Map**
-    -   Map은 키와 값으로 이루어진 데이터를 저장하는 데 사용되는 인터페이스이다.
-    -   ```java
-         Map<String, String> map = new HashMap<>();
-         map.put("Java", "Object-Oriented Programming Language");
-         map.put("Python", "High-Level Programming Language");
-         map.put("C++", "General-Purpose Programming Language");
-        ```
+> **컬렉션 프레임워크란?**
+>
+> 컬렉션 프레임워크는 데이터를 저장하고 조작하기 위한 표준화된 인터페이스와 클래스의 집합으로, List, Set, Map, Queue 등의 인터페이스와 ArrayList, HashSet, HashMap 등의 구현체를 제공한다.
+
+### 컬렉션 인터페이스 계층 구조
+
+```
+Iterable
+    └── Collection
+            ├── List: 순서 있음, 중복 허용
+            │       ├── ArrayList
+            │       ├── LinkedList
+            │       └── Vector
+            ├── Set: 순서 없음, 중복 불허
+            │       ├── HashSet
+            │       ├── LinkedHashSet
+            │       └── TreeSet
+            └── Queue: FIFO
+                    ├── LinkedList
+                    └── PriorityQueue
+
+Map: 키-값 쌍
+    ├── HashMap
+    ├── LinkedHashMap
+    ├── TreeMap
+    └── Hashtable
+```
+
+### List
+
+List는 순서가 있는 데이터를 저장하는 인터페이스로, 인덱스를 통한 접근이 가능하고 중복 요소를 허용하며, ArrayList, LinkedList, Vector 등의 구현체가 있다.
+
+```java
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+public class ListExample {
+    public static void main(String[] args) {
+        // ArrayList: 동적 배열, 랜덤 접근 빠름
+        List<String> arrayList = new ArrayList<>();
+        arrayList.add("Java");
+        arrayList.add("Python");
+        arrayList.add("JavaScript");
+
+        // 인덱스로 접근
+        System.out.println(arrayList.get(0));  // "Java"
+
+        // 반복
+        for (String lang : arrayList) {
+            System.out.println(lang);
+        }
+
+        // LinkedList: 삽입/삭제 빠름
+        List<Integer> linkedList = new LinkedList<>();
+        linkedList.add(1);
+        linkedList.add(0, 0);  // 맨 앞에 삽입
+        linkedList.remove(1);
+    }
+}
+```
+
+### Set
+
+Set은 중복을 허용하지 않는 요소들의 집합으로, HashSet은 해시 테이블 기반으로 빠른 검색을 제공하고, TreeSet은 정렬된 순서를 유지하며, LinkedHashSet은 삽입 순서를 유지한다.
+
+```java
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class SetExample {
+    public static void main(String[] args) {
+        // HashSet: 순서 보장 안됨, 빠른 검색
+        Set<String> hashSet = new HashSet<>();
+        hashSet.add("Apple");
+        hashSet.add("Banana");
+        hashSet.add("Apple");  // 중복 무시
+        System.out.println(hashSet.size());  // 2
+
+        // TreeSet: 정렬된 순서 유지
+        Set<Integer> treeSet = new TreeSet<>();
+        treeSet.add(3);
+        treeSet.add(1);
+        treeSet.add(2);
+        // 출력: 1, 2, 3 (정렬됨)
+
+        // LinkedHashSet: 삽입 순서 유지
+        Set<String> linkedHashSet = new LinkedHashSet<>();
+        linkedHashSet.add("First");
+        linkedHashSet.add("Second");
+        linkedHashSet.add("Third");
+    }
+}
+```
+
+### Map
+
+Map은 키-값 쌍으로 데이터를 저장하는 인터페이스로, HashMap은 해시 테이블 기반으로 빠른 검색을 제공하고, TreeMap은 키 기준 정렬을 유지하며, LinkedHashMap은 삽입 순서를 유지한다.
+
+```java
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class MapExample {
+    public static void main(String[] args) {
+        // HashMap: 빠른 검색, 순서 보장 안됨
+        Map<String, Integer> hashMap = new HashMap<>();
+        hashMap.put("Java", 1995);
+        hashMap.put("Python", 1991);
+        hashMap.put("JavaScript", 1995);
+
+        // 값 조회
+        Integer year = hashMap.get("Java");
+        System.out.println("Java was released in: " + year);
+
+        // 키 존재 확인
+        if (hashMap.containsKey("Python")) {
+            System.out.println("Python exists!");
+        }
+
+        // 반복
+        for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+
+        // getOrDefault
+        int cYear = hashMap.getOrDefault("C", 1972);
+    }
+}
+```
+
+### 컬렉션 선택 가이드
+
+| 요구사항 | 권장 컬렉션 | 이유 |
+|----------|-------------|------|
+| 순서 유지, 인덱스 접근 | ArrayList | 랜덤 접근 O(1) |
+| 빈번한 삽입/삭제 | LinkedList | 삽입/삭제 O(1) |
+| 중복 제거, 빠른 검색 | HashSet | 검색 O(1) |
+| 정렬된 유일 요소 | TreeSet | 자동 정렬 |
+| 키-값 쌍, 빠른 검색 | HashMap | 검색 O(1) |
+| 키 기준 정렬 | TreeMap | 키 자동 정렬 |
+
+## 예외 처리
+
+> **예외 처리란?**
+>
+> 예외 처리는 프로그램 실행 중 발생할 수 있는 예외 상황을 감지하고 적절히 대응하여 프로그램의 비정상적인 종료를 방지하는 메커니즘으로, Java에서는 try-catch-finally 구문을 사용한다.
+
+### 예외 계층 구조
+
+```
+Throwable
+    ├── Error (복구 불가능)
+    │       ├── OutOfMemoryError
+    │       └── StackOverflowError
+    └── Exception
+            ├── RuntimeException (Unchecked)
+            │       ├── NullPointerException
+            │       ├── ArrayIndexOutOfBoundsException
+            │       └── IllegalArgumentException
+            └── Checked Exception
+                    ├── IOException
+                    ├── SQLException
+                    └── FileNotFoundException
+```
+
+### 예외 처리 예제
+
+```java
+import java.io.*;
+
+public class ExceptionExample {
+    public static void main(String[] args) {
+        // try-catch-finally
+        try {
+            int result = divide(10, 0);
+        } catch (ArithmeticException e) {
+            System.out.println("Division error: " + e.getMessage());
+        } finally {
+            System.out.println("This always executes");
+        }
+
+        // try-with-resources (Java 7+)
+        try (BufferedReader reader = new BufferedReader(new FileReader("file.txt"))) {
+            String line = reader.readLine();
+            System.out.println(line);
+        } catch (IOException e) {
+            System.out.println("IO error: " + e.getMessage());
+        }
+
+        // 다중 catch
+        try {
+            String str = null;
+            str.length();
+        } catch (NullPointerException | IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // throws로 예외 전파
+    public static int divide(int a, int b) throws ArithmeticException {
+        if (b == 0) {
+            throw new ArithmeticException("Cannot divide by zero");
+        }
+        return a / b;
+    }
+}
+```
+
+## 결론
+
+Java는 1995년 탄생 이후 30년 가까이 지속적으로 발전해 온 객체지향 프로그래밍 언어로, JVM 기반의 플랫폼 독립성, 강력한 타입 시스템, 자동 메모리 관리, 풍부한 표준 라이브러리를 제공하며 기업용 애플리케이션 개발의 표준으로 자리잡았다.
+
+객체지향 프로그래밍의 4대 원칙인 캡슐화, 상속, 다형성, 추상화를 이해하고 적절히 활용하면 유지보수가 용이하고 확장 가능한 코드를 작성할 수 있으며, 제네릭과 컬렉션 프레임워크는 타입 안전성과 데이터 구조 활용을 크게 향상시킨다. Java 8의 람다 표현식과 스트림 API, Java 21의 가상 스레드 등 지속적인 언어 발전으로 현대적인 프로그래밍 패러다임도 지원한다.

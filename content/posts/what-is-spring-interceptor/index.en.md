@@ -2,61 +2,73 @@
 title: "What is Spring Interceptor?"
 date: 2024-06-04T17:14:49+09:00
 tags: ["spring", "interceptor", "java"]
+description: "Spring Interceptor is a mechanism for handling common functionality before and after controller invocation, introduced in Spring Framework 2.0 (2006). It handles cross-cutting concerns such as authentication, logging, and execution time measurement through preHandle, postHandle, and afterCompletion methods"
 draft: false
 ---
 
-## Spring Interceptor
+## Concept and History of Spring Interceptor
 
-Interceptor performs similar role to Servlet Filter. Servlet filter provides functionality to intercept and process requests before and after they reach the servlet container. Spring Interceptor provides functionality to intercept and process requests before and after they reach the controller in Spring MVC.
+Spring Interceptor is a feature first introduced in Spring Framework 2.0 in 2006. It is a mechanism that intervenes at key points—before and after controller execution and after view rendering completion—in the MVC architecture to perform common functions. Through the three methods of the `HandlerInterceptor` interface (`preHandle`, `postHandle`, and `afterCompletion`), it handles request preprocessing and postprocessing. The design separates cross-cutting concerns such as authentication, logging, execution time measurement, and common data setup from business logic.
 
-Interceptor is implemented using `HandlerInterceptor` interface. `HandlerInterceptor` interface provides three methods:
+The key difference that distinguishes Spring Interceptor from Servlet Filter lies in the layer where they operate. While Servlet Filters execute at the servlet container level (Tomcat, Jetty, etc.) before reaching the DispatcherServlet, Interceptors execute within the Spring context after the DispatcherServlet finds the appropriate controller through handler mapping but before actually calling the controller. This provides the advantage of fully utilizing Spring features such as dependency injection, bean management, and exception handling.
 
--   `preHandle`: Method executed before the request reaches the controller
--   `postHandle`: Method executed after the request has reached the controller, before the view is rendered
--   `afterCompletion`: Method executed after the view has been rendered
+## Detailed Comparison: Filter vs Interceptor
 
-### Interceptor Implementation
+Servlet Filters and Spring Interceptors are similar in that they both intercept requests to perform preprocessing and postprocessing. However, they have clear differences in their operating location, accessible information, and scope of utilization. The most important difference is in execution timing. Filters execute before reaching the DispatcherServlet, making them suitable for processing independent of the Spring context. In contrast, Interceptors execute within the Spring context, allowing access to controller information and ModelAndView, and enabling consistent exception handling through @ControllerAdvice.
+
+| Aspect | Servlet Filter | Spring Interceptor |
+|--------|----------------|-------------------|
+| Operating Level | Servlet Container Level (before DispatcherServlet) | Spring Context Level (after DispatcherServlet) |
+| Configuration Method | web.xml or @WebFilter | WebMvcConfigurer |
+| Spring Bean Injection | Limited (requires separate configuration) | Easy (automatic DI support) |
+| Accessible Information | ServletRequest/Response | HttpServletRequest/Response, Handler, ModelAndView |
+| Exception Handling | @ControllerAdvice Not Applicable | @ControllerAdvice Applicable |
+| Typical Use Cases | Encoding, CORS, compression, security | Authentication/authorization, logging, API versioning |
+
+## HandlerInterceptor Methods in Detail
+
+### preHandle Method
+
+The `preHandle` method is called before the controller executes and returns a boolean value that determines whether request processing should continue. If it returns `true`, the request is forwarded to the next interceptor or controller. If it returns `false`, request processing is immediately stopped and the controller is not executed. This makes it suitable for gatekeeper roles such as authentication status verification, permission validation, API call rate limiting, request logging, and request start time recording.
+
+### postHandle Method
+
+The `postHandle` method is called after the controller completes execution normally, before the view is rendered. It receives the ModelAndView object as a parameter, allowing addition or modification of model data to be passed to the view. This is useful for uniformly adding data commonly needed across all views (user information, site configuration, menu structure, etc.). However, this method is not executed if an exception occurs in the controller. Its utility is also limited in REST API environments using `@RestController` since there is no view rendering.
+
+### afterCompletion Method
+
+The `afterCompletion` method always executes after view rendering is complete and the response has been sent to the client. It executes even if an exception occurred in the controller, making it suitable for post-processing tasks such as resource cleanup, log recording, and execution time calculation. Through the fourth parameter, the `Exception` object, you can check whether an exception occurred—`null` if no exception occurred, or the actual exception object if one did, enabling implementation of additional logging or notifications.
+
+### Execution Order with Multiple Interceptors
+
+When multiple interceptors are registered, the execution order works similar to a stack structure. `preHandle` executes in registration order (A → B → C), while `postHandle` and `afterCompletion` execute in reverse registration order (C → B → A). If any interceptor's `preHandle` returns `false`, only the `afterCompletion` methods of already-executed interceptors run in reverse order, and `postHandle` is not executed.
+
+## Interceptor Implementation and Registration
+
+To implement an interceptor, implement the `HandlerInterceptor` interface. To register it, override the `addInterceptors` method in a configuration class that implements `WebMvcConfigurer`, adding the interceptor to the `InterceptorRegistry`. You can specify URL patterns to apply with `addPathPatterns`, patterns to exclude with `excludePathPatterns`, and execution order with `order`.
 
 ```java
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public class CustomInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // Code to execute before the request reaches the controller
-        // If false is returned, request is not forwarded to the controller
-        return true;
+        // Logic before controller execution
+        return true; // Returning false stops request processing
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        // Code to execute after the controller is executed normally
-        // Not executed if an exception is thrown
+        // Logic after normal controller execution, before view rendering
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // Code to execute after the view has been sent to the client
-        // Exception object can be used to check exception information if an exception occurred
-        // Exception information can be checked and logged
+        // Logic after view rendering completion (executes even if exception occurred)
     }
 }
 ```
 
-### Interceptor Registration
-
-To register the interceptor, implement the `WebMvcConfigurer` interface and override the `addInterceptors` method.
-
 ```java
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -64,56 +76,68 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new CustomInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/exclude");
+                .excludePathPatterns("/static/**", "/error")
+                .order(1);
     }
 }
 ```
 
-Register the interceptor using `addInterceptor` method on `InterceptorRegistry` by overriding the `addInterceptors` method. Specify the patterns to which the interceptor should be applied using `addPathPatterns` method and specify the patterns to exclude from the interceptor using `excludePathPatterns` method.
+Path patterns use Ant-style pattern matching. `**` means all sub-paths, `*` means a single path segment, and `?` means a single character. For example, `/api/**` applies to all paths starting with `/api`, and `/user/*/profile` matches patterns like `/user/123/profile`.
 
-Implement `preHandle`, `postHandle`, `afterCompletion` methods by implementing the `HandlerInterceptor` interface. Write the code to be executed before the request reaches the controller in the `preHandle` method, write the code to be executed after the controller is executed normally in the `postHandle` method and write the code to be executed after the view is sent to the client in the `afterCompletion` method.
+## Practical Use Cases
 
-## Logging Interceptor Example
+### Authentication Interceptor
 
-Interceptor can be used to implement logging. Logging interceptor can be implemented to log whenever a request comes in using the `preHandle` method.
+The most representative use case for interceptors is authentication and authorization verification. In `preHandle`, check the user's login status and access permissions for specific resources. If conditions are not met, return `false` to block the request and set an appropriate error response (401 Unauthorized, 403 Forbidden, etc.).
 
 ```java
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax javax.servlet.http.HttpServletResponse;
-
-public class LoggingInterceptor implements HandlerInterceptor {
-
-    private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
+@Component
+public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        logger.info("Request URL: {}", request.getRequestURL());
+        String token = request.getHeader("Authorization");
+
+        if (token == null || !tokenService.isValid(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+            return false;
+        }
+
         return true;
     }
 }
 ```
 
-Logging can be done in the `preHandle` method whenever a request comes in. Logging can be done using the `Logger`.
+### Execution Time Measurement Interceptor
+
+This interceptor measures execution time for each request for API performance monitoring. In `preHandle`, store the start time in the `HttpServletRequest` attribute. In `afterCompletion`, calculate the difference with the end time and record it in the log. Using request attributes instead of ThreadLocal allows safe management of independent time information for each request.
 
 ```java
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+@Component
+public class ExecutionTimeInterceptor implements HandlerInterceptor {
 
-@Configuration
-public class WebConfig implements WebMvcConfigurer {
+    private static final Logger logger = LoggerFactory.getLogger(ExecutionTimeInterceptor.class);
 
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoggingInterceptor())
-                .addPathPatterns("/**");
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        request.setAttribute("startTime", System.currentTimeMillis());
+        return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        long startTime = (Long) request.getAttribute("startTime");
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info("Request {} {} completed in {}ms", request.getMethod(), request.getRequestURI(), duration);
     }
 }
 ```
 
-To register the interceptor, implement the `WebMvcConfigurer` interface and override the `addInterceptors` method.
+## Precautions and Best Practices
+
+Several important considerations must be taken into account when implementing interceptors. First, to use Spring beans in interceptors, the interceptor itself must be registered with `@Component` or as a bean in a `@Configuration` class, then used through dependency injection in `WebMvcConfigurer`. Creating it directly with the `new` keyword means the Spring container does not manage it, and dependency injection will not work. Second, since interceptors execute for every request, heavy operations like database queries or external API calls should be avoided, and caching should be utilized to optimize performance. Third, in REST API environments, the utility of `postHandle` is limited, so primarily use `preHandle` for request preprocessing and `afterCompletion` for request postprocessing. Fourth, in cases like authentication failure, returning `false` and setting an appropriate response is clearer than throwing an exception.
+
+## Conclusion
+
+Since its introduction in Spring Framework 2.0 in 2006, Spring Interceptor has established itself as a core mechanism for handling cross-cutting concerns in MVC architecture. Unlike Servlet Filters, it operates within the Spring context, enabling utilization of various Spring features such as dependency injection, exception handling through @ControllerAdvice, and access to Handler and ModelAndView. Through the three methods `preHandle`, `postHandle`, and `afterCompletion`, it provides fine-grained control over the points before and after controller execution and after view rendering. This enables effective implementation of tasks such as authentication, logging, execution time measurement, and common data setup. Understanding the differences from Servlet Filters and selecting the appropriate technology for each situation is key to effective Spring web application development.

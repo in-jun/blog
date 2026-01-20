@@ -1,84 +1,115 @@
 ---
 title: "Deleting Branches After Merge: Why and How"
 date: 2024-07-11T22:27:22+09:00
-tags: ["git", "version control", "collaboration"]
+tags: ["git", "version control", "collaboration", "branch management"]
 description: "A comprehensive guide covering the entire Git branch lifecycle from creation to deletion, methods to safely verify and delete merged branches, automation scripts, GitHub/GitLab auto-delete settings, and recovery procedures for accidentally deleted branches."
 draft: false
 ---
 
-## Step-by-step Breakdown of Merging
+In Git, a branch is a core concept that provides an independent workspace, allowing developers to develop new features or fix bugs without affecting the main codebase. This branch-based workflow has been one of the key design philosophies since Linus Torvalds designed Git in 2005, which is also why Git branches are designed to be much lighter and faster than other version control systems like SVN or CVS. However, deleting branches after merging is just as important as creating them in the first place. This article comprehensively covers the necessity of branch deletion, specific methods, automation, and recovery procedures.
 
-1. **Create a new branch**: Create a new branch from the main branch using `git checkout -b <new-branch-name>`.
+## Branch-Based Development Workflow
 
-2. **Add commits to the branch**: Make code changes in the new branch and commit them in meaningful units.
+The branch-based development workflow in Git has become the standard in most modern software development teams. The general process of this workflow proceeds as follows, and each step can be adjusted or automated depending on the project characteristics and team size.
 
-3. **Push to remote repository**: Upload your working branch to the remote using `git push origin <branch-name>`.
+### Common Branch Workflow
 
-4. **Create a pull request**: Create a pull request on platforms like GitHub to request merging of your changes.
+**1. Create a new branch**: Branch off from the main branch (main or develop), naming the branch to clearly indicate the work content. You can use a command like `git checkout -b feature/user-authentication` to create and checkout the branch simultaneously.
 
-5. **Conduct code reviews**: Team members review the code and request changes if needed.
+**2. Add commits**: Make code changes in the new branch and commit them in meaningful units. Each commit should contain a single logical change, and commit messages should clearly describe the changes.
 
-6. **Perform merge**: Merge the pull request into the main branch once reviews are complete.
+**3. Push to remote repository**: Upload your working branch to the remote repository using the `git push origin feature/user-authentication` command, allowing other team members to review and check your work.
 
-This process enables teams to efficiently collaborate while maintaining code quality. Steps can be adjusted or automated based on the specifics of your project.
+**4. Create a Pull Request**: Create a Pull Request (or Merge Request) on platforms like GitHub, GitLab, or Bitbucket to request merging of changes. This process includes describing the work and assigning reviewers.
 
-## Branch Lifecycle
+**5. Code review**: Team members review the code, provide feedback, and request modifications if necessary. This is an important step for improving code quality and promoting knowledge sharing.
 
-Branches have a clear lifecycle consisting of creation, use, merge, and deletion. Proper management at each stage is necessary. This reduces repository complexity and enhances collaboration efficiency.
+**6. Execute Merge**: Once reviews are complete and approval is received, merge the Pull Request into the main branch. At this point, choose a merging strategy that fits the team's policy, such as Merge Commit, Squash Merge, or Rebase.
 
-### Short-lived Branches vs Long-lived Branches
+**7. Delete branch**: Once merging is complete, the branch is no longer needed, so delete it to keep the repository clean.
 
-Branches are classified into two types based on their lifespan. Each has distinct characteristics and purposes. Projects typically use a combination of both types according to their workflow.
+## Branch Lifecycle and Types
 
-**Short-lived branches** are created for specific tasks and are quickly merged and deleted. Feature branches and Hotfix branches fall into this category. Their lifecycle typically completes within days to weeks. It's recommended to delete them immediately after merging.
+Branches have a clear lifecycle of creation, use, merge, and deletion. Proper management at each stage is necessary. Through this lifecycle management, you can reduce repository complexity and increase collaboration efficiency. Branches are broadly classified into two types based on their lifespan and purpose.
 
-**Long-lived branches** are maintained throughout the entire project duration. These include main, master, develop, and production branches. They are continuously updated and serve as merge targets for multiple short-lived branches. They should never be deleted.
+### Short-lived Branches
 
-### Lifecycle by Branch Type
+> **What are short-lived branches?**
+>
+> Branches created for specific tasks that are quickly merged and deleted. Their lifecycle typically completes within days to weeks, and it is recommended to delete them immediately after merging.
 
-**Feature branches** are created for new feature development. They branch from develop or main. After feature completion, they undergo code review and are merged. They should be deleted immediately after merging to keep the repository clean.
+**Feature branches** are the most common type of short-lived branch, created for new feature development. They branch from develop or main to proceed with feature development. After development completion, they undergo code review and are merged. The general practice is to delete them immediately after merging to keep the repository clean.
 
-**Release branches** are created for deployment preparation. They branch from develop. Version-related work and bug fixes are performed here. After deployment completion, they are merged to both main and develop, then deleted.
+**Bugfix branches** are created for bug fixes and have a similar lifecycle to feature branches, but typically have a shorter lifespan. They are used for non-urgent bug fixes and deleted after merging.
 
-**Hotfix branches** are created for urgent production bug fixes. They branch directly from main. After fixes are complete, they are merged to both main and develop. They should be deleted immediately after merging.
+**Hotfix branches** are created to fix urgent bugs discovered in the production environment. They branch directly from main (or production), and after fixes are complete, they are merged to both main and develop. They should be deleted immediately after merging to clearly indicate completion of the urgent fix.
+
+**Release branches** are created for deployment preparation. They branch from develop to proceed with deployment preparation tasks such as version number updates, final bug fixes, and documentation. After deployment completion, they are merged to both main and develop and then deleted.
+
+### Long-lived Branches
+
+> **What are long-lived branches?**
+>
+> Branches maintained throughout the entire project duration. They are continuously updated and serve as merge targets for multiple short-lived branches. These branches should never be deleted.
+
+**main (or master)** branch contains stable code deployed to the production environment. Direct commits are discouraged, and only merges from other branches occur. All commits must maintain a deployable state.
+
+**develop** branch is where development work for the next release is integrated. It serves as the target for feature branch merges and maintains a state ahead of the main branch while preparing for the next deployment.
+
+**production** or **staging** branches are additional long-lived branches operated depending on the project. They correspond to production and staging environments respectively and are maintained continuously.
 
 ## Why Delete Branches After Merging
 
-Deleting branches after merging provides several important benefits. Firstly, it keeps your repository clean and less cluttered, leading to greater clarity in your development process. It also enhances the performance of Git operations and aids in workflow management by clearly marking the completion of work cycles.
+Deleting merged branches is not just a cleanup task but an essential practice for healthy repository management. The benefits are diverse and contribute to improved productivity for the entire team.
 
-Eliminating unnecessary branches prevents accidental commits to outdated branches and saves storage space. This results in a cleaner Git history for your project, facilitating easier history management.
+### Repository Readability and Management Efficiency
 
-In terms of team collaboration, deleting branches serves as a signal for work completion and improves communication. From a security standpoint, it reduces potential risks by limiting access to outdated code.
+Deleting merged branches keeps the repository clean so developers can only see currently active work. When dozens or hundreds of old branches accumulate, the output of the `git branch` command becomes cluttered and it becomes difficult to find branches that are actually being worked on. This can be a serious problem especially in large-scale projects. Additionally, a clean branch list helps new team members joining the project understand the current ongoing work and allows them to understand the overall state of the project at a glance.
 
-Lastly, minimizing the number of active branches helps developers stay focused on the work at hand, contributing to overall productivity.
+### Git Performance Optimization
 
-## Pre-deletion Verification
+Git can experience performance degradation in some operations as the number of branches increases. Commands like `git branch -a`, `git fetch`, and `git gc` are particularly affected by the number of branches. In large-scale projects with thousands of branches, the execution time of these commands can noticeably increase. Regular branch cleanup helps maintain the overall performance of Git operations.
 
-Before deleting a branch, you must verify its merge status. This prevents accidentally losing unmerged work. Git provides various commands for this purpose.
+### Mistake Prevention and Workflow Clarification
+
+When old merged branches remain, developers can accidentally commit to those branches. This can cause code to be reflected in the wrong place or cause merge conflicts. Such mistakes are particularly easy to make when multiple branches with similar names exist. Branch deletion also serves as a clear signal of work completion, functioning as a communication tool to inform team members that the feature or fix has been completed and integrated into the main codebase.
+
+### Storage Space and Security
+
+Branches themselves don't take up much storage space (Git branches are essentially just pointers to specific commits). However, maintaining branches in the remote repository means those references are cloned together with each clone, and unnecessary data can accumulate over time. From a security perspective, old branches may contain sensitive information or code with vulnerabilities, and cleaning them up can reduce potential security risks.
+
+## Pre-Deletion Verification
+
+Before deleting a branch, you must verify its merge status. This prevents accidentally losing unmerged work. Git provides various commands for this verification.
 
 ### Verifying Merged Branches
 
-To check the list of branches already merged into the current branch, use the `git branch --merged` command. This command displays branches that have been fully merged and can be safely deleted.
+The `git branch --merged` command displays a list of branches already merged into the currently checked-out branch. Branches appearing in this list can be safely deleted because all commits from those branches are included in the current branch.
 
 ```bash
+# List branches merged into the current branch
 git branch --merged
-```
 
-Conversely, to check branches that haven't been merged yet, use the `git branch --no-merged` command. These branches contain unique commits and require caution when deleting.
-
-```bash
-git branch --no-merged
-```
-
-You can also check merge status based on a specific branch. For example, to check branches merged into the main branch, execute the following.
-
-```bash
+# List branches merged into a specific branch (e.g., main)
 git branch --merged main
+
+# List remote branches that are merged
+git branch -r --merged main
+```
+
+Conversely, the `git branch --no-merged` command is used to check branches that haven't been merged yet. These branches have unique commits and require caution when deleting as work may be lost.
+
+```bash
+# List branches not yet merged
+git branch --no-merged
+
+# Branches not merged into a specific branch
+git branch --no-merged main
 ```
 
 ### Checking Local and Remote Branch Status
 
-Verifying the synchronization status between local and remote branches is also important. Use the `-r` option to see remote branch lists, and the `-a` option to see all branches.
+Understanding the synchronization status between local and remote branches is also important. The `-r` option shows only remote branches, the `-a` option shows both local and remote branches, and the `-vv` option shows detailed tracking status and commit differences for each branch.
 
 ```bash
 # Remote branch list
@@ -86,278 +117,365 @@ git branch -r
 
 # Display both local and remote branches
 git branch -a
-```
 
-To check the remote tracking status of a specific branch, use the `-vv` option. This shows which remote branch your local branch is tracking and how far ahead or behind it is.
-
-```bash
+# Include tracking status and ahead/behind information
 git branch -vv
 ```
 
-### Checking Unmerged Commits
+Example output of `git branch -vv` shows which remote branch each branch is tracking and how many commits ahead or behind the remote it is.
 
-You can review differences between branches to check for unmerged commits. Use the `git log` command for this purpose.
+```
+* main              abc1234 [origin/main] Latest commit message
+  feature/login     def5678 [origin/feature/login: ahead 2] Add login feature
+  bugfix/typo       ghi9012 [origin/bugfix/typo: gone] Fix typo
+```
+
+In the above output, branches marked as `gone` indicate that they have already been deleted from the remote but the tracking branch remains locally.
+
+### Checking Commit Differences Between Branches
+
+Before deleting a branch, it's good to check if there are commits that exist only in that branch. You can use the range specification syntax of the `git log` command to check commit differences between branches.
 
 ```bash
 # Check commits only in feature branch and not in main
 git log main..feature
 
-# Check bidirectional differences
-git log main...feature
+# Check bidirectional differences (show commits only in either side)
+git log main...feature --oneline
+
+# Check only the number of commits
+git log main..feature --oneline | wc -l
 ```
 
-## How to Delete Branches After Merge
+## Branch Deletion Methods
 
-### Local Branch Deletion Commands
+### Local Branch Deletion
 
-Git provides two options for deleting local branches. Each has different purposes and safety levels. You should choose appropriately based on the situation.
+Git provides two options for deleting local branches, each with different safety levels and purposes. Choose appropriately based on the situation.
 
-**Safe deletion (`-d` option)** only deletes branches that have been merged. It refuses deletion if unmerged commits exist, preventing data loss. This is the generally recommended method.
+> **Safe deletion (-d option)**
+>
+> The `git branch -d <branch-name>` command only deletes branches that have been merged. If unmerged commits exist, it refuses deletion to prevent accidental data loss.
 
 ```bash
-git branch -d <branch-name>
+# Safe deletion (merged branches only)
+git branch -d feature/user-authentication
+
+# Delete multiple branches at once
+git branch -d feature/login feature/signup bugfix/typo
 ```
 
-When attempting to delete an unmerged branch, the following error message is displayed. This indicates the branch contains work that hasn't been merged yet.
+When attempting to delete an unmerged branch with the `-d` option, Git displays the following error message, warning that the branch contains unique work that hasn't been merged to another branch.
 
-```bash
+```
 error: The branch 'feature-branch' is not fully merged.
 If you are sure you want to delete it, run 'git branch -D feature-branch'.
 ```
 
-**Force deletion (`-D` option)** forcibly deletes a branch regardless of merge status. It deletes even if unmerged commits exist. Recovery can be difficult after deletion, so use it carefully.
+> **Force deletion (-D option)**
+>
+> The `git branch -D <branch-name>` command forcibly deletes a branch regardless of merge status. Since it deletes even if unmerged commits exist, recovery can be difficult after deletion. Use it carefully.
 
 ```bash
-git branch -D <branch-name>
+# Force deletion (regardless of merge status)
+git branch -D experimental-feature
+
+# Used when discarding experimental or no longer needed work
+git branch -D spike/prototype
 ```
 
-This command is useful for discarding experimental branches or unnecessary work. However, you must verify that no important work is included.
+Force deletion is useful when discarding experimental branches, when deciding to re-implement in a different direction, or when cleaning up incorrectly created branches. However, you must verify that no important work is included.
 
-### Deleting Remote Branches
+### Remote Branch Deletion
 
-There are several ways to delete branches in the remote repository. The most commonly used method is using the `git push` command. This must be performed independently from local deletion.
+Deleting branches in the remote repository is an operation independent of local deletion. You can use the `git push` command to delete remote branches, and two syntaxes perform the same function.
 
 ```bash
-# Standard method
-git push origin --delete <branch-name>
+# Standard syntax (recommended)
+git push origin --delete feature/user-authentication
 
-# Alternative syntax (same functionality)
-git push origin :<branch-name>
+# Alternative syntax (using colon)
+git push origin :feature/user-authentication
+
+# Delete multiple branches at once
+git push origin --delete feature/login feature/signup
 ```
 
-When you delete a remote branch, it's removed from the remote repository. However, tracking branches may still remain in other developers' local repositories. Separate commands are needed to clean these up.
+When you delete a remote branch, it is removed from the remote repository. However, other developers' local repositories may still have tracking references to that remote branch (`origin/feature/user-authentication`). Separate commands are needed to clean these up.
 
-### Cleaning Up Remote Branch References in Local Repository
+### Cleaning Up Remote Branch References (Prune)
 
-Cleaning up local references to remotely deleted branches is important for keeping the repository tidy. You can use the `--prune` option of the `git fetch` command to remove stale remote-tracking branches.
+Cleaning up local tracking references to remotely deleted branches is important for keeping the repository tidy. You can use the `--prune` option of the `git fetch` command to automatically remove local references to branches that no longer exist in the remote.
 
 ```bash
-# Fetch latest state of all remote repositories and remove deleted branch references
-git fetch --all -p
-
-# Or target only a specific remote repository
+# Fetch latest state from remote repository and remove deleted branch references
 git fetch origin --prune
+
+# Execute for all remote repositories
+git fetch --all --prune
+
+# Abbreviated form
+git fetch -p
 ```
 
-The `--prune` option automatically deletes local references to branches that no longer exist in the remote repository. This keeps the remote branch list shown by `git branch -r` up to date.
-
-You can also change your Git configuration to automatically run prune. This way, cleanup occurs automatically with each fetch execution.
+You can also change Git settings to automatically run prune with every fetch. This way, cleanup always occurs without specifying the `--prune` option separately.
 
 ```bash
+# Enable auto prune as global setting
 git config --global fetch.prune true
+
+# Set for specific repository only
+git config fetch.prune true
 ```
 
 ## Bulk Branch Deletion Automation
 
-As projects progress and merged branches accumulate, manually deleting them one by one becomes tedious. In such cases, you can use scripts to batch clean branches. This is very useful for regular maintenance tasks.
+As projects progress and merged branches accumulate, manually deleting them one by one becomes tedious. In such cases, you can use scripts to clean up branches in bulk. This is very useful for regular maintenance tasks.
 
 ### Batch Deleting Merged Local Branches
 
-A script to delete all local branches merged into the current branch can safely clean up while protecting important branches like main, master, and develop. It can be written as follows.
+The following script deletes all local branches merged into the current branch while protecting important branches like main, master, and develop for safe cleanup.
 
 ```bash
 # Delete merged branches except main
 git branch --merged | grep -v "\*" | grep -v "main" | grep -v "master" | grep -v "develop" | xargs -n 1 git branch -d
 ```
 
-This command gets the list of merged branches with `git branch --merged`. It excludes main, master, and develop branches with `grep -v`. It uses `xargs` to delete each branch.
+The working principle of this command is as follows:
 
-You can also create a safer script that requests confirmation before deletion. This prevents accidentally deleting important branches.
+1. `git branch --merged`: Output list of branches merged into current branch
+2. `grep -v "\*"`: Exclude currently checked-out branch (marked with `*`)
+3. `grep -v "main"` etc.: Exclude branch names to protect
+4. `xargs -n 1 git branch -d`: Safely delete each branch one by one
+
+A safer approach that requests confirmation before deletion is also available. Adding the `-p` option allows confirmation with y/n before each branch deletion.
 
 ```bash
-# Preview the list of branches to delete
+# Preview list of branches to delete (dry run)
 git branch --merged | grep -v "\*" | grep -v "main" | grep -v "master" | grep -v "develop"
 
-# Execute after confirmation
+# Delete after confirmation for each branch
 git branch --merged | grep -v "\*" | grep -v "main" | grep -v "master" | grep -v "develop" | xargs -n 1 -p git branch -d
 ```
 
-Adding the `-p` option requests confirmation before deleting each branch. You can respond with y/n to selectively delete branches.
-
 ### Cleaning Up Local Tracking Branches for Remotely Deleted Branches
 
-A script to find and delete local tracking branches for branches deleted from the remote repository can be written as follows. This is useful for cleaning up local branches that remain even after pruning.
+A script to find and delete local tracking branches for branches deleted from the remote repository is useful for cleaning up local branches that remain even after pruning. It finds and deletes branches marked as `gone`.
 
 ```bash
 # Find and delete local branches with broken remote tracking
 git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
 ```
 
-This command first cleans up remote branch references with `git fetch -p`. It checks tracking status with `git branch -vv`. It finds branches marked as `gone` and deletes them.
+This command first cleans up remote branch references with `git fetch -p`, checks tracking status with `git branch -vv`, finds branches marked as `gone` (deleted from remote), and force deletes them.
+
+### Reusable Cleanup Script
+
+Creating a reusable script for regular branch cleanup is convenient. The following is an example script that performs cleanup work and reports results.
+
+```bash
+#!/bin/bash
+# branch-cleanup.sh - Git branch cleanup script
+
+echo "=== Git Branch Cleanup Report ==="
+echo "Date: $(date)"
+echo "Repository: $(basename $(git rev-parse --show-toplevel))"
+echo ""
+
+# List of branches to protect
+PROTECTED_BRANCHES="main|master|develop|production|staging"
+
+echo "Protected branches: $PROTECTED_BRANCHES"
+echo ""
+
+# Check merged branches
+echo "Merged branches that can be deleted:"
+git branch --merged main | grep -v "\*" | grep -Ev "($PROTECTED_BRANCHES)" | sed 's/^/  /'
+
+echo ""
+echo "Remote tracking branches with 'gone' status:"
+git branch -vv | grep ': gone]' | awk '{print "  " $1}'
+
+echo ""
+read -p "Do you want to proceed with deletion? (y/n): " -n 1 -r
+echo
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Deleting merged branches..."
+    git branch --merged main | grep -v "\*" | grep -Ev "($PROTECTED_BRANCHES)" | xargs -n 1 git branch -d 2>/dev/null
+
+    echo "Pruning remote references..."
+    git fetch --all -p
+
+    echo "Deleting gone tracking branches..."
+    git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D 2>/dev/null
+
+    echo ""
+    echo "Cleanup completed!"
+else
+    echo "Cleanup cancelled."
+fi
+```
 
 ## Precautions When Deleting Branches
 
-Branch deletion is a difficult operation to undo, so proceed carefully. Keeping several important precautions in mind during work can prevent mistakes. It can maintain your team's workflow safely.
+Branch deletion is an operation that is difficult to undo, so proceed carefully. Keeping a few important precautions in mind can prevent mistakes and maintain your team's workflow safely.
 
 ### Protecting Main Branches
 
-Long-lived branches like main, master, develop, and production are core branches of the project and should never be deleted. To prevent accidental deletion, set up Git branch protection rules or explicitly exclude them in scripts.
+Long-lived branches like main, master, develop, and production are core branches of the project and should never be deleted. To prevent accidental deletion, it is recommended to set up Branch Protection Rules on platforms like GitHub and GitLab, and these branches should be explicitly excluded in scripts.
 
-Platforms like GitHub or GitLab allow you to set branch protection rules to prevent deletion, force pushes, and direct commits to specific branches. This can be configured in repository settings.
+**GitHub branch protection settings**:
+1. Navigate to Repository Settings and then Branches
+2. Click "Add rule" in "Branch protection rules"
+3. Enter the branch pattern to protect (e.g., `main`)
+4. Enable the "Prevent deletions" option
 
-### Communicating with Team Members
+### Communication with Team Members
 
-Before deleting a remote branch, verify that no team members are working on that branch. For shared branches or branches that other team members might use, discuss with the team before deletion. Sudden deletion can cause confusion in collaboration.
+Before deleting a remote branch, verify that no team members are working on that branch. Shared branches or branches that others might use should be discussed with the team before deletion. Sudden deletion can cause confusion in collaboration. Branches with open Pull Requests or branches under review should not be deleted carelessly, and branches referenced by CI/CD pipelines also need verification before deletion.
 
-### Using Tags for Backup When Needed
+### Using Tags for Backup
 
-If there's a possibility you'll need to reference the work in the branch you're deleting later, you can create a tag before deleting the branch as a backup. Tags are immutable references pointing to specific commits and persist even after branch deletion.
+If there's a possibility you'll need to reference the work in the branch you're deleting later, you can create a tag before deleting the branch as a backup. Tags are immutable references pointing to specific commits and persist even after branch deletion, allowing access at any time later.
 
 ```bash
-# Create a tag before deleting the branch
-git tag archive/feature-name feature-name
-git push origin archive/feature-name
+# Backup to tag before deleting branch
+git tag archive/feature-user-auth feature/user-authentication
+git push origin archive/feature-user-auth
 
 # Then delete the branch
-git branch -d feature-name
-git push origin --delete feature-name
+git branch -d feature/user-authentication
+git push origin --delete feature/user-authentication
+
+# Recover from tag later if needed
+git checkout -b feature/user-authentication-restored archive/feature-user-auth
 ```
 
-This way, the branch is deleted but the code at that point is always accessible through the tag. If needed, you can create a new branch from the tag to resume work.
+Using the archive prefix makes it easier to distinguish from regular release tags and manage the tag list. You can set appropriate naming conventions according to team policy.
 
 ## GitHub/GitLab Auto-Delete Settings
 
-GitHub and GitLab provide functionality to automatically delete branches after Pull Requests or Merge Requests are merged. Utilizing this reduces the effort of manually cleaning branches. It automatically keeps the repository tidy.
+GitHub and GitLab provide functionality to automatically delete source branches after Pull Requests or Merge Requests are merged. Utilizing this reduces the effort of manually cleaning branches and automatically keeps the repository tidy.
 
 ### GitHub Auto-Delete Settings
 
-In GitHub, you can enable an option in repository settings to automatically delete head branches after Pull Request merges. This is configured per repository. It can also be selected individually when merging PRs.
+In GitHub, you can enable an option in repository settings to automatically delete head branches after Pull Request merges. This is configured per repository and can also be selected individually when merging PRs.
 
-1. Navigate to the repository's Settings tab.
-2. Enable the "Automatically delete head branches" option in the General section.
-3. Now source branches are automatically deleted whenever PRs are merged.
+1. Navigate to Repository Settings and then General
+2. Enable the "Automatically delete head branches" checkbox in the "Pull Requests" section
+3. Source branches are automatically deleted whenever PRs are merged thereafter
 
-When merging individual PRs, a "Delete branch" button is automatically displayed. You can manually click it to delete, or if auto-delete is enabled, deletion occurs simultaneously with the merge.
+The "Delete branch" button is also displayed on the individual PR merge screen. If auto-delete is configured, deletion occurs simultaneously with the merge. Even if not configured, you can manually click the button to delete.
 
 ### GitLab Auto-Delete Settings
 
-GitLab also provides similar functionality. You can enable the option to delete source branches after merge when creating Merge Requests or in project settings. This can be applied project-wide or selected for individual MRs.
+GitLab also provides similar functionality. You can enable the option to delete source branches after merge when creating Merge Requests or in project settings. It can be applied project-wide or selected for individual MRs.
 
-1. Navigate to the project's Settings > Merge requests.
-2. Enable the "Enable 'Delete source branch' option by default" option.
-3. Now the checkbox is selected by default when creating MRs.
+1. Navigate to Project Settings and then Merge requests
+2. Enable "Enable 'Delete source branch' option by default" in the "Squash commits when merging" section
+3. The delete option is selected by default when creating MRs thereafter
 
 ### Pros and Cons of Automation
 
-Automatic branch deletion has advantages of reducing management burden and keeping the repository clean. However, it's not suitable for all situations. You should decide considering the project's workflow and the team's working style.
+Automatic branch deletion has the advantage of reducing management burden and keeping the repository clean. However, it's not suitable for all situations, and you should decide considering the project's workflow and team's working style.
 
-**Advantages** include no manual deletion work needed, automatic repository cleanup, clear termination of branch lifecycle, and preventing accidental commits to outdated branches.
+**Advantages** include eliminating the need for manual deletion work, automatic repository cleanup, clear termination of branch lifecycle, and preventing accidental commits to outdated branches.
 
-**Disadvantages** include inconvenience when wanting to keep branches, need for recovery if not backed up before auto-deletion, and team members might still be working locally. In such cases, it's better to disable auto-deletion or use it selectively.
+**Disadvantages** include needing separate measures if you want to keep branches, needing recovery work if not backed up before auto-deletion, team members may still be working locally, and some workflows may require keeping branches even after merging.
 
 ## How to Recover Deleted Branches
 
-If you accidentally delete a branch or discover needed work after deletion, you can recover the deleted branch using Git's reflog feature. Reflog stores all HEAD movement history, making it useful for undoing recent operations.
+If you accidentally delete a branch or discover needed work after deletion, you can recover the deleted branch using Git's reflog feature. Reflog stores all movement history of HEAD and branch references, making it very useful for undoing recent work.
 
-### Recovery Using reflog
+### Understanding reflog
 
-The `git reflog` command shows all reference changes that occurred in the local repository in chronological order. Through this, you can find the last commit hash of the deleted branch. You can recover by creating a new branch from that commit.
+> **What is reflog?**
+>
+> Short for reference log, it's a mechanism that stores all records of HEAD and branch reference changes in the local repository. Records are maintained for 90 days by default and can be used to undo operations like branch deletion, commit modification, and rebase.
 
 ```bash
 # Check reflog
 git reflog
 
+# Check reflog for a specific branch
+git reflog show feature/user-authentication
+
 # Example output
 a1b2c3d HEAD@{0}: checkout: moving from feature-branch to main
-e4f5g6h HEAD@{1}: commit: Add new feature
-i7j8k9l HEAD@{2}: commit: Fix bug
+e4f5g6h HEAD@{1}: commit: Add user authentication feature
+i7j8k9l HEAD@{2}: commit: Create login form
+m3n4o5p HEAD@{3}: checkout: moving from main to feature-branch
 ```
 
-If you've found the last commit hash of the deleted branch, you can recover by creating a new branch from that hash. The branch name can be the same as the original or a different name.
+Each entry in the reflog output represents a point when HEAD pointed to that commit. You can use the `HEAD@{n}` format reference to access commits at specific points.
+
+### Recovering Local Branches
+
+If you've found the last commit hash of the deleted branch in reflog, you can recover by creating a new branch from that commit. The branch name can be the same as the original or a different name.
 
 ```bash
-# Recover deleted branch from commit hash
+# Find last commit of deleted branch in reflog
+git reflog | grep "feature-branch"
+
+# Recover branch from that commit
 git checkout -b feature-branch e4f5g6h
 
-# Or recover with original branch name
+# Or create branch only (without checkout)
 git branch feature-branch e4f5g6h
+
+# Recovery using HEAD reference
+git checkout -b feature-branch HEAD@{2}
 ```
 
-### Recovering Deleted Remote Branches
+### Recovering Remote Branches
 
-If a remote branch is deleted, you can recover it by pushing again if the branch remains locally. If it's not local either, you need to fetch it from another team member's local repository or recover through reflog.
+If a remote branch is deleted, you can recover by pushing again if the branch remains locally. If it's not local either, you need to fetch from another team member's local repository or recover through reflog and then push.
 
 ```bash
-# If the branch remains locally, push to remote again
+# If the branch remains locally
 git push origin feature-branch
 
-# If not local either, recover through reflog and push
+# If not local either: recover through reflog and push
 git checkout -b feature-branch e4f5g6h
-git push origin feature-branch
+git push -u origin feature-branch
 ```
 
-Reflog maintains records for 90 days by default, so recently deleted branches can be recovered. However, if too much time passes, records are cleaned up and recovery becomes difficult. Always verify important work before deletion.
+Reflog exists only in the local repository and maintains records for 90 days by default. Recently deleted branches can be recovered, but if too much time passes, records are cleaned up and recovery becomes difficult. Important work should be verified before deletion and backed up with tags if necessary.
 
-## Integration with Team Workflow
+## Integrating Branch Deletion Policy into Team Workflow
 
 Branch deletion policies should be integrated with the team's Git workflow to be effective. Clearly defining branch naming conventions, deletion timing, and assigned responsibilities prevents confusion and enables efficient collaboration.
 
-### Branch Naming Conventions and Deletion Policies
+### Deletion Policies by Branch Type
 
-Consistent branch naming conventions clarify the purpose and lifespan of branches. Through this, you can easily judge which branches should be deleted. It also helps with writing automation scripts.
+Consistent branch naming conventions clarify the purpose and lifespan of branches. Through this, you can easily judge which branches should be deleted and when. It also helps with writing automation scripts.
 
 ```bash
-# Naming convention examples
-feature/user-authentication    # Feature development - delete after merge
-bugfix/login-error            # Bug fix - delete after merge
-hotfix/security-patch         # Urgent fix - delete after merge
-release/v1.2.0                # Release preparation - delete after deployment
-experiment/new-architecture   # Experimental work - delete or keep after decision
+# Branch naming and deletion policy examples
+feature/*      # Feature development - delete immediately after PR merge
+bugfix/*       # Bug fix - delete immediately after PR merge
+hotfix/*       # Urgent fix - delete immediately after merge
+release/*      # Release preparation - delete after deployment (or preserve with tag)
+experiment/*   # Experimental work - decide after team discussion
+spike/*        # Technical verification - delete after verification complete
 ```
-
-Defining deletion policies for each branch type enables team members to manage branches consistently. For example, you can create rules like feature and bugfix delete immediately after merge, release deletes after deployment completion, and experiment decides after team discussion.
 
 ### Regular Branch Cleanup Schedule
 
 Including regular branch review and cleanup schedules in team processes can prevent the repository from becoming messy. It's good to perform branch cleanup tasks at sprint end, after releases, or on set dates each month.
 
-During cleanup work, you can proceed in the order of checking the merged branch list, creating tags if needed, executing automation scripts for batch deletion, and sharing cleanup details with team members.
+The general procedure for cleanup work is as follows:
 
-```bash
-# Regular cleanup script example
-#!/bin/bash
+1. Check the list of merged branches
+2. Create tags for backup if needed
+3. Execute automation scripts for batch deletion
+4. Share cleanup details with team members
 
-echo "=== Branch Cleanup Report ==="
-echo "Date: $(date)"
-echo ""
+### CI/CD Pipeline Integration
 
-echo "Merged branches to be deleted:"
-git branch --merged main | grep -v "\*" | grep -v "main" | grep -v "master" | grep -v "develop"
-
-echo ""
-echo "Proceeding with deletion..."
-git branch --merged main | grep -v "\*" | grep -v "main" | grep -v "master" | grep -v "develop" | xargs -n 1 git branch -d
-
-echo ""
-echo "Pruning remote references..."
-git fetch --all -p
-
-echo ""
-echo "Cleanup completed!"
-```
-
-Including such scripts in the team's documented processes and executing them regularly can consistently keep the repository tidy. You can also integrate them into CI/CD pipelines for automation.
+Branch cleanup work can also be automated by integrating into CI/CD pipelines. For example, you can set up regularly scheduled jobs (Cron Jobs) to clean up old merged branches, or configure release pipelines to automatically delete release branches at the final stage.
 
 ## Conclusion
 
-Regular branch management is the core of an efficient Git workflow. By understanding the branch lifecycle, verifying merge status, using appropriate deletion commands, and utilizing automation, you can keep the repository clean and facilitate smooth team collaboration. Keeping precautions when deleting in mind and knowing recovery methods allows you to confidently manage branches without fearing mistakes. Integrating branch deletion policies into the team's workflow enables more systematic and efficient version control.
+Regular branch management is the core of an efficient Git workflow. By understanding the branch lifecycle, verifying merge status, using appropriate deletion commands, and utilizing automation, you can keep the repository clean and facilitate smooth team collaboration. Keeping deletion precautions in mind and knowing recovery methods allows you to confidently manage branches without fearing mistakes. Integrating branch deletion policies into the team's workflow enables more systematic and efficient version control.

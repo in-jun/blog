@@ -1,209 +1,232 @@
 ---
-title: "Getting to Know Authentication Methods (Cookies, Sessions, JWTs)"
+title: "Complete Guide to Web Authentication: From Cookies and Sessions to JWT and RTR"
 date: 2024-06-02T14:18:40+09:00
-tags: ["Authentication", "JWT", "session", "cookie"]
+tags: ["Authentication", "JWT", "Session", "Cookie", "OAuth", "Security"]
+description: "A detailed comparison of the core web authentication concepts including Cookies, Sessions, and JWT, explaining their operation principles and differences, along with security enhancement methods through Refresh Token and RTR (Refresh Token Rotation) strategies from a practical perspective"
 draft: false
 ---
 
-### Authentication/Authorization
+Web Authentication is a core mechanism designed to solve the user identification problem arising from the stateless nature of the HTTP protocol. Since Lou Montulli of Netscape Communications invented cookies in 1994, authentication has evolved from session-based to token-based approaches. Modern web applications widely use hybrid methods combining JWT and Refresh Tokens to satisfy both security and scalability requirements.
 
--   **Authentication**: Verifying who a user is.
--   **Authorization**: Granting a user specific permissions.
+## Understanding Authentication and Authorization
 
-### HTTP Features
+> **The Difference Between Authentication and Authorization**
+>
+> Authentication is the process of confirming "who you are" by verifying a user's identity, while Authorization is the process of determining "what you can do" by granting access permissions to specific resources for authenticated users. Authentication must be performed before authorization is possible, and these two concepts should be clearly distinguished.
 
--   **Statelessness**: A feature where the client and server sever their connection after making a request and receiving a response.
--   **Request/Response:** The server forgets the client's information after the request and response cycle is complete.
--   These features necessitate additional configurations for implementing services requiring authentication.
+### Real-World Examples of Authentication and Authorization
 
-## Cookie
+| Scenario        | Authentication              | Authorization                            |
+| --------------- | --------------------------- | ---------------------------------------- |
+| Office Entry    | ID card verification        | Access to specific floors/areas          |
+| Banking Service | Account password            | Transfer limits, service access rights   |
+| Web Application | Login (ID/PW verification)  | Admin page access, post deletion rights  |
+| API Call        | API key validation          | Permission to call specific endpoints    |
 
-> A small piece of data that the server sends to the client.
+## HTTP Characteristics and the Need for Authentication
 
-Cookies are data stored on the client and are used to maintain the client's state. Since cookies are stored on the client, they can be manipulated by the client, unlike sessions stored on the server.
+> **HTTP Statelessness**
+>
+> The HTTP protocol inherently possesses stateless and connectionless characteristics, meaning each request is processed independently and the server does not remember information about previous requests. This design increases server scalability and simplifies implementation, but requires separate state management mechanisms to implement features that need user identification, such as maintaining login status.
 
-Cookies function according to the following sequence:
+The impact of HTTP statelessness on authentication is as follows:
 
-1. The client sends a request to the server.
-2. The server issues a cookie to the client.
-3. The client stores the cookie and sends it to the server in the header of subsequent requests.
-4. The server verifies the cookie to authenticate the client.
+1. **Connection Independence**: Each HTTP request is processed independently with no connection to previous requests
+2. **State Non-preservation**: The server does not store information about the client after processing a request
+3. **Explicit Identification Required**: Authentication information must be transmitted with every request to identify users
 
-In modern web development, it is not recommended to handle authentication **using only cookies** due to the following reasons:
+These characteristics led to the development of various authentication mechanisms such as Cookies, Sessions, and JWT.
 
--   Easy to manipulate
--   Vulnerable to security risks
--   May increase server load
--   Have capacity limitations (4KB)
+## Cookie-Based Authentication
 
-## Session
+> **What is a Cookie?**
+>
+> A cookie is a technology invented by Lou Montulli of Netscape in 1994 to implement web shopping carts. It is a small text data file of up to 4KB that the server sends to and stores on the client (browser). Cookies are automatically sent along with subsequent requests to the same server, enabling the maintenance of state information as a core web technology.
 
-> A method of storing client information on the server.
+### How Cookies Work
 
-Sessions are based on cookies. While cookies are stored on the client, sessions are stored on the server. Since sessions are stored on the server, they are more secure than cookies.
+![Cookie Authentication Flow](cookie-flow.png)
 
-Session authentication works in the following sequence:
+The cookie-based authentication flow begins when a user submits login information, after which the server verifies the credentials and generates a Set-Cookie header to send to the client, causing the browser to store this cookie locally. On subsequent requests, the browser automatically includes the stored cookie in request headers, allowing the server to identify the user.
 
-1. The client sends a login request to the server.
-2. The server issues a unique session ID to the client.
-3. The client stores the session ID in a cookie.
-4. The client sends requests to the server with the session ID.
-5. The server checks its session storage for the session ID.
-6. If the session ID is found, the client is authenticated.
+### Key Cookie Attributes
 
-On the server, the session ID and user information are stored in key-value pairs. Spring uses HttpSession to manage sessions.
+Cookies have various attributes for security and access control. The `Domain` attribute specifies which domain can receive the cookie and determines subdomain inclusion, while `Path` restricts which URL paths can access the cookie. The `Expires` or `Max-Age` attributes determine the cookie's lifetime, distinguishing between session cookies that expire when the browser closes and persistent cookies that survive browser restarts. The `Secure` attribute ensures cookies are only transmitted over HTTPS connections, preventing man-in-the-middle attacks. The `HttpOnly` attribute blocks JavaScript access to the cookie, providing protection against XSS attacks. The `SameSite` attribute controls whether cookies are sent with cross-site requests, with options including `Strict` (same-site only), `Lax` (same-site plus safe navigation), and `None` (all requests, requires Secure).
 
-```java
-@GetMapping("/session")
-public String session(HttpSession session) {
-    session.setAttribute("name", "session");
-    return "session";
-}
-```
+### Limitations of Cookie-Based Authentication
 
-By default, session information is stored in memory, and when the server restarts, the session information is reset. To address this, store session information in a database or external storage like Redis. HttpSession allows for changing the method of session storage.
+Using cookies alone for authentication is not recommended in modern web development due to several security vulnerabilities. Cookies are stored on the client, allowing users to potentially modify cookie values. They are susceptible to XSS (Cross-Site Scripting) and CSRF (Cross-Site Request Forgery) attacks. Cookies are limited to 4KB maximum storage. Additionally, the Same-Origin Policy prevents cookie sharing across different domains.
 
-(application.properties)
+## Session-Based Authentication
 
-```properties
-spring.session.store-type=redis
-```
+> **What is a Session?**
+>
+> A session is a method of managing client state information on the server side. It issues only a unique session ID to the client while storing actual user information in server memory or database. This authentication mechanism compensates for cookie security vulnerabilities and was widely adopted as the standard authentication method in server-side languages like PHP and ASP in the late 1990s.
 
-```properties
-spring.session.store-type=jdbc
-```
+### How Sessions Work
 
-Session authentication requires checking the session information stored on the server with every request, which can increase the server load. Additionally, it can reduce server scalability as it disrupts the stateless nature of HTTP.
+![Session Authentication Flow](session-flow.png)
 
-To address these drawbacks, JWTs (JSON Web Tokens) are used.
+Session-based authentication operates by having the server create a unique session after verifying user credentials, storing user information (such as user ID, username, and roles) in server-side storage, and sending only the session ID to the client via a cookie. When subsequent requests arrive, the server looks up the session ID in its storage to retrieve the associated user information. The session can be configured with a timeout period, after which the user must re-authenticate. Upon logout, the server invalidates the session, making the session ID unusable.
 
-## JWT
+### Session Storage Options
 
-> A way to send information securely by using a JSON object.
+Session information is stored in server memory by default and is lost when the server restarts. In production environments, external storage solutions such as Redis or database-backed session stores are recommended to ensure session persistence across server restarts and to enable session sharing in distributed deployments.
 
-A JWT is a token stored on the client, and its basic operation is similar to cookies. However, JWTs are signed tokens that make it difficult for clients to manipulate tokens. Since JWTs are signed using a secret key stored on the server, clients must know the secret key to manipulate tokens.
+### Advantages and Disadvantages of Session-Based Authentication
 
-JWTs function in the following sequence:
+| Advantages                                   | Disadvantages                                   |
+| -------------------------------------------- | ----------------------------------------------- |
+| Server can forcibly expire sessions          | Increased server memory usage                   |
+| Client cannot manipulate data                | Difficult horizontal scaling (Scale-out)        |
+| Only session ID exposed, high security       | Session store lookup required per request       |
+| Relatively simple implementation             | Violates HTTP statelessness principle           |
+| Easy to modify session attributes            | Session synchronization needed in distributed environments |
 
-1. The client sends a login request to the server.
-2. The server issues an encrypted JWT to the client using a secret key.
-3. The client stores the JWT and inserts the JWT in the header of subsequent requests.
-4. The server verifies the validity of the JWT to authenticate the client.
+## JWT (JSON Web Token) Based Authentication
 
-A JWT's structure is as follows:
+> **What is JWT?**
+>
+> JWT (JSON Web Token) is a token-based authentication method standardized as RFC 7519 by the IETF (Internet Engineering Task Force) in 2010. It is a compact, self-contained method for securely transmitting information between parties by encoding JSON objects in Base64Url. JWT enables stateless authentication without storing state on the server and is widely used in microservice architectures and distributed systems.
 
--   Header: Includes token type and hashing algorithm
--   Payload: Contains information known as "claims"
--   Signature: A signature that verifies the token's validity
+### JWT Structure
 
-### Header
-
-```json
-{
-    "alg": "HS256",
-    "typ": "JWT"
-}
-```
-
--   **alg**: Hashing algorithm
-    -   Algorithm used for signing the token
-    -   Some examples include HS256, RS256, etc.
--   **typ**: Token type
-    -   JWT
-    -   Specifies the token type
-
-### Payload
-
-```json
-{
-    "sub": "1234567890",
-    "exp": 1516239022,
-    "nbf": 1516239022,
-    "iat": 1516239022
-}
-```
-
--   **sub**: Token subject (usually a user ID)
--   **exp**: Token expiration time (the token will be invalid after the expiration time passes)
--   **nbf**: Token activation time (the token will be invalid before it is activated)
--   **iat**: Token issuance time (indicates when the token was issued)
-
-Headers and payloads are encoded using base64UrlEncode, so clients can decode tokens to check information. Therefore, sensitive information should not be stored in tokens.
-
-### Signature
+JWT consists of three parts separated by dots: Header, Payload, and Signature.
 
 ```
-HMACSHA256(
-    base64UrlEncode(header) + "." +
-    base64UrlEncode(payload),
-    ${SECRET} // Secret key
-)
+xxxxx.yyyyy.zzzzz
+  │      │     │
+  │      │     └── Signature
+  │      └──────── Payload
+  └─────────────── Header
 ```
 
-The signature is a hashed value calculated by combining the header and payload, then using the secret key for hashing. After receiving the JWT from the client, the server hashes the JWT then compares the result with the value hashed using the secret key to verify the token's validity.
+The **Header** contains metadata about the token, including the signing algorithm (such as HS256, RS256, or ES256) and token type (JWT). The **Payload** contains claims, which are statements about the user and additional data. Registered claims include `sub` (subject/user ID), `iat` (issued at), `exp` (expiration), `nbf` (not before), `iss` (issuer), and `aud` (audience). Custom claims can include user-specific data like name, email, and roles. The **Signature** is created by hashing the encoded header and payload with a secret key, ensuring token integrity and authenticity.
 
-### Drawbacks
+### JWT Signing Algorithm Comparison
 
-JWTs must be manually invalidated in case of compromised security or changes to a user's permissions. For this reason, when using JWTs, setting a short expiration time is common. However, setting a short expiration time leads to the inconvenience of requiring users to log in frequently.
+| Algorithm | Type       | Key               | Use Case                       |
+| --------- | ---------- | ----------------- | ------------------------------ |
+| HS256     | Symmetric  | Shared secret     | Single server, trusted parties |
+| RS256     | Asymmetric | Public/Private    | Microservices, public verification |
+| ES256     | Asymmetric | Elliptic curve    | Mobile, IoT (smaller key size) |
 
-This drawback can be addressed by using **refresh tokens**.
+### How JWT Works
 
-## Refresh Token
+![JWT Authentication Flow](jwt-flow.png)
 
-> A method of issuing a new access token when the access token expires.
+JWT authentication begins when a user logs in and the server validates credentials, then generates a JWT containing user claims signed with a secret key. The client stores this token and includes it in the Authorization header (as a Bearer token) with each subsequent request. The server validates the token by verifying the signature and checking expiration, then extracts user information from the payload without any database lookup. This stateless nature allows any server instance to validate the token independently.
 
-Refresh tokens combine session and JWT methods, and they use access and refresh tokens to handle authentication. To enhance security, access tokens are given a short expiration time, and when the access token expires, clients can send an authentication request to the server with the refresh token. The server then verifies the validity of the refresh token and, if valid, issues a new access token. Refresh tokens are stored on the server, so they can be invalidated by the server if needed.
+### Advantages and Disadvantages of JWT
 
-The sequence of actions is as follows:
+| Advantages                                        | Disadvantages                                     |
+| ------------------------------------------------- | ------------------------------------------------- |
+| No state storage required on server (Stateless)   | Difficult to forcibly invalidate after issuance   |
+| Easy horizontal scaling (Scale-out)               | Token size larger than session ID                 |
+| Authentication info shareable across microservices| Payload exposed via Base64 encoding               |
+| Verification possible without database lookup     | Can be exploited until expiration if stolen       |
+| Usable across various platforms                   | UX degradation without Refresh Token              |
 
-1. The client sends a login request to the server.
-2. The server issues an access token and a refresh token to the client.
-3. The client stores the access token and refresh token and sends the access token in the header when making subsequent requests to the server.
-4. When the access token expires, the client sends an authentication request to the server with the refresh token.
-5. The server verifies the validity of the refresh token and, if valid, issues a new access token.
+### JWT Security Considerations
 
-So how will server load change when using JWTs and refresh tokens as opposed to session methods?
+Essential security practices for JWT include using a sufficiently long secret key (minimum 256 bits), setting short expiration times (typically 15 minutes), never including sensitive information like passwords in the payload (only include necessary identifiers), using HTTPS exclusively for token transmission, and storing tokens securely using HttpOnly cookies or in-memory variables rather than localStorage.
 
-Session methods require checking session information stored on the server with every request, which can lead to increased server load. However, when using JWTs and refresh tokens, authentication requests are only sent to the server when access tokens expire, which can lead to a lower server load.
+## Refresh Token Strategy
 
-## RTR (Refresh Token Rotation)
+> **What is a Refresh Token?**
+>
+> A Refresh Token is a long-lived token introduced to solve the user experience degradation caused by the short expiration time of Access Tokens. It allows users to obtain a new Access Token without logging in again when the Access Token expires. Officially defined in the OAuth 2.0 specification (RFC 6749), it is used as a core component of hybrid authentication that combines the security of sessions with the scalability of JWT.
 
-> A method that issues a new refresh token every time.
+### Comparison of Access Token and Refresh Token
 
-RTR is a method that further enhances the security of traditional refresh tokens. When issuing a new access token, a new refresh token is also issued at the same time.
+| Aspect                | Access Token              | Refresh Token               |
+| --------------------- | ------------------------- | --------------------------- |
+| Purpose               | API request authentication| Access Token reissuance     |
+| Expiration Time       | Short (15 min ~ 1 hour)   | Long (7 ~ 30 days)          |
+| Storage Location      | Memory or localStorage    | HttpOnly cookie             |
+| Transmission Frequency| Every API request         | Only when Access Token expires |
+| Server Storage        | Not required (Stateless)  | Recommended (enables invalidation) |
+| Risk Level if Stolen  | Short-term                | Long-term                   |
 
-### RTR Workflow
+### How Refresh Token Works
 
-1. The client sends a login request to the server.
-2. The server issues an access token and a refresh token to the client.
-3. When the access token expires, the client requests a new token from the server with the refresh token.
-4. The server verifies the validity of the refresh token and, if valid, issues a new access token and refresh token.
-5. The previous refresh token is immediately invalidated.
+![Refresh Token Flow](refresh-token-flow.png)
 
-### Advantages of RTR
+The Refresh Token flow begins at login when the server issues both an Access Token (short-lived) and a Refresh Token (long-lived). The Access Token is used for API requests, while the Refresh Token is stored securely, typically in an HttpOnly cookie. When the Access Token expires and an API request returns a 401 error, the client sends the Refresh Token to a dedicated refresh endpoint. The server validates the Refresh Token against its stored records, and if valid, issues a new Access Token. Upon logout, the server deletes the stored Refresh Token, preventing further token refresh.
 
--   Prevents the reuse of stolen refresh tokens.
--   Allows for longer refresh token lifespans.
--   Improves security.
+### Refresh Token Storage and Security
 
-### Drawbacks of RTR
+The server should store Refresh Tokens in a database with the token value, associated user ID, expiration date, and creation timestamp. The Refresh Token should be sent to the client as an HttpOnly, Secure, SameSite=Strict cookie, limiting its transmission to the refresh endpoint path only. This prevents the token from being accessed by JavaScript or sent with cross-site requests.
 
--   Implementation is complex.
--   Increases the volume of data that must be stored on the server.
--   Leads to increased network communication.
+## RTR (Refresh Token Rotation) Strategy
+
+> **What is RTR (Refresh Token Rotation)?**
+>
+> Refresh Token Rotation is a security enhancement strategy that issues a new Refresh Token along with invalidating the previous one each time a Refresh Token is used to reissue an Access Token. Recommended in the OAuth 2.0 Security Best Current Practice (RFC 6819) document, it mitigates long-term security threats from Refresh Token theft and enables detection of Token Replay Attacks.
+
+### How RTR Works
+
+![RTR (Refresh Token Rotation) Flow](rtr-flow.png)
+
+RTR enhances security by rotating the Refresh Token with each use. When a client requests a token refresh, the server validates the Refresh Token, marks it as used (rather than deleting it immediately), and issues both a new Access Token and a new Refresh Token. If an attacker attempts to use a stolen Refresh Token that has already been used, the server detects this reuse attempt and can invalidate all tokens in that token family, forcing the legitimate user to re-authenticate while blocking the attacker.
+
+### Token Reuse Detection
+
+The key security feature of RTR is token reuse detection. Each Refresh Token is tracked with a "used" flag and belongs to a token family (representing a single login session). When a token marked as "used" is presented again, this indicates either a replay attack or a synchronization issue. As a security measure, all tokens in that family are invalidated, terminating all sessions for that user and requiring fresh authentication.
+
+### Advantages and Disadvantages of RTR
+
+| Advantages                                      | Disadvantages                                  |
+| ----------------------------------------------- | ---------------------------------------------- |
+| Prevents reuse of stolen Refresh Token          | Increased implementation complexity            |
+| Enables detection of token replay attacks       | Synchronization issues on network errors       |
+| Significantly improved security                 | Increased data storage requirements            |
+| Can extend Refresh Token expiration             | Client must manage new tokens                  |
 
 ### RTR Implementation Considerations
 
--   All tokens of a user must be invalidated if reuse of refresh token is detected.
--   Clients must securely store newly received refresh tokens.
--   Situations of token renewal failure due to network errors must be considered.
+When implementing RTR, several factors require attention. Network failure handling should include a retry allowance period when the token refresh response fails to reach the client. A grace period of a few seconds may be granted for the previous token to handle race conditions. Tokens issued from the same login session should be managed as a token family. Comprehensive audit logging should record all token issuance, refresh, and invalidation events for security monitoring.
 
-## Summary
+## Comprehensive Comparison of Authentication Methods
 
--   **Cookies**: Data stored on the client.
--   **Sessions**: Data stored on the server.
--   **JWTs**: Signed token method.
--   **Refresh tokens**: Method for reissuing access tokens.
--   **RTR**: A security-enhanced method of issuing new refresh tokens every time.
+| Characteristic            | Cookie    | Session   | JWT       | JWT + Refresh |
+| ------------------------- | --------- | --------- | --------- | ------------- |
+| **State Management**      | Client    | Server    | Client    | Hybrid        |
+| **Scalability**           | High      | Low       | High      | High          |
+| **Security**              | Low       | High      | Medium    | High          |
+| **Force Logout**          | Impossible| Possible  | Difficult | Possible      |
+| **Server Load**           | Low       | High      | Low       | Medium        |
+| **Implementation Complexity** | Low   | Low       | Medium    | High          |
+| **Microservice Suitability** | Low    | Low       | High      | High          |
+| **Mobile App Suitability**| Low       | Medium    | High      | High          |
 
-Each authentication method has its pros and cons, and you can choose the appropriate method based on the service's characteristics and security requirements.
+### Recommended Methods by Scenario
+
+| Scenario                      | Recommended Method      | Reason                                          |
+| ----------------------------- | ----------------------- | ----------------------------------------------- |
+| Single Server Web Application | Session                 | Simple implementation, high security            |
+| Microservice Architecture     | JWT + Refresh Token     | Stateless, authentication sharing across services|
+| Mobile App                    | JWT + Refresh Token     | No cookie support needed, offline support       |
+| SPA (Single Page Application) | JWT + Refresh Token     | Avoids CORS issues, API-centric                 |
+| Financial/Healthcare Services | Session + Enhanced Security | Strict session control, immediate logout    |
+| IoT Devices                   | JWT (long-lived)        | Resource constraints, intermittent network      |
+
+## Security Comparison by Token Storage Location
+
+| Storage Location  | XSS Vulnerability | CSRF Vulnerability | Recommended Use       |
+| ----------------- | ----------------- | ------------------ | --------------------- |
+| localStorage      | High              | None               | Not recommended       |
+| sessionStorage    | High              | None               | Temporary data only   |
+| Regular Cookie    | Medium            | High               | Not recommended       |
+| HttpOnly Cookie   | Low               | Medium             | Refresh Token         |
+| Memory (variable) | Low               | None               | Access Token          |
+
+### Recommended Token Storage Strategy
+
+The recommended approach stores Access Tokens in memory (JavaScript variables) where they are protected from XSS but lost on page refresh, while Refresh Tokens are stored in HttpOnly cookies managed entirely by the server. When an Access Token expires or is lost due to page refresh, the client makes a request to the refresh endpoint, and the browser automatically includes the HttpOnly cookie. If valid, a new Access Token is returned and stored in memory. This strategy minimizes exposure to both XSS and CSRF attacks.
+
+## Conclusion
+
+Web authentication methods have evolved from Cookies and Sessions to JWT, Refresh Tokens, and RTR, each with its own advantages and disadvantages. Cookies provide the foundation for client-side state maintenance, Sessions strengthen server-side security, and JWT provides stateless authentication and scalability in microservice environments. Refresh Tokens and RTR complement JWT's security vulnerabilities, enabling implementation of the hybrid authentication approach most recommended in practice.
+
+When selecting an authentication method, consider the service characteristics, security requirements, scalability needs, and development complexity comprehensively. Regardless of the method chosen, security best practices such as HTTPS usage, appropriate token expiration times, secure storage, and audit logging should be applied.

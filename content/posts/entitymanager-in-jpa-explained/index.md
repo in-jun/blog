@@ -1,102 +1,121 @@
 ---
-title: "EntityManager란 무엇인가?"
+title: "EntityManager 완벽 가이드"
 date: 2024-06-07T19:12:36+09:00
-tags: ["jpa", "entitymanager"]
-description: "EntityManager의 역할과 생명주기, 주요 API 메서드(persist, find, merge, remove 등), 트랜잭션 관리, JPQL과 Criteria API, 영속성 컨텍스트 관리(1차 캐시, 쓰기 지연, 변경 감지), Spring Data JPA와의 관계를 상세히 다루며, 대량 데이터 처리와 N+1 문제 해결 등 실전 팁을 제공한다."
+tags: ["jpa", "hibernate", "entitymanager", "orm"]
+description: "EntityManager는 JPA의 핵심 인터페이스로 Hibernate Session을 표준화한 것이다. 영속성 컨텍스트를 관리하고 persist, find, merge, remove 등의 메서드로 엔티티 생명주기를 제어하며, JPQL과 Criteria API로 쿼리를 실행한다"
 draft: false
 ---
 
-> EntityManager는 JPA의 핵심 인터페이스로서 엔티티의 생명주기를 관리하고 영속성 컨텍스트를 통해 엔티티와 데이터베이스 간의 모든 상호작용을 담당한다.
+## EntityManager의 역사와 개념
 
-## EntityManager의 역할과 중요성
+EntityManager는 Java Persistence API(JPA)의 핵심 인터페이스로, 2006년 JSR 220의 일부로 발표된 EJB 3.0 명세에서 처음 정의되었으며, Hibernate의 Session 인터페이스를 표준화하여 벤더 독립적인 영속성 관리 API를 제공하기 위해 설계되었다. Hibernate를 개발한 Gavin King이 2001년에 도입한 Session 개념은 데이터베이스 연결을 추상화하고 엔티티 객체의 상태를 추적하는 혁신적인 접근 방식이었는데, JPA는 이 아이디어를 표준화하여 EntityManager라는 이름으로 재정립하고 모든 JPA 구현체(Hibernate, EclipseLink, OpenJPA)에서 동일한 인터페이스를 사용할 수 있게 했다.
 
-EntityManager는 Java Persistence API(JPA) 사양의 중심에 위치한 인터페이스로, 객체 지향 프로그래밍의 엔티티와 관계형 데이터베이스 간의 매핑을 담당하며, 개발자가 SQL을 직접 작성하지 않고도 데이터베이스 작업을 수행할 수 있도록 한다. JPA는 자바 표준 ORM(Object-Relational Mapping) 기술로서 2006년 EJB 3.0 사양의 일부로 처음 도입되었고, 이후 Hibernate, EclipseLink, OpenJPA와 같은 다양한 구현체가 등장하면서 자바 기반 애플리케이션의 데이터 접근 계층에서 사실상의 표준으로 자리잡았다.
+EntityManager가 해결하는 핵심 문제는 객체지향 프로그래밍의 객체와 관계형 데이터베이스의 테이블 간의 패러다임 불일치(Object-Relational Impedance Mismatch)로, 개발자가 SQL을 직접 작성하지 않고도 객체 중심의 코드로 데이터베이스 작업을 수행할 수 있게 하며, 1차 캐시, 변경 감지, 쓰기 지연 같은 최적화 기능을 자동으로 제공한다. EntityManager는 영속성 컨텍스트(Persistence Context)라는 논리적 공간을 관리하는데, 이 공간은 Martin Fowler가 정의한 Identity Map 패턴과 Unit of Work 패턴을 구현하여 동일 트랜잭션 내에서 같은 식별자를 가진 엔티티의 동일성을 보장하고, 변경된 엔티티를 추적하여 트랜잭션 종료 시 일괄적으로 데이터베이스에 반영한다.
 
-EntityManager는 영속성 컨텍스트(Persistence Context)라는 논리적 공간을 관리하는데, 이는 엔티티 객체를 영속 상태로 보관하는 일종의 1차 캐시이며, 애플리케이션과 데이터베이스 사이에서 엔티티의 상태를 추적하고 변경 사항을 감지하는 역할을 수행한다. 영속성 컨텍스트를 통해 EntityManager는 동일한 트랜잭션 내에서 같은 식별자를 가진 엔티티에 대해 동일성을 보장하고, 데이터베이스 접근을 최소화하며, 변경 감지를 통해 자동으로 UPDATE 쿼리를 생성하는 등의 강력한 기능을 제공한다.
+## EntityManager의 생명주기와 관리 방식
 
-EntityManager가 필요한 이유는 도메인 모델과 관계형 데이터베이스 간의 패러다임 불일치를 해결하고, 반복적인 CRUD 코드를 추상화하며, 1차 캐시와 쓰기 지연 같은 성능 최적화 기능을 자동으로 제공하기 때문이다. 또한 JPQL과 Criteria API를 통해 객체 지향적인 방식으로 쿼리를 작성할 수 있으며, 벤더 독립적인 코드를 작성하여 데이터베이스 변경 시에도 애플리케이션 코드의 수정을 최소화할 수 있다.
+### EntityManagerFactory와 EntityManager의 관계
 
-## EntityManager의 생명주기
+EntityManager는 EntityManagerFactory로부터 생성되며, EntityManagerFactory는 데이터베이스 연결 정보, 엔티티 메타데이터, 캐시 설정 등을 포함하는 무거운 객체로 애플리케이션 전체에서 하나만 생성되어 공유되는 반면, EntityManager는 요청마다 생성되고 사용 후 반드시 종료되어야 하는 경량 객체이다. EntityManagerFactory의 생성은 persistence.xml이나 Spring 설정을 파싱하고 데이터베이스 메타데이터를 로딩하는 등 비용이 크기 때문에 애플리케이션 시작 시점에 한 번만 생성하며, EntityManager는 스레드 세이프하지 않으므로 여러 스레드에서 공유할 수 없고 각 요청이나 트랜잭션마다 새로운 인스턴스를 생성해야 한다.
 
-EntityManager는 EntityManagerFactory로부터 생성되며, EntityManagerFactory는 애플리케이션 전체에서 하나만 생성되어 공유되는 반면, EntityManager는 요청마다 생성되고 사용 후 반드시 종료되어야 하는 경량 객체이다. EntityManagerFactory는 데이터베이스 연결 풀과 메타데이터 정보를 포함하며 생성 비용이 매우 크기 때문에 애플리케이션 시작 시점에 한 번만 생성하고, EntityManager는 스레드 간 공유가 불가능하므로 요청마다 새로운 인스턴스를 생성하여 사용한다.
+### Application-Managed vs Container-Managed
 
-EntityManager의 생성과 관리 방식은 Application-Managed와 Container-Managed 두 가지로 나뉘는데, Application-Managed 방식은 개발자가 직접 EntityManagerFactory에서 EntityManager를 생성하고 종료하는 방식으로 Java SE 환경에서 주로 사용되며, Container-Managed 방식은 컨테이너(Spring, Java EE)가 EntityManager의 생명주기를 관리하는 방식으로 웹 애플리케이션에서 일반적으로 사용된다.
+EntityManager의 관리 방식은 Application-Managed와 Container-Managed 두 가지로 구분되는데, Application-Managed 방식은 Java SE 환경에서 주로 사용되며 개발자가 EntityManagerFactory.createEntityManager()로 직접 EntityManager를 생성하고 사용 후 close()를 호출하여 명시적으로 종료해야 한다. Container-Managed 방식은 Spring이나 Java EE 같은 컨테이너 환경에서 사용되며, 컨테이너가 EntityManager의 생명주기를 관리하여 트랜잭션 시작 시 자동으로 생성하고 트랜잭션 종료 시 자동으로 종료한다.
 
-Spring 환경에서는 `@PersistenceContext` 어노테이션을 사용하여 Container-Managed EntityManager를 주입받으며, 이는 실제로는 프록시 객체로서 트랜잭션 범위 내에서 실제 EntityManager를 사용하고 트랜잭션 종료 시 자동으로 close()를 호출한다. 반면 `@PersistenceUnit` 어노테이션은 EntityManagerFactory를 주입받는 방식으로, 개발자가 직접 EntityManager를 생성하고 관리해야 하는 경우에 사용하며, 배치 작업이나 비동기 처리처럼 트랜잭션 범위를 세밀하게 제어해야 하는 상황에서 활용된다.
+Spring 환경에서는 @PersistenceContext 어노테이션을 사용하여 Container-Managed EntityManager를 주입받는데, 실제로 주입되는 것은 SharedEntityManagerInvocationHandler라는 프록시 객체로서 각 트랜잭션마다 실제 EntityManager를 연결해주는 역할을 한다. @PersistenceUnit 어노테이션은 EntityManagerFactory를 주입받는 방식으로, 배치 작업이나 비동기 처리처럼 트랜잭션 범위를 세밀하게 제어해야 하는 경우에 개발자가 직접 EntityManager를 생성하고 관리할 때 사용한다.
 
-## 주요 API 메서드 상세
+```java
+// Application-Managed 방식
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistence-unit");
+EntityManager em = emf.createEntityManager();
+EntityTransaction tx = em.getTransaction();
+
+tx.begin();
+// 작업 수행
+tx.commit();
+em.close(); // 반드시 명시적으로 종료
+
+// Container-Managed 방식 (Spring)
+@Repository
+public class UserRepository {
+    @PersistenceContext
+    private EntityManager em; // 프록시 객체 주입, 트랜잭션마다 실제 EM 연결
+}
+```
+
+## 주요 API 메서드
 
 ### persist()
 
-`persist()` 메서드는 새로운 엔티티를 영속성 컨텍스트에 저장하여 영속 상태로 전환하는 메서드로, 호출 시점에는 즉시 INSERT 쿼리를 실행하지 않고 영속성 컨텍스트에 엔티티를 등록한 후 트랜잭션 커밋 시점에 실제 INSERT 쿼리가 실행된다. 이는 쓰기 지연(Transactional Write-Behind) 기능으로, 여러 엔티티를 한 번에 저장할 때 데이터베이스 접근을 최소화하여 성능을 향상시킨다.
+persist() 메서드는 새로운 엔티티를 영속성 컨텍스트에 저장하여 영속 상태(Managed State)로 전환하는 메서드로, 호출 시점에 즉시 INSERT 쿼리가 실행되는 것이 아니라 영속성 컨텍스트의 쓰기 지연 SQL 저장소에 INSERT 쿼리가 등록되고, 트랜잭션 커밋 시점에 flush가 호출될 때 실제로 데이터베이스에 전송된다. @GeneratedValue로 IDENTITY 전략을 사용하는 경우에는 데이터베이스에서 ID를 생성해야 하므로 persist() 호출 시점에 즉시 INSERT가 실행되며, SEQUENCE나 TABLE 전략은 미리 시퀀스 값을 할당받아 쓰기 지연이 가능하다.
 
-### find()
+### find()와 getReference()
 
-`find()` 메서드는 식별자를 통해 엔티티를 조회하는 가장 기본적인 메서드로, 먼저 영속성 컨텍스트의 1차 캐시에서 엔티티를 찾고 없을 경우에만 데이터베이스에 SELECT 쿼리를 실행한다. 1차 캐시 활용으로 인해 동일한 트랜잭션 내에서 같은 엔티티를 여러 번 조회하더라도 실제 데이터베이스 접근은 한 번만 발생하며, 조회된 엔티티는 자동으로 영속 상태로 관리된다.
+find() 메서드는 식별자를 통해 엔티티를 조회하는 가장 기본적인 메서드로, 먼저 영속성 컨텍스트의 1차 캐시를 확인하고 캐시에 없는 경우에만 데이터베이스에 SELECT 쿼리를 실행하며, 조회된 엔티티는 자동으로 영속 상태로 관리된다. getReference() 메서드는 실제 데이터베이스 조회를 지연시키는 프록시 객체를 반환하며, 프록시의 필드에 접근하는 시점에 실제 SELECT가 실행되는 지연 로딩(Lazy Loading) 방식으로 동작한다.
 
-### getReference()
-
-`getReference()` 메서드는 데이터베이스 접근을 지연시키는 프록시 객체를 반환하며, 실제 엔티티의 속성에 접근하는 시점에 데이터베이스 쿼리가 실행되는 지연 로딩(Lazy Loading) 방식으로 동작한다. 이는 연관 관계가 설정된 엔티티를 조회할 때 불필요한 데이터베이스 접근을 방지하고, 필요한 시점에만 데이터를 로딩하여 성능을 최적화하는 데 사용된다.
+```java
+User user1 = em.find(User.class, 1L); // 즉시 SELECT 실행
+User user2 = em.getReference(User.class, 2L); // 프록시 반환, SELECT 없음
+String name = user2.getName(); // 이 시점에 SELECT 실행
+```
 
 ### merge()
 
-`merge()` 메서드는 준영속 상태의 엔티티를 영속 상태로 변환하는 메서드로, 전달된 엔티티의 식별자로 데이터베이스를 조회한 후 조회된 영속 엔티티에 전달된 엔티티의 값을 병합하고, 병합된 영속 상태의 엔티티를 반환한다. 주의할 점은 merge()의 반환 값이 영속 상태의 엔티티이며 파라미터로 전달한 엔티티는 여전히 준영속 상태로 남아있다는 것이고, 변경 감지 기능을 활용하는 것이 더 효율적이므로 가능한 경우 merge()보다는 find()로 조회한 후 변경하는 방식을 권장한다.
+merge() 메서드는 준영속 상태(Detached State)의 엔티티를 다시 영속 상태로 만드는 메서드로, 전달된 엔티티의 식별자로 영속성 컨텍스트를 확인하고 없으면 데이터베이스를 조회한 후, 조회된 영속 엔티티에 전달된 엔티티의 모든 값을 복사하고 그 영속 엔티티를 반환한다. 중요한 점은 merge()의 반환 값이 영속 상태의 엔티티이며 파라미터로 전달한 원본 엔티티는 여전히 준영속 상태로 남아있다는 것으로, 이후 작업은 반환된 영속 엔티티를 사용해야 변경 감지가 작동한다.
 
 ### remove()
 
-`remove()` 메서드는 영속 상태의 엔티티를 삭제하는 메서드로, 호출 즉시 삭제되는 것이 아니라 영속성 컨텍스트에 삭제 표시를 하고 트랜잭션 커밋 시점에 DELETE 쿼리가 실행된다. 삭제할 엔티티는 반드시 영속 상태여야 하므로, 준영속 상태의 엔티티를 삭제하려면 먼저 merge()로 영속 상태로 만들거나 find()로 다시 조회한 후 remove()를 호출해야 한다.
+remove() 메서드는 영속 상태의 엔티티를 삭제 예정 상태(Removed State)로 전환하는 메서드로, persist()와 마찬가지로 호출 즉시 DELETE 쿼리가 실행되지 않고 쓰기 지연 SQL 저장소에 DELETE 쿼리가 등록되며 트랜잭션 커밋 시점에 실제로 실행된다. remove()는 영속 상태의 엔티티에만 사용할 수 있으므로, 준영속 상태의 엔티티를 삭제하려면 먼저 find()나 merge()로 영속 상태로 만든 후 remove()를 호출해야 한다.
 
-### flush()
+### flush()와 clear()
 
-`flush()` 메서드는 영속성 컨텍스트의 변경 내용을 데이터베이스에 즉시 동기화하는 메서드로, 트랜잭션 커밋을 기다리지 않고 현재 시점에 쓰기 지연 SQL 저장소에 있는 쿼리들을 데이터베이스에 전송한다. flush()를 호출해도 트랜잭션이 커밋되는 것은 아니며 영속성 컨텍스트를 비우지도 않고, JPQL 쿼리 실행 직전에 자동으로 호출되어 데이터 정합성을 보장하며, 대량 데이터 처리 시 일정 주기로 flush()와 clear()를 함께 호출하여 메모리 사용량을 제어할 수 있다.
+flush() 메서드는 영속성 컨텍스트의 변경 내용을 데이터베이스에 즉시 동기화하는 메서드로, 쓰기 지연 SQL 저장소에 있는 모든 쿼리를 데이터베이스로 전송하지만 트랜잭션을 커밋하지는 않으며, JPQL 쿼리 실행 직전에 자동으로 호출되어 쿼리가 최신 데이터를 조회할 수 있도록 보장한다. clear() 메서드는 영속성 컨텍스트를 완전히 초기화하여 관리 중인 모든 엔티티를 준영속 상태로 만드는 메서드로, 대량 데이터를 처리할 때 1차 캐시에 엔티티가 쌓여 메모리 부족이 발생하는 것을 방지하기 위해 일정 주기로 flush()와 clear()를 함께 호출한다.
 
-### clear()
+## 트랜잭션과 영속성 컨텍스트
 
-`clear()` 메서드는 영속성 컨텍스트를 완전히 초기화하여 관리 중인 모든 엔티티를 준영속 상태로 만드는 메서드로, 대량의 데이터를 처리할 때 1차 캐시에 너무 많은 엔티티가 쌓여 메모리 부족이 발생하는 것을 방지하기 위해 사용된다. clear() 호출 후에는 이전에 조회했던 엔티티들이 더 이상 영속성 컨텍스트에서 관리되지 않으므로, 해당 엔티티들의 변경 사항은 데이터베이스에 반영되지 않는다.
+### 트랜잭션 범위 영속성 컨텍스트
 
-### detach()
+Spring에서는 기본적으로 트랜잭션 범위 영속성 컨텍스트 전략을 사용하며, @Transactional 어노테이션이 붙은 메서드가 시작될 때 트랜잭션과 영속성 컨텍스트가 함께 생성되고, 메서드가 종료될 때 트랜잭션 커밋과 함께 영속성 컨텍스트가 종료된다. 트랜잭션 커밋 시점에 자동으로 flush()가 호출되어 변경 감지(Dirty Checking)가 수행되고, 영속 상태 엔티티의 스냅샷과 현재 상태를 비교하여 변경된 필드에 대해 UPDATE 쿼리가 자동으로 생성된다.
 
-`detach()` 메서드는 특정 엔티티만 영속성 컨텍스트에서 분리하여 준영속 상태로 만드는 메서드로, clear()가 모든 엔티티를 분리하는 것과 달리 하나의 엔티티만 선택적으로 분리할 수 있다. 분리된 엔티티는 더 이상 변경 감지의 대상이 아니므로 값을 수정해도 데이터베이스에 반영되지 않으며, 다시 영속 상태로 만들려면 merge()를 사용해야 한다.
+### 변경 감지와 동일성 보장
 
-## 트랜잭션 관리
-
-EntityManager는 트랜잭션 범위 내에서 동작하도록 설계되었으며, 모든 데이터 변경 작업은 반드시 트랜잭션 안에서 수행되어야 하고, 조회 작업은 트랜잭션 없이도 가능하지만 영속성 컨텍스트의 이점을 활용하려면 트랜잭션 내에서 수행하는 것이 권장된다. Java SE 환경에서는 EntityTransaction 인터페이스를 통해 begin(), commit(), rollback() 메서드로 직접 트랜잭션을 제어하지만, Spring 환경에서는 `@Transactional` 어노테이션을 사용하여 선언적 트랜잭션 관리를 수행하며 AOP를 통해 자동으로 트랜잭션을 시작하고 커밋 또는 롤백한다.
-
-트랜잭션 범위와 EntityManager 범위는 일반적으로 일치하는데, Spring의 경우 `@Transactional`이 선언된 메서드가 시작될 때 트랜잭션과 EntityManager가 생성되고, 메서드가 종료되면 트랜잭션이 커밋되며 EntityManager가 종료된다. 트랜잭션이 커밋되는 시점에는 자동으로 flush()가 호출되어 영속성 컨텍스트의 변경 사항이 데이터베이스에 반영되고, 변경 감지(Dirty Checking) 메커니즘에 의해 영속 상태 엔티티의 스냅샷과 현재 상태를 비교하여 변경된 필드에 대해 UPDATE 쿼리가 자동으로 생성되어 실행된다.
+변경 감지(Dirty Checking)는 EntityManager가 엔티티를 영속 상태로 만들 때 해당 시점의 스냅샷을 저장하고, flush 시점에 현재 상태와 비교하여 변경된 필드를 찾아 UPDATE 쿼리를 자동 생성하는 기능으로, 개발자가 명시적으로 update() 같은 메서드를 호출하지 않아도 setter로 값만 변경하면 자동으로 데이터베이스에 반영된다. 동일성 보장(Identity Guarantee)은 같은 트랜잭션 내에서 같은 식별자로 조회한 엔티티는 항상 같은 객체 인스턴스임을 보장하는 기능으로, em.find(User.class, 1L)을 여러 번 호출해도 항상 동일한 인스턴스가 반환되어 == 비교가 true를 반환한다.
 
 ## JPQL과 Criteria API
 
-EntityManager는 `createQuery()` 메서드를 통해 JPQL(Java Persistence Query Language)을 실행할 수 있으며, JPQL은 엔티티 객체를 대상으로 쿼리를 작성하는 객체 지향 쿼리 언어로서 SQL과 유사하지만 테이블이 아닌 엔티티 클래스와 필드를 대상으로 한다. JPQL은 데이터베이스에 독립적이므로 데이터베이스가 변경되어도 쿼리를 수정할 필요가 없으며, 엔티티의 연관 관계를 활용하여 조인을 간결하게 표현할 수 있고, 페이징과 정렬 같은 기능을 쉽게 구현할 수 있다.
+### JPQL (Java Persistence Query Language)
+
+JPQL은 엔티티 객체를 대상으로 쿼리를 작성하는 객체 지향 쿼리 언어로, 테이블이 아닌 엔티티 클래스와 필드를 대상으로 하며 데이터베이스에 독립적이어서 데이터베이스가 변경되어도 쿼리를 수정할 필요가 없다. EntityManager.createQuery() 메서드로 JPQL을 실행하며, TypedQuery를 사용하면 결과 타입을 지정하여 타입 안전성을 확보할 수 있고, 파라미터 바인딩은 위치 기반(:1)과 이름 기반(:name) 두 가지 방식을 지원한다.
 
 ```java
+// JPQL 예시
 TypedQuery<User> query = em.createQuery(
-    "SELECT u FROM User u WHERE u.age > :age", User.class);
-query.setParameter("age", 20);
+    "SELECT u FROM User u WHERE u.status = :status AND u.age > :age",
+    User.class
+);
+query.setParameter("status", UserStatus.ACTIVE);
+query.setParameter("age", 18);
 List<User> users = query.getResultList();
 ```
 
-네이티브 SQL이 필요한 경우에는 `createNativeQuery()` 메서드를 사용하여 데이터베이스 고유의 SQL을 직접 실행할 수 있으며, 복잡한 통계 쿼리나 데이터베이스 특정 기능을 사용해야 할 때 유용하다. Criteria API는 CriteriaBuilder를 이용한 타입 세이프 쿼리 작성 방법으로, 문자열로 쿼리를 작성하는 JPQL과 달리 자바 코드로 쿼리를 작성하여 컴파일 타임에 오류를 검증할 수 있고, 동적 쿼리를 작성할 때 조건에 따라 쿼리를 유연하게 조립할 수 있는 장점이 있지만, 코드가 복잡하고 가독성이 떨어지는 단점도 존재한다.
+### Criteria API와 Native Query
 
-## 영속성 컨텍스트 관리
-
-영속성 컨텍스트의 1차 캐시는 Map 구조로 되어 있으며 엔티티의 식별자를 키로 사용하여 엔티티 인스턴스를 값으로 저장하고, 같은 트랜잭션 내에서 find()로 같은 엔티티를 여러 번 조회하면 최초 한 번만 데이터베이스에 접근하고 이후에는 1차 캐시에서 조회한다. 1차 캐시는 트랜잭션이 시작되면 생성되고 트랜잭션이 종료되면 함께 사라지므로, 애플리케이션 전체에서 공유되는 2차 캐시와는 달리 매우 짧은 생명주기를 가지며 동시성 문제가 발생하지 않는다.
-
-쓰기 지연(Transactional Write-Behind)은 persist()나 remove() 같은 데이터 변경 메서드가 호출될 때 즉시 SQL을 실행하지 않고 쓰기 지연 SQL 저장소에 쿼리를 모아두었다가 트랜잭션 커밋 시점에 flush()를 호출하여 모든 쿼리를 한 번에 데이터베이스로 전송하는 메커니즘이다. 이를 통해 데이터베이스 통신 횟수를 줄여 성능을 향상시키고, JDBC 배치 기능을 활용하여 여러 INSERT 쿼리를 하나의 배치로 실행할 수 있다.
-
-변경 감지(Dirty Checking)는 영속 상태 엔티티의 변경 사항을 자동으로 감지하여 UPDATE 쿼리를 생성하는 기능으로, 개발자가 명시적으로 update() 같은 메서드를 호출하지 않아도 setter를 통해 값을 변경하기만 하면 트랜잭션 커밋 시점에 자동으로 변경 내용이 데이터베이스에 반영된다. EntityManager는 영속성 컨텍스트에 엔티티를 보관할 때 최초 상태의 스냅샷을 함께 저장하고, flush() 시점에 스냅샷과 현재 엔티티를 비교하여 변경된 필드가 있으면 UPDATE 쿼리를 자동으로 생성한다.
-
-동일성 보장은 같은 트랜잭션 내에서 같은 식별자로 조회한 엔티티는 항상 같은 인스턴스임을 보장하는 기능으로, find()를 여러 번 호출해도 == 비교 시 true가 반환되며, 이는 애플리케이션 레벨에서 Repeatable Read 수준의 격리 수준을 제공하여 데이터 일관성을 보장한다.
+Criteria API는 CriteriaBuilder를 사용하여 자바 코드로 쿼리를 작성하는 방식으로, JPQL이 문자열 기반이라 컴파일 타임에 오류를 발견할 수 없는 단점을 보완하여 타입 세이프한 쿼리 작성이 가능하지만, 코드가 복잡하고 가독성이 떨어지는 단점이 있어 동적 쿼리가 필요한 경우에만 선택적으로 사용하는 것이 좋다. 네이티브 SQL이 필요한 경우에는 createNativeQuery() 메서드를 사용하여 데이터베이스 고유의 SQL을 직접 실행할 수 있으며, 복잡한 통계 쿼리나 데이터베이스 특정 기능을 사용해야 할 때 유용하다.
 
 ## Spring Data JPA와의 관계
 
-Spring Data JPA의 Repository 인터페이스는 내부적으로 EntityManager를 사용하여 구현되며, SimpleJpaRepository 클래스가 실제 구현체로서 모든 CRUD 메서드가 EntityManager를 통해 동작한다. save() 메서드는 내부적으로 엔티티가 새로운 것이면 persist()를, 이미 존재하는 것이면 merge()를 호출하고, findById()는 EntityManager의 find()를, deleteById()는 find() 후 remove()를 호출하는 방식으로 구현되어 있다.
+Spring Data JPA의 Repository 인터페이스(JpaRepository, CrudRepository)는 내부적으로 EntityManager를 사용하여 구현되어 있으며, SimpleJpaRepository 클래스가 실제 구현체로서 save()는 새 엔티티면 persist()를, 기존 엔티티면 merge()를 호출하고, findById()는 EntityManager.find()를, deleteById()는 find() 후 remove()를 호출하는 방식으로 동작한다. Spring Data JPA는 메서드 이름 기반 쿼리 생성, @Query 어노테이션, Specification 등의 편의 기능을 제공하여 개발 생산성을 높이지만, 복잡한 쿼리나 벌크 연산, 세밀한 영속성 컨텍스트 제어가 필요한 경우에는 @PersistenceContext로 EntityManager를 직접 주입받아 사용하는 것이 적합하다.
 
-`@Repository`를 직접 구현하여 EntityManager를 사용해야 하는 경우는 Spring Data JPA가 제공하는 기본 기능으로는 구현하기 어려운 복잡한 쿼리나 벌크 연산, 동적 쿼리가 필요할 때이며, 이 경우 `@PersistenceContext`로 EntityManager를 주입받아 직접 JPQL이나 Criteria API를 사용하여 쿼리를 작성한다. Spring Data JPA는 메서드 이름 기반 쿼리 생성, 페이징과 정렬, Auditing 같은 편의 기능을 제공하여 개발 생산성을 크게 향상시키지만, 순수 EntityManager를 사용하면 더 세밀한 제어가 가능하고 JPA의 동작 원리를 깊이 이해할 수 있으므로, 두 가지 방식을 상황에 맞게 혼용하는 것이 실무에서 일반적이다.
+## 실전 최적화 팁
 
-## 실전 팁
+### 대량 데이터 처리
 
-대량 데이터 처리 시에는 수천 개 이상의 엔티티를 한 번에 처리하면 영속성 컨텍스트에 모든 엔티티가 쌓여 메모리 부족이 발생할 수 있으므로, 일정한 개수(예: 100개)마다 flush()와 clear()를 호출하여 영속성 컨텍스트를 비워주는 것이 필수적이다. 또한 배치 처리의 경우 JDBC 배치 설정(hibernate.jdbc.batch_size)을 통해 여러 INSERT나 UPDATE를 하나의 배치로 묶어 실행하면 성능을 크게 향상시킬 수 있다.
+수천 개 이상의 엔티티를 한 번에 처리하면 영속성 컨텍스트에 모든 엔티티가 쌓여 메모리 부족이 발생할 수 있으므로, 일정 개수(예: 100개)마다 flush()와 clear()를 호출하여 영속성 컨텍스트를 비워주어야 하며, JDBC 배치 설정(hibernate.jdbc.batch_size)을 통해 여러 INSERT나 UPDATE를 하나의 배치로 묶어 실행하면 성능을 크게 향상시킬 수 있다.
 
-N+1 문제는 연관 관계가 있는 엔티티를 조회할 때 발생하는 대표적인 성능 문제로, 부모 엔티티 N개를 조회한 후 각 부모마다 자식 엔티티를 조회하는 쿼리가 추가로 N번 실행되어 총 N+1번의 쿼리가 발생하는 현상이다. 이를 해결하려면 JPQL의 fetch join을 사용하여 한 번의 쿼리로 부모와 자식을 함께 조회하거나, `@EntityGraph`를 사용하여 필요한 연관 관계를 명시적으로 로딩하거나, 배치 사이즈(hibernate.default_batch_fetch_size)를 설정하여 자식 엔티티를 IN 절로 묶어서 조회하는 방법을 사용한다.
+### N+1 문제 해결
 
-프록시 객체는 지연 로딩을 구현하기 위한 가짜 객체로, getReference()나 `@ManyToOne(fetch = FetchType.LAZY)` 같은 지연 로딩 설정 시 사용되며, 프록시 객체는 실제 엔티티를 상속받은 클래스이므로 타입 비교 시 ==가 아닌 instanceof를 사용해야 한다. LazyInitializationException은 영속성 컨텍스트가 종료된 후 프록시 객체를 초기화하려고 할 때 발생하는 예외로, 트랜잭션 범위를 벗어난 곳에서 지연 로딩된 연관 관계에 접근하면 발생하며, 이를 해결하려면 필요한 데이터를 트랜잭션 내에서 미리 초기화하거나 fetch join을 사용하거나 Open Session In View 패턴을 활용해야 한다.
+N+1 문제는 부모 엔티티 N개를 조회한 후 각 부모마다 자식 엔티티를 조회하는 쿼리가 추가로 N번 실행되어 총 N+1번의 쿼리가 발생하는 현상으로, JPQL의 fetch join을 사용하여 한 번의 쿼리로 부모와 자식을 함께 조회하거나, @EntityGraph를 사용하여 필요한 연관 관계를 명시적으로 로딩하거나, hibernate.default_batch_fetch_size를 설정하여 자식 엔티티를 IN 절로 묶어서 조회하는 방법으로 해결한다.
+
+## 결론
+
+EntityManager는 JPA의 핵심 인터페이스로 2006년 EJB 3.0 명세에서 Hibernate의 Session을 표준화한 것이며, 영속성 컨텍스트를 통해 1차 캐시, 변경 감지, 쓰기 지연, 동일성 보장 기능을 제공한다. persist(), find(), merge(), remove() 등의 메서드로 엔티티의 생명주기를 관리하고, JPQL과 Criteria API로 객체 지향 쿼리를 실행하며, 트랜잭션 범위 내에서 동작하도록 설계되어 있다. Spring Data JPA는 EntityManager를 기반으로 추상화 계층을 제공하지만, 복잡한 쿼리나 세밀한 제어가 필요한 경우에는 EntityManager를 직접 사용하는 것이 적합하며, 대량 데이터 처리 시에는 flush()와 clear()로 메모리를 관리하고 배치 설정과 fetch join으로 성능을 최적화해야 한다.

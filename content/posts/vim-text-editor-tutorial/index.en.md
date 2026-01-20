@@ -1,239 +1,293 @@
 ---
-title: "Vim Usage Guide"
+title: "Complete Vim Guide: From History to Practical Usage"
 date: 2024-07-06T20:17:05+09:00
-tags: ["vim", "editor", "tool"]
-description: "A comprehensive vim guide covering the history and evolution of vim, the philosophy of modal editing and its powerful editing features, detailed commands for Normal/Insert/Visual/Command modes, search and substitution techniques, the useful plugin ecosystem, vimrc configuration methods, and practical tips and keyboard shortcuts for real-world usage."
+tags: ["Vim", "Editor", "Linux", "CLI", "Productivity"]
+description: "A comprehensive guide covering Vim's history and modal editing philosophy, detailed commands for Normal/Insert/Visual/Command modes, search and substitution techniques, the plugin ecosystem, vimrc configuration methods, and practical tips"
 draft: false
 ---
 
-Vim is an extended version of the Vi editor, including Vi's functionality while providing many more features. Vim can be operated entirely with the keyboard, allowing fast editing without mouse usage. With nearly 50 years of history, it is a powerful and proven tool. In this post, we will comprehensively cover everything from Vim's history to practical usage.
+Vim, which stands for Vi IMproved, was developed by Bram Moolenaar in 1991 as an extended and improved version of the vi editor that Bill Joy created for BSD Unix in 1976. It adds modern features like syntax highlighting, multiple undo, plugin support, and split windows while preserving vi's core philosophy of modal editing, enabling extremely fast editing using only the keyboard. Vim comes pre-installed on nearly all Unix-like systems, making it essential for server management. It enables powerful editing without GUI editors in SSH environments, and its value is supported by nearly 50 years of accumulated community knowledge and a robust plugin ecosystem.
 
-## History and Evolution of Vim
+## History of Vim
 
-### The Birth of vi
+> **From Vi to Vim**
+>
+> Vi was an editor designed by Bill Joy in 1976 to work efficiently in the slow terminal environments of the era, introducing the concept of modal editing. Vim was developed by Bram Moolenaar in 1991 as an extension of vi. True to its name, Vi IMproved, it includes all of vi's functionality while adding modern features.
 
-The vi editor was developed by Bill Joy in 1976 for BSD Unix. It was designed to work efficiently even in the slow terminal environments of that era. By introducing the concept of modal editing, it enabled fast editing using only the keyboard. This philosophy remains valid even in modern development environments.
+### Major Development Timeline
 
-### The Emergence of vim
+| Year | Event | Significance |
+|------|-------|--------------|
+| **1976** | vi born (Bill Joy) | Text editor for BSD Unix introducing modal editing |
+| **1991** | Vim 1.0 released (Bram Moolenaar) | Developed for Amiga, extended features while maintaining vi compatibility |
+| **1998** | Vim 5.0 | Syntax highlighting, scripting language support |
+| **2006** | Vim 7.0 | Tab pages, spell checking, omni completion added |
+| **2014** | Neovim project started | Vim fork with async plugins, built-in LSP support |
+| **2016** | Vim 8.0 | Asynchronous operations, terminal window support |
+| **2023** | Bram Moolenaar passed away | Transition to community-driven development |
 
-vim stands for Vi IMproved and was developed by Bram Moolenaar in 1991 for the Amiga computer. It is an extended and improved version of vi. It added modern features such as syntax highlighting, multiple undo, plugin support, and graphical interfaces. Released as open source, it has evolved through contributions from developers worldwide.
+### Vim vs Neovim
 
-### vim vs neovim
+Neovim is a project that began in 2014 by forking Vim's codebase. It cleaned up Vim's legacy code and redesigned it with modern architecture, supporting asynchronous plugins, built-in LSP client, and Lua scripting. Both editors are actively developed, and their basic usage is nearly identical.
 
-neovim is a project that started in 2014 by forking the vim codebase. It provides asynchronous plugin support, built-in LSP client, Lua scripting, and better default settings. vim emphasizes traditional stability and compatibility, while neovim pursues innovation tailored to modern development environments. Both editors are actively developed, and their basic usage is nearly identical.
+| Characteristic | Vim | Neovim |
+|----------------|-----|--------|
+| **Philosophy** | Traditional stability, backward compatibility | Modern innovation, extensibility |
+| **Scripting** | Vimscript | Vimscript + Lua |
+| **Plugins** | Synchronous execution focus | Native async support |
+| **LSP** | Plugin required (coc.nvim, etc.) | Built-in LSP client |
+| **Default Settings** | Minimal defaults | Sensible defaults |
+| **GUI Support** | GVim | Various GUI frontends |
 
-### Why vim is Still Used in 2025-2026
+## Philosophy of Modal Editing
 
-vim is pre-installed on almost all Unix-like systems, making it immediately available in server environments. It is much lighter and faster than GUI editors when connecting via SSH. The keyboard-centric workflow provides significantly faster editing speed than using a mouse once you become familiar with it. Additionally, the powerful plugin ecosystem and customization possibilities, along with nearly 50 years of accumulated community knowledge and resources, support vim's continued popularity.
+> **What is Modal Editing?**
+>
+> Modal editing separates editor operations into multiple modes where the same key performs different functions depending on the mode. In regular editors, pressing `j` inputs the character 'j'. In Vim's Normal mode, pressing `j` moves the cursor down.
 
-## The Philosophy of Modal Editing
+Modal editing allows all character keys on the keyboard to be used as commands, enabling concise expression of hundreds of commands without modifier keys like Ctrl or Alt. It clearly separates text input from editing, preventing unintended text input, and allows combining commands (composability) to express complex editing tasks simply. The initial learning curve is steep, but learning just 20-30 basic commands enables everyday editing, and after a few months, you experience editing speeds far faster than conventional editors.
 
-### What is Modal Editing
+### Why People Still Use Vim
 
-Modal editing is a method that separates the editor's operations into multiple modes, where the same key performs different functions depending on the mode. In regular editors, pressing a character key always inputs that character. In vim, Normal mode executes commands, while Insert mode inputs text. This separation can be confusing at first, but becomes a very powerful editing tool once you get used to it.
+| Reason | Explanation |
+|--------|-------------|
+| **Server Environment** | Pre-installed on almost all Unix/Linux systems, immediately available via SSH |
+| **Speed** | Lighter than GUI editors, keyboard-centric is faster than mouse |
+| **Versatility** | Vim key bindings supported in VS Code, JetBrains, browsers, and more |
+| **Customization** | Infinite configuration possibilities, build your own workflow |
+| **Community** | 50 years of accumulated knowledge, tutorials, plugins |
 
-### Why Modal Editing is Powerful
+## Vim Mode Overview
 
-Modal editing allows all keys on the keyboard to be used as commands. You can use hundreds of commands concisely without modifier keys like Ctrl or Alt. It clearly separates text input from editing, reducing wrist strain. Commands can be combined to express complex editing tasks simply. It is optimized for repetitive tasks, maximizing productivity with macros and the dot command.
+Vim operates with four main modes, each designed for different purposes.
 
-### Learning Curve and Long-term Productivity
+| Mode | Entry Method | Purpose | Exit Method |
+|------|--------------|---------|-------------|
+| **Normal** | `Esc` or when Vim starts | Movement, editing commands | - |
+| **Insert** | `i`, `a`, `o`, etc. | Text input | `Esc` |
+| **Visual** | `v`, `V`, `Ctrl+v` | Text selection | `Esc` or command execution |
+| **Command** | `:` | File operations, settings, search/replace | `Enter` or `Esc` |
 
-vim's initial learning curve is steep. However, learning just 20-30 basic commands enables everyday editing. After a few weeks of use, you can work at speeds similar to your previous editor. After a few months, you'll experience editing speeds much faster than before. The time invested returns as a skill you can use for decades. vim key bindings are supported by many tools and can be utilized in various environments.
+## Normal Mode
 
-## Vim Modes
+Normal mode is Vim's core mode. Vim starts in this mode by default, and you spend most of your time here.
 
-Vim has four main modes.
+### Movement Commands
 
-1. Normal mode: The default mode where you can edit text or enter commands.
-2. Insert mode: The mode where you can input text, allowing text entry or modification.
-3. Visual mode: The mode where you can select text, allowing copying or deleting of selected text.
-4. Command mode: The mode where you enter commands starting with a colon to perform file saving, searching, substitution, etc.
+| Command | Action | Description |
+|---------|--------|-------------|
+| `h`, `j`, `k`, `l` | Left, down, up, right | Basic cursor movement (use instead of arrow keys) |
+| `w` | Next word start | Short for word |
+| `b` | Previous word start | Short for back |
+| `e` | Current/next word end | Short for end |
+| `0` | Line start | The number 0 |
+| `$` | Line end | Same as regex end |
+| `^` | First non-blank character | Similar to regex start |
+| `gg` | First line of file | Short for go |
+| `G` | Last line of file | Capital G |
+| `{n}G` | Go to line n | Example: `10G` goes to line 10 |
+| `f{char}` | Move to character in current line | Short for find |
+| `t{char}` | Move to just before character | Short for till |
+| `%` | Jump to matching bracket | Navigate between (), {}, [] |
 
-## Detailed Commands by Mode
+### Editing Commands
 
-### Normal Mode
+| Command | Action | Description |
+|---------|--------|-------------|
+| `x` | Delete character at cursor | delete character |
+| `r{char}` | Replace character at cursor | replace |
+| `dd` | Delete current line | delete line |
+| `yy` | Copy current line | yank line |
+| `p` | Paste after cursor | paste after |
+| `P` | Paste before cursor | paste before |
+| `u` | Undo | undo |
+| `Ctrl+r` | Redo | redo |
+| `.` | Repeat last change | One of the most powerful commands |
 
-When you launch Vim, it starts in Normal mode by default. Normal mode is the core of vim, and you will spend most of your time in this mode.
+### Combining Operators and Motions
 
-#### Movement Commands
+Vim's true power lies in combining operators with motions. The format `{operator}{motion}` enables various editing operations.
 
--   `h`, `j`, `k`, `l`: Move left, down, up, right by one character
--   `w`: Move to the start of the next word
--   `b`: Move to the start of the previous word
--   `e`: Move to the end of the current word
--   `gg`: Move to the first line of the file
--   `G`: Move to the last line of the file
--   `0`: Move to the beginning of the line
--   `$`: Move to the end of the line
--   `f{char}`: Move forward to the character in the current line
--   `F{char}`: Move backward to the character in the current line
--   `t{char}`: Move forward until just before the character
--   `T{char}`: Move backward until just after the character
+| Combination | Meaning | Description |
+|-------------|---------|-------------|
+| `dw` | delete word | Delete from cursor to word end |
+| `d$` | delete to end | Delete from cursor to line end |
+| `d0` | delete to start | Delete to line start |
+| `diw` | delete inner word | Delete entire word |
+| `daw` | delete a word | Delete word and surrounding whitespace |
+| `ci"` | change inner quotes | Change content inside quotes |
+| `ca(` | change a parenthesis | Change content including parentheses |
+| `yiw` | yank inner word | Copy word |
+| `>}` | indent to paragraph end | Indent to paragraph end |
 
-#### Editing Commands
+## Insert Mode
 
--   `x`: Delete the character at cursor position
--   `X`: Delete the character before the cursor
--   `r{char}`: Replace the character at cursor position with another character
--   `R`: Enter Replace mode for continuous replacement
--   `c{motion}`: Delete the specified range and enter Insert mode
--   `C`: Delete from cursor to end of line and enter Insert mode
--   `s`: Delete the character at cursor position and enter Insert mode
--   `S`: Delete the entire current line and enter Insert mode
--   `dd`: Delete the current line
--   `yy`: Copy the current line
--   `p`: Paste after the cursor
--   `P`: Paste before the cursor
--   `u`: Undo
--   `Ctrl + r`: Redo
+Insert mode is where you actually input text. You can enter it in various ways, each starting at a different position.
 
-### Insert Mode
+| Command | Action | Description |
+|---------|--------|-------------|
+| `i` | Input at cursor position | insert |
+| `a` | Input after cursor position | append |
+| `I` | Input at line start | Insert at line start |
+| `A` | Input at line end | Append at line end |
+| `o` | Create new line below and input | open line below |
+| `O` | Create new line above and input | Open line above |
+| `s` | Delete character then input | substitute character |
+| `S` | Delete line then input | Substitute line |
+| `c{motion}` | Delete range then input | change |
 
-Insert mode is the mode where you actually input text. You can enter it in various ways, each starting at a different position.
+Pressing `Esc` in Insert mode returns you to Normal mode. Many Vim users remap `Caps Lock` to `Esc` because the `Esc` key is far away, or use custom mappings like `Ctrl+[` or `jk`.
 
--   `i`: Start input at cursor position
--   `a`: Start input after the cursor position
--   `o`: Create a new line below and start input
--   `O`: Create a new line above and start input
--   `I`: Start input at the beginning of the line
--   `A`: Start input at the end of the line
+## Visual Mode
 
-In Insert mode, pressing the `Esc` key returns you to Normal mode. Many vim users remap `Caps Lock` to `Esc` because the `Esc` key is far away, or they use the `Ctrl + [` shortcut.
+Visual mode allows you to visually select text for editing. There are three types.
 
-### Visual Mode
+| Command | Selection Type | Use Case |
+|---------|----------------|----------|
+| `v` | Character-wise | General text selection |
+| `V` | Line-wise | Select entire lines |
+| `Ctrl+v` | Block-wise | Rectangular region selection (like multiple cursors) |
 
-Visual mode is a mode where you can visually select text for editing. There are three types.
+Key commands available after selecting in Visual mode include `d` (delete), `y` (copy), `c` (change), `>` (indent), `<` (unindent), `~` (toggle case), `u` (lowercase), and `U` (uppercase).
 
--   `v`: Enter character-wise Visual mode
--   `V`: Enter line-wise Visual mode
--   `Ctrl + v`: Enter block-wise Visual mode to select rectangular regions
+## Command Mode
 
-Commands you can use after selecting in Visual mode are as follows.
+Command mode is where you enter commands starting with `:` to perform file operations, change settings, and execute search/replace operations.
 
--   `d`: Delete selected text
--   `y`: Copy selected text
--   `c`: Delete selected text and enter Insert mode
--   `>`: Indent selected text
--   `<`: Unindent selected text
+### File Operations
 
-### Command Mode
+| Command | Action |
+|---------|--------|
+| `:w` | Save |
+| `:q` | Quit |
+| `:wq` or `:x` | Save and quit |
+| `:q!` | Force quit without saving |
+| `:e {file}` | Open file |
+| `:w {file}` | Save as |
 
-Command mode is where you enter commands starting with a colon to perform file operations, change settings, and execute complex editing tasks.
+### Setting Changes
 
--   `:w`: Save file
--   `:q`: Quit vim
--   `:wq` or `:x`: Save and quit
--   `:q!`: Force quit without saving
--   `:e {filename}`: Open another file
--   `:set number`: Display line numbers
--   `:set tabstop=4`: Set tab size to 4
--   `:help {topic}`: View help
+| Command | Action |
+|---------|--------|
+| `:set number` | Display line numbers |
+| `:set relativenumber` | Display relative line numbers |
+| `:set tabstop=4` | Set tab size |
+| `:set expandtab` | Convert tabs to spaces |
+| `:syntax on` | Enable syntax highlighting |
 
 ## Search and Substitution
 
-### Search Functionality
+### Search
 
-vim's search functionality is very powerful and supports regular expressions.
+Vim's search supports regular expressions and is very powerful.
 
--   `/pattern`: Search downward from current position
--   `?pattern`: Search upward from current position
--   `n`: Move to next search result in the same direction
--   `N`: Move to previous search result in the opposite direction
--   `*`: Search the word at cursor position downward
--   `#`: Search the word at cursor position upward
+| Command | Action |
+|---------|--------|
+| `/pattern` | Search downward |
+| `?pattern` | Search upward |
+| `n` | Next result |
+| `N` | Previous result |
+| `*` | Search word at cursor |
+| `#` | Reverse search word at cursor |
 
-### Substitution Commands
+### Substitution
 
-Substitution commands are used for batch text changes. They become very powerful when used with regular expressions.
+The substitution command uses `:s` (substitute) and can perform various substitutions by combining ranges and flags.
 
--   `:s/old/new/`: Substitute the first occurrence of old with new in the current line
--   `:s/old/new/g`: Substitute all occurrences of old with new in the current line
--   `:%s/old/new/g`: Substitute all occurrences of old with new in the entire file
--   `:%s/old/new/gc`: Substitute with confirmation throughout the entire file
--   `:5,10s/old/new/g`: Substitute from line 5 to line 10
+| Command | Action |
+|---------|--------|
+| `:s/old/new/` | Substitute first occurrence in current line |
+| `:s/old/new/g` | Substitute all in current line |
+| `:%s/old/new/g` | Substitute all in entire file |
+| `:%s/old/new/gc` | Substitute with confirmation |
+| `:5,10s/old/new/g` | Substitute in lines 5-10 |
+| `:'<,'>s/old/new/g` | Substitute in Visual selection |
 
-## Useful Plugins
+## Plugin Ecosystem
 
-### vim-plug Plugin Manager
+> **Plugin Managers**
+>
+> The most popular Vim plugin manager is vim-plug, characterized by concise syntax and fast parallel installation. Plugins can be batch installed with the `:PlugInstall` command and updated with `:PlugUpdate`.
 
-vim-plug is the most popular vim plugin manager. It makes plugin installation and updates easy to manage. You can install it with a single command from GitHub. After writing the plugin list in vimrc, you can batch install with the `:PlugInstall` command.
+### Essential Plugins
 
-### NERDTree
+| Plugin | Function | Description |
+|--------|----------|-------------|
+| **NERDTree** | File explorer | Browse files in sidebar tree structure |
+| **fzf.vim** | Fuzzy finder | Quick search for files, buffers, commands |
+| **coc.nvim** | Autocompletion/LSP | VSCode-level IntelliSense |
+| **vim-airline** | Status bar | Display mode, filename, Git status |
+| **vim-fugitive** | Git integration | Run Git commands within Vim |
+| **vim-surround** | Surround editing | Easily change brackets, quotes, etc. |
+| **vim-commentary** | Comment toggle | Toggle comments with `gc` |
 
-NERDTree is a file explorer plugin. It displays the file system in a tree structure in the sidebar and allows file creation, deletion, and movement like a GUI. You can toggle it with the `:NERDTreeToggle` command. It is an essential plugin used by many developers.
+## vimrc Configuration
 
-### fzf
-
-fzf is a fuzzy finder plugin. It allows quick searching of filenames, buffers, and tags. With substring matching, you can find files and open the desired file in a project instantly. It also supports command history search.
-
-### coc.nvim
-
-coc.nvim is a plugin that provides modern autocompletion and LSP client. It enables VSCode-like level of IntelliSense in vim. It provides modern IDE features such as code autocompletion, go to definition, find references, and error display. It supports various languages.
-
-### vim-airline
-
-vim-airline is a status bar plugin. It beautifully displays useful information at the bottom of the screen, including current mode, filename, line number, and Git branch. It supports various themes and integrates with other plugins to display additional information.
-
-## vimrc Configuration Examples
-
-vimrc is vim's configuration file, written in the `.vimrc` file in the home directory. Here is a basic configuration example.
+vimrc is Vim's configuration file, located at `~/.vimrc` (Unix) or `~/_vimrc` (Windows), and is automatically loaded when Vim starts.
 
 ```vim
 " Basic settings
-set number              " Display line numbers
-set relativenumber      " Display relative line numbers
-syntax on               " Syntax highlighting
-set tabstop=4           " Tab size 4
-set shiftwidth=4        " Indent size 4
-set expandtab           " Convert tabs to spaces
-set autoindent          " Auto indent
-set smartindent         " Smart indent
-set hlsearch            " Highlight search results
-set incsearch           " Incremental search
-set ignorecase          " Case insensitive search
-set smartcase           " Case sensitive when uppercase is used
+set nocompatible            " Disable vi compatibility mode
+set encoding=utf-8          " UTF-8 encoding
+set number                  " Display line numbers
+set relativenumber          " Relative line numbers
+syntax on                   " Syntax highlighting
+set tabstop=4               " Tab size 4
+set shiftwidth=4            " Indent size 4
+set expandtab               " Convert tabs to spaces
+set autoindent              " Auto indent
+set smartindent             " Smart indent
+set hlsearch                " Highlight search results
+set incsearch               " Incremental search
+set ignorecase              " Case insensitive
+set smartcase               " Case sensitive when uppercase used
+set cursorline              " Highlight current line
+set wildmenu                " Command completion menu
+set clipboard=unnamedplus   " Use system clipboard
 
-" Key mappings
-let mapleader = " "     " Set leader key to space
-nnoremap <leader>w :w<CR>                " Save with space+w
-nnoremap <leader>q :q<CR>                " Quit with space+q
-nnoremap <C-h> <C-w>h                    " Move to left window with Ctrl+h
-nnoremap <C-l> <C-w>l                    " Move to right window with Ctrl+l
+" Leader key setting
+let mapleader = " "
+
+" Common mappings
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 ```
 
-## Practical Tips and Keyboard Shortcuts
+## Practical Tips
 
-### Using Macros
+### Macros
 
-Macros are a powerful feature for automating repetitive tasks. Start recording with `q{register}`, perform actions, then end recording with `q`. You can replay the macro with `@{register}`. Use `@@` to repeat the last macro. Using it with numbers like `10@a` executes it multiple times.
-
-### Editing Multiple Files
-
-In vim, you can open and edit multiple files simultaneously.
-
--   `:e filename`: Open a new file
--   `:bn`: Move to next buffer
--   `:bp`: Move to previous buffer
--   `:ls`: List open buffers
--   `:b number`: Move to buffer with that number
+Macros are a powerful feature for automating repetitive tasks. Start recording with `q{register}`, perform actions, end recording with `q`, then replay with `@{register}`. Use `@@` to repeat the last macro.
 
 ### Split Windows
 
-You can split the screen to view multiple files simultaneously.
+| Command | Action |
+|---------|--------|
+| `:sp` or `:split` | Horizontal split |
+| `:vs` or `:vsplit` | Vertical split |
+| `Ctrl+w h/j/k/l` | Move between windows |
+| `Ctrl+w =` | Equalize window sizes |
+| `Ctrl+w _` | Maximize current window (horizontal) |
+| `Ctrl+w \|` | Maximize current window (vertical) |
 
--   `:split` or `:sp`: Split horizontally
--   `:vsplit` or `:vs`: Split vertically
--   `Ctrl + w + h/j/k/l`: Move between split windows
--   `Ctrl + w + =`: Adjust all window sizes equally
+### Buffer Management
 
-### Repeating with the Dot Command
+| Command | Action |
+|---------|--------|
+| `:ls` | List buffers |
+| `:bn` | Next buffer |
+| `:bp` | Previous buffer |
+| `:b{n}` | Go to buffer n |
+| `:bd` | Delete buffer |
 
-The dot (`.`) command is a very useful feature that repeats the last change. For example, after changing a word with `ciw` and entering a new word, pressing `.` at another location repeats the same action. This is suitable for simpler repetitive tasks than macros.
+## Learning Methods
 
-## Utilizing vimtutor
-
-vimtutor is an interactive tutorial built into vim. It runs by entering the `vimtutor` command in the terminal. It takes about 30 minutes and is the best learning method for beginners as you can learn vim's basic commands through hands-on practice. Korean version is also supported. It's important to repeat it several times to get it into your muscle memory.
+vimtutor is an interactive tutorial built into Vim. It runs by entering `vimtutor` in the terminal and takes about 30 minutes. A Korean version is also available (`vimtutor ko`). It is the best learning method for beginners as you can learn basic commands through hands-on practice. Learning one new command at a time while using Vim daily is effective. Vim key bindings are supported in many tools including VS Code (Vim extension), JetBrains IDE (IdeaVim), and browsers (Vimium), making it a high-value skill that can be used for a lifetime once learned.
 
 ## Conclusion
 
-Vim is a powerful text editor with nearly 50 years of history. Through the unique philosophy of modal editing, it enables very fast editing using only the keyboard. The initial learning curve is steep, but once familiar, it is more efficient than any other editor. It is an essential tool in server environments and can achieve modern IDE-level functionality through plugins and configuration. vim key bindings are supported by many tools, making it a high-value skill that can be used for a lifetime once learned. Starting with vimtutor and using it a little each day, you'll naturally become proficient. Eventually, you'll find yourself unable to edit without vim.
+Vim is a text editor with nearly 50 years of history since vi's birth in 1976. Through the unique philosophy of modal editing, it enables extremely fast editing using only the keyboard. The initial learning curve is steep, but once familiar, it is more efficient than any other editor. It comes pre-installed on nearly all Unix/Linux systems, making it essential in server environments. Through plugins and configuration, it can achieve modern IDE-level functionality. Vim key bindings are supported in VS Code, JetBrains, browsers, and more, making it a skill you can use for a lifetime once learned.

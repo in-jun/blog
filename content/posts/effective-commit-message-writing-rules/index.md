@@ -1,99 +1,236 @@
 ---
-title: "효과적인 commit 메시지 작성 규칙"
+title: "효과적인 커밋 메시지 작성 규칙"
 date: 2024-07-12T08:48:08+09:00
-tags: ["commit", "git", "github", "best practices", "collaboration"]
+tags: ["git", "commit", "conventional-commits", "version-control"]
+description: "커밋 메시지 작성 규칙은 2009년 Tim Pope의 가이드라인에서 시작되어 2017년 Conventional Commits 표준으로 발전했으며, 제목 50자 제한, 명령형 사용, 타입 지정, 본문에서 무엇과 왜 설명하기가 핵심이다"
 draft: false
 ---
 
-소프트웨어 개발에서 버전 관리는 필수적인 요소다. 그중에서도 커밋 메시지는 프로젝트의 히스토리를 관리하고, 팀 협업을 원활하게 하는 핵심 요소다. 잘 작성된 커밋 메시지는 코드 리뷰를 용이하게 하고, 버그 추적을 쉽게 만들며, 프로젝트의 전반적인 품질을 향상한다. 이 글에서는 효과적인 커밋 메시지 작성을 위한 규칙과 그 중요성에 대해 자세히 알아볼 것이다.
+## 커밋 메시지의 역사와 중요성
 
-### 1. 제목과 본문을 분리: 명확한 정보 전달
+커밋 메시지 작성에 대한 체계적인 가이드라인은 2008년 Tim Pope가 "A Note About Git Commit Messages"라는 블로그 포스트에서 50/72 규칙(제목 50자, 본문 72자 줄바꿈)을 제안하면서 널리 알려지기 시작했으며, 이후 2014년 Angular 팀이 AngularJS 프로젝트를 위해 개발한 커밋 메시지 컨벤션이 업계에서 주목받았고, 2017년에는 이를 기반으로 Conventional Commits 1.0.0이 발표되어 현재 오픈소스 프로젝트에서 가장 널리 사용되는 표준으로 자리 잡았다.
 
-커밋 메시지는 제목과 본문으로 구분하여 작성한다. 이는 빠른 개요 파악과 필요시 상세 정보 확인을 가능하게 한다.
+커밋 메시지가 중요한 이유는 Git 히스토리가 프로젝트의 변경 이력을 담은 문서 역할을 하기 때문이며, 잘 작성된 커밋 메시지는 `git log`만으로 프로젝트의 발전 과정을 파악할 수 있게 하고, `git bisect`로 버그가 도입된 커밋을 찾을 때 어떤 변경이 문제인지 즉시 이해할 수 있게 하며, 코드 리뷰어가 변경의 의도를 파악하는 데 소요되는 시간을 크게 줄여준다.
 
--   제목은 50자 이내로 작성하여 한눈에 변경 사항을 파악할 수 있게 한다.
--   제목과 본문 사이에는 빈 줄을 넣어 시각적으로 구분한다.
--   본문은 72자마다 줄 바꿈을 하여 가독성을 높인다.
+## 커밋 메시지 구조
 
-예시:
+커밋 메시지는 제목(subject), 본문(body), 꼬리말(footer) 세 부분으로 구성되며, 각 부분은 빈 줄로 구분된다.
 
 ```
-feat: 사용자 인증 시스템 구현
+<type>[optional scope]: <description>
 
-안전한 로그인 및 회원가입 기능을 추가하여 사용자 경험과 사이트 보안을 강화한다.
-- 클라이언트 측 유효성 검사가 포함된 반응형 로그인 및 회원가입 폼 생성
-- 비밀번호 해싱이 적용된 사용자 데이터베이스 스키마 설정
-- 무상태, 보안 세션을 위한 JWT 토큰 기반 인증 구현
-- 이메일 인증을 통한 비밀번호 재설정 기능 추가
+[optional body]
+
+[optional footer(s)]
 ```
 
-이렇게 구조화된 메시지는 변경 사항의 개요와 세부 사항을 명확히 전달한다.
+### 제목 작성 규칙
 
-### 2. 제목은 명령문으로: 일관성과 직접성 유지
+제목은 커밋의 핵심 내용을 한 줄로 요약하며, 다음 규칙을 따른다.
 
-커밋 제목을 명령조로 작성하면 일관성 있고 직접적인 메시지 전달이 가능하다.
+**50자 이내로 작성**: 50자를 초과하면 `git log --oneline`이나 GitHub의 커밋 목록에서 잘려서 표시되므로, 핵심만 간결하게 전달해야 한다.
 
--   좋은 예: "기능 추가", "중요 버그 수정", "사용자 모듈 리팩토링"
--   피해야 할 예: "기능을 추가했음", "버그 수정 중", "사용자 모듈 리팩토링 완료"
+**명령형(imperative) 사용**: Git 자체가 자동 생성하는 메시지(Merge branch, Revert commit)가 명령형을 사용하므로, 일관성을 위해 "Add feature"처럼 명령형으로 작성하며, "Added feature"나 "Adding feature"는 피한다.
 
-명령형을 사용함으로써 "이 커밋을 적용하면 이런 작업이 수행된다"라는 의미를 명확히 전달할 수 있다.
+**마침표 생략**: 제목은 문장이 아닌 제목이므로 마침표를 붙이지 않으며, 이는 공간 절약과 함께 시각적 일관성을 제공한다.
 
-### 3. 제목 끝 마침표 생략: 간결성 추구
+**첫 글자 대문자**: 영문 작성 시 첫 글자는 대문자로 시작하며, 이는 가독성을 높이고 전문적인 인상을 준다.
 
-제목의 끝에 마침표를 붙이지 않음으로써 불필요한 문자를 줄이고 간결성을 유지한다. 짧은 제목에서 마침표는 불필요한 요소다.
+```bash
+# 좋은 예
+feat: Add user authentication
+fix: Resolve null pointer exception in UserService
+refactor: Extract payment logic into separate module
 
-### 4. 본문은 '무엇을', '왜'에 초점: 맥락 제공
-
-변경 사항의 동기와 영향을 설명하여 다른 개발자들이 변경의 맥락을 이해할 수 있게 한다.
-
--   코드 변경의 이유: 왜 이 변경이 필요했는지 설명한다.
--   변경으로 인한 영향: 이 변경이 프로젝트에 어떤 영향을 미치는지 기술한다.
--   한계점과 주의 사항: 알려진 문제점이나 향후 개선 방향을 언급한다.
-
-예를 들어:
-
-```
-refactor: 사용자 대시보드 데이터베이스 쿼리 최적화
-
-현재 1000개 이상의 항목을 가진 사용자의 대시보드 로딩 시간이 5초를 초과한다.
-이번 리팩토링으로:
-- 자주 조회되는 필드에 대한 데이터베이스 인덱싱을 구현한다.
-- 여러 개의 쿼리를 단일 최적화 쿼리로 대체한다.
-- 반복적인 데이터에 대한 캐싱을 도입한다.
-
-성능 테스트 결과 로딩 시간이 70% 감소했다.
-주의: 새로운 인덱스로 인해 데이터베이스 크기가 약간 증가할 수 있다.
+# 나쁜 예
+feat: added user authentication.  # 과거형, 마침표
+Fix null pointer  # 타입 소문자, 설명 불충분
 ```
 
-이러한 상세한 설명은 코드 리뷰어와 미래의 개발자들에게 귀중한 정보를 제공한다.
+### 본문 작성 규칙
 
-### 5. 커밋 유형 지정: 빠른 분류와 이해
+본문은 제목만으로 전달할 수 없는 상세 내용을 설명하며, 모든 커밋에 필수는 아니지만 복잡한 변경이나 비자명한 결정을 설명할 때 작성한다.
 
-커밋 메시지 제목 앞에 타입을 명시하여 변경 사항의 성격을 즉시 파악할 수 있게 한다.
+**무엇(What)과 왜(Why)에 초점**: 코드를 보면 "어떻게(How)" 변경했는지는 알 수 있으므로, 본문에서는 "무엇을 변경했는지"와 "왜 이 변경이 필요했는지"를 설명해야 하며, 특히 "왜"가 가장 중요한데 이는 미래의 개발자(자신 포함)가 변경의 맥락을 이해하는 데 핵심적인 정보이기 때문이다.
 
--   feat: 새로운 기능 추가
--   fix: 버그 수정
--   docs: 문서 수정
--   style: 코드 포맷팅, 세미콜론 누락 등 (코드 변경 없음)
--   refactor: 코드 리팩토링
--   test: 테스트 코드 추가 또는 수정
--   chore: 빌드 프로세스 또는 보조 도구 변경
+**72자 줄바꿈**: 터미널에서 `git log`를 볼 때 가독성을 위해 72자마다 줄바꿈하며, 이는 들여쓰기와 여백을 고려했을 때 80자 터미널에서 최적의 가독성을 제공하는 너비이다.
 
-예: `feat: 소셜 로그인을 위한 OAuth2 통합 추가`
+```
+fix: Resolve race condition in payment processing
 
-이 방식은 특히 대규모 프로젝트에서 변경 사항을 쉽게 분류하고 추적하는 데 유용하다.
+The payment service occasionally processed duplicate charges when
+users clicked the submit button multiple times in quick succession.
 
-### 6. 규칙의 팀 내 공유와 적용
+This fix introduces a debounce mechanism that:
+- Disables the submit button immediately on click
+- Uses a unique idempotency key per transaction
+- Adds server-side duplicate detection within 5-second window
 
-이러한 커밋 메시지 규칙을 팀 전체가 공유하고 일관되게 적용하는 것이 중요하다. 프로젝트의 CONTRIBUTING.md 파일에 이러한 가이드라인을 명시하고, 코드 리뷰 과정에서 이를 체크하는 것이 도움이 될 수 있다.
+The 5-second window was chosen based on analysis of production logs
+showing 99% of duplicate requests occur within 3 seconds.
 
-### 결론
+Closes #456
+```
 
-좋은 커밋 메시지 작성은 단순한 규칙 준수를 넘어 프로젝트와 팀에 큰 가치를 제공한다:
+### 꼬리말 규칙
 
-1. **프로젝트 히스토리의 품질 향상**: 명확한 커밋 메시지는 프로젝트의 발전 과정을 이해하기 쉽게 만든다.
-2. **협업 효율성 증대**: 팀원들이 서로의 작업을 더 쉽게 이해하고 리뷰할 수 있다.
-3. **문제 해결 시간 단축**: 버그 추적이나 기능 분석 시 관련 커밋을 빠르게 찾을 수 있다.
-4. **코드 품질 향상**: 변경 사항에 대해 더 깊이 생각하게 되어 전반적인 코드 품질이 향상된다.
+꼬리말은 이슈 연동, Breaking Change 명시, 공동 작성자 표시 등 메타데이터를 기록하며, `키: 값` 형식을 따른다.
 
-커밋 메시지 작성은 개발 과정에서 작은 부분처럼 보일 수 있지만, 장기적으로는 프로젝트의 성공과 팀의 생산성에 큰 영향을 미친다. 이러한 습관을 기르는 것은 전문적인 개발자로 성장하는 데 중요한 단계이며, 더 나은 소프트웨어를 만드는 데 기여할 것이다.
+```
+feat(api): Add pagination to user list endpoint
+
+Implement cursor-based pagination for better performance with large
+datasets. Page size defaults to 20 with maximum of 100.
+
+BREAKING CHANGE: Response format changed from array to object with
+`data` and `nextCursor` fields.
+
+Closes #789
+Co-authored-by: Jane Doe <jane@example.com>
+Reviewed-by: John Smith <john@example.com>
+```
+
+## Conventional Commits 타입
+
+Conventional Commits 표준에서 정의하는 타입은 커밋의 성격을 즉시 파악할 수 있게 하며, 각 타입은 명확한 용도를 가진다.
+
+| 타입 | 용도 | 예시 |
+|------|------|------|
+| feat | 새로운 기능 추가 | feat: Add OAuth2 social login |
+| fix | 버그 수정 | fix: Resolve memory leak in cache |
+| docs | 문서 변경 | docs: Update API documentation |
+| style | 코드 포맷팅 (동작 변화 없음) | style: Apply prettier formatting |
+| refactor | 리팩토링 (기능/버그 수정 아님) | refactor: Extract validation logic |
+| perf | 성능 개선 | perf: Optimize database queries |
+| test | 테스트 추가/수정 | test: Add unit tests for UserService |
+| build | 빌드 시스템/외부 의존성 변경 | build: Upgrade webpack to v5 |
+| ci | CI 설정 변경 | ci: Add GitHub Actions workflow |
+| chore | 기타 변경 (src/test 외) | chore: Update .gitignore |
+| revert | 이전 커밋 되돌리기 | revert: Revert "feat: Add login" |
+
+### scope 사용
+
+scope는 변경이 영향을 미치는 모듈이나 컴포넌트를 명시하며, 괄호 안에 작성하고 프로젝트마다 일관된 scope 목록을 정의하여 사용하는 것이 좋다.
+
+```bash
+feat(auth): Add two-factor authentication
+fix(api): Handle timeout errors gracefully
+docs(readme): Add installation instructions
+refactor(core): Simplify event handling logic
+```
+
+### Breaking Change 표시
+
+API 호환성을 깨는 변경은 두 가지 방법으로 표시할 수 있으며, 타입 뒤에 `!`를 붙이거나 꼬리말에 `BREAKING CHANGE:`를 명시한다.
+
+```bash
+# 방법 1: 타입 뒤 ! 사용
+feat(api)!: Change authentication endpoint response format
+
+# 방법 2: 꼬리말 사용
+feat(api): Change authentication endpoint response format
+
+BREAKING CHANGE: The /auth/login endpoint now returns a JSON object
+instead of a plain token string. Clients must update to extract the
+token from the `accessToken` field.
+```
+
+## 자동화 도구
+
+커밋 메시지 규칙을 강제하고 활용하기 위한 도구들이 발전해왔다.
+
+**Commitlint**는 2016년에 등장한 도구로 커밋 메시지가 정해진 규칙을 따르는지 자동으로 검증하며, Husky와 함께 사용하여 Git hook으로 커밋 전에 검사를 수행할 수 있다.
+
+**Commitizen**은 대화형 CLI를 제공하여 규칙에 맞는 커밋 메시지를 쉽게 작성할 수 있게 하며, `git cz` 명령으로 타입, scope, 설명을 단계별로 입력받는다.
+
+**standard-version**과 **semantic-release**는 Conventional Commits 메시지를 분석하여 시맨틱 버전을 자동으로 결정하고 CHANGELOG를 생성하는 도구로, feat 커밋은 minor 버전을, fix 커밋은 patch 버전을, BREAKING CHANGE는 major 버전을 올린다.
+
+```json
+// package.json 예시
+{
+  "scripts": {
+    "commit": "cz",
+    "release": "standard-version"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "commitizen": "^4.0.0",
+    "cz-conventional-changelog": "^3.0.0",
+    "husky": "^8.0.0",
+    "standard-version": "^9.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  }
+}
+```
+
+## 실전 예시
+
+### 기능 추가
+
+```
+feat(auth): Implement JWT refresh token mechanism
+
+Add automatic token refresh to prevent session expiration during
+active use. The refresh token is stored in an HTTP-only cookie
+for security.
+
+Implementation details:
+- Refresh tokens expire after 7 days of inactivity
+- Access tokens are refreshed 5 minutes before expiration
+- Failed refresh attempts redirect to login page
+
+Security considerations:
+- Refresh tokens are rotated on each use
+- Old refresh tokens are invalidated immediately
+
+Closes #234
+```
+
+### 버그 수정
+
+```
+fix(payment): Prevent duplicate charges on network timeout
+
+Users were occasionally charged twice when the payment gateway
+response timed out but the charge actually succeeded.
+
+Root cause: The frontend retried the request without checking
+if the original transaction completed.
+
+Solution:
+- Generate idempotency key before first request attempt
+- Store pending transactions in local state
+- Check transaction status before retry
+
+Affected users have been identified and refunds are being processed
+separately (see issue #567).
+
+Closes #543
+```
+
+### 리팩토링
+
+```
+refactor(core): Replace callback pattern with async/await
+
+Modernize the codebase by converting callback-based async operations
+to async/await syntax for improved readability and error handling.
+
+Changes:
+- Convert 47 files from callbacks to async/await
+- Add proper try/catch blocks for error handling
+- Remove callback utility functions that are no longer needed
+
+No functional changes; all existing tests pass.
+
+Related to #890
+```
+
+## 결론
+
+커밋 메시지 작성 규칙은 2008년 Tim Pope의 50/72 규칙에서 시작되어 2014년 Angular 컨벤션을 거쳐 2017년 Conventional Commits 표준으로 발전해왔으며, 핵심은 제목 50자 이내의 명령형 요약, 본문에서 무엇과 왜 설명, feat/fix/docs 등 타입 지정, 그리고 Breaking Change 명시이다. Commitlint, Commitizen, standard-version 같은 도구를 활용하면 규칙 준수를 자동화하고 시맨틱 버전 관리와 CHANGELOG 생성까지 연계할 수 있어, 일관된 커밋 메시지는 단순한 문서화를 넘어 자동화된 릴리스 파이프라인의 기반이 된다.

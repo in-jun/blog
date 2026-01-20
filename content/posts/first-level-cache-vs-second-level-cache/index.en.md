@@ -1,326 +1,140 @@
 ---
-title: "Understanding First-Level and Second-Level Caches"
+title: "Complete Guide to First-Level and Second-Level Cache"
 date: 2024-06-08T03:39:05+09:00
-tags: ["ORM", "java"]
-description: "A comprehensive guide covering Hibernate cache architecture history and evolution, first-level cache working principles and transaction scope, second-level cache sharing mechanism and concurrency control, EhCache/Infinispan/Hazelcast comparison, cache strategies (READ_ONLY, READ_WRITE, NONSTRICT_READ_WRITE, TRANSACTIONAL), and cache synchronization issues with solutions in distributed environments"
+tags: ["jpa", "hibernate", "orm", "cache"]
+description: "The first-level cache is a mandatory transaction-scoped cache operating in the persistence context, while the second-level cache is an optional cache shared across the entire application. Choose from providers like EhCache, Infinispan, Hazelcast and concurrency strategies like READ_ONLY, READ_WRITE"
 draft: false
 ---
 
-## History and Evolution of Hibernate Caching
+## History and Concepts of Hibernate Cache Architecture
 
-Hibernate has provided caching mechanisms for performance optimization from its inception.
+Hibernate was designed with caching mechanisms as a core feature for performance optimization from when Gavin King first developed it in 2001. Since then, Hibernate's cache architecture has evolved into a two-level hierarchical structure called first-level cache and second-level cache, minimizing database access and maximizing application performance. The first-level cache is a mandatory feature that has existed since Hibernate's early versions along with Session (now EntityManager). The persistence context itself serves as the first-level cache, guaranteeing entity identity within transactions and serving as the foundation for Dirty Checking.
 
-### Emergence of First-Level Cache
+The second-level cache was first introduced as an optional feature in Hibernate 2.x (around 2003) and was standardized as "Shared Cache" in the JPA 2.0 specification in 2009, enabling consistent usage across all JPA implementations. Hibernate adopted an architecture that doesn't provide second-level cache implementation directly but integrates external cache providers like EhCache, Infinispan, and Hazelcast in a plugin-based manner through SPI (Service Provider Interface). This design allows users to select the optimal cache solution for their application requirements.
 
-The first-level cache has been included as a core feature of the persistence context since Hibernate's early versions. It is a mandatory feature that all JPA implementations must provide.
+The core principle of the cache hierarchy structure comes from the Memory Hierarchy concept that data closer to the processor is faster. The first-level cache is the layer closest to individual transactions, optimizing repeated queries within transactions, while the second-level cache is shared across the entire application, enabling data reuse between transactions.
 
-The first-level cache is part of the JPA specification and is automatically activated at the EntityManager or Session level. It cannot be disabled. It remains valid only within the transaction scope to ensure data consistency.
+## How First-Level Cache Works
 
-### Introduction of Second-Level Cache
+### First-Level Cache Structure and Lifecycle
 
-The second-level cache was introduced as an optional feature starting from Hibernate 2.x. It was standardized in the JPA 2.0 specification, allowing it to be used consistently across multiple implementations.
+The first-level cache is implemented as a Map structure inside the persistence context. It stores entity identifiers (@Id) as keys and entity instances as values, enabling immediate cached instance returns without database access when querying with the same identifier. The first-level cache lifecycle is identical to the persistence context—it's created when a transaction starts and destroyed when it ends. This transaction-scoped characteristic naturally achieves data isolation between different transactions.
 
-As a cache shared across the entire application, it enables data reuse across multiple transactions and sessions. Hibernate does not provide the second-level cache implementation directly. Instead, it is designed to integrate various cache providers through a standard interface in a plugin-based manner.
+The first-level cache is a mandatory feature in the JPA specification and is automatically activated in all JPA implementations. It's not an option that developers can explicitly disable or configure. When EntityManager.find() is called, it first queries the first-level cache. If the entity exists in cache, it returns immediately without a database query. Only when not in cache does it execute a SELECT query and store the result in the first-level cache.
 
-Supported cache providers include:
+```java
+EntityManager em = emf.createEntityManager();
+em.getTransaction().begin();
 
-- **EhCache**: The most widely used caching library
-- **Infinispan**: Red Hat's distributed cache solution
-- **Hazelcast**: In-memory data grid optimized for cloud environments
+// First query: SELECT from DB, stored in first-level cache
+User user1 = em.find(User.class, 1L);
 
-## Concept and Working Principles of First-Level Cache
+// Second query: Immediate return from first-level cache, no DB access
+User user2 = em.find(User.class, 1L);
 
-The first-level cache refers to the cache that exists within the persistence context. When an entity is queried, the persistence context stores the entity in the cache.
+System.out.println(user1 == user2); // true - same instance
 
-### Structure of First-Level Cache
+em.getTransaction().commit();
+```
 
-The first-level cache operates at the Session or EntityManager level. Each session has its own first-level cache. This cache has a Key-Value structure and uses the entity's identifier as the key to store the entity instance as the value.
+### Identity Guarantee and Dirty Checking
 
-### Query Mechanism
+One of the first-level cache's core functions is implementing the Identity Map pattern, guaranteeing that entities queried with the same identifier within the same transaction always return the same object instance. This characteristic enables providing REPEATABLE READ transaction isolation at the application level. Additionally, the first-level cache serves as the foundation for Dirty Checking—when an entity is stored in the first-level cache, a snapshot of that moment is also stored. At flush time, it compares the current state with the snapshot and automatically generates UPDATE queries for changed entities.
 
-When querying an entity, Hibernate first checks the first-level cache. If the entity is in the cache, it returns the cached instance without querying the database.
+### First-Level Cache Limitations and Memory Management
 
-This ensures that even if the same entity is queried multiple times within the same transaction, the database is accessed only once. This is a core mechanism that significantly improves performance.
+The first-level cache is created and destroyed per transaction, so caches aren't shared between different requests or transactions. It doesn't dramatically improve overall application performance. The first-level cache's true value lies not in performance but in serving as the foundation mechanism for identity guarantee and dirty checking. In batch operations processing large numbers of entities, entities keep accumulating in the first-level cache, increasing memory usage. You should call flush() and clear() at regular intervals to empty the persistence context and prevent OutOfMemoryError.
 
-### Transaction Scope and Lifecycle
+## How Second-Level Cache Works
 
-The first-level cache is valid only within a transaction. When the transaction ends, the first-level cache is also terminated. This ensures consistency within the transaction scope and isolates it from changes made by other transactions.
+### Second-Level Cache Scope and Sharing Mechanism
 
-### Mandatory Feature
+The second-level cache operates at the SessionFactory or EntityManagerFactory level. As a cache shared across the entire application, it can reuse data between different transactions and user requests, significantly reducing database access. Unlike the first-level cache which is destroyed when transactions end, the second-level cache is maintained until the application terminates or is explicitly removed. When an entity is queried, it first checks the first-level cache, then the second-level cache if not found, and finally queries the database if not in the second-level cache either—a three-step query process.
 
-The first-level cache is always active and cannot be disabled. As a core feature of JPA and Hibernate, the persistence context itself is essentially the first-level cache.
+To prevent concurrency issues, the second-level cache doesn't store entity instances directly but in serialized form (Disassembled State). When queried, it deserializes to create new instances, isolating changes in one session from affecting other sessions. This serialization/deserialization process incurs some overhead, but it's negligible compared to database access costs.
 
-It guarantees entity identity. Within the same persistence context, entities with the same identifier always return the same instance.
+### Second-Level Cache Activation and Configuration
 
-## Dirty Checking and First-Level Cache Relationship
+The second-level cache is an optional feature that's disabled by default. To use it, you must specify a cache provider and explicitly configure which entities to cache. In Spring Boot, activate it with `spring.jpa.properties.hibernate.cache.use_second_level_cache=true`, then add @Cacheable and Hibernate's @Cache annotations to entity classes to enable caching for individual entities.
 
-Dirty checking is a mechanism that tracks changes to entities through the first-level cache. When an entity is queried, the persistence context stores the initial state of the entity as a snapshot.
+```java
+@Entity
+@Cacheable // JPA standard annotation
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "users") // Hibernate annotation
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
 
-### Snapshot Storage Mechanism
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE) // Collection caching
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders = new ArrayList<>();
+}
+```
 
-When storing an entity in the first-level cache, Hibernate also stores a copy (snapshot) of that entity. When flush occurs, it compares the current entity state with the snapshot to detect changed fields.
-
-When changes are detected, it automatically generates an UPDATE SQL and reflects it in the database. Developers don't need to explicitly call an update method.
-
-### Automatic Synchronization
-
-When the entity's state changes, the persistence context tracks the changes and reflects them in the database. Changes are automatically synchronized to the database at transaction commit time.
-
-### Memory Management Considerations
-
-The first-level cache is stored in memory, so query performance is very fast. However, memory usage can increase as the transaction lengthens.
-
-When processing large numbers of entities, you should periodically call flush() and clear() to manage memory. This prevents OutOfMemoryError.
-
-## Concept and Sharing Mechanism of Second-Level Cache
-
-The second-level cache refers to a cache shared among multiple persistence contexts. The cache is maintained even after the persistence context terminates, and entities can be shared among multiple persistence contexts.
-
-### Operating Scope and Sharing
-
-The second-level cache operates at the SessionFactory or EntityManagerFactory level and is shared across the entire application. Data can be reused across multiple transactions and multiple user requests, significantly reducing database queries.
-
-### Lifecycle and Application Targets
-
-The second-level cache is valid across multiple transactions. Cached data is retained until the application restarts or is explicitly removed.
-
-It is suitable for data that is frequently read but rarely modified:
-
-- **Code tables**: Country codes, currency codes, etc.
-- **Configuration data**: System settings, permission information, etc.
-- **Reference data**: Categories, department information, etc.
-
-### Activation Method
-
-The second-level cache is an optional feature and is disabled by default. To use it, you must explicitly enable it and configure a cache provider.
-
-You can use the @Cacheable and @Cache annotations to enable caching on a per-entity basis.
-
-### Concurrency Control
-
-The second-level cache can cause concurrency issues. Therefore, instead of providing objects directly, it should provide copies or use locks to control concurrency issues.
-
-Hibernate serializes entities to store them in the second-level cache. When querying, it deserializes them to create new instances, ensuring that changes to cached data do not affect other sessions.
-
-## Comparison of Second-Level Cache Providers
-
-Hibernate supports various second-level cache providers, each with unique characteristics and use cases.
+## Comparing Second-Level Cache Providers
 
 ### EhCache
 
-The most widely used combination with Hibernate, providing simple configuration and fast performance.
-
-- **Support mode**: Supports both local and distributed caching
-- **Cluster environment**: Can be used by integrating with Terracotta
-- **Standards compliance**: Implements the JCache (JSR-107) standard for high portability
+EhCache is an open-source cache library first developed by Greg Luck in 2003. It's the oldest and most widely used combination with Hibernate, providing simple configuration, excellent performance, and rich features. Starting with EhCache 3.x, it fully implements the JSR-107 (JCache) standard, allowing cache usage with standard APIs without vendor lock-in. It can be extended to distributed cache by integrating with Terracotta, making it usable in cluster environments.
 
 ### Infinispan
 
-An open-source data grid developed by Red Hat, optimized for distributed caching.
-
-- **Scalability**: Provides excellent scalability in cluster environments
-- **Transaction support**: Fully supports transactional cache strategies
-- **Integration**: Included by default in Wildfly and JBoss EAP
-- **Operation modes**: Supports both replication and distribution modes
+Infinispan is an open-source distributed in-memory data grid developed by Red Hat, released in 2009 succeeding the JBoss Cache project. Its strengths are excellent scalability and transaction support in cluster environments. Infinispan supports both replication and distribution modes, allowing balance adjustment between data consistency and scalability. It's built into Wildfly and JBoss EAP by default, integrating naturally in the Red Hat technology stack.
 
 ### Hazelcast
 
-An in-memory data grid that provides simple configuration and automatic cluster discovery features.
-
-- **Data structures**: Supports various data structures like distributed Map, Queue, and Topic
-- **Cloud optimization**: Excellent performance in cloud environments
-- **Spring Boot integration**: Very easy integration
-
-### Caffeine
-
-A high-performance local cache developed as a successor to Google Guava cache.
-
-- **Performance**: Provides the best performance in single JVM environments
-- **Features**: Automatic expiration, size limits, statistics collection, etc.
-- **Limitations**: Does not support distributed caching and is not suitable for cluster environments
+Hazelcast is an in-memory data grid developed by Hazelcast Inc., founded in 2008. It features cloud-native optimized design and auto-discovery functionality, providing various distributed data structures like distributed Map, Queue, and Topic. Its strength is automatic cluster configuration in Kubernetes and cloud environments like AWS, Azure, and GCP, with very easy Spring Boot integration.
 
 ## Cache Concurrency Strategies
 
-Hibernate provides four cache concurrency strategies for second-level cache concurrency control. Each strategy represents a tradeoff between performance and consistency.
-
 ### READ_ONLY
 
-Used for data that never changes and provides the highest performance.
-
-- **Lock usage**: No locks needed, so no concurrency issues occur
-- **Modification attempt**: An exception occurs if you try to modify the entity
-- **Application target**: Code tables or static reference data
+The READ_ONLY strategy is used for immutable data that never changes. It provides the highest performance as no locks are needed and no concurrency issues occur. It's suitable for static reference data like code tables, country lists, and currency codes. If you attempt to modify an entity, Hibernate throws an exception to protect data integrity.
 
 ### READ_WRITE
 
-Used for data where both reads and writes occur and is suitable for most common use cases.
-
-- **Concurrency control**: Uses soft locks to control concurrency
-- **Consistency guarantee**: Invalidates cache entries when entities are modified
-- **Provider support**: Supported by EhCache, Infinispan, and Hazelcast
+The READ_WRITE strategy is used for data where both reads and writes occur. It uses soft locks to control concurrency and invalidates cache entries when entities are modified, ensuring data consistency. It's suitable for most common business entities and is supported by major cache providers including EhCache, Infinispan, and Hazelcast.
 
 ### NONSTRICT_READ_WRITE
 
-Used when the likelihood of concurrently modifying the same entity is low. Does not use locks, so performance is better.
-
-- **Performance**: Faster than READ_WRITE, but stale data can be read for a short period
-- **Application target**: When update frequency is low and stale data can be temporarily tolerated
+The NONSTRICT_READ_WRITE strategy is used when the likelihood of concurrently modifying the same entity is low and short-term stale data can be tolerated. It doesn't use locks so performance is better than READ_WRITE, but only guarantees eventual consistency. It's suitable for configuration data or statistics information with low update frequency.
 
 ### TRANSACTIONAL
 
-Provides complete transaction isolation and guarantees the strongest consistency.
+The TRANSACTIONAL strategy provides complete transaction isolation and integrates with JTA transactions to support two-phase commit, guaranteeing the strongest consistency. It has significant performance overhead and is only available with transactional cache providers like Infinispan. It's used in enterprise environments where distributed transactions are essential.
 
-- **Transaction support**: Integrates with JTA transactions and supports two-phase commit
-- **Performance**: Significant performance overhead
-- **Provider limitation**: Only supported by transactional cache providers like Infinispan
-- **Application environment**: Enterprise environments requiring distributed transactions
+## Query Cache
 
-## How to Use and Configure Second-Level Cache
+Query cache is a feature that caches JPQL or Criteria API query results. It should be used with second-level cache to be effective and is activated with `spring.jpa.properties.hibernate.cache.use_query_cache=true`. Query cache stores query strings and parameters as keys and result entity identifier lists as values. Since actual entity data is retrieved from the second-level cache, it should be used together with entity caching.
 
-### Basic Activation Configuration
+The caution with query cache is that when related tables change, all query caches referencing those tables are invalidated. Caching queries on frequently changing tables causes frequent invalidation, potentially degrading performance. Therefore, query cache should be selectively applied only to frequently executed queries on rarely changing data.
 
-To use the second-level cache, you must first enable it in hibernate.properties or application.properties.
+## Cache Synchronization in Distributed Environments
 
-```properties
-spring.jpa.properties.hibernate.cache.use_second_level_cache=true
-```
+### Local Cache Limitations
 
-You must specify a cache provider.
+Local cache alone is sufficient in single server environments. However, in distributed environments with multiple server instances, even if one server modifies data, caches on other servers still have previous data, causing cache inconsistency. This problem can lead to serious issues where users see inconsistent data when requesting from different servers.
 
-### Enabling Entity Caching
+### Distributed Cache Solutions
 
-You can use the @Cacheable annotation on entities to enable caching. You can use the @Cache annotation to set the cache's concurrency strategy and region name.
+Using distributed cache providers like Infinispan or Hazelcast allows cache synchronization across all nodes in the cluster. Replication mode has all nodes holding copies of the entire cache, while distribution mode stores cache entries distributed across multiple nodes. Replication mode has excellent read performance but high memory usage, while distribution mode is memory efficient but requires network calls—choose based on your situation.
 
-Collections and associations can also be cached using @Cache.
+### Eventual Consistency Considerations
 
-### Query Cache
+Even in distributed caches, network delays can cause data inconsistencies between nodes for short periods—this is called eventual consistency. If strong consistency is essential, you must use the TRANSACTIONAL strategy or distributed locks. However, eventual consistency allowing short-term stale data is sufficient for most web applications.
 
-Using query cache allows you to cache the results of JPQL or Criteria queries.
+## Cache Monitoring and Optimization
 
-```properties
-spring.jpa.properties.hibernate.cache.use_query_cache=true
-```
+### Utilizing Cache Statistics
 
-Use it by calling setCacheable(true) on queries. Query cache stores only the identifier list of the result set, and actual entities are retrieved from the second-level cache.
+Hibernate provides statistics like cache hit rate, miss rate, store count, and eviction count. Enable with `spring.jpa.properties.hibernate.generate_statistics=true` and query through SessionFactory.getStatistics(). A low hit rate indicates either wrong caching target selection or early eviction due to small cache size—review your settings.
 
-### Cache Region Configuration
+### Selecting Cache Application Targets
 
-You can use cache regions to apply different cache settings for different entities or collections.
-
-Items that can be configured independently per region include:
-
-- **Expiration time**: Validity period of cached data
-- **Maximum size**: Maximum number of items that can be stored in cache
-- **Eviction policy**: Cache eviction algorithms like LRU, LFU
-
-Details are configured in provider-specific configuration files such as ehcache.xml or infinispan.xml.
-
-## Cache Behavior and Query Order
-
-When querying an entity, Hibernate goes through a multi-level cache lookup process.
-
-### Step 1: First-Level Cache Check
-
-The persistence context first looks for the entity in the first-level cache. If the entity is in the first-level cache, it is returned immediately.
-
-### Step 2: Second-Level Cache Check
-
-If the entity is not in the first-level cache, it checks the second-level cache. If found in the second-level cache, the entity is deserialized, stored in the first-level cache, and then returned.
-
-This is called a second-level cache hit and avoids database queries.
-
-### Step 3: Database Query
-
-If the entity is not in the second-level cache either, it queries the entity from the database. The queried entity is stored in both the first-level cache and the second-level cache.
-
-The entity is serialized and stored in the second-level cache, ready for the next query.
-
-### Behavior When Modifying Entities
-
-When an entity is modified, the persistence context updates the entity in the first-level cache. At transaction commit time, it updates both the database and the second-level cache.
-
-Cache entries are invalidated or updated according to the cache concurrency strategy.
-
-### Cache Validity Period
-
-- **First-level cache**: Valid until the transaction ends
-- **Second-level cache**: Valid even after the persistence context terminates, retained until explicitly removed or expired
-
-## Cache Synchronization Issues in Distributed Environments
-
-In distributed environments where multiple server instances are running, second-level cache synchronization becomes an important issue. When an entity is modified on one server, the cache on other servers must be invalidated.
-
-### Problems with Local Cache
-
-Using only local cache can cause cache inconsistency between servers. Even if one server updates data, other servers continue to provide old cached data.
-
-This causes data consistency issues.
-
-### Using Distributed Cache Providers
-
-Using distributed cache providers (Infinispan, Hazelcast) allows cache synchronization across all nodes in the cluster.
-
-- **Replication mode**: All nodes have a copy of the entire cache
-- **Distribution mode**: Cache entries are distributed and stored across multiple nodes
-
-### Cache Invalidation Mechanism
-
-Hibernate's cache invalidation mechanism invalidates the corresponding cache entry when an entity is modified or deleted. In distributed caches, invalidation messages are propagated to all nodes.
-
-Query cache is more complex to manage because all related query results must be invalidated when a table is updated.
-
-### Eventual Consistency and Strong Consistency
-
-Cache synchronization delays can cause data inconsistencies between nodes for a short period. You should consider whether eventual consistency can be tolerated.
-
-If strong consistency is required, you must use the TRANSACTIONAL strategy or distributed locks.
-
-## Precautions and Best Practices for Cache Usage
-
-### Selective Caching Application
-
-Second-level cache should not be applied to all entities. It should only be selectively applied to entities with many reads and few writes. Caching frequently changing data can make the cache invalidation overhead greater than the benefits.
-
-### Monitoring Cache Statistics
-
-You should monitor cache statistics to track performance:
-
-- **Hit rate**: Percentage of data found in cache
-- **Miss rate**: Percentage of data not found in cache
-- **Eviction count**: Number of times items were removed due to cache capacity
-
-Use Hibernate Statistics API or cache provider monitoring tools. A low hit rate indicates that cache settings should be reviewed.
-
-### Limiting Memory Usage
-
-To limit memory usage, cache size and expiration policies should be set appropriately.
-
-- **TTL (Time To Live)**: Maximum lifespan of cache items
-- **TTI (Time To Idle)**: Maximum idle time for cache items not accessed
-- **Eviction policy**: LRU (Least Recently Used) or LFU (Least Frequently Used)
-
-### Association Caching Considerations
-
-Association caching should be used carefully. Collection caching can use a lot of memory.
-
-Caching lazy-loaded collections can reduce N+1 problems, but memory usage should be monitored.
-
-### Validation and Testing
-
-You should verify cache behavior in test and production environments.
-
-- Check logs to see if the cache is working as expected
-- Test data consistency in concurrency scenarios
-- Measure cache performance improvements through load testing
+Second-level cache is effective only when applied to data that's frequently read but rarely modified. Caching frequently changing data can make cache invalidation overhead greater than benefits. Reference data like code tables, permission information, and categories are typical second-level cache targets. Transaction data like orders or payments should generally be excluded from caching.
 
 ## Conclusion
 
-Hibernate provides two levels of caching mechanisms—first-level cache and second-level cache—to minimize database queries and improve performance.
-
-The first-level cache is a mandatory feature valid only within transactions and is the core of the persistence context. It guarantees entity identity and enables dirty checking. It is automatically activated in all JPA implementations and cannot be disabled.
-
-The second-level cache is an optional feature valid across multiple transactions and is shared across the entire application. It supports various cache providers like EhCache, Infinispan, and Hazelcast. It provides four concurrency strategies: READ_ONLY, READ_WRITE, NONSTRICT_READ_WRITE, and TRANSACTIONAL.
-
-The second-level cache is suitable for data that is frequently read but rarely modified. In distributed environments, cache synchronization issues must be considered. Cache effectiveness should be verified through proper monitoring and testing.
-
-By appropriately combining first-level and second-level caches and correctly selecting cache concurrency strategies, you can significantly reduce database load and improve application performance. It is important to balance memory usage and data consistency.
+Hibernate's cache architecture consists of two levels: first-level cache and second-level cache. The first-level cache is a mandatory feature operating at transaction scope, where the persistence context itself serves as the first-level cache, forming the foundation for identity guarantee and dirty checking. The second-level cache is an optional feature shared across the entire application, implemented through external providers like EhCache, Infinispan, and Hazelcast. You should choose from four concurrency strategies—READ_ONLY, READ_WRITE, NONSTRICT_READ_WRITE, and TRANSACTIONAL—based on data characteristics. In distributed environments, use distributed cache providers considering cache synchronization issues, and the key to performance optimization is monitoring cache statistics and applying caching only to appropriate targets.

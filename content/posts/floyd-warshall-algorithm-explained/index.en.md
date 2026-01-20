@@ -1,289 +1,348 @@
 ---
-title: "Understanding the Floyd-Warshall Algorithm"
+title: "The Complete Guide to the Floyd-Warshall Algorithm"
 date: 2024-06-17T19:29:50+09:00
-tags: ["Floyd-Warshall", "shortest path", "algorithm"]
+tags: ["Floyd-Warshall", "algorithm", "shortest-path", "graph", "dynamic-programming"]
+description: "A comprehensive guide covering the history of the Floyd-Warshall algorithm independently published by Robert Floyd and Stephen Warshall in 1962, its dynamic programming-based recurrence relation and triple loop operation, O(V³) time complexity analysis, negative weight handling and negative cycle detection methods, and real-world applications including network diameter calculation and transitive closure."
 draft: false
-description: "The Floyd-Warshall algorithm is a dynamic programming-based algorithm that finds shortest paths between all pairs of vertices. It can handle negative weights with O(V^3) time complexity and is also used for transitive closure computation."
 ---
 
-## Floyd-Warshall Algorithm
+The Floyd-Warshall algorithm is a dynamic programming-based algorithm that finds the shortest paths between all pairs of vertices in a graph. Independently published by Robert Floyd and Stephen Warshall in 1962, it differs from Dijkstra's and Bellman-Ford algorithms by computing shortest paths for all pairs simultaneously in a single execution. With O(V³) time complexity, it can handle edges with negative weights and detect the presence of negative cycles, making it a core component in various fields including network diameter calculation, transitive closure operations, and database query optimization.
 
-The Floyd-Warshall algorithm finds the shortest paths between all pairs of vertices in a graph. It uses a dynamic programming approach and has a time complexity of O(V^3). It can handle edges with negative weights and detect negative cycles. Unlike Dijkstra's or Bellman-Ford algorithms, it computes shortest paths for all pairs at once.
+## History of the Floyd-Warshall Algorithm
 
-### History of the Algorithm
+> **What is the Floyd-Warshall Algorithm?**
+>
+> A dynamic programming-based algorithm that simultaneously finds the shortest paths between all pairs of vertices in a weighted graph, capable of handling negative weight edges and detecting the presence of negative cycles.
 
-The Floyd-Warshall algorithm was independently published by Robert Floyd and Stephen Warshall in 1962. Floyd applied it to the shortest path problem. Warshall applied it to the transitive closure problem. Interestingly, Bernard Roy had already published a similar algorithm in 1959. However, it was not widely known.
+The Floyd-Warshall algorithm was presented by American computer scientist Robert W. Floyd in his 1962 paper "Algorithm 97: Shortest Path" published in Communications of the ACM, applied to the shortest path problem. In the same year, Stephen Warshall independently published the same algorithm applied to the transitive closure problem in his paper "A Theorem on Boolean Matrices" in the Journal of the ACM. The algorithm was named after both researchers. Interestingly, French mathematician Bernard Roy had already described essentially the same algorithm in research published in 1959, so some European literature refers to it as the "Roy-Floyd-Warshall algorithm."
 
-This algorithm is a classic example of dynamic programming. It has made significant contributions to graph theory and optimization theory. In modern computer science, it is used in various fields. These include network routing, game theory, and database query optimization.
+This algorithm is a classic example of dynamic programming frequently covered in computer science education and has made significant contributions to the development of graph theory and optimization theory. Robert Floyd received the Turing Award in 1978 for his contributions to programming languages and algorithms, including this algorithm. In modern computer science, the algorithm is practically utilized in various fields including network routing, reachability analysis in game theory, relational operations in databases, and connectivity analysis in social networks.
 
-### Algorithm Principle
+## How the Algorithm Works
 
-The Floyd-Warshall algorithm solves the All-Pairs Shortest Path problem. The key idea is to consider paths that go through intermediate vertices sequentially. When using vertex k as an intermediate vertex, there are two cases for the path from i to j.
+The core idea of the Floyd-Warshall algorithm is the concept of "intermediate vertices," progressively computing the shortest path from i to j using only vertices from the set {1, 2, ..., k} as intermediate vertices.
 
-The first is a direct path without going through k. The second is a path that goes through k. The algorithm selects the shorter of these two paths. By repeating this process for all vertices, we can finally obtain the shortest paths for all pairs.
+### Dynamic Programming Recurrence Relation
 
-### Recurrence Relation
+> **Core Recurrence Relation**
+>
+> D[k][i][j] = min(D[k-1][i][j], D[k-1][i][k] + D[k-1][k][j])
+>
+> When vertices 1 through k can be used as intermediate vertices, the shortest distance from i to j is the shorter of (1) the path not passing through k and (2) the path passing through k.
 
-The core of the algorithm is expressed by the following recurrence relation.
+In actual implementation, a 2D array is used instead of a 3D array for space optimization. This is safe because at the k-th stage, the values D[i][k] and D[k][j] are identical to the values of paths that do not use k as an intermediate vertex.
 
 ```
 D[i][j] = min(D[i][j], D[i][k] + D[k][j])
 ```
 
-Here, D[i][j] represents the shortest distance from vertex i to vertex j. D[i][k] + D[k][j] is the distance from vertex i to j via k. This recurrence relation embodies the meaning "update if going through k is shorter." This utilizes the optimal substructure property. The property states that subpaths of the shortest path are also shortest paths.
+This recurrence relation embodies the meaning "update if going through vertex k is shorter," utilizing the optimal substructure property that subpaths of shortest paths are also shortest paths.
 
-We iterate k from 1 to n. For each k, we perform this comparison for all i and j pairs. As k increases, more intermediate vertices are considered. We progressively reach the optimal solution. When k=1, only vertex 1 is considered as an intermediate vertex. When k=2, vertices 1 and 2 are considered, and so on.
+### Meaning of the Triple Loop
 
-The correctness of this recurrence relation can be proven by induction. If correct results are obtained up to step k-1, correct results are obtained at step k as well. The base case is when k=0. This is the initial state considering only the weights of directly connected edges.
+The algorithm structure consists of three nested loops, and the role and order of each loop are crucial to correctness.
 
-### Dynamic Programming Approach
+**Outermost loop (k)**: Sequentially selects intermediate vertices from 1 to V. At the k-th iteration, only vertices {1, 2, ..., k} are considered as intermediate vertices. As k increases, paths using more intermediate vertices are explored, progressively reaching the optimal solution.
 
-The Floyd-Warshall algorithm has all three core elements of dynamic programming.
+**Middle loop (i)**: Iterates through starting vertices from 1 to V.
 
-First, it has Optimal Substructure. The shortest path from i to j consists of the shortest path from i to k and the shortest path from k to j. Second, Overlapping Subproblems exist. Multiple paths share the same intermediate vertices. The same calculations are repeated. Third, it stores and reuses the results of subproblems.
+**Innermost loop (j)**: Iterates through destination vertices from 1 to V.
 
-The meaning of the triple loop is clear. The outermost loop selects the intermediate vertex k. The middle loop selects the starting vertex i. The innermost loop selects the destination vertex j. This order is important. At the kth step, only vertices from 1 to k are considered as intermediate vertices.
+The loop order being k → i → j is essential. If k were in the innermost position, the algorithm would not work correctly. k must be outermost to ensure the progressive expansion of dynamic programming, where the k-th stage uses results from up to the (k-1)-th stage.
 
-### Procedure
+### Algorithm Execution Steps
 
-The algorithm proceeds in the following steps.
+**Step 1: Initialization**
 
-1. Initialize the 2D array D. Set the weight of edges between adjacent vertices. Set infinity between unconnected vertices. Set the distance to oneself as 0.
+Create a V × V 2D array D. Initialize adjacent vertices with edge weights, set unconnected vertices to infinity (INF), and set the distance to self D[i][i] to 0.
 
-2. Use triple nested loops to explore all vertices. The outer loop iterates the intermediate vertex k from 1 to n.
+**Step 2: Execute Triple Loop**
 
-3. For each k, examine all i, j pairs. Apply the recurrence relation to update the shortest paths.
+Iterate intermediate vertex k from 1 to V, applying D[i][j] = min(D[i][j], D[i][k] + D[k][j]) for all (i, j) pairs.
 
-4. When all iterations are complete, D[i][j] contains the shortest distance from i to j.
+**Step 3: Check Results**
 
-### Example Code
+After the algorithm terminates, D[i][j] contains the shortest distance from vertex i to vertex j. If a negative cycle exists, cases where D[i][i] < 0 occur among the diagonal elements.
+
+### Working Example
+
+Assume we have the following graph.
+
+```
+Vertices: 1, 2, 3, 4
+Edges: 1→2(3), 1→3(8), 1→4(∞), 2→3(2), 2→4(5), 3→4(1)
+```
+
+Initial distance matrix:
+```
+    1    2    3    4
+1 [ 0    3    8    ∞  ]
+2 [ ∞    0    2    5  ]
+3 [ ∞    ∞    0    1  ]
+4 [ ∞    ∞    ∞    0  ]
+```
+
+After k=1 (considering vertex 1 as intermediate): No change
+
+After k=2 (considering vertices 1, 2 as intermediate):
+- D[1][3] = min(8, 3+2) = 5 (1→2→3)
+- D[1][4] = min(∞, 3+5) = 8 (1→2→4)
+
+After k=3 (considering vertices 1, 2, 3 as intermediate):
+- D[1][4] = min(8, 5+1) = 6 (1→2→3→4)
+- D[2][4] = min(5, 2+1) = 3 (2→3→4)
+
+Final result:
+```
+    1    2    3    4
+1 [ 0    3    5    6  ]
+2 [ ∞    0    2    3  ]
+3 [ ∞    ∞    0    1  ]
+4 [ ∞    ∞    ∞    0  ]
+```
+
+## Implementation Example
+
+Here is a C++ implementation of the Floyd-Warshall algorithm.
 
 ```cpp
 #include <iostream>
 #include <vector>
-using std::cin;
-using std::cout;
-using std::min;
-using std::vector;
+using namespace std;
 
-#define INF 1000000000
+#define INF 1e9
 
-int main()
-{
-    int n, m;
+int main() {
+    int n, m; // n: number of vertices, m: number of edges
     cin >> n >> m;
 
-    vector<vector<int>> graph(n + 1, vector<int>(n + 1, INF));
+    // Initialize distance matrix
+    vector<vector<long long>> dist(n + 1, vector<long long>(n + 1, INF));
 
-    for (int i = 1; i <= n; i++)
-    {
-        graph[i][i] = 0;
+    for (int i = 1; i <= n; i++) {
+        dist[i][i] = 0; // Distance to self is 0
     }
 
-    for (int i = 0; i < m; i++)
-    {
+    // Edge input
+    for (int i = 0; i < m; i++) {
         int a, b, c;
         cin >> a >> b >> c;
-        graph[a][b] = c;
+        dist[a][b] = min(dist[a][b], (long long)c); // Handle duplicate edges
     }
 
-    for (int k = 1; k <= n; k++)
-    {
-        for (int i = 1; i <= n; i++)
-        {
-            for (int j = 1; j <= n; j++)
-            {
-                graph[i][j] = min(graph[i][j], graph[i][k] + graph[k][j]);
+    // Floyd-Warshall algorithm
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (dist[i][k] != INF && dist[k][j] != INF) {
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
             }
         }
     }
 
-    for (int i = 1; i <= n; i++)
-    {
-        for (int j = 1; j <= n; j++)
-        {
-            if (graph[i][j] == INF)
-            {
-                cout << "INF ";
-            }
-            else
-            {
-                cout << graph[i][j] << ' ';
-            }
+    // Negative cycle check
+    bool hasNegativeCycle = false;
+    for (int i = 1; i <= n; i++) {
+        if (dist[i][i] < 0) {
+            hasNegativeCycle = true;
+            break;
         }
-        cout << '\n';
+    }
+
+    if (hasNegativeCycle) {
+        cout << "A negative cycle exists." << '\n';
+    } else {
+        // Output results
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (dist[i][j] == INF) {
+                    cout << "INF ";
+                } else {
+                    cout << dist[i][j] << ' ';
+                }
+            }
+            cout << '\n';
+        }
     }
 
     return 0;
 }
 ```
 
-### Negative Weights and Negative Cycles
+### Code Explanation
 
-An important feature of the Floyd-Warshall algorithm is its ability to handle edges with negative weights. Dijkstra's algorithm cannot handle negative weights. Floyd-Warshall computes them accurately. This is because it systematically explores all possible paths due to the nature of dynamic programming.
+- `dist`: A V × V 2D array where dist[i][j] stores the shortest distance from vertex i to j.
+- `dist[i][i] = 0`: Distance to self must always be initialized to 0. Omitting this leads to incorrect results.
+- `dist[i][k] != INF && dist[k][j] != INF` condition: Checks before performing addition with INF to prevent overflow.
+- Duplicate edge handling: Multiple edges for the same (a, b) pair may be given, so the minimum value is selected.
 
-However, caution is needed when negative cycles exist. A negative cycle is a cycle where the sum of the weights is negative. If such a cycle exists, the distance becomes shorter as you keep cycling. The shortest path is not defined. For example, if the sum of weights on a path A → B → C → A is -5, the distance continues to decrease. It goes to -5, -10, -15 as the cycle repeats.
+## Negative Weights and Negative Cycles
 
-Negative cycles can be detected by examining the diagonal elements after running the algorithm. If there is a case where D[i][i] < 0, it means there is a negative cycle involving i. Normally, the shortest distance back to oneself should always be 0. Using this property, the existence of negative cycles can be determined in O(1) time.
+Unlike Dijkstra's algorithm, the Floyd-Warshall algorithm can correctly handle edges with negative weights. This is because, due to the nature of dynamic programming, it systematically explores all possible paths.
 
-In a graph with negative cycles, the shortest distances for all vertex pairs connected to vertices in the cycle become negative infinity. Practically, when a negative cycle is detected, this information should be communicated to the user. Special handling should be performed. In financial arbitrage detection or currency exchange graph analysis, negative cycles can represent profit opportunities.
+### Meaning of Negative Cycles
 
-### Time Complexity Analysis
+> **What is a Negative Cycle?**
+>
+> A cycle where the sum of the weights of its constituent edges is negative. If a negative cycle exists, the distance can be reduced to negative infinity by repeating the cycle infinitely, so the shortest path is not defined.
 
-The time complexity of the Floyd-Warshall algorithm is O(V^3). Here V is the number of vertices. Each loop of the triple nested loop runs V times. A total of V * V * V = V^3 operations are performed. Each operation consists of comparison, addition, and minimum value selection. All of which are performed in constant time.
+For example, if the sum of weights on a path A → B → C → A is -5, the distance continues to decrease as -5, -10, -15, ... as the cycle repeats. Therefore, the shortest distance for all vertex pairs involving vertices in a negative cycle or reachable from such vertices becomes negative infinity.
 
-The space complexity is O(V^2). A two-dimensional array of size V x V is required. To reconstruct paths, an additional V x V array is needed. But it is still O(V^2). This has the characteristic of depending only on the number of vertices. It is regardless of the number of edges.
+### Negative Cycle Detection Method
 
-This complexity is efficient when the number of vertices is small. It is practical enough for V of a few hundred or less. However, as V increases to thousands or tens of thousands, computation time increases rapidly. For example, V=100 requires 1 million operations. V=1000 requires 1 billion operations. V=10000 requires 1 trillion operations. On modern computers, up to about V=500 can be processed within 1 second.
+Negative cycles can be detected in O(V) time by examining the diagonal elements after running the Floyd-Warshall algorithm. Normally, the shortest distance D[i][i] back to oneself should always be 0. However, if a negative cycle exists, vertices with D[i][i] < 0 are found. Such a vertex i is either included in a negative cycle or can reach a negative cycle.
 
-Therefore, for large-scale graphs, other algorithms should be considered. If only single-source shortest paths are needed, Dijkstra's or Bellman-Ford is more efficient. In sparse graphs, the number of edges E is much smaller than V^2. Algorithms that utilize E are advantageous. Conversely, if all pairs of shortest paths are needed in dense graphs, Floyd-Warshall is most suitable.
+### Real-World Applications of Negative Cycles
 
-### Comparison with Other Algorithms
+Negative cycles are utilized in arbitrage detection in financial trading. When modeling exchange rates between multiple currencies as a graph, transforming exchange rate r to -log(r) converts the multiplication of the exchange process to addition. The existence of a negative cycle indicates an arbitrage opportunity to gain risk-free profit by repeating exchanges.
 
-Shortest path algorithms each have advantages and disadvantages. They should be chosen according to the situation.
+## Time Complexity Analysis
 
-Running Dijkstra's algorithm V times can find shortest paths for all pairs. Using a priority queue takes O(E log V) per run. The total is O(V * E log V). In dense graphs, E is close to V^2. This results in O(V^3 log V), which is slower than Floyd-Warshall. However, in sparse graphs, E is much smaller. Dijkstra is faster. For example, in a graph where E = O(V), it becomes O(V^2 log V). This is much faster than Floyd-Warshall's O(V^3).
+The time complexity of the Floyd-Warshall algorithm is O(V³), where V is the number of vertices.
 
-Running Bellman-Ford algorithm V times results in O(V^2 * E). In dense graphs, it becomes O(V^4), which is very slow. Even in sparse graphs, O(V^2 * E) is usually larger than O(V^3). The advantage of Bellman-Ford is that it handles negative weights and clearly detects negative cycles. However, since Floyd-Warshall can also handle negative weights, there is rarely a reason to run Bellman-Ford multiple times.
+### Detailed O(V³) Analysis
 
-Floyd-Warshall should be used in the following cases. First, when the number of vertices is small and shortest paths for all pairs are needed. Second, when shortest paths for all pairs are needed in dense graphs. Third, when implementation should be simple and easy to understand. Fourth, when negative weights need to be handled.
+Each loop of the triple nested loop executes V times, so a total of V × V × V = V³ comparison and update operations are performed. Each operation consists of addition, comparison, and minimum value selection, performed in constant time O(1). Space complexity is O(V²), requiring a V × V 2D array. Even with an additional next array for path reconstruction, it remains O(V²).
 
-### Practical Applications
+### Practical Limits
 
-The Floyd-Warshall algorithm is applied to various real-world problems.
+| Number of Vertices (V) | Number of Operations | Expected Execution Time |
+|------------------------|----------------------|-------------------------|
+| 100 | 10⁶ | < 0.01 seconds |
+| 500 | 1.25 × 10⁸ | About 0.5 seconds |
+| 1,000 | 10⁹ | About 5 seconds |
+| 5,000 | 1.25 × 10¹¹ | Not practical |
 
-Transitive Closure is the most direct application. It is the problem of determining whether vertex j is reachable from vertex i in a graph. You only need to check connectivity, ignoring weights. This is used in database relationship analysis and network connectivity analysis.
+On modern computers, V up to about 500 can be processed within 1 second. When V exceeds 1,000, execution time increases rapidly, and other algorithms should be considered for large-scale graphs.
 
-Calculating the Network Diameter is also an important application. The maximum of the shortest distances among all pairs is the network diameter. This is used as an indicator to evaluate network efficiency. It is used in communication network and social network analysis.
+## Comparison with Other Shortest Path Algorithms
 
-Path reconstruction is a practical requirement. Often, not only the shortest distance but also the actual path needs to be known. For this, a separate array is maintained to record intermediate vertices. Path reconstruction is essential in navigation and network routing.
+| Comparison Item | Floyd-Warshall | Dijkstra (V times) | Bellman-Ford (V times) |
+|-----------------|----------------|--------------------|------------------------|
+| Time Complexity | O(V³) | O(VE log V) | O(V²E) |
+| Sparse Graph (E ≈ V) | O(V³) | O(V² log V) | O(V³) |
+| Dense Graph (E ≈ V²) | O(V³) | O(V³ log V) | O(V⁴) |
+| Negative Weights | Supported | Not supported | Supported |
+| Negative Cycle Detection | Supported | Not supported | Supported |
+| Implementation Complexity | Very simple | Medium | Simple |
 
-It is also used in designing transportation networks between cities. By calculating the shortest paths between all city pairs, transportation infrastructure can be optimized. It is similarly used in logistics center placement and communication network design.
+### Algorithm Selection Guide
 
-In game development, it is used for pathfinding for AI characters. If the game map is small, calculating all pairs of shortest paths in advance allows for fast pathfinding at runtime.
+- **All-pairs shortest paths, dense graph**: Floyd-Warshall algorithm
+- **All-pairs shortest paths, sparse graph, positive weights only**: Run Dijkstra V times
+- **Single-source shortest path**: Dijkstra or Bellman-Ford
+- **Negative weights, negative cycle detection needed**: Floyd-Warshall or Bellman-Ford
+- **Simple implementation preferred, small number of vertices**: Floyd-Warshall algorithm
 
-### Path Reconstruction Example
+## Path Reconstruction
 
-In many cases, not only the shortest distance but also the actual path needs to be known. For this purpose, a next array is used.
+In many cases, not only the shortest distance but also the actual path needs to be reconstructed. For this purpose, a next array is used.
 
 ```cpp
 #include <iostream>
 #include <vector>
-using std::cin;
-using std::cout;
-using std::min;
-using std::vector;
+using namespace std;
 
-#define INF 1000000000
+#define INF 1e9
 
-void printPath(int i, int j, vector<vector<int>>& next)
-{
-    if (next[i][j] == -1)
-    {
-        cout << "No path\n";
+void printPath(int i, int j, vector<vector<int>>& next) {
+    if (next[i][j] == -1) {
+        cout << "No path" << '\n';
         return;
     }
 
     cout << i;
-    while (i != j)
-    {
+    while (i != j) {
         i = next[i][j];
         cout << " -> " << i;
     }
     cout << '\n';
 }
 
-int main()
-{
+int main() {
     int n, m;
     cin >> n >> m;
 
-    vector<vector<int>> graph(n + 1, vector<int>(n + 1, INF));
+    vector<vector<long long>> dist(n + 1, vector<long long>(n + 1, INF));
     vector<vector<int>> next(n + 1, vector<int>(n + 1, -1));
 
-    for (int i = 1; i <= n; i++)
-    {
-        graph[i][i] = 0;
+    for (int i = 1; i <= n; i++) {
+        dist[i][i] = 0;
     }
 
-    for (int i = 0; i < m; i++)
-    {
+    for (int i = 0; i < m; i++) {
         int a, b, c;
         cin >> a >> b >> c;
-        graph[a][b] = c;
-        next[a][b] = b;
+        if (c < dist[a][b]) {
+            dist[a][b] = c;
+            next[a][b] = b; // Initialize with directly connected vertex
+        }
     }
 
-    for (int k = 1; k <= n; k++)
-    {
-        for (int i = 1; i <= n; i++)
-        {
-            for (int j = 1; j <= n; j++)
-            {
-                if (graph[i][k] + graph[k][j] < graph[i][j])
-                {
-                    graph[i][j] = graph[i][k] + graph[k][j];
-                    next[i][j] = next[i][k];
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (dist[i][k] != INF && dist[k][j] != INF &&
+                    dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    next[i][j] = next[i][k]; // First vertex to visit when going from i to j
                 }
             }
         }
     }
 
-    // Example path output
+    // Print path from 1 to n
     printPath(1, n, next);
 
     return 0;
 }
 ```
 
-next[i][j] stores the next vertex to visit after i on the shortest path from i to j. Whenever the distance is updated, next is also updated. When printing the path, follow next to list all intermediate vertices.
+next[i][j] stores the vertex visited immediately after i on the shortest path from i to j. Whenever the distance is updated, next is also updated. When printing the path, follow next to sequentially list all intermediate vertices.
 
-### Optimization Techniques
+## Real-World Applications
 
-There are several techniques to make the Floyd-Warshall algorithm more efficient.
+The Floyd-Warshall algorithm is used as a core component in various real-world problems.
 
-Space optimization is important in memory-constrained environments. Space can be saved by reusing a 2D array instead of a 3D array. This overwrites the k-1th result in the kth step. This can be done safely due to the nature of the recurrence relation.
+### Transitive Closure
 
-Parallel processing is an opportunity for performance improvement. The i and j loops are independent of each other. They can be parallelized. At each k step, all i, j pairs can be calculated simultaneously. Utilizing GPUs or multi-core CPUs can achieve significant speed improvements.
+Transitive closure is the problem of determining whether vertex j is "reachable" from vertex i in a graph, checking only connectivity while ignoring weights. The Warshall algorithm, a variant of Floyd-Warshall, solves this problem using boolean operations. It is utilized in database relationship analysis (e.g., "Is A an ancestor of B?"), control flow reachability in program analysis, and compiler optimization.
 
-Early termination optimization is also possible. If no distance is updated at a certain step, there is no further improvement. The algorithm can be terminated. However, since this check itself has a cost, it is not always advantageous.
+### Network Diameter Calculation
 
-### Practical Tips
+The maximum of all shortest distances between vertex pairs is the network's diameter, which is a key indicator for evaluating network efficiency and vulnerabilities. In communication networks, it represents the worst-case transmission delay. In social network analysis, it is used to calculate the distance between "the two most distant people" (e.g., Six Degrees of Separation).
 
-There are several important points to be careful about when implementing.
+### Transportation Network Optimization Between Cities
 
-Initialization must be accurate. Set INF for unconnected vertices. Always set the distance to oneself as 0. Forgetting this leads to incorrect results. Also, when the same edge is given multiple times, the smallest weight should be selected.
+Pre-calculating shortest paths between all city pairs is utilized for logistics center placement, prioritizing transportation infrastructure investment, and optimizing emergency service deployment. In small-scale networks with limited vertex counts, Floyd-Warshall can pre-calculate all paths and respond to queries in O(1) time.
 
-Choosing the INF value is also important. Using too large a value can cause overflow during addition. A safe method is to choose a value large enough that INF + INF does not overflow. It should have about half the margin. For example, around 1e9 is appropriate for the int range.
+### Game AI Pathfinding
 
-Negative cycle detection is performed by examining the diagonal after running the algorithm. If there is any case where D[i][i] < 0, a negative cycle exists. In this case, the user should be warned. Special handling should be performed.
+When game maps are sufficiently small (e.g., sectors in grid-based strategy games), pre-calculating all-pairs shortest paths enables fast pathfinding at runtime. This provides much faster response times than running the A* algorithm each time and is an effective optimization strategy when memory constraints permit.
 
-Directed and undirected graphs should be distinguished. Undirected graphs are represented as bidirectional edges. The edge must be added twice. Directed graphs add edges only in the given direction.
+## Optimization Techniques
 
-If path reconstruction is needed, the next array must be maintained from the beginning. It is difficult to add later. The next array is initially set to directly connected vertices. It is updated together with distance updates.
+### Space Optimization
 
-### Advantages
+Space can be reduced from O(V³) to O(V²) by reusing a 2D array D[i][j] instead of a 3D array D[k][i][j]. This is safe because at the k-th stage, D[i][k] and D[k][j] are identical to the (k-1)-th results.
 
-The Floyd-Warshall algorithm has several strengths.
+### Parallel Processing
 
--   It computes shortest paths between all vertex pairs at once. It is efficient as precomputation when multiple queries are expected.
--   It can accurately handle edges with negative weights. It solves problems that are impossible with Dijkstra.
--   Implementation is very simple and easy to understand. It is implemented with just triple loops and one line of update logic.
--   It can detect negative cycles. This is an important feature in many real-world problems.
--   It is easy to extend to other problems such as transitive closure. The structure of the algorithm is clear, making modifications easy.
+Updates for all (i, j) pairs at each k stage are independent of each other and can be parallelized. Using GPUs or multi-core CPUs to process the inner two loops in parallel can achieve significant speed improvements, which is an important technique for achieving practical performance in large-scale graphs.
 
-### Disadvantages
+### Early Termination
 
-The limitations of the algorithm are also clear.
+If no distances are updated at a particular k stage, no updates will occur in subsequent stages either, so the algorithm can be terminated. However, this check itself costs O(V²), so it is not always advantageous. In practice, its effectiveness varies depending on graph characteristics.
 
--   Due to O(V^3) time complexity, it is impractical for large-scale graphs. When vertices exceed thousands, computation time increases rapidly.
--   When only single-source shortest paths are needed, it performs excessive computation. Running Dijkstra once is more efficient.
--   O(V^2) space complexity results in high memory usage. Memory shortage problems can occur with many vertices.
--   If negative cycles exist, shortest paths cannot be calculated. Only cycle detection is possible, and correct distances cannot be obtained.
--   It is less efficient than algorithms that utilize the number of edges in sparse graphs. This is because it examines all edges, including those that do not exist.
+## Implementation Considerations
 
-### Time Complexity
+- **INF value selection**: Choose a value large enough but with room so that INF + INF does not overflow. For int range, 1e9 is appropriate; for long long range, around 1e18/2 is suitable.
+- **Self-distance initialization**: Omitting D[i][i] = 0 leads to incorrect results, so initialization is mandatory.
+- **Duplicate edge handling**: Multiple edges may be given for the same (a, b) pair, so the minimum value must be selected.
+- **Undirected graphs**: Represent as bidirectional edges; both (a, b) and (b, a) must be added.
+- **Path reconstruction**: If needed, maintain the next array from the start; it is difficult to add later.
 
--   The Floyd-Warshall algorithm has a time complexity of O(V^3). Here V is the number of vertices.
--   The space complexity is O(V^2). Even with additional arrays for path reconstruction, it is still O(V^2).
--   It is practical when the number of vertices is a few hundred or less. For larger graphs, other algorithms should be considered.
+## Conclusion
+
+The Floyd-Warshall algorithm was independently published by Robert Floyd and Stephen Warshall in 1962. It calculates the shortest paths between all pairs of vertices in a graph in O(V³) time using the principles of dynamic programming. Unlike Dijkstra's and Bellman-Ford, it can obtain shortest paths for all pairs simultaneously in a single execution, handle negative weights, and detect negative cycles. Implemented with just a triple loop and one line of update logic, it is very simple yet powerful. It is used as a core component in various fields including transitive closure, network diameter calculation, transportation network optimization, and game AI. It is the most suitable choice when all-pairs shortest paths are needed in dense graphs with a few hundred or fewer vertices.

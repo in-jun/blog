@@ -1,179 +1,98 @@
 ---
-title: "Understanding the Persistence Context"
+title: "Complete Guide to Persistence Context"
 date: 2024-06-08T03:12:19+09:00
-tags: ["ORM", "java"]
-description: "A comprehensive guide covering persistence context necessity and role, first-level cache working principles and advantages, identity guarantee mechanism, write-behind and performance optimization, transaction-scoped vs extended persistence context, and OSIV pattern issues"
+tags: ["jpa", "hibernate", "orm", "java"]
+description: "The persistence context is a core JPA concept providing first-level cache, identity guarantee, write-behind, and dirty checking features. It operates within transaction scope, while the OSIV pattern maintains persistence until the view but risks connection pool exhaustion"
 draft: false
 ---
 
-## What is Persistence Context
+## Concept and History of Persistence Context
 
-The Persistence Context is an environment for permanently storing entities. It plays the role of storing objects retrieved from the database by the application. It exists as a virtual database between the application and the database.
+The Persistence Context is an environment for permanently storing entities. It's a core JPA concept that manages entity lifecycles between the application and database while providing various optimization features. This concept was first introduced under the name "Session" when Gavin King developed Hibernate in 2001. Hibernate's Session abstracted database connections, tracked entity object states, and provided a consistent data view within transactions. When JPA 1.0 standardized Hibernate in 2006, this concept was reformulated as Persistence Context and EntityManager.
 
-### Role of Persistence Context
+The core problem the persistence context solves is hiding the complexity of database operations in object-oriented applications, allowing developers to focus on business logic in an object-centric manner. Instead of directly querying the database each time, an intermediate layer called the persistence context handles optimizations like caching, change tracking, and delayed writing automatically. The persistence context implements the Unit of Work and Identity Map patterns defined by Martin Fowler—it tracks objects changed during a business transaction to reflect them all at once to the database when the transaction ends, and always returns the same object instance for entities with the same identifier to ensure consistency.
 
-The persistence context stores and manages entities when they are retrieved or saved through the entity manager. It tracks state changes between entities and the database.
+## Key Features of Persistence Context
 
-### Provided Features
+### First-Level Cache
 
-The persistence context is managed by the entity manager and provides the following features:
+Inside the persistence context, there's a Map-structured storage called the first-level cache. It stores entity identifiers (@Id) as keys and entity instances as values, enabling immediate cache returns without database access when the same entity is queried repeatedly within the same transaction. When find() is called, it first queries the first-level cache and only executes a database query if not found in cache, then stores the result in the first-level cache. This approach significantly reduces database load when querying the same data multiple times within the same transaction.
 
-- **First-level cache**: Temporarily stores entities to improve performance during repeated queries
-- **Dirty checking**: Automatically tracks entity changes and generates UPDATE queries automatically
-- **Write-behind**: Collects multiple queries to execute them at once for performance optimization
-- **Identity guarantee**: Guarantees identity for the same entity within the same transaction
-- **Lazy loading**: Loads associated entities at the point of actual use
+The first-level cache operates within transaction scope—it's created when a transaction starts and destroyed when it ends. Different transactions have their own first-level caches, naturally achieving data isolation between transactions. However, since a new first-level cache is created for each request, it doesn't dramatically improve overall application performance. The cache's true value lies not in performance but in serving as the foundation mechanism for identity guarantee and dirty checking.
 
-## First-Level Cache Working Principles and Advantages
+### Identity Guarantee
 
-Inside the persistence context, there is a storage space for entities called the first-level cache (First Level Cache).
-
-### Structure of First-Level Cache
-
-The first-level cache has a Key-Value structure:
-
-- **Key**: Entity identifier (ID)
-- **Value**: Entity instance
-
-### Query Mechanism
-
-When querying the database through EntityManager using the find command, it operates in the following order:
-
-1. First queries the persistence context's first-level cache
-2. If the id value received during find exists in the first-level cache, it finds and returns that value
-3. If the entity is not in the cache, data retrieved from the database is stored in the first-level cache
-
-### Lifecycle
-
-The first-level cache is only valid from when the transaction starts until it ends:
-
-- Transaction-scoped cache
-- Not an option that can be activated or deactivated
-- The persistence context itself is essentially the first-level cache
-
-### Advantages of First-Level Cache
-
-It reduces database access counts:
-
-- When querying the same entity again later, since the same entity exists in the first-level cache, it doesn't query the database
-- Returns the entity from the first-level cache as is
-- Since the same entity is in the same persistence context, it guarantees object identity
-
-### Performance Limitations
-
-If 10 requests come in, 10 first-level caches are created. The persistence context created for each request disappears together when the request ends and the transaction terminates.
-
-Therefore, the first-level cache often doesn't provide significant performance improvements. The first-level cache provides greater benefits from its mechanism than from performance.
-
-## Identity Guarantee Mechanism
-
-JPA's persistence context guarantees entity identity through the first-level cache mechanism.
-
-### Identity Guarantee Principle
-
-When repeatedly calling em.find(Member.class, "member1"), the persistence context returns the same entity instance from the first-level cache.
-
-Because the first-level cache returns the same entity instance, JPA guarantees entity identity.
-
-### Identity Comparison Example
+The persistence context guarantees that entities queried with the same identifier within the same transaction always return the same object instance. This is an implementation of the Identity Map pattern—calling `em.find(User.class, 1L)` multiple times doesn't create new objects each time but returns the same instance stored in the first-level cache. Therefore, `a == b` comparison returns true, and this characteristic enables providing REPEATABLE READ transaction isolation at the application level.
 
 ```java
-Member a = em.find(Member.class, "member1");
-Member b = em.find(Member.class, "member1");
+EntityManager em = emf.createEntityManager();
+em.getTransaction().begin();
+
+User user1 = em.find(User.class, 1L); // DB query, stored in first-level cache
+User user2 = em.find(User.class, 1L); // Returned from first-level cache
+
+System.out.println(user1 == user2); // true - same instance
 ```
 
-The identity comparison `a == b` returns true.
+### Write-Behind
 
-### Transaction Isolation Level
+Write-behind is a feature where the entity manager collects INSERT, UPDATE, and DELETE queries in a write-behind SQL store until just before committing the transaction, then sends them all to the database at flush time. This approach improves performance by reducing network round-trips compared to sending multiple queries individually. When persist() is called, the INSERT query doesn't execute immediately but is registered in the write-behind SQL store, and actual queries are sent at transaction commit or explicit flush() call time.
 
-Thanks to this identity guarantee, it provides REPEATABLE READ level transaction isolation at the application level:
+Write-behind becomes even more effective when combined with JDBC batch processing. Setting `hibernate.jdbc.batch_size` allows collecting queries of the same type up to the specified count and sending them as a single batch, greatly improving performance during bulk data processing.
 
-- Provided at the application level, not at the database level
-- If persistence contexts are different, entities are considered different objects, so identity is not guaranteed
+### Dirty Checking
 
-## Write-Behind and Performance Optimization
+Dirty checking is a feature that automatically detects changes and generates UPDATE queries at flush time when a managed entity is modified, without developers explicitly calling UPDATE statements. It compares the snapshot stored when the entity was persisted with the current state to find changed fields. Thanks to this feature, developers only need to change object field values and are freed from the burden of tracking which fields changed or writing UPDATE queries.
 
-The persistence context provides transactional write-behind functionality.
+```java
+em.getTransaction().begin();
 
-### Write-Behind Working Principle
+User user = em.find(User.class, 1L); // Managed state, snapshot stored
+user.setName("ChangedName"); // Only memory change occurs
 
-The entity manager doesn't save entities to the database until just before committing the transaction:
+em.getTransaction().commit(); // flush → snapshot comparison → UPDATE auto-generated
+```
 
-1. Collects INSERT SQL in an internal query storage
-2. When committing the transaction, sends the collected queries to the database to save them
+## Persistence Context Lifecycle and Scope
 
-This is called transactional write-behind.
+### Transaction-Scoped Persistence Context
 
-### SQL Batch Functionality
+Spring Framework uses transaction-scoped persistence context strategy by default, meaning the persistence context is created when a transaction starts and terminated when the transaction ends. When entering a method with @Transactional annotation, the transaction and persistence context start together, and when the method ends, the persistence context also terminates along with commit or rollback, making all entities inside it detached.
 
-Thanks to write-behind, SQL batch functionality can be used.
+Within the same transaction, the same persistence context is shared even across multiple repositories or services, so identity is guaranteed and dirty checking works consistently regardless of where entities are queried. However, attempting lazy loading in controllers or views after the transaction ends throws LazyInitializationException because the persistence context has already terminated.
 
-For example, you can collect 5 INSERT SQLs and send them to the database at once. INSERT queries are collected up to that size until just before commit and processed at once.
+### Extended Persistence Context and OSIV
 
-### Performance Optimization Settings
+OSIV (Open Session In View) is a pattern that keeps the persistence context open until view rendering completes. It originated from Hibernate's Open Session In View and is also called Open EntityManager In View in JPA. In Spring Boot, the `spring.jpa.open-in-view` property defaults to true, enabling OSIV. In this case, when an HTTP request comes in, the persistence context is created in a servlet filter or interceptor and maintained until the response completes.
 
-For performance optimization, hibernate.default_batch_fetch_size must be set:
+OSIV's operation creates the persistence context at request start without starting a transaction. When entering a method with @Transactional in the service layer, it starts a transaction using the existing persistence context. When the service layer ends, the transaction commits but the persistence context doesn't terminate, enabling lazy loading in controllers and views.
 
-- Usually set with values of 100~1000 depending on application characteristics
-- Read-only optimization that doesn't flush the persistence context doesn't perform heavy logic like snapshot comparison, so performance is optimized
-
-## Transaction-Scoped Persistence Context
-
-Spring uses transaction-scoped persistence context strategy by default.
-
-### How it Works
-
-- The same persistence context is used within the same transaction
-- Because OSIV is OFF, the lifecycle of the transaction and persistence context are the same
-- EntityManager is created only when entering the Service Layer where the transaction starts
-
-### Presentation Layer Constraints
-
-In the presentation layer like controller or view, it becomes detached state:
-
-- Attempting lazy loading throws an exception
-- The persistence context is limited to the transaction scope
-
-## OSIV Pattern and Issues
-
-OSIV (Open Session In View) is a feature that keeps the persistence context open until the view.
-
-### How OSIV Works
-
-1. When a client request comes in, the persistence context is created in a servlet filter or Spring interceptor
-2. The transaction doesn't start
-3. When starting a transaction in the service layer, it finds the created persistence context and starts the transaction
-4. When the service layer ends, it flushes the persistence context and commits the transaction
-5. The transaction ends but the persistence context doesn't terminate
-6. Since the persistence context is maintained until the presentation layer, lazy loading is possible
+## OSIV Pros, Cons, and Alternatives
 
 ### Advantages of OSIV
 
-If the persistence context is alive until the View, lazy loading can be used in the View as well.
+When OSIV is enabled, lazy loading is possible in the presentation layer, so even if entities are returned directly without converting to DTOs in the service layer, associated entities can be accessed in views, making development convenient. Since the persistence context is maintained after transaction ends, associated data can be queried at needed times without worrying about LazyInitializationException.
 
 ### Disadvantages of OSIV
 
-#### Database Connection Pool Exhaustion
+OSIV's biggest problem is holding database connections for the entire request duration. If API responses or view rendering take a long time, connections aren't returned during that time, potentially exhausting the connection pool. For example, if requests involving external API calls or complex view rendering increase, the connection pool can be depleted, making it impossible to process other requests.
 
-If code in the API that is not related to the database takes a long time, the following problems occur:
+Another problem is that since the persistence context is shared across the entire request, if multiple transactions execute within one request, changes to entities modified in previous transactions can affect subsequent transactions, creating the possibility of unintended data changes.
 
-- The database connection is held until the API responds
-- If many such requests come in, the database connection pool is exhausted instantly
-- The next request cannot be processed
+### Alternatives When Disabling OSIV
 
-#### Persistence Context Sharing Problem
+Setting `spring.jpa.open-in-view=false` to disable OSIV means the persistence context terminates when the transaction ends, so all necessary data must be pre-loaded in the service layer. Methods for this include: using JPQL fetch join to query associated entities at once, using @EntityGraph to eagerly load specific associations, or converting to DTOs in the service layer to pass only necessary data to the presentation layer.
 
-It expanded from opening the persistence context per transaction to opening the persistence context per request:
+```java
+// Pre-load associated entities with fetch join
+@Query("SELECT u FROM User u JOIN FETCH u.orders WHERE u.id = :id")
+User findWithOrders(@Param("id") Long id);
 
-- If there are multiple transactions in one request, the persistence context is shared
-- Possibility of unintended data changes exists
+// Using @EntityGraph
+@EntityGraph(attributePaths = {"orders", "profile"})
+Optional<User> findById(Long id);
+```
 
 ## Conclusion
 
-The persistence context is a virtual database that exists between the application and the database. It reduces database access counts through the first-level cache and guarantees identity.
-
-The first-level cache operates on a transaction basis. When repeatedly querying the same entity, it doesn't query the database but returns the cached entity. It provides REPEATABLE READ level transaction isolation at the application level.
-
-The write-behind feature collects SQL until just before transaction commit and sends it to the database at once, enabling batch processing. Performance can be optimized through hibernate.default_batch_fetch_size settings.
-
-Spring basically uses transaction-scoped persistence context strategy. The OSIV pattern maintains the persistence context until the view to enable lazy loading, but connection pool exhaustion and persistence context sharing issues can occur, so it should be used carefully.
+The persistence context is a core JPA concept that originated from Hibernate's Session. It provides caching through first-level cache, identity guarantee through the Identity Map pattern, batch optimization through write-behind, and dirty checking through snapshot comparison. Spring uses transaction-scoped persistence context strategy by default, matching transaction and persistence context lifecycles. The OSIV pattern maintains the persistence context until the view to enable lazy loading, but due to connection pool exhaustion risks, disabling it and using fetch join or DTO conversion approaches is recommended for API servers.

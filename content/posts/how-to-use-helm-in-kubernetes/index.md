@@ -1,353 +1,408 @@
 ---
-title: "helm 사용하기: Kubernetes 애플리케이션 패키지 관리 도구"
+title: "Helm 완벽 가이드: Kubernetes 패키지 관리의 모든 것"
 date: 2024-07-28T23:22:52+09:00
-tags: ["kubernetes", "helm", "package-management", "cloud-native"]
+tags: ["Kubernetes", "Helm", "DevOps", "Cloud Native", "Package Management"]
+description: "Helm의 핵심 개념과 동작 원리를 이해하고, 차트 구조, 템플릿 작성, 릴리스 관리, CI/CD 통합까지 Kubernetes 애플리케이션 패키징과 배포의 전체 과정을 다룬다"
 draft: false
 ---
 
-## 서론
+Helm은 Kubernetes 애플리케이션의 패키징, 배포, 버전 관리를 위한 패키지 관리자로, 2015년 Deis(현재 Microsoft)에서 처음 개발되어 2018년 CNCF(Cloud Native Computing Foundation)에 합류했으며, 현재 Kubernetes 생태계에서 가장 널리 사용되는 배포 도구로 자리잡았다. Helm은 Linux의 apt나 yum, macOS의 Homebrew와 유사한 역할을 Kubernetes에서 수행하며, 복잡한 Kubernetes 매니페스트 파일들을 Chart라는 패키지 형태로 묶어 한 번의 명령으로 설치, 업그레이드, 롤백할 수 있게 하고, 환경별 설정 관리와 의존성 처리를 자동화하여 애플리케이션 배포의 복잡성을 크게 줄여준다.
 
-helm은 Kubernetes 애플리케이션을 손쉽게 패키징하고 배포하기 위한 도구이다. "Kubernetes를 위한 패키지 관리자"로 불리는 helm은 복잡한 애플리케이션 구조를 단순화하고, 버전 관리를 용이하게 하며, 애플리케이션의 생명주기 관리를 효율적으로 만들어준다. 이 글에서는 helm의 개념부터 고급 사용법까지 상세히 다뤄보겠다.
+## Helm 개요
 
-## 1. helm의 기본 개념
+> **Helm이란?**
+>
+> Helm은 Kubernetes용 패키지 관리자로, Chart라 불리는 패키지를 통해 Kubernetes 애플리케이션을 정의, 설치, 업그레이드한다. "Kubernetes의 apt/yum"으로 불리며, 복잡한 애플리케이션을 단일 명령으로 배포할 수 있게 한다.
 
-### 1.1 helm이란?
+### Helm의 발전 역사
 
-helm은 Kubernetes 생태계에서 "패키지 관리자"로 불리는 도구이다. 리눅스의 apt나 yum, macOS의 Homebrew와 같은 역할을 Kubernetes에서 수행한다. helm을 사용하면 복잡한 Kubernetes 애플리케이션을 쉽게 정의하고, 설치하고, 업그레이드할 수 있다.
+| 연도 | 이벤트 | 의미 |
+|-----|--------|------|
+| **2015** | Helm v1 출시 (Deis) | Kubernetes 패키지 관리 개념 도입 |
+| **2016** | Helm v2 출시 | Tiller 서버 도입, 프로덕션 사용 확대 |
+| **2018** | CNCF 합류 | Kubernetes 생태계 공식 프로젝트로 인정 |
+| **2019** | Helm v3 출시 | Tiller 제거, 보안 강화, 3-way 병합 |
+| **현재** | Helm v3.x | CNCF Graduated 프로젝트 |
 
-### 1.2 helm의 주요 개념
+### Helm v2 vs Helm v3
 
-1. **차트(Chart)**: Kubernetes 리소스를 설명하는 파일들의 집합이다. 차트는 템플릿화된 YAML 매니페스트 파일, 차트의 메타데이터를 포함하는 Chart.yaml 파일, 그리고 기타 설정 파일들로 구성된다.
+| 특성 | Helm v2 | Helm v3 |
+|-----|---------|---------|
+| **Tiller** | 필수 (서버 컴포넌트) | 제거됨 |
+| **보안** | Tiller에 광범위한 권한 필요 | 사용자 kubeconfig 권한 사용 |
+| **릴리스 저장소** | ConfigMap (Tiller 네임스페이스) | Secret (릴리스 네임스페이스) |
+| **3-way 병합** | 미지원 | 지원 (실시간 상태 반영) |
+| **네임스페이스** | Tiller가 관리 | 릴리스별 네임스페이스 |
+| **차트 유효성 검사** | 기본적인 검사 | JSON Schema 지원 |
 
-2. **저장소(Repository)**: 차트들을 모아두고 공유할 수 있는 장소이다. GitHub 저장소나 전용 차트 저장소 서버가 될 수 있다.
+## 핵심 개념
 
-3. **릴리스(Release)**: 특정 차트의 인스턴스로, Kubernetes 클러스터에서 실행 중인 차트의 특정 배포를 나타낸다. 하나의 차트는 같은 클러스터 내에 여러 번 설치될 수 있으며, 각 설치는 새로운 릴리스를 생성한다.
+### Chart (차트)
 
-4. **값(Values)**: 차트의 기본 설정을 오버라이드하는 데 사용되는 설정값이다. 이를 통해 하나의 차트를 다양한 환경에 맞게 커스터마이즈할 수 있다.
+> **Chart란?**
+>
+> Chart는 Kubernetes 리소스를 설명하는 파일들의 집합으로, 템플릿화된 YAML 매니페스트, 메타데이터(Chart.yaml), 기본 설정값(values.yaml)으로 구성되며, Helm의 기본 배포 단위이다.
 
-## 2. helm 설치하기
+### Release (릴리스)
 
-helm을 설치하는 방법은 운영체제에 따라 다르다. 여기서는 주요 운영체제별 설치 방법을 소개하겠다.
+릴리스는 Chart의 실행 중인 인스턴스로, 동일한 Chart를 다른 설정으로 여러 번 설치할 수 있으며 각 설치는 고유한 릴리스 이름을 가진다. 예를 들어 MySQL Chart를 `mysql-production`과 `mysql-staging`이라는 두 개의 릴리스로 설치할 수 있다.
 
-### 2.1 macOS (Homebrew 사용)
+### Repository (저장소)
 
-```bash
-brew install helm
-```
+Chart들을 저장하고 공유하는 장소로, HTTP 서버에서 호스팅되며 index.yaml 파일로 차트 목록을 관리한다. 대표적인 저장소로는 Artifact Hub(구 Helm Hub), Bitnami Charts 등이 있다.
 
-### 2.2 Linux (스크립트 사용)
+### Values (값)
 
-```bash
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-```
+Chart의 기본 설정을 오버라이드하는 설정값으로, values.yaml 파일에 정의되거나 명령행 인자로 전달된다.
 
-### 2.3 직접 바이너리 다운로드
+## Helm 설치
 
-[공식 GitHub 릴리스 페이지](https://github.com/helm/helm/releases)에서 운영체제에 맞는 바이너리를 다운로드하여 설치할 수도 있다.
+### 운영체제별 설치 방법
 
-설치가 완료되면 다음 명령어로 helm 버전을 확인할 수 있다:
+| 운영체제 | 설치 명령 |
+|---------|----------|
+| **macOS (Homebrew)** | `brew install helm` |
+| **Linux (스크립트)** | `curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \| bash` |
+| **Windows (Chocolatey)** | `choco install kubernetes-helm` |
+
+설치 확인:
 
 ```bash
 helm version
 ```
 
-## 3. helm 기본 사용법
+## 기본 명령어
 
-### 3.1 저장소 관리
-
-#### 저장소 추가
+### 저장소 관리
 
 ```bash
-helm repo add stable https://charts.helm.sh/stable
-```
+# 저장소 추가
+helm repo add bitnami https://charts.bitnami.com/bitnami
 
-#### 저장소 목록 확인
-
-```bash
+# 저장소 목록 확인
 helm repo list
-```
 
-#### 저장소 업데이트
-
-```bash
+# 저장소 업데이트 (최신 차트 정보 동기화)
 helm repo update
+
+# 저장소 제거
+helm repo remove bitnami
 ```
 
-### 3.2 차트 검색 및 정보 확인
-
-#### 차트 검색
+### 차트 검색 및 정보 확인
 
 ```bash
-helm search repo stable
+# 저장소에서 차트 검색
+helm search repo nginx
+
+# Artifact Hub에서 검색
+helm search hub nginx
+
+# 차트 정보 확인
+helm show chart bitnami/nginx
+helm show values bitnami/nginx
+helm show readme bitnami/nginx
 ```
 
-#### 특정 차트 정보 확인
+### 릴리스 관리
+
+| 명령 | 설명 |
+|------|------|
+| `helm install <릴리스명> <차트>` | 차트 설치 |
+| `helm upgrade <릴리스명> <차트>` | 릴리스 업그레이드 |
+| `helm rollback <릴리스명> <리비전>` | 이전 버전으로 롤백 |
+| `helm uninstall <릴리스명>` | 릴리스 삭제 |
+| `helm list` | 설치된 릴리스 목록 |
+| `helm history <릴리스명>` | 릴리스 히스토리 |
+| `helm status <릴리스명>` | 릴리스 상태 확인 |
 
 ```bash
-helm show chart stable/mysql
+# 차트 설치
+helm install my-nginx bitnami/nginx
+
+# 커스텀 values로 설치
+helm install my-nginx bitnami/nginx -f custom-values.yaml
+
+# 명령행에서 값 지정
+helm install my-nginx bitnami/nginx --set service.type=LoadBalancer
+
+# 특정 네임스페이스에 설치
+helm install my-nginx bitnami/nginx -n production --create-namespace
+
+# 업그레이드 (없으면 설치)
+helm upgrade --install my-nginx bitnami/nginx
+
+# 롤백
+helm rollback my-nginx 1
+
+# 삭제
+helm uninstall my-nginx
 ```
 
-### 3.3 차트 설치 및 관리
+## Chart 구조
 
-#### 차트 설치
-
-```bash
-helm install my-release stable/mysql
-```
-
-#### 설치된 릴리스 목록 확인
-
-```bash
-helm list
-```
-
-#### 릴리스 업그레이드
-
-```bash
-helm upgrade my-release stable/mysql
-```
-
-#### 릴리스 롤백
-
-```bash
-helm rollback my-release 1
-```
-
-#### 릴리스 삭제
-
-```bash
-helm uninstall my-release
-```
-
-## 4. helm 차트 구조 상세 분석
-
-helm 차트의 기본 구조는 다음과 같다:
+표준 Helm Chart의 디렉토리 구조:
 
 ```
 mychart/
-  Chart.yaml
-  values.yaml
-  charts/
-  templates/
-  crds/
-  README.md
-  LICENSE
+├── Chart.yaml          # 차트 메타데이터
+├── Chart.lock          # 종속성 버전 잠금
+├── values.yaml         # 기본 설정값
+├── values.schema.json  # values 스키마 (선택)
+├── charts/             # 종속 차트 (서브차트)
+├── crds/               # Custom Resource Definitions
+├── templates/          # 템플릿 파일들
+│   ├── NOTES.txt       # 설치 후 표시 메시지
+│   ├── _helpers.tpl    # 재사용 템플릿 정의
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── ...
+└── README.md
 ```
 
-### 4.1 Chart.yaml
-
-차트의 메타데이터를 포함하는 YAML 파일이다. 주요 필드는 다음과 같다:
-
--   `apiVersion`: 차트 API 버전 (helm 3에서는 "v2")
--   `name`: 차트 이름
--   `version`: 차트의 SemVer 2 버전
--   `kubeVersion`: 지원하는 Kubernetes 버전 (선택적)
--   `description`: 차트에 대한 간단한 설명
--   `type`: 차트 타입 (application 또는 library)
--   `dependencies`: 차트의 종속성 목록
-
-### 4.2 values.yaml
-
-차트의 기본 설정값을 정의하는 파일이다. 이 파일의 값들은 템플릿에서 참조될 수 있으며, 설치 시 오버라이드 될 수 있다.
-
-### 4.3 templates/ 디렉토리
-
-Kubernetes 리소스를 정의하는 템플릿 파일들이 위치한다. 이 템플릿들은 Go 템플릿 언어로 작성되며, values.yaml의 값들을 참조할 수 있다.
-
-### 4.4 charts/ 디렉토리
-
-차트의 종속성(서브차트)들이 위치하는 디렉토리이다.
-
-### 4.5 crds/ 디렉토리
-
-Custom Resource Definitions(CRDs)를 포함하는 디렉토리이다.
-
-## 5. helm 템플릿 작성하기
-
-helm 템플릿은 Go 템플릿 언어를 기반으로 한다. 주요 기능은 다음과 같다:
-
-### 5.1 값 참조
-
-values.yaml 파일의 값을 참조할 때는 `.Values` 객체를 사용한다:
+### Chart.yaml
 
 ```yaml
-apiVersion: v1
-kind: ConfigMap
+apiVersion: v2           # Helm 3는 v2 사용
+name: mychart
+version: 1.0.0           # 차트 버전 (SemVer)
+appVersion: "1.16.0"     # 애플리케이션 버전
+description: My application Helm chart
+type: application        # application 또는 library
+keywords:
+  - web
+  - nginx
+maintainers:
+  - name: DevOps Team
+    email: devops@example.com
+dependencies:
+  - name: redis
+    version: "17.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+```
+
+### values.yaml
+
+```yaml
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: "1.21"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+```
+
+## 템플릿 작성
+
+Helm 템플릿은 Go 템플릿 언어를 기반으로 하며, values.yaml의 값을 참조하여 Kubernetes 매니페스트를 동적으로 생성한다.
+
+### 기본 문법
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-configmap
-data:
-  myvalue: "Hello World"
-  drink: {{ .Values.favorite.drink }}
-```
-
-### 5.2 제어 구조
-
-조건문과 반복문을 사용할 수 있다:
-
-```yaml
-{{- if .Values.create }}
-# 리소스 생성
-{{- end }}
-
-{{- range .Values.list }}
-- {{ . }}
-{{- end }}
-```
-
-### 5.3 함수와 파이프라인
-
-helm은 다양한 내장 함수를 제공하며, 파이프라인을 통해 함수를 연결할 수 있다:
-
-```yaml
-value: { { .Values.string | upper | quote } }
-```
-
-### 5.4 Named Templates
-
-재사용할 수 있는 템플릿 부분을 정의하고 사용할 수 있다:
-
-```yaml
-{{- define "mychart.labels" }}
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
   labels:
-    generator: helm
-    date: {{ now | htmlDate }}
+    app: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+```
+
+### 주요 내장 객체
+
+| 객체 | 설명 |
+|-----|------|
+| `.Values` | values.yaml 또는 --set으로 전달된 값 |
+| `.Release` | 릴리스 정보 (Name, Namespace, IsInstall 등) |
+| `.Chart` | Chart.yaml의 내용 |
+| `.Files` | 차트 내 파일 접근 |
+| `.Capabilities` | 클러스터 정보 (API 버전 등) |
+| `.Template` | 현재 템플릿 정보 |
+
+### 제어 구조
+
+```yaml
+# 조건문
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+...
 {{- end }}
 
-apiVersion: v1
-kind: ConfigMap
+# 반복문
+{{- range .Values.extraEnvVars }}
+- name: {{ .name }}
+  value: {{ .value | quote }}
+{{- end }}
+
+# with (스코프 변경)
+{{- with .Values.nodeSelector }}
+nodeSelector:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+```
+
+### 유용한 함수
+
+| 함수 | 설명 | 예시 |
+|-----|------|------|
+| `default` | 기본값 설정 | `{{ .Values.name \| default "nginx" }}` |
+| `quote` | 문자열 따옴표 처리 | `{{ .Values.name \| quote }}` |
+| `upper` / `lower` | 대/소문자 변환 | `{{ .Values.name \| upper }}` |
+| `toYaml` | YAML로 변환 | `{{ toYaml .Values.labels \| nindent 4 }}` |
+| `indent` / `nindent` | 들여쓰기 | `{{ include "mychart.labels" . \| nindent 4 }}` |
+| `b64enc` | Base64 인코딩 | `{{ .Values.secret \| b64enc }}` |
+
+### 재사용 템플릿 (_helpers.tpl)
+
+```yaml
+{{/* 공통 레이블 정의 */}}
+{{- define "mychart.labels" -}}
+helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+app.kubernetes.io/name: {{ .Chart.Name }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/* 사용 */}}
 metadata:
-  name: {{ .Release.Name }}-configmap
-  {{- template "mychart.labels" . }}
+  labels:
+    {{- include "mychart.labels" . | nindent 4 }}
 ```
 
-## 6. helm 차트 개발 및 테스트
-
-### 6.1 차트 생성
-
-새로운 차트를 생성하려면 다음 명령을 사용한다:
+## 차트 개발 및 테스트
 
 ```bash
+# 새 차트 생성
 helm create mychart
-```
 
-### 6.2 차트 린팅
-
-차트의 구조와 파일들을 검증한다:
-
-```bash
+# 차트 문법 검사
 helm lint mychart
-```
 
-### 6.3 차트 템플릿 렌더링 테스트
+# 템플릿 렌더링 확인 (설치 없이)
+helm template my-release mychart
 
-실제로 설치하지 않고 템플릿이 어떻게 렌더링 되는지 확인할 수 있다:
+# 특정 values로 렌더링
+helm template my-release mychart -f prod-values.yaml
 
-```bash
-helm template mychart
-```
+# 드라이런 (API 서버 검증)
+helm install my-release mychart --dry-run --debug
 
-### 6.4 차트 설치 테스트
-
-차트를 테스트 목적으로 설치하고 즉시 삭제할 수 있다:
-
-```bash
-helm install --dry-run --debug test-release mychart
-```
-
-## 7. helm 차트 배포 및 공유
-
-### 7.1 차트 패키징
-
-차트를 배포 가능한 아카이브로 패키징 한다:
-
-```bash
+# 차트 패키징
 helm package mychart
+
+# 종속성 업데이트
+helm dependency update mychart
 ```
 
-### 7.2 차트 저장소 호스팅
+## Hooks
 
-GitHub Pages나 Chart Museum과 같은 도구를 사용하여 차트 저장소를 호스팅 할 수 있다.
+Helm Hook은 릴리스 라이프사이클의 특정 시점에 실행되는 리소스를 정의할 수 있게 한다.
 
-### 7.3 차트 저장소 인덱스 생성
+| Hook | 실행 시점 |
+|------|----------|
+| `pre-install` | 템플릿 렌더링 후, 리소스 생성 전 |
+| `post-install` | 모든 리소스 생성 후 |
+| `pre-upgrade` | 업그레이드 시 템플릿 렌더링 후, 리소스 업데이트 전 |
+| `post-upgrade` | 업그레이드 완료 후 |
+| `pre-delete` | 삭제 요청 시, 리소스 삭제 전 |
+| `post-delete` | 모든 리소스 삭제 후 |
+| `pre-rollback` | 롤백 시 템플릿 렌더링 후, 리소스 복원 전 |
+| `post-rollback` | 롤백 완료 후 |
 
-저장소의 인덱스 파일을 생성한다:
+Hook 정의 예시:
 
-```bash
-helm repo index --url https://example.com/charts .
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-db-migrate"
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: myapp:{{ .Values.image.tag }}
+          command: ["./migrate.sh"]
+      restartPolicy: Never
 ```
 
-## 8. helm의 고급 기능
+## CI/CD 통합
 
-### 8.1 Hooks
-
-릴리스의 라이프사이클 중 특정 시점에 실행되는 스크립트를 정의할 수 있다. 주요 hook 포인트는 다음과 같다:
-
--   pre-install, post-install
--   pre-delete, post-delete
--   pre-upgrade, post-upgrade
--   pre-rollback, post-rollback
--   test
-
-### 8.2 차트 테스트
-
-`templates/tests/` 디렉토리에 테스트를 위한 pod 정의를 포함해 차트의 기능을 테스트할 수 있다.
-
-### 8.3 Library Charts
-
-재사용할 수 있는 차트 컴포넌트를 만들어 여러 차트에서 공유할 수 있다.
-
-### 8.4 Subcharts와 Global Values
-
-복잡한 애플리케이션을
-
-여러 개의 서브 차트로 구성하고, 글로벌 값을 통해 전체 차트에서 공유되는 설정을 관리할 수 있다.
-
-## 9. helm과 CI/CD
-
-helm은 CI/CD 파이프라인에 쉽게 통합될 수 있다. 주요 사용 사례는 다음과 같다:
-
--   차트 빌드 및 린팅
--   차트 버전 관리
--   차트 패키징 및 저장소 업로드
--   테스트 환경에 차트 배포
--   프로덕션 환경으로 롤아웃
-
-예를 들어, GitLab CI에서의 helm 사용 예시:
+Helm은 CI/CD 파이프라인에 쉽게 통합된다. GitLab CI 예시:
 
 ```yaml
 stages:
-    - build
-    - test
-    - deploy
+  - lint
+  - test
+  - deploy
 
-build:
-    stage: build
-    script:
-        - helm dependency update ./mychart
-        - helm lint ./mychart
-        - helm package ./mychart
+lint:
+  stage: lint
+  script:
+    - helm lint ./charts/myapp
 
 test:
-    stage: test
-    script:
-        - helm install --dry-run --debug test-release ./mychart
+  stage: test
+  script:
+    - helm template myapp ./charts/myapp
+    - helm install myapp ./charts/myapp --dry-run --debug
 
 deploy:
-    stage: deploy
-    script:
-        - helm upgrade --install my-release ./mychart
-    only:
-        - master
+  stage: deploy
+  script:
+    - helm upgrade --install myapp ./charts/myapp
+      --namespace production
+      --create-namespace
+      -f values-prod.yaml
+      --wait
+      --timeout 5m
+  only:
+    - main
 ```
 
-## 10. helm의 보안 고려사항
+## 보안 고려사항
 
-helm을 사용할 때 주의해야 할 보안 사항들:
+| 항목 | 권장 사항 |
+|-----|----------|
+| **민감 정보** | values.yaml에 직접 포함하지 않고 Kubernetes Secret 또는 외부 시크릿 관리 도구 사용 |
+| **차트 검증** | 신뢰할 수 있는 저장소의 차트만 사용, 설치 전 내용 검토 |
+| **RBAC** | 최소 권한 원칙 적용, 네임스페이스별 권한 분리 |
+| **서명 검증** | `helm verify` 명령으로 차트 서명 검증 |
 
-1. **values 파일 관리**: 민감한 정보는 values 파일에 직접 포함시키지 않고, Kubernetes Secrets나 외부 시크릿 관리 도구를 사용해야 한다.
+## 결론
 
-2. **차트 검증**: 신뢰할 수 있는 소스의 차트만 사용하고, 설치 전 항상 차트의 내용을 검토해야 한다.
-
-## 11. 결론
-
-helm은 Kubernetes 애플리케이션의 패키징, 배포, 관리를 크게 단순화하는 강력한 도구이다. 복잡한 애플리케이션을 쉽게 패키징하고, 버전 관리하며, 공유할 수 있게 해 주며, Kubernetes 생태계에서 중요한 역할을 담당하고 있다.
+Helm은 Kubernetes 애플리케이션의 패키징, 배포, 버전 관리를 표준화하는 핵심 도구로, 2015년 처음 개발된 이후 Kubernetes 생태계의 사실상 표준 패키지 관리자로 자리잡았다. Chart를 통해 복잡한 애플리케이션을 단일 배포 단위로 관리하고, 템플릿과 values를 활용한 환경별 설정 관리, 릴리스 히스토리를 통한 롤백 기능, 차트 저장소를 통한 공유와 재사용이 가능하여 Kubernetes 운영의 복잡성을 크게 줄여준다.
