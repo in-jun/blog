@@ -1,152 +1,110 @@
 ---
 title: "ORM(Object-Relational Mapping)이란?"
 date: 2024-05-15T16:40:07+09:00
-tags: ["ORM", "Database", "Programming", "Software Development", "Backend Development"]
+tags: ["orm", "jpa", "hibernate", "database"]
+description: "ORM은 객체와 관계형 데이터베이스 간의 패러다임 불일치를 해결하는 기술로, 1990년대 TopLink에서 시작해 2006년 JPA 표준으로 발전했다. 자동 매핑과 영속성 관리를 제공하지만, N+1 문제와 같은 성능 이슈에 주의해야 한다"
 draft: false
 ---
 
-데이터베이스를 다루는 개발자라면 한 번쯤 들어봤을 ORM. 하지만 정확히 무엇이고 왜 사용하는지 모호한 경우가 많습니다. 이 글에서는 ORM의 개념부터 실제 활용까지 상세히 알아보겠습니다.
+## ORM의 역사와 등장 배경
 
-## 목차
+ORM(Object-Relational Mapping)은 객체 지향 프로그래밍 언어의 객체와 관계형 데이터베이스의 테이블을 자동으로 매핑하는 기술로, 1990년대 초 객체 지향 프로그래밍이 주류가 되면서 객체와 테이블 사이의 패러다임 불일치(Object-Relational Impedance Mismatch)를 해결하기 위해 등장했다. 최초의 상용 ORM 도구는 1994년 TOPLink(현재 Oracle TopLink)로, 자바 이전에 스몰토크 환경에서 개발되었으며, 이후 1996년 자바 버전으로 포팅되어 엔터프라이즈 자바 생태계에서 ORM 개념을 확산시키는 데 기여했다.
 
-1. ORM의 개념과 정의
-2. ORM의 작동 원리
-3. 주요 ORM 프레임워크
-4. ORM의 장점과 단점
-5. ORM 실제 활용 사례
-6. 자주 묻는 질문(FAQ)
+2001년 Gavin King이 개발한 Hibernate는 EJB 2.x의 Entity Bean이 가진 복잡성과 성능 문제를 해결하기 위해 만들어진 오픈소스 ORM 프레임워크로, 선언적 매핑과 HQL(Hibernate Query Language)을 통해 개발자 생산성을 크게 향상시켰고, 이는 JPA(Java Persistence API) 표준의 기반이 되었다. 2006년 JSR 220의 일부로 JPA 1.0이 발표되면서 ORM은 표준화되었고, Hibernate, EclipseLink, OpenJPA 등 다양한 구현체가 동일한 인터페이스를 제공하게 되어 벤더 독립적인 영속성 프로그래밍이 가능해졌다.
 
-## 1. ORM의 개념과 정의
+## 패러다임 불일치 문제
 
-ORM(Object-Relational Mapping)은 객체 지향 프로그래밍의 객체와 관계형 데이터베이스를 연결해주는 기술입니다. 쉽게 말해, 프로그래밍 언어에서 사용하는 객체를 데이터베이스의 테이블과 자동으로 매핑해주는 도구라고 할 수 있습니다.
+객체 지향 프로그래밍과 관계형 데이터베이스는 데이터를 바라보는 관점이 근본적으로 다르며, 이러한 차이를 Object-Relational Impedance Mismatch라고 부른다. 객체 지향에서는 상속, 다형성, 캡슐화를 통해 현실 세계를 모델링하고 객체 간의 참조를 통해 관계를 표현하는 반면, 관계형 데이터베이스는 테이블과 로우로 데이터를 저장하고 외래 키와 조인을 통해 관계를 표현하며, 정규화를 통해 데이터 중복을 최소화한다.
 
-### 기존 SQL vs ORM 비교
+### 상속의 불일치
 
-```sql
--- 기존 SQL 방식
-SELECT * FROM users WHERE id = 1;
+객체는 상속 계층 구조를 자연스럽게 표현할 수 있지만, 관계형 데이터베이스에는 상속 개념이 없어서 단일 테이블 전략(Single Table), 조인 전략(Joined Table), 테이블 퍼 클래스 전략(Table per Class) 등으로 상속을 시뮬레이션해야 하며, 각 전략마다 장단점이 있어 상황에 맞게 선택해야 한다.
 
--- ORM 방식 (Python/Django 예시)
-user = User.objects.get(id=1)
-```
+### 연관관계의 불일치
 
-## 2. ORM의 작동 원리
+객체에서는 참조를 통해 양방향 관계를 표현할 때 양쪽 객체가 서로를 참조해야 하지만, 데이터베이스에서는 외래 키 하나로 양방향 조인이 가능하여 본질적인 차이가 존재한다. 또한 객체는 점 연산자로 그래프를 탐색하지만 SQL은 처음부터 어떤 테이블을 조인할지 명시해야 하므로 객체의 자유로운 탐색과 충돌한다.
 
-ORM은 다음과 같은 방식으로 작동합니다:
+### 동일성의 불일치
 
-1. **객체 매핑**: 클래스와 테이블을 매핑
-2. **속성 매핑**: 객체의 속성과 테이블의 컬럼을 매핑
-3. **관계 매핑**: 객체 간의 관계와 테이블 간의 관계를 매핑
+자바에서 동일성(identity)은 == 연산자로, 동등성(equality)은 equals() 메서드로 판단하는데, 데이터베이스 로우는 기본 키로 동일성을 판단한다. 같은 데이터베이스 로우를 두 번 조회하면 객체 관점에서는 서로 다른 인스턴스가 되어 == 비교가 false를 반환하는 문제가 발생하며, ORM은 영속성 컨텍스트의 1차 캐시를 통해 같은 트랜잭션 내에서 동일 식별자로 조회한 엔티티가 항상 같은 인스턴스임을 보장하여 이 문제를 해결한다.
 
-예시 코드(Java/Hibernate):
+## ORM의 핵심 개념
+
+### 엔티티와 매핑
+
+엔티티(Entity)는 데이터베이스 테이블에 대응하는 영속성 객체로, @Entity 어노테이션으로 선언하며, 테이블명, 컬럼명, 기본 키 생성 전략 등을 어노테이션이나 XML로 설정할 수 있다. ORM은 이 매핑 메타데이터를 읽어 런타임에 SQL을 자동 생성하므로 개발자는 SQL을 직접 작성하지 않고도 데이터베이스 작업을 수행할 수 있다.
 
 ```java
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "members")
+public class Member {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username")
+    @Column(name = "username", nullable = false, length = 50)
     private String username;
 
-    @Column(name = "email")
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
 }
 ```
 
-## 3. 주요 ORM 프레임워크
+### 영속성 컨텍스트
+
+영속성 컨텍스트(Persistence Context)는 엔티티를 영구 저장하는 논리적 공간으로, Martin Fowler가 정의한 Identity Map 패턴과 Unit of Work 패턴을 구현한다. 영속성 컨텍스트는 1차 캐시를 통해 동일 트랜잭션 내 같은 엔티티 조회 시 캐시된 인스턴스를 반환하고, 변경 감지(Dirty Checking)를 통해 트랜잭션 커밋 시점에 변경된 엔티티를 자동으로 데이터베이스에 반영하며, 쓰기 지연(Write-behind)을 통해 SQL을 모아서 한 번에 실행하여 데이터베이스 접근을 최적화한다.
+
+### 연관관계 매핑
+
+ORM은 객체 간의 참조를 데이터베이스의 외래 키 관계로 자동 변환한다. @ManyToOne, @OneToMany, @OneToOne, @ManyToMany 어노테이션으로 관계 유형을 지정하고, 연관관계의 주인(owning side)을 설정하여 외래 키 관리 주체를 결정한다. 양방향 관계에서는 mappedBy 속성으로 역방향 참조를 설정하며, 객체 그래프 탐색 시 지연 로딩(Lazy Loading)과 즉시 로딩(Eager Loading) 전략을 선택할 수 있다.
+
+## 주요 ORM 프레임워크
 
 ### Java 진영
 
--   **Hibernate**: 가장 널리 사용되는 JPA 구현체
--   **EclipseLink**: 경량화된 JPA 구현체
--   **MyBatis**: SQL 매핑 프레임워크
+**Hibernate**는 2001년 출시 이후 가장 널리 사용되는 JPA 구현체로, HQL, Criteria API, 2차 캐시, 배치 처리 등 풍부한 기능을 제공하며, 대부분의 JPA 표준 기능이 Hibernate에서 먼저 구현된 후 표준에 포함되었다. **EclipseLink**는 Oracle이 기증한 TopLink를 기반으로 한 JPA 레퍼런스 구현체로, 경량화와 확장성에 강점이 있으며 Jakarta EE의 기본 JPA 구현체로 사용된다. **MyBatis**는 엄밀히 말해 ORM이 아닌 SQL Mapper로, 개발자가 SQL을 직접 작성하고 결과를 객체에 매핑하는 방식으로 동작하며, SQL에 대한 완전한 제어가 필요한 경우에 적합하다.
 
 ### Python 진영
 
--   **SQLAlchemy**: 파이썬의 대표적인 ORM
--   **Django ORM**: Django 프레임워크의 기본 ORM
+**SQLAlchemy**는 2005년 출시된 파이썬의 대표적인 ORM으로, Core(SQL Expression Language)와 ORM 두 레이어로 구성되어 있어 저수준 SQL 제어와 고수준 ORM 추상화를 모두 제공한다. **Django ORM**은 Django 웹 프레임워크에 포함된 ORM으로, Active Record 패턴을 따르며 Django의 Admin, Forms 등과 긴밀하게 통합되어 있다.
 
-### Node.js 진영
+### JavaScript/TypeScript 진영
 
--   **Sequelize**: Node.js를 위한 Promise 기반 ORM
--   **TypeORM**: TypeScript와 JavaScript를 위한 ORM
+**TypeORM**은 TypeScript와 JavaScript를 지원하는 ORM으로, 데코레이터 기반 엔티티 정의와 Active Record, Data Mapper 패턴을 모두 지원하며, Hibernate의 영향을 받아 설계되었다. **Prisma**는 2019년 출시된 차세대 ORM으로, 스키마 파일을 기반으로 타입 안전한 클라이언트를 자동 생성하며, 마이그레이션 도구와 GUI 데이터 브라우저를 제공한다.
 
-## 4. ORM의 장점과 단점
+## ORM의 장점
 
-### 장점
+### 생산성 향상
 
-1. **생산성 향상**
+ORM은 SQL 작성, 결과 매핑, 커넥션 관리 등 반복적인 데이터 접근 코드를 자동화하여 개발자가 비즈니스 로직에 집중할 수 있게 하고, CRUD 작업의 코드량을 80% 이상 줄일 수 있다. 또한 객체 지향적으로 데이터를 다룰 수 있어 도메인 모델과 데이터 접근 계층의 일관성이 유지된다.
 
-    - SQL 작성 시간 단축
-    - 자동 CRUD 쿼리 생성
+### 데이터베이스 독립성
 
-2. **유지보수성 개선**
+ORM은 데이터베이스별 SQL 방언(Dialect)을 추상화하므로 MySQL에서 PostgreSQL로, 또는 Oracle에서 H2로 데이터베이스를 변경해도 애플리케이션 코드는 수정할 필요가 없으며, 설정 파일에서 방언만 변경하면 ORM이 해당 데이터베이스에 맞는 SQL을 자동 생성한다.
 
-    - 객체 지향적 코드 작성 가능
-    - 비즈니스 로직 집중 가능
+### 유지보수성
 
-3. **데이터베이스 독립성**
-    - 데이터베이스 변경 시 최소한의 코드 수정
+테이블 구조가 변경되면 엔티티 클래스의 매핑만 수정하면 되므로 SQL을 일일이 찾아 수정하는 것보다 변경 범위가 명확하고, IDE의 리팩토링 기능을 활용하여 엔티티 필드명을 변경하면 참조하는 모든 코드가 자동으로 수정된다.
 
-### 단점
+## ORM의 단점과 주의사항
 
-1. **성능 이슈**
+### N+1 문제
 
-    - 복잡한 쿼리 실행 시 성능 저하
-    - 불필요한 쿼리 발생 가능
+N+1 문제는 ORM에서 가장 흔하게 발생하는 성능 문제로, 1번의 쿼리로 N개의 엔티티를 조회한 후 각 엔티티의 연관 엔티티에 접근할 때 N번의 추가 쿼리가 발생하는 현상이다. 예를 들어 100명의 회원을 조회하고 각 회원의 팀 정보에 접근하면 회원 조회 1번과 팀 조회 100번으로 총 101번의 쿼리가 실행될 수 있으며, Fetch Join, @EntityGraph, @BatchSize 등으로 해결할 수 있다.
 
-2. **학습 곡선**
-    - ORM 자체에 대한 학습 필요
-    - 내부 동작 원리 이해 필요
+### 복잡한 쿼리의 한계
 
-## 5. ORM 실제 활용 사례
+ORM이 생성하는 SQL은 복잡한 통계 쿼리, 윈도우 함수, 데이터베이스 특화 기능 등을 표현하기 어려우며, 이런 경우 Native Query를 사용하거나 MyBatis 같은 SQL Mapper를 병행해야 한다. JPQL과 Criteria API는 SQL의 모든 기능을 지원하지 않으므로 복잡한 분석 쿼리에는 적합하지 않다.
 
-### 간단한 CRUD 예시 (Python/SQLAlchemy)
+### 학습 곡선
 
-```python
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from models import User
+ORM을 효과적으로 사용하려면 영속성 컨텍스트, 엔티티 생명주기, 지연 로딩, 프록시, 트랜잭션 전파 등 다양한 개념을 이해해야 하며, 내부 동작 원리를 모르고 사용하면 예상치 못한 쿼리 발생이나 성능 문제를 경험할 수 있다. ORM은 SQL을 대체하는 것이 아니라 SQL 위에서 동작하는 추상화 계층이므로 SQL에 대한 이해가 선행되어야 한다.
 
-# 데이터베이스 연결
-engine = create_engine('postgresql://user:password@localhost:5432/dbname')
-Session = sessionmaker(bind=engine)
-session = Session()
+### 대량 데이터 처리
 
-# Create
-new_user = User(name='John Doe', email='john@example.com')
-session.add(new_user)
-session.commit()
-
-# Read
-user = session.query(User).filter_by(name='John Doe').first()
-
-# Update
-user.email = 'john.doe@example.com'
-session.commit()
-
-# Delete
-session.delete(user)
-session.commit()
-```
-
-## 6. 자주 묻는 질문(FAQ)
-
-Q: ORM은 항상 사용해야 하나요?
-A: 프로젝트의 규모와 요구사항에 따라 선택적으로 사용하는 것이 좋습니다.
-
-Q: 성능 이슈는 어떻게 해결하나요?
-A: 적절한 인덱싱, 캐싱, 그리고 필요한 경우 네이티브 쿼리 사용을 고려해볼 수 있습니다.
+ORM은 객체 단위로 동작하므로 수십만 건 이상의 대량 데이터를 처리할 때 메모리 부족이나 성능 저하가 발생할 수 있다. 배치 처리 시에는 flush()와 clear()를 주기적으로 호출하여 영속성 컨텍스트를 비워야 하고, 대량 INSERT나 UPDATE는 JDBC 배치나 Native Query를 사용하는 것이 효율적이다.
 
 ## 결론
 
-ORM은 현대 웹 개발에서 필수적인 도구로 자리잡았습니다. 장단점을 잘 이해하고 프로젝트의 요구사항에 맞게 적절히 활용한다면, 개발 생산성과 코드 품질을 크게 향상시킬 수 있습니다.
-
-### 추천 자료
-
--   [Hibernate 공식 문서](https://hibernate.org/orm/documentation/5.4/)
--   [SQLAlchemy 튜토리얼](https://docs.sqlalchemy.org/en/14/tutorial/)
--   [TypeORM 가이드](https://typeorm.io/#/)
+ORM은 1990년대 TopLink에서 시작하여 2001년 Hibernate를 거쳐 2006년 JPA로 표준화된 기술로, 객체와 관계형 데이터베이스 간의 패러다임 불일치를 해결하고 개발 생산성을 크게 향상시켰다. 영속성 컨텍스트를 통한 1차 캐시, 변경 감지, 쓰기 지연 등의 기능을 제공하며, 데이터베이스 독립성과 유지보수성을 높여준다. 그러나 N+1 문제, 복잡한 쿼리의 한계, 대량 데이터 처리 등의 주의사항이 있으므로 내부 동작 원리를 이해하고 상황에 맞게 적절히 활용해야 하며, SQL에 대한 이해를 바탕으로 ORM이 생성하는 쿼리를 모니터링하고 최적화하는 것이 중요하다.

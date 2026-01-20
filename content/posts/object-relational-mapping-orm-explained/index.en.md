@@ -1,152 +1,110 @@
 ---
 title: "What is ORM (Object-Relational Mapping)?"
 date: 2024-05-15T16:40:07+09:00
-tags: ["ORM", "Database", "Programming", "Software Development", "Backend Development"]
+tags: ["orm", "jpa", "hibernate", "database"]
+description: "ORM is a technology that solves paradigm mismatch between objects and relational databases, evolving from TopLink in the 1990s to JPA standard in 2006. It provides automatic mapping and persistence management but requires attention to performance issues like N+1 problem"
 draft: false
 ---
 
-Developers dealing with databases will definitely have heard of ORM at least once. But many are unsure about what it is exactly and why it is used. This will help you learn about everything from ORM concepts to real-world applications.
+## History and Background of ORM
 
-## Table of Contents
+ORM (Object-Relational Mapping) is a technology that automatically maps objects in object-oriented programming languages to tables in relational databases. It emerged in the early 1990s when object-oriented programming became mainstream, designed to solve the Object-Relational Impedance Mismatch between objects and tables. The first commercial ORM tool was TOPLink (now Oracle TopLink) in 1994, originally developed for Smalltalk environments before Java. It was later ported to Java in 1996, contributing to the spread of ORM concepts in the enterprise Java ecosystem.
 
-1. ORM concepts and definitions
-2. How ORM works
-3. Major ORM frameworks
-4. Advantages and Disadvantages of ORM
-5. Real-world use cases of ORM
-6. Frequently Asked Questions (FAQ)
+Hibernate, developed by Gavin King in 2001, was an open-source ORM framework created to address the complexity and performance issues of EJB 2.x Entity Beans. Through declarative mapping and HQL (Hibernate Query Language), it significantly improved developer productivity and became the foundation for the JPA (Java Persistence API) standard. When JPA 1.0 was announced in 2006 as part of JSR 220, ORM became standardized. Various implementations like Hibernate, EclipseLink, and OpenJPA began providing the same interface, enabling vendor-independent persistence programming.
 
-## 1. ORM concepts and definitions
+## Paradigm Mismatch Problem
 
-ORM (Object-Relational Mapping) is a technology that bridges object-oriented programming and relational databases. Simply put, it is a tool that automatically maps objects used in programming languages to database tables.
+Object-oriented programming and relational databases have fundamentally different perspectives on data, a difference called Object-Relational Impedance Mismatch. Object-orientation models the real world through inheritance, polymorphism, and encapsulation, expressing relationships through references between objects. In contrast, relational databases store data in tables and rows, express relationships through foreign keys and joins, and minimize data duplication through normalization.
 
-### Existing SQL vs ORM comparison
+### Inheritance Mismatch
 
-```sql
--- Existing SQL method
-SELECT * FROM users WHERE id = 1;
+Objects can naturally express inheritance hierarchies, but relational databases have no concept of inheritance. Inheritance must be simulated using strategies such as Single Table, Joined Table, or Table per Class. Each strategy has its pros and cons, requiring selection based on the situation.
 
--- ORM method (Python/Django example)
-user = User.objects.get(id=1)
-```
+### Association Mismatch
 
-## 2. How ORM works
+In objects, expressing bidirectional relationships through references requires both objects to reference each other. However, in databases, bidirectional joins are possible with a single foreign key, creating a fundamental difference. Additionally, objects traverse graphs using the dot operator, while SQL must specify which tables to join from the beginning, conflicting with objects' free traversal.
 
-ORM works in the following way:
+### Identity Mismatch
 
-1. **Object mapping**: Maps classes to tables
-2. **Attribute mapping**: Maps object attributes to table columns
-3. **Relationship mapping**: Maps relationships between objects to relationships between tables
+In Java, identity is determined by the == operator and equality by the equals() method, while database rows determine identity by primary key. When the same database row is queried twice, they become different instances from the object perspective, causing == comparison to return false. ORM solves this problem by ensuring that entities queried with the same identifier within the same transaction are always the same instance through the first-level cache of the persistence context.
 
-Example code (Java/Hibernate):
+## Core Concepts of ORM
+
+### Entity and Mapping
+
+An Entity is a persistence object that corresponds to a database table, declared with the @Entity annotation. Table names, column names, and primary key generation strategies can be configured through annotations or XML. ORM reads this mapping metadata to automatically generate SQL at runtime, allowing developers to perform database operations without writing SQL directly.
 
 ```java
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "members")
+public class Member {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username")
+    @Column(name = "username", nullable = false, length = 50)
     private String username;
 
-    @Column(name = "email")
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
 }
 ```
 
-## 3. Major ORM frameworks
+### Persistence Context
 
-### Java camp
+The Persistence Context is a logical space for permanent entity storage, implementing the Identity Map pattern and Unit of Work pattern defined by Martin Fowler. The persistence context returns cached instances when querying the same entity within the same transaction through first-level cache. It automatically reflects changed entities to the database at transaction commit time through Dirty Checking. It optimizes database access by collecting and executing SQL at once through Write-behind.
 
--   **Hibernate**: Most widely used JPA implementation
--   **EclipseLink**: Lightweight JPA implementation
--   **MyBatis**: SQL mapping framework
+### Association Mapping
 
-### Python camp
+ORM automatically converts references between objects into foreign key relationships in the database. Relationship types are specified with @ManyToOne, @OneToMany, @OneToOne, and @ManyToMany annotations. The owning side is set to determine which side manages the foreign key. In bidirectional relationships, the mappedBy attribute sets up the inverse reference. Lazy Loading and Eager Loading strategies can be selected when traversing the object graph.
 
--   **SQLAlchemy**: Representative ORM of Python
--   **Django ORM**: Basic ORM of the Django framework
+## Major ORM Frameworks
 
-### Node.js camp
+### Java Ecosystem
 
--   **Sequelize**: Promise-based ORM for Node.js
--   **TypeORM**: ORM for TypeScript and JavaScript
+**Hibernate** has been the most widely used JPA implementation since its 2001 release, providing rich features like HQL, Criteria API, second-level cache, and batch processing. Most JPA standard features were first implemented in Hibernate before being included in the standard. **EclipseLink** is a JPA reference implementation based on TopLink donated by Oracle, with strengths in lightweight design and extensibility, serving as the default JPA implementation for Jakarta EE. **MyBatis** is technically a SQL Mapper rather than an ORM, where developers write SQL directly and map results to objects, suitable when complete control over SQL is needed.
 
-## 4. Advantages and Disadvantages of ORM
+### Python Ecosystem
 
-### Advantages
+**SQLAlchemy** is Python's representative ORM released in 2005, consisting of two layers: Core (SQL Expression Language) and ORM, providing both low-level SQL control and high-level ORM abstraction. **Django ORM** is the ORM included in the Django web framework, following the Active Record pattern and tightly integrated with Django's Admin, Forms, and other components.
 
-1. **Increased productivity**
+### JavaScript/TypeScript Ecosystem
 
-    - Reduces SQL writing time
-    - Automates CRUD query generation
+**TypeORM** is an ORM supporting TypeScript and JavaScript, supporting both decorator-based entity definitions and Active Record and Data Mapper patterns, designed under Hibernate's influence. **Prisma** is a next-generation ORM released in 2019 that automatically generates type-safe clients based on schema files, providing migration tools and a GUI data browser.
 
-2. **Improved maintainability**
+## Advantages of ORM
 
-    - Allows for object-oriented code writing
-    - Concentrates on business logic
+### Productivity Improvement
 
-3. **Database independence**
-    - Minimizing code changes when changing databases
+ORM automates repetitive data access code such as SQL writing, result mapping, and connection management, allowing developers to focus on business logic and reducing CRUD code volume by over 80%. Additionally, data can be handled in an object-oriented manner, maintaining consistency between the domain model and data access layer.
 
-### Disadvantages
+### Database Independence
 
-1. **Performance issues**
+ORM abstracts database-specific SQL dialects, so application code doesn't need modification when changing databases from MySQL to PostgreSQL or Oracle to H2. By only changing the dialect in configuration files, ORM automatically generates SQL appropriate for the target database.
 
-    - Performance degradation when executing complex queries
-    - May produce unnecessary queries
+### Maintainability
 
-2. **Learning curve**
-    - Requires learning about ORM itself
-    - Understanding of internal mechanisms
+When table structures change, only the entity class mappings need modification, making the scope of changes clearer than finding and modifying SQL individually. Using IDE refactoring features to rename entity fields automatically updates all referencing code.
 
-## 5. Real-world use cases of ORM
+## Disadvantages and Considerations of ORM
 
-### Simple CRUD example (Python/SQLAlchemy)
+### N+1 Problem
 
-```python
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from models import User
+The N+1 problem is the most common performance issue in ORM, occurring when N additional queries are executed when accessing associated entities after querying N entities with 1 query. For example, querying 100 members and accessing each member's team information can result in 101 total queries: 1 member query and 100 team queries. This can be solved with Fetch Join, @EntityGraph, @BatchSize, and similar techniques.
 
-# Database connection
-engine = create_engine('postgresql://user:password@localhost:5432/dbname')
-Session = sessionmaker(bind=engine)
-session = Session()
+### Limitations with Complex Queries
 
-# Create
-new_user = User(name='John Doe', email='john@example.com')
-session.add(new_user)
-session.commit()
+SQL generated by ORM has difficulty expressing complex statistical queries, window functions, and database-specific features. In such cases, Native Query should be used or SQL Mappers like MyBatis should be employed alongside ORM. JPQL and Criteria API don't support all SQL features, making them unsuitable for complex analytical queries.
 
-# Read
-user = session.query(User).filter_by(name='John Doe').first()
+### Learning Curve
 
-# Update
-user.email = 'john.doe@example.com'
-session.commit()
+To effectively use ORM, developers must understand various concepts including persistence context, entity lifecycle, lazy loading, proxies, and transaction propagation. Using ORM without understanding its internal workings can lead to unexpected query generation or performance issues. ORM is not a replacement for SQL but an abstraction layer that operates on top of SQL, so understanding SQL is a prerequisite.
 
-# Delete
-session.delete(user)
-session.commit()
-```
+### Bulk Data Processing
 
-## 6. Frequently Asked Questions (FAQ)
-
-Q: Should I always use ORM?
-A: It is recommended to use it selectively depending on the size and requirements of the project.
-
-Q: How do I solve performance issues?
-A: Consider using appropriate indexing, caching, and native queries when necessary.
+ORM operates on an object-by-object basis, which can cause memory shortage or performance degradation when processing hundreds of thousands of records or more. During batch processing, flush() and clear() should be called periodically to empty the persistence context. For bulk INSERT or UPDATE operations, using JDBC batch or Native Query is more efficient.
 
 ## Conclusion
 
-ORM has become an essential tool in modern web development. If you properly understand its advantages and disadvantages and use it appropriately according to the project's requirements, you can significantly improve development productivity and code quality.
-
-### Recommended resources
-
--   [Hibernate official documentation](https://hibernate.org/orm/documentation/5.4/)
--   [SQLAlchemy tutorial](https://docs.sqlalchemy.org/en/14/tutorial/)
--   [TypeORM guide](https://typeorm.io/#/)
+ORM is a technology that started with TopLink in the 1990s, evolved through Hibernate in 2001, and was standardized as JPA in 2006, solving paradigm mismatch between objects and relational databases while significantly improving development productivity. It provides features like first-level cache, dirty checking, and write-behind through the persistence context, enhancing database independence and maintainability. However, considerations such as N+1 problems, limitations with complex queries, and bulk data processing require understanding the internal workings and appropriate utilization based on the situation. Monitoring and optimizing queries generated by ORM based on SQL understanding is essential.

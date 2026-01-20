@@ -2,7 +2,7 @@
 title: "Lazy Loading VS Eager Loading"
 date: 2024-06-08T01:45:34+09:00
 tags: ["jpa", "java", "hibernate", "performance"]
-description: "JPA와 Hibernate의 로딩 전략인 Lazy Loading과 Eager Loading을 비교하고, 프록시 객체의 동작 원리와 N+1 문제의 발생 원인 및 해결 방법(fetch join, @EntityGraph, @BatchSize)을 상세히 설명하며, 실전에서의 성능 최적화 권장사항과 각 FetchType의 기본값 및 설계 의도를 다룬다."
+description: "Lazy Loading은 프록시 기반 지연 로딩으로 연관 엔티티를 실제 사용 시점에 조회하고, Eager Loading은 즉시 조인하여 함께 로딩한다. N+1 문제는 fetch join, @EntityGraph, @BatchSize로 해결하며, 실무에서는 LAZY 기본 설정을 권장한다"
 draft: false
 ---
 

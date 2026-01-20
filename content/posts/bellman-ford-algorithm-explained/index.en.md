@@ -1,74 +1,100 @@
 ---
-title: "Understanding the Bellman-Ford Algorithm"
+title: "The Complete Guide to the Bellman-Ford Algorithm"
 date: 2024-06-17T18:40:50+09:00
-tags: ["Bellman-Ford", "Algorithm", "Shortest Path"]
-description: "The Bellman-Ford algorithm is a single-source shortest path algorithm independently discovered by Richard Bellman (1958) and Lester Ford (1956). Unlike Dijkstra's algorithm, it can handle edges with negative weights and uses a dynamic programming approach with O(VE) time complexity to find shortest paths. It can also detect the presence of negative cycles, making it essential for various real-world applications including network routing, currency exchange rate conversion, and arbitrage detection."
+tags: ["Bellman-Ford", "algorithm", "shortest-path", "graph", "negative-weight", "negative-cycle"]
+description: "A comprehensive guide covering the history of the Bellman-Ford algorithm independently discovered by Richard Bellman in 1958 and Lester Ford in 1956, its dynamic programming-based edge relaxation principles, O(VE) time complexity analysis, negative weight handling and negative cycle detection methods, and real-world applications including RIP routing and arbitrage detection."
 draft: false
 ---
 
-## Bellman-Ford Algorithm
+The Bellman-Ford algorithm is an algorithm that finds the shortest paths from a single source vertex to all other vertices in a weighted graph. Independently discovered by Richard Bellman and Lester Ford Jr. in the 1950s, it has powerful characteristics that distinguish it from Dijkstra's algorithm: it can handle edges with negative weights and detect whether negative cycles exist in the graph. Using a dynamic programming approach with O(VE) time complexity, it is used as a core component in various real-world applications including network routing protocols, arbitrage detection in financial markets, and minimum cost flow problems.
 
-The Bellman-Ford algorithm is an algorithm that finds the shortest paths from a single source vertex to all other vertices in a weighted graph. It is similar to Dijkstra's algorithm but can correctly handle graphs with negative weight edges. Additionally, it provides the powerful capability to detect whether a negative cycle exists in the graph.
+## History of the Bellman-Ford Algorithm
 
-### History of the Bellman-Ford Algorithm
+> **What is the Bellman-Ford Algorithm?**
+>
+> An algorithm that finds the shortest paths from a single source vertex to all other vertices in a weighted graph, capable of handling negative weight edges and detecting the presence of negative cycles.
 
-The Bellman-Ford algorithm was independently discovered in research published by Richard Bellman in 1958 and Lester Ford in 1956. It was named after both researchers. This algorithm has significant importance because it uses a dynamic programming approach to solve the shortest path problem.
+The Bellman-Ford algorithm was first proposed in 1956 by American mathematician Lester Randolph Ford Jr. in his research on the maximum flow problem. In 1958, Richard Ernest Bellman independently published the same algorithm in his research on dynamic programming. The algorithm was named after both researchers. Richard Bellman, as the founder of dynamic programming, proposed the "Bellman equation" and systematized the methodology for solving optimization problems by dividing them into smaller subproblems. The Bellman-Ford algorithm is regarded as a representative example of applying these dynamic programming principles to graph shortest path problems.
 
-Richard Bellman, the founder of dynamic programming, presented a methodology for solving optimization problems by dividing them into smaller subproblems. The Bellman-Ford algorithm is a representative example of applying these dynamic programming principles to graph shortest path problems.
+Interestingly, Edward F. Moore described essentially the same algorithm in research published in 1957, so some literature refers to this algorithm as the "Bellman-Ford-Moore algorithm." This algorithm has had a profound impact on network flow theory and routing protocol development. It became the theoretical foundation for RIP (Routing Information Protocol), which was widely used as the early routing system of the Internet in the 1980s. Due to its characteristic of handling negative weights, it is also practically utilized in arbitrage detection in financial markets, currency exchange optimization, and various Operations Research problems.
 
-The algorithm has had a major impact on network flow theory and routing protocol development. It became the theoretical foundation for distance vector routing protocols such as RIP (Routing Information Protocol). It also played an important role in designing the early routing mechanisms of the Internet. Furthermore, due to its characteristic of handling negative weights, it has been practically utilized in various domains including arbitrage detection in financial markets, currency exchange conversion problems, and diverse optimization problems.
+## How the Algorithm Works
 
-### Algorithm Operating Principle
+The core of the Bellman-Ford algorithm is repeating the edge relaxation operation V-1 times for all edges in the graph, utilizing the optimal substructure and overlapping subproblems properties of dynamic programming in this process.
 
-The core operating principle of the Bellman-Ford algorithm is to repeat edge relaxation for all edges V-1 times. Here, V represents the number of vertices in the graph. Edge relaxation refers to the process of updating distance information when a shorter path than the currently known shortest distance is discovered.
+### The Concept of Edge Relaxation
 
-#### Edge Relaxation Concept
+> **What is Edge Relaxation?**
+>
+> For an edge (u, v) from vertex u to vertex v with weight w, if dist[u] + w < dist[v], the operation updates dist[v] to dist[u] + w. This is the process of updating distance information when a shorter path is discovered.
 
-Edge relaxation is the process where, for an edge (u, v) from vertex u to vertex v with weight w, if dist[u] + w < dist[v], then dist[v] is updated to dist[u] + w. This means that the path to v via u is shorter than the currently known shortest path to v. Therefore, it updates to the better path.
+Edge relaxation is an operation that updates the distance when the path to v via u is shorter than the currently known shortest distance to v. The term "relaxation" originates from the mathematical meaning of loosening distance constraints. This operation is performed in constant time O(1) and is the most fundamental component of the Bellman-Ford algorithm.
 
-#### Why Repeat V-1 Times
+### Mathematical Basis for V-1 Iterations
 
-The shortest path in a graph can contain at most V-1 edges. This is because when the path from the starting vertex to another vertex is a simple path (not containing cycles), it can consist of at most V-1 edges. If a path contains V or more edges, it must visit the same vertex more than once, creating a cycle. In general cases without negative cycles, there exists a shorter path with the cycle removed, so it cannot be the shortest path.
+A simple path (one that does not contain cycles) in a graph can contain at most V-1 edges, because a path from the starting vertex to another vertex can pass through at most V-1 vertices when it does not visit the same vertex more than once. If a path contains V or more edges, by the pigeonhole principle, it must visit the same vertex more than once, forming a cycle. In general cycles (not negative cycles), there exists a shorter path with the cycle removed, so it cannot be the shortest path.
 
-Therefore, in the first iteration, the shortest distances of vertices reachable with one edge from the starting vertex are determined. In the second iteration, the shortest distances of vertices reachable with two edges are determined. By repeating this process V-1 times, all shortest paths containing at most V-1 edges are determined. This is the core principle of dynamic programming: using the solutions of smaller subproblems (shortest paths using fewer edges) to solve larger problems (shortest paths using more edges).
+Therefore, in the first iteration, the shortest distances of vertices reachable with at most 1 edge from the starting vertex are correctly calculated. In the second iteration, the shortest distances of vertices reachable with at most 2 edges are calculated. After the i-th iteration, the shortest paths using at most i edges are determined. This is the core principle of dynamic programming: a bottom-up approach that progressively solves larger problems (shortest paths using more edges) using the solutions of smaller subproblems (shortest paths using fewer edges).
 
 ### Algorithm Execution Steps
 
-1. Initialize an array storing distances from the starting vertex to each vertex. Set the distance of the starting vertex to 0. Initialize the distances of all other vertices to infinity (INF).
+**Step 1: Initialization**
 
-2. Perform edge relaxation for all edges. Repeat this process V-1 times (the number of vertices minus 1).
+Create an array dist[] to store the distance from the starting vertex to each vertex. Set the starting vertex's distance to 0 and initialize all other vertex distances to infinity (INF).
 
-3. For each edge (u, v), if dist[u] + weight(u, v) < dist[v], update dist[v] to dist[u] + weight(u, v).
+**Step 2: Edge Relaxation Iteration (V-1 times)**
 
-4. After V-1 iterations are complete, attempt relaxation one more time for all edges to check for the existence of negative cycles.
+Perform edge relaxation for all edges, and repeat this entire process V-1 times. For each edge (u, v, w), if dist[u] + w < dist[v], update dist[v] = dist[u] + w.
 
-5. If any edge is updated in the V-th iteration, a negative cycle exists in the graph. In this case, the shortest path is not defined.
+**Step 3: Negative Cycle Check**
 
-### Example Code
+After completing V-1 iterations, attempt relaxation one more time for all edges. If any edge is updated in this V-th iteration, a negative cycle exists in the graph, and the shortest path is not defined.
+
+### Working Example
+
+Assume we have the following graph. Starting from vertex 1, we find the shortest distance to all vertices.
+
+```
+Vertices: 1, 2, 3, 4
+Edges: 1→2 (weight 4), 1→3 (weight 3), 2→3 (weight -2), 3→4 (weight 2)
+```
+
+1. Initialization: dist = [0, INF, INF, INF]
+2. 1st iteration:
+   - 1→2: dist[2] = 0 + 4 = 4
+   - 1→3: dist[3] = 0 + 3 = 3
+   - 2→3: dist[3] = min(3, 4 + (-2)) = 2
+   - 3→4: dist[4] = 2 + 2 = 4
+3. 2nd iteration:
+   - No changes
+4. 3rd iteration:
+   - No changes
+5. Negative cycle check: No edges updated
+6. Result: dist = [0, 4, 2, 4]
+
+## Implementation Example
+
+Here is a C++ implementation of the Bellman-Ford algorithm.
 
 ```cpp
 #include <iostream>
 #include <vector>
-using std::cin;
-using std::cout;
-using std::pair;
-using std::vector;
+using namespace std;
 
-#define INF 1000000000
+#define INF 1e9
 
-int main()
-{
-    int n, m;
+int main() {
+    int n, m; // n: number of vertices, m: number of edges
     cin >> n >> m;
 
-    vector<vector<pair<int, int>>> graph(n + 1);
-    vector<int> dist(n + 1, INF);
+    vector<tuple<int, int, int>> edges; // (source, destination, weight)
+    vector<long long> dist(n + 1, INF);
 
-    for (int i = 0; i < m; i++)
-    {
+    // Edge input
+    for (int i = 0; i < m; i++) {
         int u, v, w;
         cin >> u >> v >> w;
-        graph[u].push_back({v, w});
+        edges.push_back({u, v, w});
     }
 
     int start;
@@ -76,47 +102,33 @@ int main()
 
     dist[start] = 0;
 
-    for (int i = 0; i < n - 1; i++)
-    {
-        for (int u = 1; u <= n; u++)
-        {
-            for (auto p : graph[u])
-            {
-                int v = p.first;
-                int w = p.second;
-
-                if (dist[u] != INF && dist[v] > dist[u] + w)
-                {
-                    dist[v] = dist[u] + w;
-                }
+    // V-1 edge relaxation iterations
+    for (int i = 0; i < n - 1; i++) {
+        for (auto& [u, v, w] : edges) {
+            if (dist[u] != INF && dist[v] > dist[u] + w) {
+                dist[v] = dist[u] + w;
             }
         }
     }
 
-    for (int u = 1; u <= n; u++)
-    {
-        for (auto p : graph[u])
-        {
-            int v = p.first;
-            int w = p.second;
-
-            if (dist[u] != INF && dist[v] > dist[u] + w)
-            {
-                cout << "A negative cycle exists.\n";
-                return 0;
-            }
+    // Negative cycle check
+    bool hasNegativeCycle = false;
+    for (auto& [u, v, w] : edges) {
+        if (dist[u] != INF && dist[v] > dist[u] + w) {
+            hasNegativeCycle = true;
+            break;
         }
     }
 
-    for (int i = 1; i <= n; i++)
-    {
-        if (dist[i] == INF)
-        {
-            cout << "INF\n";
-        }
-        else
-        {
-            cout << dist[i] << '\n';
+    if (hasNegativeCycle) {
+        cout << "A negative cycle exists." << '\n';
+    } else {
+        for (int i = 1; i <= n; i++) {
+            if (dist[i] == INF) {
+                cout << "INF" << '\n';
+            } else {
+                cout << dist[i] << '\n';
+            }
         }
     }
 
@@ -124,110 +136,129 @@ int main()
 }
 ```
 
-### Handling Negative Weights
+### Code Explanation
 
-The biggest characteristic of the Bellman-Ford algorithm is its ability to correctly handle edges with negative weights. This is the most significant difference from Dijkstra's algorithm.
+- `edges`: Stores all edges as (source vertex, destination vertex, weight) tuples. Using an edge list instead of an adjacency list simplifies the implementation.
+- `dist`: An array storing the shortest distance from the starting vertex to each vertex. Uses long long type to prevent overflow due to negative weights.
+- The outer loop iterates V-1 times, traversing all edges and performing edge relaxation. A final traversal checks for negative cycles.
 
-#### Limitations of Dijkstra's Algorithm
+## Handling Negative Weights
 
-Dijkstra's algorithm uses a greedy approach to select the vertex with the shortest discovered distance at each step and confirms that vertex's shortest distance. This is based on the premise that once a vertex's shortest distance is confirmed, it will not be updated again. This premise holds when all edge weights are positive. However, if there are negative weights, shorter paths passing through already confirmed vertices can be discovered later, causing the algorithm to fail.
+The most significant characteristic of the Bellman-Ford algorithm is its ability to correctly handle edges with negative weights. This is the most fundamental difference from Dijkstra's algorithm.
 
-#### Bellman-Ford's Negative Weight Handling Principle
+### Why Dijkstra Fails with Negative Weights
 
-The Bellman-Ford algorithm uses a method that simultaneously updates the shortest distances of all vertices. Without the concept of confirming vertices, it repeatedly performs relaxation on all edges through V-1 iterations. Therefore, even if shorter paths are discovered later due to negative weights, distances can be updated in the next iteration, allowing the correct shortest distances to be found. Thanks to this characteristic, as long as no negative cycles exist, correct shortest paths can be calculated even when edge weights are negative.
+Dijkstra's algorithm uses a greedy approach to select the vertex with the shortest discovered distance at each step and "finalize" that vertex's shortest distance. This is based on the premise that once a vertex's shortest distance is finalized, it will not be updated again. This premise holds when all edge weights are positive, but when negative weights exist, shorter paths through already finalized vertices can be discovered later, preventing the algorithm from guaranteeing correct results.
 
-#### Real-World Applications of Negative Weights
+### How Bellman-Ford Handles Negative Weights
 
-Negative weights appear in various real-world problems. In currency exchange rate conversion problems, when exchange rates are log-transformed, multiplication becomes addition and exchange rate profits are expressed as negative cycles. In network flow problems, edges with negative costs can be used to minimize costs. In game theory and optimization problems, negative weights are naturally modeled to represent losses.
+The Bellman-Ford algorithm uses a method that updates the shortest distances of all vertices "simultaneously." Without the concept of finalizing vertices like Dijkstra, it repeatedly performs relaxation on all edges through V-1 iterations. Even if shorter paths are discovered later due to negative weights, distances can be updated in the next iteration, allowing the algorithm to find the correct shortest distances as long as no negative cycles exist.
 
-### Negative Cycle Detection
+### Real-World Applications of Negative Weights
 
-A negative cycle is a cycle where the sum of the weights of the edges constituting the cycle is negative. If a negative cycle exists, you can continuously traverse the cycle to infinitely reduce the distance. Therefore, the shortest path is not defined.
+Negative weights naturally appear in various real-world problems.
 
-#### Meaning of Negative Cycles
+- **Currency exchange conversion**: When exchange rates are log-transformed, multiplication becomes addition, and exchange profits are expressed as negative cycles.
+- **Network flow problems**: Negative cost edges in residual graphs are used to minimize costs.
+- **Game theory and optimization**: Negative weights are naturally modeled to represent losses or penalties.
 
-When a negative cycle exists, the vertices included in that cycle have their distances decrease each time the cycle is traversed. Theoretically, if the cycle is repeated infinitely, the distance can be made negative infinity. Therefore, a clear shortest distance cannot be defined. In real-world problems, this can mean that arbitrage opportunities exist or that there are errors in the modeling.
+## Negative Cycle Detection
 
-#### Detecting Negative Cycles with the V-th Iteration
+> **What is a Negative Cycle?**
+>
+> A cycle where the sum of the weights of its constituent edges is negative. If a negative cycle exists, the distance can be infinitely reduced by continuously traversing the cycle, so the shortest path is not defined.
 
-Since all shortest paths should be determined after V-1 iterations in the Bellman-Ford algorithm, if edges are still being updated in the V-th iteration, this means that paths using V or more edges are shorter. This is evidence that a negative cycle exists that includes a cycle and decreases the distance. Therefore, by checking all edges one more time at the end of the algorithm to see if distances are updated, the existence of negative cycles can be determined.
+### Impact of Negative Cycles
 
-#### Handling When Negative Cycles Exist
+When a negative cycle exists, the vertices included in that cycle have their distances decrease each time the cycle is traversed. Theoretically, if the cycle is repeated infinitely, the distance can be made negative infinity (-∞). Therefore, a clear shortest distance cannot be defined. In real-world problems, this can indicate that arbitrage opportunities exist or that there are logical errors in the modeling.
 
-When a negative cycle is detected, the shortest path is not defined, so the algorithm is generally terminated and reports that a negative cycle exists. If there are vertices that cannot reach the negative cycle, the shortest distances for those vertices may be valid. However, in most applications, the existence of the negative cycle itself indicates a problem situation, so separate handling is required.
+### Detecting Negative Cycles via the V-th Iteration
 
-### Time Complexity Analysis
+Since all shortest paths should be determined after V-1 iterations in the Bellman-Ford algorithm, if edges are still being updated in the V-th iteration, this means paths using V or more edges are shorter. Using V or more edges necessarily involves a cycle, and a cycle that decreases the distance means it is a negative cycle. By checking all edges one more time at the end of the algorithm to see if distances are updated, the existence of negative cycles can be determined in O(E) time.
 
-The time complexity of the Bellman-Ford algorithm is expressed as O(VE). Here, V is the number of vertices and E is the number of edges.
+### Handling When Negative Cycles Exist
 
-#### Detailed O(VE) Analysis
+When a negative cycle is detected, the algorithm is generally terminated and reports that a negative cycle exists. If there are vertices that cannot reach the negative cycle from the starting vertex, the shortest distances for those vertices may still be valid. However, in most applications, the existence of a negative cycle itself indicates a problem situation, so separate handling is required.
 
-The algorithm performs V-1 external iterations. In each iteration, it attempts relaxation for all E edges, so the total number of operations is (V-1) × E. An additional E operations are needed for negative cycle checking. However, this is asymptotically included in the O(VE) time complexity. Since each edge relaxation is performed in constant time O(1), the overall algorithm's time complexity becomes O(VE).
+## Time Complexity Analysis
 
-#### Worst Case Analysis
+The time complexity of the Bellman-Ford algorithm is O(VE), where V is the number of vertices and E is the number of edges.
 
-In the case of a dense graph, the number of edges E can be O(V²). In this case, the time complexity of the Bellman-Ford algorithm becomes O(V × V²) = O(V³), making it very slow. On the other hand, in sparse graphs, E = O(V), so the time complexity improves to O(V²). In practice, with early termination optimization, it can operate faster on average.
+### Detailed O(VE) Analysis
 
-#### Time Complexity Comparison with Dijkstra
+The algorithm performs V-1 outer iterations, and in each iteration, it attempts relaxation for all E edges, so the total number of operations is (V-1) × E. An additional E operations are needed for negative cycle checking, but this is asymptotically included in O(VE). Since each edge relaxation is performed in constant time O(1), the overall time complexity is O(VE).
 
-Dijkstra's algorithm has a time complexity of O((V+E) log V) when implemented using a priority queue. In dense graphs, it becomes O(V² log V), and in sparse graphs, it becomes O(E log V), generally much faster than Bellman-Ford. However, since Dijkstra cannot handle negative weights, when there are no negative weights and speed is important, Dijkstra should be used. When there are negative weights or negative cycle detection is needed, Bellman-Ford must be used.
+### Analysis by Graph Type
 
-### Comparison with Dijkstra's Algorithm
+| Graph Type | Number of Edges | Time Complexity | Characteristics |
+|------------|-----------------|-----------------|-----------------|
+| Sparse Graph | E ≈ V | O(V²) | Trees, road networks |
+| General Graph | E ≈ V log V | O(V² log V) | Social networks |
+| Dense Graph | E ≈ V² | O(V³) | Complete graphs |
 
-Both Bellman-Ford and Dijkstra solve the single-source shortest path problem, but they differ in approach and applicable situations.
+In dense graphs, the time complexity can increase to O(V³), making it very slow. In such cases, using Dijkstra's algorithm is much more efficient if there are no negative weights.
 
-#### Speed Difference
+## Comparison with Dijkstra's Algorithm
 
-Dijkstra's algorithm with O((V+E) log V) is generally much faster than Bellman-Ford's O(VE). The performance difference is especially large in large-scale graphs. This is because Dijkstra processes each vertex only once with a greedy approach, while Bellman-Ford repeatedly checks all edges V-1 times.
+| Comparison Item | Bellman-Ford | Dijkstra |
+|-----------------|--------------|----------|
+| Time Complexity | O(VE) | O(E log V) |
+| Negative Weights | Supported | Not supported |
+| Negative Cycle Detection | Supported | Not supported |
+| Approach | Dynamic Programming | Greedy Algorithm |
+| Implementation Complexity | Simple (triple loop) | Complex (requires priority queue) |
+| General Speed | Slow | Fast |
 
-#### Negative Weight Handling
+### Algorithm Selection Guide
 
-Dijkstra requires all edge weights to be 0 or greater, but Bellman-Ford can handle negative weights. This is the most important difference. If the problem has negative weights, Bellman-Ford must be used.
+- **All weights positive, speed is important**: Dijkstra's algorithm
+- **Negative weights exist**: Bellman-Ford algorithm
+- **Negative cycle detection needed**: Bellman-Ford algorithm
+- **Simple implementation preferred, small graph**: Bellman-Ford algorithm
 
-#### Implementation Complexity
+## Real-World Applications
 
-Bellman-Ford can be implemented with just triple nested loops, making the code simple and easy to understand. Dijkstra requires using a priority queue or heap data structure, making the implementation relatively complex. For educational purposes or simple applications, Bellman-Ford may be more suitable.
+The Bellman-Ford algorithm is essential in areas requiring negative weight handling or negative cycle detection.
 
-#### Usage Scenarios
+### Network Routing Protocol (RIP)
 
-Dijkstra is used in most real-world applications such as road networks, GPS navigation, and network packet routing. Bellman-Ford is used in special cases requiring currency exchange rates, arbitrage detection, negative cost flow problems, and negative cycle detection.
+RIP (Routing Information Protocol) is a distance vector routing protocol standardized as RFC 1058 in 1988, based on the Bellman-Ford algorithm. Each router periodically (typically every 30 seconds) exchanges its routing table with neighboring routers, and based on this information, runs a distributed version of the Bellman-Ford algorithm (Distributed Bellman-Ford) to calculate the shortest paths to all destinations in the network. RIP was widely used in the early routing systems of the Internet and is still utilized in small-scale networks today due to its simplicity.
 
-### Real-World Applications
+### Arbitrage Detection
 
-The Bellman-Ford algorithm plays a key role in various real-world problems, especially in areas requiring negative weight handling or negative cycle detection.
+When modeling exchange rates between multiple currencies in financial markets as a graph, transforming exchange rate r to -log(r) converts the multiplication of the exchange process to addition. For example, if the product of exchange rates in the USD → EUR → JPY → USD exchange path is greater than 1, an arbitrage opportunity exists. After log transformation, this is expressed as a negative cycle. By detecting negative cycles with the Bellman-Ford algorithm, risk-free profit opportunities can be found. This is a technique actually used in high-frequency trading (HFT) systems.
 
-#### Network Routing Protocols
+### Minimum Cost Maximum Flow Problem
 
-RIP (Routing Information Protocol) is a distance vector routing protocol based on the Bellman-Ford algorithm. Each router periodically exchanges its routing table with neighboring routers to calculate shortest paths. It was widely used in the early routing systems of the Internet and is still utilized in small-scale networks today.
+In network flow problems where edges have unit costs as well as capacities, several algorithms that solve the problem of sending maximum flow with minimum cost (e.g., Successive Shortest Paths, Cycle-Canceling) use Bellman-Ford internally. In residual graphs, backward edges can have negative costs, so Bellman-Ford is needed instead of Dijkstra. This is applied to logistics, transportation, communication network optimization, and more.
 
-#### Arbitrage Detection
+### System of Difference Constraints
 
-When modeling exchange rates between multiple currencies in financial markets as a graph, if the log values of exchange rates are used as edge weights, the exchange process is expressed as addition. If a negative cycle exists, it means there is an arbitrage opportunity. Therefore, negative cycles can be detected using the Bellman-Ford algorithm to find risk-free profit opportunities.
+A system of difference constraints, a special form of linear programming, consists of constraints of the form x_j - x_i ≤ c_ij. This can be modeled as a graph and solved using the Bellman-Ford algorithm. If a solution satisfying the constraints exists, the shortest distances become one solution. If a negative cycle exists, it means no solution satisfies the constraints.
 
-#### Currency Exchange Rate Conversion
-
-When finding the optimal currency exchange path between multiple currencies, the Bellman-Ford algorithm can be used. The optimal path can be calculated even when each exchange has fees and exchange rates change over time. Negative weights can also be used to model promotions or rebates.
-
-#### Minimum Cost Flow Problems
-
-In network flow problems where edges have costs as well as capacities, algorithms that solve the problem of sending maximum flow with minimum cost internally use Bellman-Ford. This is applied to logistics, transportation, communication network optimization, and more.
-
-### Optimization Techniques
+## Optimization Techniques
 
 While the basic form of the Bellman-Ford algorithm always performs V-1 complete iterations, several optimization techniques can be applied to achieve faster convergence in practice.
 
-#### Early Termination Optimization
+### Early Termination Optimization
 
-If no edge is relaxed in a particular iteration, all shortest distances are already determined. Therefore, the remaining iterations can be skipped and the algorithm can be terminated. In many cases, this allows finding shortest paths with far fewer iterations than V-1, significantly improving average performance.
+If no edge is relaxed in a particular iteration, all shortest distances are already determined, so the remaining iterations can be skipped and the algorithm can be terminated. This optimization is very simple to implement while terminating with far fewer iterations than V-1 in many real-world graphs, significantly improving average performance.
 
-#### SPFA (Shortest Path Faster Algorithm)
+```cpp
+bool updated = false;
+for (auto& [u, v, w] : edges) {
+    if (dist[u] != INF && dist[v] > dist[u] + w) {
+        dist[v] = dist[u] + w;
+        updated = true;
+    }
+}
+if (!updated) break; // Early termination
+```
 
-SPFA is an optimized variant of the Bellman-Ford algorithm that uses a queue data structure to selectively process only vertices whose distances have been updated. Instead of repeatedly checking all edges, it only relaxes adjacent edges of vertices whose distances have changed. It operates in O(E) time on average and does not exceed O(VE) in the worst case, making it practically widely used.
+### SPFA (Shortest Path Faster Algorithm)
 
-#### Queue-Based Improvement
+SPFA is an optimized variant of the Bellman-Ford algorithm, proposed by Duan Fanding of China in 1994, using a queue data structure to selectively process only vertices whose distances have been updated. Instead of checking all edges in every iteration, it only relaxes adjacent edges of vertices whose distances have changed, operating in O(E) time on average. However, in the worst case, it is still O(VE). Worst-case scenarios can occur in certain types of graphs (especially grid graphs), and recently, competitive programming has included test cases intentionally designed to slow down SPFA.
 
-The queue is initialized with the starting vertex. Vertices are removed from the queue one by one, and edges departing from those vertices are relaxed. Vertices whose distances are updated through edge relaxation are added back to the queue. Duplicate additions of vertices already in the queue are prevented to increase efficiency. This method often shows performance similar to Dijkstra in many cases while being able to handle negative weights.
+## Conclusion
 
-### Summary
-
-The Bellman-Ford algorithm is differentiated from Dijkstra's algorithm by its ability to handle negative weights and detect negative cycles. Although it has O(VE) time complexity and is generally slower than Dijkstra in typical cases, it is an indispensable important algorithm in certain problem domains. As a representative example of applying dynamic programming principles to graph problems, it allows learning important concepts in algorithm design. It plays a key role in various real-world application areas such as network routing, financial engineering, and optimization problems.
+The Bellman-Ford algorithm was independently discovered by Richard Bellman and Lester Ford Jr. in the 1950s and is a representative example of applying dynamic programming principles to graph shortest path problems. While generally slower than Dijkstra's algorithm with O(VE) time complexity, it has powerful characteristics: it can correctly handle edges with negative weights and detect the presence of negative cycles in graphs. It plays a core role in various real-world applications including RIP routing protocol, arbitrage detection in financial markets, minimum cost flow problems, and systems of difference constraints. In certain problem domains, it is an irreplaceable and essential algorithm.

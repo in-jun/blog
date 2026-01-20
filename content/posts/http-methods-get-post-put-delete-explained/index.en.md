@@ -1,147 +1,133 @@
 ---
-title: "HTTP methods in a nutshell"
+title: "The Complete Guide to HTTP Methods: From GET, POST, PUT, DELETE to Security"
 date: 2024-05-25T14:05:29+09:00
-tags: ["Definitions", "HTTP"]
+tags: ["HTTP", "REST API", "Web Development", "CORS"]
 draft: false
-description: "A comprehensive guide to the 9 HTTP methods defined in HTTP/1.1 specification (RFC 7231). Covers idempotency and safety concepts, method comparison tables, RESTful API design principles, CORS preflight handling, real-world examples, and security considerations for proper HTTP method usage in web development."
+description: "A comprehensive guide covering the history, characteristics, and usage of all 9 HTTP methods defined in the HTTP/1.1 specification (RFC 7231), from idempotency and safety concepts to RESTful API design principles, CORS preflight request handling, practical examples, and security considerations for proper HTTP method usage in web development."
 ---
 
-> HTTP is a communication protocol for data exchange between clients and servers. It consists of requests and responses. The methods used in requests and responses are called HTTP methods. The HTTP/1.1 standard (RFC 7231) defines 9 standard methods. Each method has important characteristics: idempotency and safety.
+HTTP (HyperText Transfer Protocol) methods are core elements of client-server communication protocols that have continuously evolved since Tim Berners-Lee first introduced them when designing the World Wide Web in 1991. The HTTP/1.1 standard (RFC 7231) defines 9 standard methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, and TRACE. Each method has important characteristics of idempotency and safety, playing essential roles in RESTful API design and web application development.
 
 ## History and Evolution of HTTP Methods
 
-The HTTP protocol has continuously evolved since Tim Berners-Lee first conceived it in 1991.
+> **What is HTTP (HyperText Transfer Protocol)?**
+>
+> An application layer protocol for transferring hypertext documents between clients and servers on the web. It operates on a request-response model where the method used in each request defines the semantics of the operation to be performed.
+
+The HTTP protocol has continuously evolved since Tim Berners-Lee proposed it as an information sharing system at CERN in 1989, with the types and semantics of methods expanding alongside.
 
 ### HTTP/0.9 (1991)
 
-The first version of HTTP supported only the GET method. It provided only the functionality to fetch HTML documents. There were no concepts of headers or status codes.
+The first version of HTTP supported only the GET method. It provided only the functionality to fetch HTML documents. There were no concepts of headers or status codes, so the server could only return the requested document as-is or close the connection.
 
-### HTTP/1.0 (1996)
+### HTTP/1.0 (1996, RFC 1945)
 
-POST and HEAD methods were added. Headers and status codes were introduced. This enabled transmission of various content types.
+POST and HEAD methods were added along with request/response headers and status codes, enabling transmission of various content types (images, video, etc.). It also became possible to specify MIME types through the Content-Type header.
 
-### HTTP/1.1 (1997)
+### HTTP/1.1 (1997, RFC 2068 → 2014, RFC 7230-7235)
 
-The most widely used version to date. PUT, DELETE, OPTIONS, TRACE, and CONNECT methods were added. It was standardized as RFC 2616 and revised as RFC 7230-7235 in 2014. Persistent connections and pipelining were introduced, significantly improving performance.
+The most widely used version to date. PUT, DELETE, OPTIONS, TRACE, and CONNECT methods were added. Persistent connections and pipelining were introduced, significantly improving performance. Important features such as chunked transfer encoding and mandatory host header were also added.
 
-### HTTP/2 (2015) and HTTP/3 (2020)
+### HTTP/2 (2015, RFC 7540) and HTTP/3 (2022, RFC 9114)
 
-HTTP methods remain the same as HTTP/1.1. Only the transport layer of the protocol was improved. HTTP/2 introduced binary protocol and multiplexing. HTTP/3 is based on the QUIC protocol.
-
-## HTTP Methods
-
-HTTP methods are used by clients when sending requests to servers. The HTTP/1.1 standard defines the following 9 methods.
-
-1. **GET** - Retrieve resources
-2. **POST** - Create resources and process data
-3. **PUT** - Replace entire resource
-4. **PATCH** - Modify part of resource
-5. **DELETE** - Delete resource
-6. **HEAD** - Retrieve metadata
-7. **OPTIONS** - Check supported methods
-8. **CONNECT** - Establish tunnel connection
-9. **TRACE** - Trace path
+HTTP methods themselves remain the same as HTTP/1.1, with only the transport layer of the protocol improved. HTTP/2 introduced binary protocol and multiplexing, enabling multiple requests to be processed simultaneously on a single connection. HTTP/3 uses the UDP-based QUIC protocol to reduce connection establishment latency and prevent performance degradation during packet loss.
 
 ## Idempotency and Safety
 
-HTTP methods are classified by two important characteristics.
+The two most important concepts for understanding HTTP methods are idempotency and safety. These characteristics directly affect caching, retry policies, and API design.
 
 ### Safety
 
-Safe methods are read-only methods that do not change server state. Safe methods can be cached. They can be used for prefetching or crawling.
+> **What is a Safe Method?**
+>
+> A read-only method that does not change server state. Performing the same request multiple times causes no side effects on the server's resources.
+
+Safe methods (GET, HEAD, OPTIONS, TRACE) do not modify server data, so they can be cached. Browser prefetching and search engine crawlers can call them safely. They can also be stored in bookmarks or history and re-executed without issues.
 
 ### Idempotency
 
-Idempotent methods return the same result when executed multiple times as when executed once. They can be safely retried in case of network errors.
+> **What is an Idempotent Method?**
+>
+> A method where performing the same request once or multiple times leaves the same result on the server. Even if requests are duplicated due to network errors, they can be safely retried.
+
+Idempotency is particularly important in distributed systems because clients frequently fail to receive responses due to network timeouts or temporary failures and resend the same requests. Idempotent methods (GET, PUT, DELETE, HEAD, OPTIONS, TRACE) can be safely retried in such situations.
 
 ### Method Characteristics Comparison
 
-| Method  | Safe | Idempotent | Cacheable | Request body | Response body | Common Usage           |
-| ------- | ---- | ---------- | --------- | ------------ | ------------- | ---------------------- |
-| GET     | Yes  | Yes        | Yes       | No           | Yes           | Retrieve resources     |
-| HEAD    | Yes  | Yes        | Yes       | No           | No            | Check metadata         |
-| OPTIONS | Yes  | Yes        | No        | No           | Yes           | Check supported methods|
-| TRACE   | Yes  | Yes        | No        | No           | Yes           | Trace path             |
-| POST    | No   | No         | Yes\*     | Yes          | Yes           | Create/process data    |
-| PUT     | No   | Yes        | No        | Yes          | Yes           | Replace entire resource|
-| PATCH   | No   | No\*       | Yes\*     | Yes          | Yes           | Modify part of resource|
-| DELETE  | No   | Yes        | No        | No           | Yes           | Delete resource        |
-| CONNECT | No   | No         | No        | No           | Yes           | Tunnel connection      |
+| Method | Safe | Idempotent | Cacheable | Request body | Response body | Primary Use |
+|--------|------|------------|-----------|--------------|---------------|-------------|
+| GET | Yes | Yes | Yes | No | Yes | Retrieve resource |
+| HEAD | Yes | Yes | Yes | No | No | Check metadata |
+| OPTIONS | Yes | Yes | No | No | Yes | Check supported methods |
+| TRACE | Yes | Yes | No | No | Yes | Path tracing/debugging |
+| POST | No | No | Conditional | Yes | Yes | Create resource/process data |
+| PUT | No | Yes | No | Yes | Yes | Replace entire resource |
+| PATCH | No | Implementation-dependent | Conditional | Yes | Yes | Partial resource modification |
+| DELETE | No | Yes | No | No | Yes | Delete resource |
+| CONNECT | No | No | No | No | Yes | Establish tunnel connection |
 
-\* POST is cacheable with explicit cache settings. PATCH idempotency and cacheability vary by implementation.
+## The 9 HTTP Methods in Detail
 
-## Detailed Method Descriptions
+### GET - Retrieve Resources
 
-### GET
+The GET method requests a representation of the specified resource. It is used to query data from the server and returns the resource as a response without modifying any data.
 
-GET retrieves a specific resource. It is used to query data from the server. It returns the resource as a response without modifying any data.
+**Key Characteristics**
 
-#### Key Features
+- Safe and idempotent, so it can be cached. It remains in browser history and can be bookmarked.
+- Data is passed via URL query strings. The request body does not contain data.
+- Sensitive data like passwords or personal information should not be transmitted as parameters are exposed in URLs.
 
-- Requests can be cached.
-- Data is sent via query string, not in HTTP message body.
-- Mainly used to retrieve data or request pages.
-- Safe and idempotent.
-
-#### Query Parameters and URL Length Limits
-
-GET requests pass data through query parameters. Sensitive information should not be sent in URLs as parameters are exposed.
+**Query Parameters and URL Length Limits**
 
 ```http
-GET /api/users?page=1&limit=10&sort=name HTTP/1.1
+GET /api/users?page=1&limit=10&sort=created_at&order=desc HTTP/1.1
 Host: api.example.com
+Accept: application/json
 ```
 
-URL length limits vary by browser and server.
+URL length limits vary by browser and server: Internet Explorer limits to 2,083 characters, Chrome approximately 8,000 characters, Apache server default 8,190 characters, and Nginx server default 4,096 characters.
 
-- Internet Explorer: 2,083 characters
-- Chrome: approximately 8,000 characters
-- Apache server: 8,190 characters (default)
-- Nginx server: 4,096 characters (default)
-
-#### Caching Strategy
-
-GET requests can be cached by browsers and intermediate proxies. Cache control uses these headers.
+**Cache Control**
 
 ```http
+HTTP/1.1 200 OK
 Cache-Control: max-age=3600, public
 ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
 Last-Modified: Wed, 21 Oct 2025 07:28:00 GMT
+Vary: Accept-Encoding
 ```
 
-#### Practical Examples
+**Practical Examples**
 
 ```bash
 # Basic GET request
 curl -X GET https://api.example.com/users/123
 
-# With query parameters
-curl -X GET "https://api.example.com/users?role=admin&active=true"
-
-# With headers
-curl -X GET https://api.example.com/users/123 \
+# With query parameters and headers
+curl -X GET "https://api.example.com/users?role=admin&active=true" \
   -H "Authorization: Bearer token123" \
   -H "Accept: application/json"
+
+# Conditional GET (cache validation)
+curl -X GET https://api.example.com/users/123 \
+  -H "If-None-Match: \"33a64df551425fcc55e4d42a148795d9f25f89d4\""
 ```
 
-### POST
+### POST - Create Resources and Process Data
 
-POST is used to send data to the server. It is mainly used to create new resources or submit data to the server.
+The POST method submits data to the server to create new resources or request data processing. It is used for various purposes including form submission, file uploads, and passing complex search conditions.
 
-#### Key Features
+**Key Characteristics**
 
-- Requests are not cached by default. (Cacheable with explicit settings)
-- Data is included in the HTTP message body.
-- Mainly used for form submission, file uploads, and data processing requests.
-- Not safe and not idempotent.
+- Neither safe nor idempotent. Sending the same request multiple times may create new resources each time.
+- Data is included in the HTTP message body. Sensitive information is not exposed in URLs.
+- Not cached by default, but cacheable with explicit Cache-Control header settings.
 
-POST requests do not guarantee idempotency. Sending the same request multiple times can change server state multiple times.
-
-#### Request Formats by Content Type
-
-**JSON Request**
+**Request Formats by Content Type**
 
 ```bash
+# JSON format
 curl -X POST https://api.example.com/users \
   -H "Content-Type: application/json" \
   -d '{
@@ -149,62 +135,40 @@ curl -X POST https://api.example.com/users \
     "email": "john@example.com",
     "age": 30
   }'
-```
 
-**Form Data Request**
-
-```bash
+# Form data format (URL encoded)
 curl -X POST https://api.example.com/login \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "username=john&password=secret123"
-```
 
-**Multipart Form Data (File Upload)**
-
-```bash
+# Multipart form data (file upload)
 curl -X POST https://api.example.com/upload \
   -F "file=@photo.jpg" \
-  -F "description=Profile photo"
+  -F "description=Profile photo" \
+  -F "category=profile"
 ```
 
-#### Response Status Codes
+**Response Status Codes**
 
-Common response codes for POST requests:
+| Status Code | Meaning | Description |
+|-------------|---------|-------------|
+| 201 Created | Creation successful | Location header contains new resource URI |
+| 200 OK | Processing successful | Processing result in response body |
+| 204 No Content | Processing successful | No response body |
+| 400 Bad Request | Invalid request | Validation failure, etc. |
+| 409 Conflict | Conflict | Duplicate data, etc. |
 
-- `201 Created`: Resource created successfully, includes created resource URI in Location header
-- `200 OK`: Request processed successfully, includes processing result in response body
-- `204 No Content`: Request processed successfully, no response body
-- `400 Bad Request`: Invalid request data
-- `409 Conflict`: Resource conflict (e.g., duplicate email)
+### PUT - Replace Entire Resource
 
-```http
-HTTP/1.1 201 Created
-Location: /api/users/123
-Content-Type: application/json
+The PUT method stores a resource at the specified URI. If a resource exists at that URI, it replaces the entire resource. If not, it creates a new one, performing an upsert operation.
 
-{
-  "id": 123,
-  "name": "John Doe",
-  "email": "john@example.com"
-}
-```
+**Key Characteristics**
 
-### PUT
+- Not safe but idempotent. Multiple identical PUT requests yield the same result.
+- Replaces the entire resource, so fields not included in the request body may be deleted or set to default values.
+- The client must know the resource URI (key difference from POST).
 
-PUT is used to create or modify resources. It stores a resource at a client-specified location. It can also update an existing resource at that location.
-
-#### Key Features
-
-- Requests cannot be cached.
-- Data is included in the HTTP message body.
-- Used to update entire resource or create new resource.
-- Not safe but idempotent.
-
-PUT requests are idempotent. Executing the same PUT request multiple times yields the same result. This is because it changes the entire state of the resource, so no partial changes occur.
-
-#### Full Replacement Behavior
-
-PUT replaces the entire resource. Fields not included in the request body may be deleted or set to default values.
+**Full Replacement Example**
 
 ```bash
 # Existing resource
@@ -216,7 +180,7 @@ PUT replaces the entire resource. Fields not included in the request body may be
   "address": "123 Main St"
 }
 
-# PUT request
+# PUT request (full data needed even to change only age)
 curl -X PUT https://api.example.com/users/123 \
   -H "Content-Type: application/json" \
   -d '{
@@ -234,41 +198,17 @@ curl -X PUT https://api.example.com/users/123 \
 }
 ```
 
-#### Response Status Codes
+### PATCH - Partial Resource Modification
 
-- `200 OK`: Resource updated successfully, includes updated resource in response body
-- `204 No Content`: Resource updated successfully, no response body
-- `201 Created`: Resource created successfully (when resource didn't exist)
-- `404 Not Found`: Resource not found (when creation is not supported)
+The PATCH method modifies only parts of a resource. Unlike PUT, it modifies only fields included in the request body while preserving other fields.
 
-#### Upsert (Update or Insert) Pattern
+**Key Characteristics**
 
-PUT can be used in an upsert pattern. It creates the resource if it doesn't exist, or updates it if it does.
+- Not safe, and idempotency depends on implementation.
+- Uses bandwidth more efficiently than PUT (only changed parts transmitted).
+- Two standard formats exist: JSON Merge Patch (RFC 7396) and JSON Patch (RFC 6902).
 
-```bash
-# Create or update resource
-curl -X PUT https://api.example.com/users/123 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "email": "john@example.com"
-  }'
-```
-
-### PATCH
-
-PATCH is used to modify parts of a resource. It changes only part of an existing resource.
-
-#### Key Features
-
-- Requests are not cached by default. (Cacheable with explicit settings)
-- Data is included in the HTTP message body.
-- Used to update parts of a resource.
-- Not safe, and idempotency varies by implementation.
-
-#### PUT vs PATCH
-
-PUT modifies the entire resource. PATCH modifies parts of the resource.
+**PUT vs PATCH Comparison**
 
 ```bash
 # Existing resource
@@ -295,9 +235,7 @@ curl -X PATCH https://api.example.com/users/123 \
 }
 ```
 
-#### JSON Patch (RFC 6902)
-
-A standardized PATCH format defined in RFC 6902. It can express complex update operations.
+**JSON Patch (RFC 6902)**
 
 ```bash
 curl -X PATCH https://api.example.com/users/123 \
@@ -305,143 +243,94 @@ curl -X PATCH https://api.example.com/users/123 \
   -d '[
     {"op": "replace", "path": "/email", "value": "new@example.com"},
     {"op": "add", "path": "/phone", "value": "555-1234"},
-    {"op": "remove", "path": "/address"}
+    {"op": "remove", "path": "/address"},
+    {"op": "test", "path": "/age", "value": 30}
   ]'
 ```
 
-Supported operations:
-
-- `add`: Add value
-- `remove`: Remove value
-- `replace`: Replace value
-- `move`: Move value
-- `copy`: Copy value
-- `test`: Validate value
-
-#### Idempotency Debate
-
-PATCH idempotency varies by implementation method.
+**Idempotency Considerations**
 
 ```bash
-# Idempotent PATCH (setting value)
+# Idempotent PATCH (setting value - same result when executed multiple times)
 PATCH /users/123 {"age": 31}
 
-# Non-idempotent PATCH (increment operation)
+# Non-idempotent PATCH (increment - different result each execution)
 PATCH /users/123 {"age_increment": 1}
 ```
 
-Simple field replacement is idempotent. Increment/decrement operations are not idempotent. PATCH implementation requires careful consideration of idempotency.
+### DELETE - Delete Resources
 
-### DELETE
+The DELETE method requests the server to delete the specified resource. Once successfully deleted, the resource at that URI becomes inaccessible.
 
-DELETE is used to delete resources. It requests the server to delete a specific resource.
+**Key Characteristics**
 
-#### Key Features
+- Not safe but idempotent. DELETE requests on already-deleted resources return the same result (resource not found).
+- Generally does not include a request body, though some implementations include deletion conditions in the body.
 
-- Requests cannot be cached.
-- Used to delete resources.
-- Not safe but idempotent.
+**Response Status Codes**
 
-DELETE requests are idempotent. Executing the same DELETE request multiple times leaves server state the same. The resource is deleted on the first request. Subsequent requests maintain the already-deleted state.
+| Status Code | Meaning | Description |
+|-------------|---------|-------------|
+| 204 No Content | Deletion successful | No response body (most common) |
+| 200 OK | Deletion successful | Returns deleted resource info |
+| 202 Accepted | Deletion accepted | Async processing in progress |
+| 404 Not Found | Resource not found | Varies by implementation |
 
-#### Response Status Codes
+**Soft Delete vs Hard Delete**
 
 ```bash
-# Delete resource
+# Hard delete (physical deletion)
 curl -X DELETE https://api.example.com/users/123
+
+# Soft delete (logical deletion - actually PATCH)
+curl -X PATCH https://api.example.com/users/123 \
+  -H "Content-Type: application/json" \
+  -d '{"deleted_at": "2025-01-15T10:30:00Z", "is_active": false}'
 ```
 
-Common response codes:
+Soft delete is commonly used for data recovery, audit trails, and maintaining foreign key integrity. It sets a deletion flag without actually deleting the data.
 
-- `204 No Content`: Deletion successful, no response body (most common)
-- `200 OK`: Deletion successful, includes deleted resource info in response body
-- `202 Accepted`: Deletion request accepted but not yet processed (async processing)
-- `404 Not Found`: Resource to delete does not exist
+### HEAD - Retrieve Metadata
 
-#### 404 Handling Debate
+The HEAD method is identical to GET but returns only headers without a response body. It allows obtaining information while saving bandwidth when only resource metadata is needed.
 
-Response codes for DELETE requests on already-deleted resources vary by implementation.
+**Key Characteristics**
 
-**Return 204 No Content (Recommended)**
+- Safe, idempotent, and cacheable.
+- Returns the same response headers as GET but without response body.
+- Servers must return the same headers for GET and HEAD (RFC 7231).
 
-Strictly follows idempotency. The goal is resource absence. Even if already deleted, it's considered successful.
-
-```http
-DELETE /users/123
-HTTP/1.1 204 No Content
-```
-
-**Return 404 Not Found**
-
-Clearly indicates resource existence. The client knows they used an incorrect ID.
-
-```http
-DELETE /users/999
-HTTP/1.1 404 Not Found
-```
-
-#### Soft Delete vs Hard Delete
-
-**Hard Delete (Physical Deletion)**
+**Use Cases**
 
 ```bash
-# Completely remove from database
-DELETE /users/123
-```
-
-**Soft Delete (Logical Deletion)**
-
-```bash
-# Set deleted_at field for logical deletion only
-PATCH /users/123
-{"deleted_at": "2025-01-15T10:30:00Z"}
-```
-
-Soft delete is commonly used for data recovery, audit trails, and maintaining foreign key integrity.
-
-### HEAD
-
-HEAD is identical to GET but has no response body. It is mainly used to retrieve resource header information.
-
-#### Key Features
-
-- Used to retrieve only server header information.
-- Safe and idempotent.
-- Cacheable.
-
-HEAD requests return the same response headers as GET requests. They do not include the response body. This allows clients to check resource metadata.
-
-#### Use Cases
-
-```bash
-# Check file size (before download)
+# Check file size and modification time (before download)
 curl -I https://example.com/large-file.zip
 
 HTTP/1.1 200 OK
 Content-Length: 104857600
 Content-Type: application/zip
 Last-Modified: Mon, 13 Jan 2025 10:00:00 GMT
+ETag: "abc123"
+Accept-Ranges: bytes
 ```
 
-- Check resource existence
+- Check resource existence (without downloading)
 - Check file size (Content-Length)
-- Check last modified time (Last-Modified)
-- Check content type (Content-Type)
-- Validate cache (ETag)
+- Check last modification time (Last-Modified)
+- Validate cache (ETag, Last-Modified)
+- Link validation (web crawlers)
 
-### OPTIONS
+### OPTIONS - Check Supported Methods
 
-OPTIONS requests the communication methods allowed for the server. It is used to check the HTTP methods supported for a specific resource.
+The OPTIONS method requests communication options (methods, headers, etc.) supported by the server for a specific resource. It plays a key role in CORS (Cross-Origin Resource Sharing) preflight requests.
 
-#### Key Features
+**Key Characteristics**
 
-- Used to request allowed communication methods for the server.
 - Safe and idempotent.
-- Mainly used for CORS preflight requests.
+- The Allow header in the response contains the list of supported methods.
+- Browsers automatically send it for CORS preflight requests.
 
-OPTIONS requests return methods supported by the server and other options. This is useful for checking CORS (Cross-Origin Resource Sharing) settings.
-
-#### General OPTIONS Request
+**General OPTIONS Request**
 
 ```bash
 curl -X OPTIONS https://api.example.com/users
@@ -450,80 +339,80 @@ HTTP/1.1 200 OK
 Allow: GET, POST, HEAD, OPTIONS
 ```
 
-#### CORS Preflight Request
+**CORS Preflight Request**
 
-Browsers automatically send OPTIONS requests before actual requests under certain conditions.
+Browsers automatically send OPTIONS preflight requests before actual requests under certain conditions (PUT/DELETE methods, custom headers, application/json, etc.).
 
 ```http
 OPTIONS /api/users HTTP/1.1
-Origin: https://example.com
+Host: api.example.com
+Origin: https://frontend.example.com
 Access-Control-Request-Method: POST
 Access-Control-Request-Headers: Content-Type, Authorization
 
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: https://example.com
-Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Origin: https://frontend.example.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
 Access-Control-Allow-Headers: Content-Type, Authorization
 Access-Control-Max-Age: 86400
+Access-Control-Allow-Credentials: true
 ```
 
-### CONNECT
+### CONNECT - Tunnel Connection
 
-CONNECT establishes a tunnel to the server identified by the target resource. It is mainly used to set up tunneling through proxy servers using SSL (HTTPS).
+The CONNECT method requests a proxy server to establish a TCP tunnel to the target server. It is primarily used to relay HTTPS connections through a proxy.
 
-#### Key Features
+**Key Characteristics**
 
-- Used to establish connections through proxy servers.
-- Not safe and not idempotent.
-- Commonly used for HTTPS proxies.
+- Neither safe nor idempotent.
+- The proxy server relays the TCP connection between client and target server.
+- After the tunnel is established, data is encrypted and the proxy cannot see the contents.
 
-CONNECT requests establish TCP tunnels between client and server. The client can connect directly to the destination server through the proxy server.
-
-#### How It Works
+**How It Works**
 
 ```http
-CONNECT example.com:443 HTTP/1.1
-Host: example.com:443
+CONNECT api.example.com:443 HTTP/1.1
+Host: api.example.com:443
+Proxy-Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l
 
 HTTP/1.1 200 Connection Established
+
+(TLS handshake and encrypted HTTPS communication begins)
 ```
 
-The proxy server establishes the tunnel. It then relays data between client and destination server. Data transmitted afterward is encrypted. The proxy cannot see the content.
+**Security Considerations**
 
-#### Security Considerations
+The CONNECT method poses security risks as it can be abused to bypass proxies. Most proxy servers restrict CONNECT to port 443 (HTTPS) only to prevent malicious port access.
 
-CONNECT can use the proxy as a bypass route. This poses security risks. Most proxies restrict CONNECT to port 443 (HTTPS) only.
+### TRACE - Path Tracing
 
-### TRACE
+The TRACE method performs a loopback test of the request message along the path to the target server for debugging purposes. The server returns the received request as-is in the response body.
 
-TRACE performs message loopback tests along the path to the target resource. It is used to check whether the server received the request sent by the client.
+**Key Characteristics**
 
-#### Key Features
-
-- Used to send requests to the server and check if received.
 - Safe and idempotent.
-- Used for debugging purposes.
+- Can check how requests are modified as they pass through intermediate proxies.
+- Disabled on most production servers due to security risks.
 
-TRACE requests return the request sent by the client as-is. This allows checking for tampering by proxies or servers in the intermediate path.
-
-#### How It Works
+**How It Works**
 
 ```http
 TRACE /path HTTP/1.1
-Host: example.com
-Custom-Header: value
+Host: api.example.com
+X-Custom-Header: test-value
 
 HTTP/1.1 200 OK
 Content-Type: message/http
 
 TRACE /path HTTP/1.1
-Host: example.com
-Custom-Header: value
+Host: api.example.com
+X-Custom-Header: test-value
+Via: 1.1 proxy.example.com
 ```
 
-#### Security Risks
+**Security Risk (XST Attack)**
 
-TRACE can be exploited for XST (Cross-Site Tracing) attacks. Attackers can use TRACE to view requests containing HttpOnly cookies. For this reason, disabling TRACE on most web servers is recommended.
+The TRACE method can be exploited for XST (Cross-Site Tracing) attacks because attackers can combine it with XSS to steal HttpOnly cookies or Authorization header values. Therefore, TRACE should be disabled in production environments.
 
 ```apache
 # Apache configuration
@@ -539,19 +428,19 @@ if ($request_method = TRACE) {
 
 ## RESTful API Design Principles
 
-REST (Representational State Transfer) is an API design architectural style using HTTP methods.
+REST (Representational State Transfer) is an architectural style proposed by Roy Fielding in his 2000 doctoral dissertation. It presents principles for designing consistent and intuitive APIs by leveraging HTTP method semantics.
 
 ### Resource-Centric Design
 
-URLs represent resources. HTTP methods represent actions on those resources.
+URLs represent resources (nouns), and HTTP methods represent actions (verbs) on those resources.
 
 ```
 # Good example (resource-centric)
 GET    /users          # Retrieve user list
-GET    /users/123      # Retrieve specific user
-POST   /users          # Create user
+GET    /users/123      # Retrieve user with ID 123
+POST   /users          # Create new user
 PUT    /users/123      # Update entire user
-PATCH  /users/123      # Update part of user
+PATCH  /users/123      # Partially update user
 DELETE /users/123      # Delete user
 
 # Bad example (action-centric)
@@ -561,248 +450,114 @@ POST   /updateUser
 POST   /deleteUser
 ```
 
-### Proper Use of HTTP Methods
+### CRUD Mapping
 
-Each method should be used for its correct purpose.
-
-| Operation              | HTTP Method | URL Example           |
-| ---------------------- | ----------- | --------------------- |
-| List retrieval         | GET         | /users                |
-| Single retrieval       | GET         | /users/123            |
-| Creation               | POST        | /users                |
-| Full update            | PUT         | /users/123            |
-| Partial update         | PATCH       | /users/123            |
-| Deletion               | DELETE      | /users/123            |
-| Search                 | GET         | /users?name=John      |
-| Related resource       | GET         | /users/123/posts      |
-| Create related resource| POST        | /users/123/posts      |
-
-### Combination with Status Codes
-
-Use HTTP methods with appropriate status codes.
-
-```
-GET /users/123
-  200 OK              - Success
-  404 Not Found       - Resource not found
-
-POST /users
-  201 Created         - Creation successful
-  400 Bad Request     - Invalid request
-  409 Conflict        - Resource conflict
-
-PUT /users/123
-  200 OK              - Update successful
-  204 No Content      - Update successful (no body)
-  404 Not Found       - Resource not found
-
-PATCH /users/123
-  200 OK              - Update successful
-  404 Not Found       - Resource not found
-
-DELETE /users/123
-  204 No Content      - Deletion successful
-  404 Not Found       - Resource not found
-```
+| Operation | HTTP Method | URI Pattern | Response Code |
+|-----------|-------------|-------------|---------------|
+| List (Collection) | GET | /users | 200 OK |
+| Single (Document) | GET | /users/{id} | 200 OK, 404 Not Found |
+| Create | POST | /users | 201 Created |
+| Full Update | PUT | /users/{id} | 200 OK, 204 No Content |
+| Partial Update | PATCH | /users/{id} | 200 OK |
+| Delete | DELETE | /users/{id} | 204 No Content |
+| Search | GET | /users?name=John | 200 OK |
+| Nested Resource | GET | /users/{id}/posts | 200 OK |
 
 ### URL Design Rules
 
-- Use plural nouns: `/users`, `/posts`
-- Use lowercase: `/user-profiles` (with hyphens)
-- Express hierarchy: `/users/123/posts/456/comments`
-- Avoid verbs: `/users` (good), `/getUsers` (bad)
-- Avoid extensions: `/users/123` (good), `/users/123.json` (bad)
+- **Use plural nouns**: `/users`, `/posts`, `/comments`
+- **Use lowercase**: `/user-profiles` (hyphens to separate words)
+- **Express hierarchy**: `/users/123/posts/456/comments`
+- **Avoid verbs**: `/users` (good), `/getUsers` (bad)
+- **Exclude file extensions**: `/users/123` (good), `/users/123.json` (bad)
+- **Version management**: `/v1/users`, `/v2/users`
 
 ## CORS and Preflight Requests
 
-CORS (Cross-Origin Resource Sharing) is a mechanism allowing access to resources from different domains.
+CORS (Cross-Origin Resource Sharing) is a mechanism that allows access to resources from different domains by circumventing the web browser's Same-Origin Policy. Preflight requests using the OPTIONS method are central to this mechanism.
 
 ### Simple Request vs Preflight Request
 
-**Simple Request Conditions**
+**Simple Request Conditions** (sent directly without preflight)
 
-Requests are sent immediately without preflight if all these conditions are met:
+- Method: One of GET, HEAD, POST
+- Headers: Only Accept, Accept-Language, Content-Language, Content-Type
+- Content-Type: One of application/x-www-form-urlencoded, multipart/form-data, text/plain
 
-- Method: One of `GET`, `HEAD`, `POST`
-- Headers: Only allowed headers like `Accept`, `Accept-Language`, `Content-Language`, `Content-Type`
-- Content-Type: One of `application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`
+**When Preflight is Needed**
 
-**When Preflight Request is Needed**
-
-OPTIONS preflight request is sent first if any of these apply:
-
-- Method: `PUT`, `DELETE`, `PATCH`, etc.
-- Custom headers: `Authorization`, `X-Custom-Header`, etc.
-- Content-Type: `application/json`, etc.
+- Method: PUT, DELETE, PATCH, etc.
+- Custom headers: Authorization, X-Custom-Header, etc.
+- Content-Type: application/json, etc.
 
 ### Preflight Request Flow
 
 ```
 1. Browser sends OPTIONS preflight request
    OPTIONS /api/users HTTP/1.1
-   Origin: https://example.com
+   Origin: https://frontend.example.com
    Access-Control-Request-Method: POST
    Access-Control-Request-Headers: Content-Type, Authorization
 
-2. Server responds with allowed methods
+2. Server responds with CORS policy
    HTTP/1.1 200 OK
-   Access-Control-Allow-Origin: https://example.com
+   Access-Control-Allow-Origin: https://frontend.example.com
    Access-Control-Allow-Methods: GET, POST, PUT, DELETE
    Access-Control-Allow-Headers: Content-Type, Authorization
    Access-Control-Max-Age: 86400
 
-3. Actual POST request is sent
+3. Browser sends actual request
    POST /api/users HTTP/1.1
-   Origin: https://example.com
+   Origin: https://frontend.example.com
    Content-Type: application/json
    Authorization: Bearer token123
 
 4. Server returns actual response
    HTTP/1.1 201 Created
-   Access-Control-Allow-Origin: https://example.com
+   Access-Control-Allow-Origin: https://frontend.example.com
 ```
 
-### Resolving CORS Errors
+### CORS Server Configuration Examples
 
-**Server-Side Configuration (Node.js/Express Example)**
+**Node.js (Express)**
 
 ```javascript
 const cors = require('cors');
 
-// Allow all domains
-app.use(cors());
-
-// Allow specific domains only
 app.use(cors({
-  origin: 'https://example.com',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: ['https://frontend.example.com', 'https://app.example.com'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   maxAge: 86400
 }));
 ```
 
-**Server-Side Configuration (Nginx Example)**
+**Nginx**
 
 ```nginx
-add_header Access-Control-Allow-Origin https://example.com;
-add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
-add_header Access-Control-Allow-Headers "Content-Type, Authorization";
-add_header Access-Control-Max-Age 86400;
+location /api/ {
+    add_header Access-Control-Allow-Origin https://frontend.example.com;
+    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+    add_header Access-Control-Allow-Headers "Content-Type, Authorization";
+    add_header Access-Control-Max-Age 86400;
 
-if ($request_method = OPTIONS) {
-    return 204;
+    if ($request_method = OPTIONS) {
+        return 204;
+    }
 }
-```
-
-## Practical Example: Blog API Design
-
-A RESTful API endpoint design example for an actual blog system.
-
-### Post Management
-
-```bash
-# Retrieve post list (pagination, filtering)
-curl -X GET "https://api.blog.com/posts?page=1&limit=10&category=tech&sort=created_at"
-
-# Retrieve post details
-curl -X GET https://api.blog.com/posts/123
-
-# Create post
-curl -X POST https://api.blog.com/posts \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer token123" \
-  -d '{
-    "title": "Complete HTTP Methods Guide",
-    "content": "Content...",
-    "category": "tech",
-    "tags": ["http", "rest"]
-  }'
-
-# Full post update
-curl -X PUT https://api.blog.com/posts/123 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer token123" \
-  -d '{
-    "title": "Updated Title",
-    "content": "Updated content...",
-    "category": "tech",
-    "tags": ["http", "rest", "api"]
-  }'
-
-# Partial post update (title only)
-curl -X PATCH https://api.blog.com/posts/123 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer token123" \
-  -d '{"title": "New Title"}'
-
-# Delete post
-curl -X DELETE https://api.blog.com/posts/123 \
-  -H "Authorization: Bearer token123"
-```
-
-### Comment Management (Nested Resources)
-
-```bash
-# Retrieve comments for specific post
-curl -X GET https://api.blog.com/posts/123/comments
-
-# Create comment
-curl -X POST https://api.blog.com/posts/123/comments \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer token123" \
-  -d '{
-    "content": "Great article, thanks!",
-    "author": "John Doe"
-  }'
-
-# Update comment
-curl -X PATCH https://api.blog.com/posts/123/comments/456 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer token123" \
-  -d '{"content": "Updated comment content"}'
-
-# Delete comment
-curl -X DELETE https://api.blog.com/posts/123/comments/456 \
-  -H "Authorization: Bearer token123"
-```
-
-### File Upload
-
-```bash
-# Image upload
-curl -X POST https://api.blog.com/posts/123/images \
-  -H "Authorization: Bearer token123" \
-  -F "image=@photo.jpg" \
-  -F "caption=Post image"
 ```
 
 ## Security Considerations
 
-Security considerations when using HTTP methods.
-
-### Recommend Disabling TRACE Method
-
-TRACE is vulnerable to XST (Cross-Site Tracing) attacks. It should be disabled in production environments.
-
-```apache
-# Apache
-TraceEnable off
-```
-
-```nginx
-# Nginx
-if ($request_method = TRACE) {
-    return 405;
-}
-```
+Key security considerations when using HTTP methods.
 
 ### Prohibit State Changes with GET
 
-GET requests should be safe. They should not change server state.
+GET requests should be safe and must not change server state.
 
 ```
-# Bad examples
+# Bad examples (security vulnerable)
 GET /users/123/delete
 GET /posts/456/publish
 
@@ -811,120 +566,67 @@ DELETE /users/123
 PATCH /posts/456 {"status": "published"}
 ```
 
-Reasons:
+Changing state with GET causes these problems:
+- Unintended state changes from browser prefetching
+- Search engine crawlers may follow delete/modify URLs
+- Can be re-executed from browser history or bookmarks
+- More vulnerable to CSRF attacks
 
-- Browsers can prefetch GET requests
-- Search engine crawlers can follow GET requests
-- Requests remain in browser history and can be re-executed
+### CSRF Attack Prevention
 
-### CSRF (Cross-Site Request Forgery) Attack Prevention
+State-changing methods such as POST, PUT, and DELETE are vulnerable to CSRF (Cross-Site Request Forgery) attacks.
 
-POST, PUT, DELETE requests can be vulnerable to CSRF attacks.
-
-**Using CSRF Tokens**
-
-```html
-<form method="POST" action="/api/users">
-  <input type="hidden" name="csrf_token" value="random_token_value">
-  <!-- Form fields -->
-</form>
-```
-
-**Setting SameSite Cookie Attribute**
-
-```http
-Set-Cookie: session=abc123; SameSite=Strict; Secure; HttpOnly
-```
-
-**Custom Header Validation**
+**Defense Methods**
 
 ```javascript
-// Client
-fetch('/api/users', {
-  method: 'POST',
-  headers: {
-    'X-Requested-With': 'XMLHttpRequest',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(data)
-});
+// Using CSRF tokens
+<form method="POST" action="/api/users">
+  <input type="hidden" name="csrf_token" value="random_token_value">
+</form>
 
-// Server
+// SameSite cookie setting
+Set-Cookie: session=abc123; SameSite=Strict; Secure; HttpOnly
+
+// Custom header validation
 if (!request.headers['X-Requested-With']) {
-  return 403; // Forbidden
+  return 403; // Only allow AJAX requests
 }
 ```
+
+### Disable TRACE Method
+
+TRACE is vulnerable to XST attacks and must be disabled in production.
 
 ### Authentication and Authorization Validation
 
 State-changing methods (POST, PUT, PATCH, DELETE) must always validate authentication and authorization.
 
 ```javascript
-// Express middleware example
-app.delete('/users/:id', authenticateToken, authorizeUser, (req, res) => {
-  // User deletion logic
-});
-
-function authenticateToken(req, res, next) {
-  const token = req.headers['authorization'];
-  if (!token) return res.sendStatus(401);
-
-  jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-}
-
-function authorizeUser(req, res, next) {
-  if (req.user.id !== req.params.id && !req.user.isAdmin) {
-    return res.sendStatus(403);
+app.delete('/users/:id',
+  authenticateToken,  // Verify authentication
+  authorizeUser,      // Verify authorization
+  (req, res) => {
+    // Deletion logic
   }
-  next();
-}
+);
 ```
 
 ### Input Validation and Limits
 
 - Limit request body size (prevent DoS)
-- Validate and sanitize input data
+- Validate input data
 - Prevent SQL injection and XSS
 
-```javascript
-// Express body size limit
-app.use(express.json({ limit: '10mb' }));
+## Conclusion
 
-// Input validation (Joi library example)
-const schema = Joi.object({
-  email: Joi.string().email().required(),
-  age: Joi.number().integer().min(0).max(150)
-});
+HTTP methods are core elements defining communication between clients and servers on the web. Starting with only the GET method in HTTP/0.9 in 1991, 9 standard methods were established in HTTP/1.1. Each method has important characteristics of safety and idempotency that directly affect caching, retry policies, and API design.
 
-const { error, value } = schema.validate(req.body);
-if (error) return res.status(400).json({ error: error.details });
-```
+Properly leveraging HTTP method semantics in RESTful API design enables creation of consistent and intuitive APIs. Understanding CORS and applying security considerations (CSRF prevention, TRACE disabling, authentication/authorization validation) enables building secure and scalable web services.
 
-## Summary
+## References
 
-HTTP methods are core elements defining operations in client-server communication. The HTTP/1.1 standard defines 9 methods. Each method has important characteristics: safety and idempotency.
-
-### Key Points
-
-- **Safe Methods** (GET, HEAD, OPTIONS, TRACE): Do not change server state
-- **Idempotent Methods** (GET, PUT, DELETE, HEAD, OPTIONS, TRACE): Same result when executed multiple times
-- **Non-Idempotent Methods** (POST, PATCH): Different results possible each execution
-
-### Practical Application
-
-- **RESTful API Design**: Resource-centric URLs with appropriate HTTP method combinations
-- **CORS Understanding**: Preflight request mechanism and server configuration
-- **Security**: CSRF prevention, authentication/authorization validation, input validation
-
-Proper understanding and use of HTTP methods enables designing scalable and maintainable web APIs.
-
-### References
-
-- [MDN web docs - HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP)
 - [RFC 7231 - HTTP/1.1 Semantics and Content](https://tools.ietf.org/html/rfc7231)
 - [RFC 6902 - JSON Patch](https://tools.ietf.org/html/rfc6902)
-- [REST API Design Best Practices](https://restfulapi.net/)
+- [RFC 7396 - JSON Merge Patch](https://tools.ietf.org/html/rfc7396)
+- [MDN Web Docs - HTTP Methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
+- [REST API Tutorial](https://restfulapi.net/)

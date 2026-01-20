@@ -1,231 +1,172 @@
 ---
-title: "Types and Characteristics of Network Switches and Selection Methods"
+title: "Complete Guide to Network Switches: Understanding L1 to L7 by Layer"
 date: 2024-08-01T16:20:21+09:00
-tags: ["switch", "networking"]
+tags: ["Network", "Switch", "OSI", "Load Balancer", "Infrastructure"]
+description: "A detailed explanation of network switch types and characteristics according to the OSI 7-layer model, covering operating principles, use cases, and selection criteria from L1 hubs to L7 application switches"
 draft: false
 ---
 
-## Introduction
+Network switches emerged in the early 1990s to overcome the performance limitations of Ethernet networks. They addressed the inefficiency of traditional hubs that broadcast data to all ports by providing the capability to selectively forward frames based on destination MAC addresses, becoming a core component of modern network infrastructure. In the OSI (Open Systems Interconnection) 7-layer model, switches are classified from L1 to L7 based on which layer they operate at. Each layer's switch has unique characteristics and purposes, analyzing protocol information at that layer to process traffic.
 
-In today's digital landscape, network switches serve as the backbone of modern networking infrastructure. These devices play a crucial role in efficiently managing and directing network traffic. While they primarily operate at the data link layer of the OSI (Open Systems Interconnection) model, different types of switches have evolved to handle various networking needs. Let's dive into the world of network switches, exploring their types, unique characteristics, and what you should consider when choosing one for your network.
+## Historical Development of Network Switches
 
-## L1 Switch (Hub)
+> **The Birth of Switching Technology**
+>
+> Until the early 1990s, Ethernet networks used hubs to connect devices. Since hubs broadcast received data indiscriminately to all ports, larger networks suffered from frequent collisions and rapidly declining bandwidth utilization efficiency.
 
-When we talk about L1 switches, also known as physical layer switches, we're really looking at the most fundamental building blocks of network equipment. Think of them as the modern equivalent of what networking veterans might remember as a simple 'hub'.
+In 1990, Kalpana released the first Ethernet switch called EtherSwitch, marking the commercialization of switching technology. This device dramatically improved network efficiency by using a MAC address table to forward frames only to specific ports. When Cisco acquired Kalpana in 1994, switching technology quickly became the standard for enterprise networks. Subsequently, various features such as VLAN, Spanning Tree Protocol (STP), and QoS were added, transforming simple frame forwarding devices into intelligent network equipment.
 
-### Key Features:
+## OSI Layers and Switch Classification
 
-1. **Signal Amplification**: L1 switches amplify incoming electrical signals and retransmit them to all ports, reducing signal attenuation.
-2. **Broadcasting**: Data is indiscriminately transmitted to all ports regardless of which port it enters. This means all connected devices receive the data.
-3. **Collision Domain**: All ports form one large collision domain, meaning collisions can occur when two devices transmit data simultaneously.
+Network switches are classified according to which layer of the OSI 7-layer model they process information at. Higher layers can analyze more protocol information for more sophisticated traffic control, but processing overhead also increases.
 
-### Usage Scenarios:
+| Switch Type | OSI Layer | Processing Unit | Main Functions | Representative Equipment |
+|-------------|-----------|-----------------|----------------|-------------------------|
+| **L1 Switch** | Physical Layer | Bit/Signal | Signal amplification, retransmission | Hub, Repeater |
+| **L2 Switch** | Data Link Layer | Frame | MAC address-based switching, VLAN | Standard Switch |
+| **L3 Switch** | Network Layer | Packet | IP routing, inter-subnet communication | Multilayer Switch |
+| **L4 Switch** | Transport Layer | Segment | Port-based load balancing | Load Balancer |
+| **L7 Switch** | Application Layer | Message | Content-based switching, WAF | ADC |
 
--   Very small temporary networks
--   Long cable sections where signal attenuation is an issue
--   Simple network setups for testing and experimentation
+## L1 Switch: Physical Layer Device
 
-### Advantages and Disadvantages:
+> **What is an L1 Switch (Hub)?**
+>
+> An L1 switch is the most basic network device operating at the Physical Layer (Layer 1) of the OSI model. It only performs the function of amplifying electrical signals and retransmitting them to all ports, and is commonly known as a "Hub" today.
 
--   Advantages:
-    -   Simple and inexpensive
-    -   Very easy to configure
--   Disadvantages:
-    -   Very low network efficiency
-    -   No security features
-    -   Large collision domain can lead to frequent data collisions
+A hub does not interpret or filter received signals but simply amplifies and broadcasts them to all connected devices. This means all ports form a single collision domain, and when two or more devices transmit data simultaneously, collisions occur requiring retransmission through the CSMA/CD (Carrier Sense Multiple Access with Collision Detection) mechanism. Due to these characteristics, collision frequency increases and effective bandwidth decreases dramatically as the number of connected devices grows. While hubs are rarely used in modern networks, they hold important conceptual significance for understanding basic network principles.
 
-While L1 switches are rarely used in modern networks, they represent an important concept for understanding basic network principles.
+### L1 Switch Characteristics
 
-## L2 Switch (Switching Hub)
+| Characteristic | Description |
+|----------------|-------------|
+| **Signal Processing** | Only performs electrical signal amplification and regeneration |
+| **Address Recognition** | Cannot recognize MAC addresses |
+| **Collision Domain** | All ports share a single collision domain |
+| **Bandwidth Sharing** | All devices share total bandwidth |
+| **Cost** | Very inexpensive |
 
-When you peek into any modern network closet, chances are you'll find an L2 switch doing the heavy lifting. These workhorses of the networking world operate at the data link layer of the OSI model, making smart decisions about where to send data based on MAC addresses. They've become the go-to choice for most network installations, and for good reason.
+## L2 Switch: Data Link Layer Device
 
-### Key Features:
+> **What is an L2 Switch?**
+>
+> An L2 switch operates at the Data Link Layer (Layer 2) of the OSI model. It learns MAC (Media Access Control) addresses and forwards frames only to specific ports based on them, making it the most common form of network switch.
 
-1. **MAC Address Learning**: The switch learns the MAC addresses of devices connected to each port and stores them in a MAC address table. This allows frames with specific destination MAC addresses to be transmitted to appropriate ports.
-2. **Frame Switching**: Frames are transmitted to appropriate ports based on destination MAC addresses. This enables efficient network traffic management.
-3. **Collision Domain Separation**: Each port forms a separate collision domain, greatly improving network efficiency. This reduces data collisions and improves overall network performance.
-4. **VLAN Support**: Physical networks can be logically divided to improve security and performance. Through VLANs, different logical networks can be configured on the same physical network.
-5. **Spanning Tree Protocol (STP)**: Prevents network loops and provides redundancy. STP prevents networks from falling into loops and can provide alternative paths if one link fails.
+An L2 switch learns the MAC addresses of devices connected to each port and stores them in a MAC address table (CAM table). When a frame arrives, it looks up the destination MAC address and forwards the frame only to the port where that device is connected. Unlike hubs, each port forms an independent collision domain, greatly improving overall network efficiency. Additionally, VLAN (Virtual LAN) functionality allows devices physically connected to the same switch to be configured as logically separated networks, enabling enhanced security and broadcast domain segmentation. It also supports Spanning Tree Protocol (STP) to prevent network loops and provide high availability through link redundancy.
 
-### Usage Scenarios:
+### L2 Switch Core Functions
 
--   Access and distribution layers of general enterprise networks
--   Small office or home networks
--   Security enhancement and traffic management through network segmentation
+| Function | Description | Effect |
+|----------|-------------|--------|
+| **MAC Address Learning** | Stores source MAC address to port mapping | Selective forwarding based on destination |
+| **Frame Switching** | Forwarding based on MAC table | Improved network efficiency |
+| **VLAN** | Logical network segmentation | Enhanced security, broadcast isolation |
+| **STP** | Loop prevention and path redundancy | High availability |
+| **Port Mirroring** | Traffic replication and monitoring | Network analysis support |
 
-### Advantages and Disadvantages:
+### Managed vs Unmanaged Switches
 
--   Advantages:
-    -   Efficient frame transmission
-    -   Network segmentation through VLANs
-    -   Cost-effective
-    -   Improved network performance through collision domain separation
--   Disadvantages:
-    -   No routing capabilities
-    -   Potential broadcast traffic issues in large networks
+L2 switches are divided into Unmanaged switches and Managed switches based on the presence of management features. Unmanaged switches operate immediately upon connection without any configuration in a plug-and-play manner, making them suitable for small networks or home use. Managed switches allow various settings such as VLAN, QoS, and port security through web interfaces or CLI (Command Line Interface), and are primarily used in enterprise environments.
 
-L2 switches play a crucial role in most network environments. They provide significant benefits in terms of security and performance through VLAN functionality, allowing logical network segmentation.
+| Category | Unmanaged | Managed |
+|----------|-----------|---------|
+| **Configuration** | Not required (plug and play) | Web/CLI configurable |
+| **VLAN** | Not supported | Supported |
+| **QoS** | Not supported | Supported |
+| **Monitoring** | Limited | SNMP, port statistics, etc. |
+| **Cost** | Inexpensive | Expensive |
+| **Suitable Environment** | Home, small office | Enterprise, data center |
 
-## L3 Switch (Router)
+## L3 Switch: Network Layer Device
 
-Think of L3 switches as the Swiss Army knives of networking - they take everything great about L2 switches and add robust routing capabilities to the mix. Operating at the network layer of the OSI model, these sophisticated devices can make intelligent routing decisions based on IP addresses, effectively bridging the gap between traditional switching and routing.
+> **What is an L3 Switch?**
+>
+> An L3 switch operates at the Network Layer (Layer 3) of the OSI model. In addition to all L2 switch functions, it is a multilayer switch that handles packet routing based on IP addresses at the hardware level.
 
-### Key Features:
+While traditional routers process packets through software resulting in relatively slow speeds, L3 switches use ASIC (Application-Specific Integrated Circuit) chips to perform routing at the hardware level, enabling high-speed packet processing at near wire speed. L3 switches enable communication between different VLANs or subnets, support dynamic routing protocols such as OSPF, EIGRP, and BGP to automatically calculate optimal paths in large networks and respond flexibly to network changes. They also enable fine-grained traffic filtering through ACL (Access Control List) and QoS policy application.
 
-1. **IP Routing**: Enables communication between different subnets. L3 switches use IP addresses to transmit packets along appropriate routes.
-2. **Routing Protocol Support**: Supports dynamic routing protocols such as OSPF and BGP. This allows automatic configuration and management of network paths.
-3. **Advanced QoS**: Enables fine-grained traffic control at the network layer. QoS can prioritize important traffic.
-4. **Access Control Lists (ACL)**: Allows fine-grained control of network traffic. ACLs can be used to allow or block specific traffic.
-5. **Multicast Routing**: Can efficiently handle IP multicast traffic. This enables efficient use of network resources.
+### L3 Switch vs Router
 
-### Usage Scenarios:
+| Comparison Item | L3 Switch | Router |
+|-----------------|-----------|--------|
+| **Processing Method** | Hardware (ASIC) | Software |
+| **Processing Speed** | Wire speed | Relatively slow |
+| **Port Density** | High (24-48 ports typical) | Low |
+| **WAN Interface** | Limited | Various WAN support |
+| **Advanced Routing** | Limited | Rich features |
+| **Suitable Environment** | LAN internal routing | WAN connection, complex routing |
 
--   Core and distribution layers of large enterprise networks
--   Data center networks
--   Campus networks
--   Complex network environments including various subnets
+## L4 Switch: Transport Layer Load Balancer
 
-### Advantages and Disadvantages:
+> **What is an L4 Switch?**
+>
+> An L4 switch operates at the Transport Layer (Layer 4) of the OSI model. It primarily performs load balancing functions by analyzing TCP/UDP port number information to distribute traffic across multiple servers.
 
--   Advantages:
-    -   Efficient routing
-    -   Advanced traffic control
-    -   Scalability
-    -   Support for various routing protocols
--   Disadvantages:
-    -   More expensive than L2 switches
-    -   Can be complex to configure
+L4 switches emerged in the late 1990s as the explosive growth of web services increased the need for server load distribution. They analyze client requests based on IP addresses and port numbers and distribute them to backend server pools, preventing single server overload and increasing service availability. Load balancing algorithms include Round Robin, Weighted, Least Connections, and IP Hash. Health check functionality automatically detects failed servers and excludes them from traffic distribution, ensuring service continuity.
 
-L3 switches are essential equipment in large-scale networks. Through routing capabilities, they can efficiently divide and manage networks, and ensure performance of critical applications through advanced QoS features.
+### L4 Load Balancing Algorithms
 
-## L4 Switch (Load Balancer)
+| Algorithm | Description | Suitable Situation |
+|-----------|-------------|-------------------|
+| **Round Robin** | Sequential server assignment | Servers with equal performance |
+| **Weighted** | Allocation by ratio based on server performance | Heterogeneous server environments |
+| **Least Connections** | Select server with fewest current connections | Requests with long connection times |
+| **IP Hash** | Fix server based on client IP | When session persistence is needed |
 
-Moving up the networking stack, we come to L4 switches - the traffic conductors of the digital orchestra. Operating at the transport layer of the OSI model, these sophisticated devices do more than just pass traffic; they orchestrate it based on TCP/UDP port information. Their claim to fame? They excel at load balancing, ensuring your applications run smoothly by intelligently distributing traffic across multiple servers.
+### L4 Switch Main Functions
 
-### Key Features:
+In addition to load balancing, L4 switches hide internal server real IP addresses through NAT (Network Address Translation) and provide services via Virtual IP (VIP). Session persistence (or Sticky Session) functionality forwards all requests from a specific client to the same server, ensuring proper operation of session-based applications. They also support SSL offloading to handle encryption/decryption processing on the switch, reducing backend server CPU load. Connection multiplexing reuses server connections to reduce connection setup overhead.
 
-1. **Load Balancing**: Evenly distributes traffic across multiple servers. This distributes server load and improves overall system performance and stability.
-2. **Session Persistence**: Sends all requests from a specific client to the same server. This can improve user experience.
-3. **Health Checks**: Regularly checks server status to automatically exclude failed servers. This increases service availability.
-4. **Network Address Translation (NAT)**: Performs address translation between internal and external networks. This enables efficient use of network resources.
-5. **SSL Offloading**: Can handle SSL/TLS encryption and decryption tasks. This reduces server load and improves performance.
+## L5-L6 Layers: Theoretical Classification
 
-### Usage Scenarios:
+> **The Reality of L5 and L6 Switches**
+>
+> Independent switch hardware for the Session Layer (L5) and Presentation Layer (L6) of the OSI model virtually does not exist. The functions of these layers are mostly integrated into L7 switches or ADCs (Application Delivery Controllers).
 
--   Traffic distribution for web server farms
--   Load balancing for database clusters
--   Frontend for large-scale online services
--   Traffic management for cloud-based services
+Session layer functions such as session management, connection setup/teardown, and checkpointing, along with presentation layer functions such as data format conversion, encryption/decryption, and compression, are typically implemented as additional features of L4 or L7 switches in modern network equipment or handled at the application level. Therefore, there is no need to consider L5 or L6 switches separately when selecting network equipment. Instead, review the feature specifications of L4 load balancers or L7 ADCs to verify that required session management and data processing functions are included.
 
-### Advantages and Disadvantages:
+## L7 Switch: Application Layer Device
 
--   Advantages:
-    -   Efficient server resource utilization
-    -   High availability
-    -   Improved application performance
-    -   Traffic management and distribution
--   Disadvantages:
-    -   Requires specialized knowledge
-    -   Expensive equipment
+> **What is an L7 Switch (ADC)?**
+>
+> An L7 switch operates at the Application Layer (Layer 7) of the OSI model. It analyzes application-level data such as HTTP headers, URLs, and cookies to provide content-based switching and advanced security functions. It is also called an ADC (Application Delivery Controller).
 
-L4 switches play an important role in large-scale web services or enterprise application server environments. They intelligently distribute traffic to reduce server load and improve overall service performance and stability.
+L7 switches use DPI (Deep Packet Inspection) technology to deeply analyze packet payloads, enabling traffic processing based on actual request content beyond simple IP and port information. For example, they can route traffic to different server groups based on URL paths or make load balancing decisions based on specific values in HTTP headers. They also detect and block OWASP Top 10 vulnerability attacks such as SQL injection, XSS (Cross-Site Scripting), and CSRF (Cross-Site Request Forgery) through WAF (Web Application Firewall) functionality. They can serve as API gateways to handle API request authentication, rate limiting, and transformation.
 
-## L5 Switch (Application Switch)
+### L7 Switch Core Functions
 
-L5 switches operate at the session layer of the OSI model and primarily provide advanced load balancing and security features. Actual L5 switch hardware is rare, with most functionality being implemented as features of L4 or L7 switches.
+| Function | Description | Effect |
+|----------|-------------|--------|
+| **Content Switching** | Routing based on URL, headers, cookies | Fine-grained traffic control |
+| **WAF** | Web attack detection and blocking | Enhanced application security |
+| **SSL Termination** | TLS handshake processing | Reduced server load |
+| **Caching** | Static content caching | Improved response speed |
+| **Compression** | HTTP response compression | Bandwidth savings |
+| **API Gateway** | API authentication, rate limiting | API management and security |
 
-### Key Features:
+### L4 vs L7 Load Balancing
 
-1. **Session Management**: Manages and maintains sessions between clients and servers. This enables session-based traffic management and load balancing.
-2. **User Authentication**: Can handle user authentication at the application level. This enhances security.
-3. **SSL Acceleration**: Efficiently manages the setup and termination of SSL/TLS sessions. This reduces server load.
-4. **Advanced Load Balancing**: Performs more sophisticated load balancing based on session information. This optimizes traffic distribution.
+| Comparison Item | L4 Load Balancing | L7 Load Balancing |
+|-----------------|-------------------|-------------------|
+| **Analyzed Information** | IP, TCP/UDP port | HTTP headers, URL, cookies |
+| **Routing Decision** | Per connection | Per request |
+| **Processing Speed** | Fast | Relatively slow |
+| **Feature Scope** | Simple distribution | Content-based routing |
+| **Security Features** | Limited | WAF, DPI, etc. |
+| **Suitable Environment** | Simple load distribution | Complex web services |
 
-### Usage Scenarios:
+## Switch Selection Guide
 
--   Complex enterprise application environments
--   Financial service systems requiring high security
--   Session management for real-time applications
+When selecting a network switch, network scale, traffic characteristics, security requirements, and budget should be comprehensively considered. Selecting equipment more advanced than necessary results in cost waste, while selecting equipment with insufficient features creates constraints on future expansion or feature additions.
 
-### Advantages and Disadvantages:
+| Environment | Recommended Switch | Reason |
+|-------------|-------------------|--------|
+| **Home/Small Office** | Unmanaged L2 | Simple, inexpensive, no configuration needed |
+| **SMB** | Managed L2 | VLAN, QoS, monitoring needed |
+| **Enterprise LAN** | L3 Switch | Inter-subnet routing, high performance |
+| **Web Server Farm** | L4 Load Balancer | Load distribution, high availability |
+| **Complex Web Services** | L7 ADC | Content routing, WAF |
 
--   Advantages:
-    -   Sophisticated session-based traffic management
-    -   Enhanced security
-    -   High-performance SSL processing
--   Disadvantages:
-    -   Implementation complexity
-    -   High cost
-    -   May be dependent on specific applications
+## Conclusion
 
-L5 switch functionality is mostly integrated into modern advanced L7 switches or Application Delivery Controllers (ADC).
-
-## L6 Switch (Presentation Switch)
-
-L6 switches operate at the presentation layer of the OSI model and handle data format conversion, encryption, and compression. Like L5 switches, standalone L6 switch hardware is rare, with functionality typically implemented in L7 switches or ADCs.
-
-### Key Features:
-
-1. **Data Conversion**: Performs conversion between various data formats (e.g., XML to JSON). This improves interoperability between different systems.
-2. **Encryption/Decryption**: Efficiently handles data encryption and decryption. This enhances data transmission security.
-3. **Data Compression**: Compresses and decompresses data to save network bandwidth. This improves transmission speed.
-4. **Content Encoding**: Optimizes content for various client devices. This improves user experience.
-
-### Usage Scenarios:
-
--   Large-scale Content Delivery Networks (CDN)
--   Global web services requiring multilingual support
--   Financial transaction systems requiring high-performance encryption
--   Complex application environments using various data formats
-
-### Advantages and Disadvantages:
-
--   Advantages:
-    -   Efficient data processing
-    -   Enhanced security
-    -   Network optimization
-    -   Support for various data formats
--   Disadvantages:
-    -   Implementation complexity
-    -   May be dependent on specific applications
-    -   High cost
-
-L6 functionality is mainly used to meet specific application requirements and is typically integrated into L7 switches or specialized appliances.
-
-## L7 Switch (Application Switch)
-
-L7 switches, also known as 'application switches', operate at the application layer, the highest layer of the OSI model. These switches provide the most sophisticated level of traffic management and security features by analyzing packet contents in depth.
-
-### Key Features:
-
-1. **Deep Packet Inspection (DPI)**: Controls traffic at the application level by analyzing packet contents. This enables detection and blocking of security threats.
-2. **Advanced Load Balancing**: Distributes traffic based on advanced protocols such as HTTP and HTTPS. This optimizes web application performance.
-3. **Web Application Firewall (WAF)**: Protects web applications from attacks. This blocks attacks such as SQL injection and XSS.
-4. **Content Switching**: Routes traffic to specific servers based on URL, cookie information, etc. This delivers user requests to optimal servers.
-5. **Application Acceleration**: Optimizes application performance through data compression, caching, SSL offloading, etc. This reduces response time and server load.
-6. **Multi-tenancy**: Can provide separate logical instances for multiple customers. This supports multiple customers on a single physical infrastructure.
-7. **API Gateway**: Manages API requests and provides security features. This optimizes and protects API traffic.
-
-### Usage Scenarios:
-
--   Large-scale web services and cloud infrastructure
--   Complex enterprise application environments
--   Financial services requiring high security
--   Environments requiring real-time application performance optimization
--   Environments where API management and security are important
-
-### Advantages and Disadvantages:
-
--   Advantages:
-    -   Advanced traffic management and security
-    -   Improved application performance
-    -   Integration of various features
-    -   API traffic management and security
--   Disadvantages:
-    -   High cost
-    -   Complex configuration and management required
-    -   Requires specialized knowledge
-
-L7 switches play a crucial role in large-scale web services and cloud infrastructure by providing sophisticated traffic management and security features at the highest network layer. Through various features such as Web Application Firewall (WAF), application acceleration, and multi-tenancy, they can optimize and protect network and application performance.
+Network switches range from L1 hubs to L7 ADCs according to OSI layers, with each layer's switch providing unique functions by analyzing protocol information at that layer. L1 hubs perform only simple signal amplification, L2 switches provide MAC address-based frame switching and VLAN, and L3 switches handle IP routing at the hardware level. L4 switches perform load balancing based on TCP/UDP port information, and L7 switches analyze application content to provide sophisticated traffic control and security functions. Selecting the appropriate layer switch based on network environment scale, traffic characteristics, and security requirements is key to building an efficient network.

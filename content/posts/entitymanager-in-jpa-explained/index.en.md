@@ -1,102 +1,121 @@
 ---
-title: "What is EntityManager?"
+title: "Complete Guide to EntityManager"
 date: 2024-06-07T19:12:36+09:00
-tags: ["jpa", "entitymanager"]
-description: "A comprehensive guide to EntityManager covering its role and lifecycle, key API methods (persist, find, merge, remove, etc.), transaction management, JPQL and Criteria API, persistence context management (first-level cache, write-behind, dirty checking), relationship with Spring Data JPA, and practical tips for handling large datasets and solving N+1 problems."
+tags: ["jpa", "hibernate", "entitymanager", "orm"]
+description: "EntityManager is the core JPA interface that standardized Hibernate's Session. It manages the persistence context and controls entity lifecycle through methods like persist, find, merge, and remove, executing queries via JPQL and Criteria API"
 draft: false
 ---
 
-> EntityManager is the core interface of JPA that manages the lifecycle of entities and handles all interactions between entities and the database through the persistence context.
+## History and Concept of EntityManager
 
-## Role and Importance of EntityManager
+EntityManager is the core interface of Java Persistence API (JPA), first defined in the EJB 3.0 specification released as part of JSR 220 in 2006. It was designed to standardize Hibernate's Session interface and provide a vendor-independent persistence management API. The Session concept introduced by Gavin King in 2001 when developing Hibernate was an innovative approach that abstracted database connections and tracked entity object states. JPA standardized this idea, reformulated it as EntityManager, and enabled the same interface to be used across all JPA implementations (Hibernate, EclipseLink, OpenJPA).
 
-EntityManager is an interface positioned at the center of the Java Persistence API (JPA) specification. It handles the mapping between entities in object-oriented programming and relational databases, enabling developers to perform database operations without writing SQL directly. JPA is a Java standard ORM (Object-Relational Mapping) technology that was first introduced as part of the EJB 3.0 specification in 2006. Since then, various implementations such as Hibernate, EclipseLink, and OpenJPA have emerged, establishing JPA as the de facto standard for data access layers in Java-based applications.
+The core problem EntityManager solves is the Object-Relational Impedance Mismatch between objects in object-oriented programming and tables in relational databases. It enables developers to perform database operations with object-centric code without writing SQL directly, automatically providing optimization features like first-level cache, dirty checking, and write-behind. EntityManager manages a logical space called the Persistence Context, which implements the Identity Map and Unit of Work patterns defined by Martin Fowler—guaranteeing identity for entities with the same identifier within the same transaction and tracking changed entities to reflect them all at once to the database when the transaction ends.
 
-EntityManager manages a logical space called the persistence context, which is a kind of first-level cache that stores entity objects in a persistent state. It tracks entity states and detects changes between the application and the database. Through the persistence context, EntityManager provides powerful features such as guaranteeing identity for entities with the same identifier within the same transaction, minimizing database access, and automatically generating UPDATE queries through change detection.
+## EntityManager Lifecycle and Management Approaches
 
-EntityManager is necessary because it resolves the paradigm mismatch between domain models and relational databases, abstracts repetitive CRUD code, and automatically provides performance optimization features such as first-level cache and write-behind. Additionally, it allows writing queries in an object-oriented manner through JPQL and Criteria API, and enables vendor-independent code that minimizes application code changes when the database is switched.
+### Relationship Between EntityManagerFactory and EntityManager
 
-## EntityManager Lifecycle
+EntityManager is created from EntityManagerFactory. EntityManagerFactory is a heavyweight object containing database connection information, entity metadata, and cache settings that is created once and shared across the entire application. EntityManager, on the other hand, is a lightweight object created per request that must be closed after use. Creating EntityManagerFactory is expensive as it involves parsing persistence.xml or Spring configuration and loading database metadata, so it's created only once at application startup. EntityManager is not thread-safe, cannot be shared across threads, and must have a new instance created for each request or transaction.
 
-EntityManager is created from EntityManagerFactory. While EntityManagerFactory is created once and shared across the entire application, EntityManager is a lightweight object that is created per request and must be closed after use. EntityManagerFactory contains the database connection pool and metadata information and is very expensive to create, so it is created only once at application startup. EntityManager cannot be shared between threads, so a new instance must be created for each request.
+### Application-Managed vs Container-Managed
 
-The creation and management of EntityManager is divided into two approaches: Application-Managed and Container-Managed. The Application-Managed approach is where developers directly create and close EntityManager from EntityManagerFactory, primarily used in Java SE environments. The Container-Managed approach is where the container (Spring, Java EE) manages the lifecycle of EntityManager, commonly used in web applications.
+EntityManager management approaches are divided into Application-Managed and Container-Managed. The Application-Managed approach is primarily used in Java SE environments where developers directly create EntityManager via EntityManagerFactory.createEntityManager() and must explicitly close it by calling close() after use. The Container-Managed approach is used in container environments like Spring or Java EE, where the container manages EntityManager's lifecycle—automatically creating it when transactions start and automatically closing it when transactions end.
 
-In Spring environments, the `@PersistenceContext` annotation is used to inject a Container-Managed EntityManager. This is actually a proxy object that uses the actual EntityManager within the transaction scope and automatically calls close() when the transaction ends. On the other hand, the `@PersistenceUnit` annotation injects EntityManagerFactory, used when developers need to directly create and manage EntityManager. This is useful in situations requiring fine-grained transaction control, such as batch jobs or asynchronous processing.
+In Spring environments, the @PersistenceContext annotation is used to inject a Container-Managed EntityManager. What's actually injected is a proxy object called SharedEntityManagerInvocationHandler that connects the actual EntityManager for each transaction. The @PersistenceUnit annotation injects EntityManagerFactory, used when developers need to directly create and manage EntityManager for fine-grained transaction control, such as batch jobs or asynchronous processing.
 
-## Detailed API Methods
+```java
+// Application-Managed approach
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistence-unit");
+EntityManager em = emf.createEntityManager();
+EntityTransaction tx = em.getTransaction();
+
+tx.begin();
+// Perform operations
+tx.commit();
+em.close(); // Must explicitly close
+
+// Container-Managed approach (Spring)
+@Repository
+public class UserRepository {
+    @PersistenceContext
+    private EntityManager em; // Proxy injected, actual EM connected per transaction
+}
+```
+
+## Key API Methods
 
 ### persist()
 
-The `persist()` method saves a new entity to the persistence context and transitions it to a persistent state. When called, it does not immediately execute an INSERT query but registers the entity in the persistence context. The actual INSERT query is executed at transaction commit time. This is the write-behind (Transactional Write-Behind) feature that minimizes database access and improves performance when saving multiple entities at once.
+The persist() method saves a new entity to the persistence context and transitions it to managed state. It doesn't immediately execute an INSERT query when called but registers the INSERT query in the persistence context's write-behind SQL store. The query is actually sent to the database when flush is called at transaction commit time. When using IDENTITY strategy with @GeneratedValue, INSERT executes immediately at persist() call time because the database must generate the ID. SEQUENCE or TABLE strategies can pre-allocate sequence values, enabling write-behind.
 
-### find()
+### find() and getReference()
 
-The `find()` method is the most basic method for querying entities by their identifier. It first looks for the entity in the first-level cache of the persistence context and only executes a SELECT query to the database if not found. Due to first-level cache utilization, even if the same entity is queried multiple times within the same transaction, actual database access occurs only once. The queried entity is automatically managed in a persistent state.
+The find() method is the most basic method for querying entities by identifier. It first checks the persistence context's first-level cache and only executes a SELECT query to the database if not found in cache. The queried entity is automatically managed in persistent state. The getReference() method returns a proxy object that delays actual database lookup, operating in lazy loading fashion where the actual SELECT executes when the proxy's fields are accessed.
 
-### getReference()
-
-The `getReference()` method returns a proxy object that delays database access. It operates in a lazy loading manner where the database query is executed when the actual entity's properties are accessed. This is used to prevent unnecessary database access when querying entities with relationships and to optimize performance by loading data only when needed.
+```java
+User user1 = em.find(User.class, 1L); // SELECT executes immediately
+User user2 = em.getReference(User.class, 2L); // Returns proxy, no SELECT
+String name = user2.getName(); // SELECT executes at this point
+```
 
 ### merge()
 
-The `merge()` method converts a detached entity to a persistent state. It queries the database using the identifier of the passed entity, merges the values of the passed entity into the queried persistent entity, and returns the merged persistent entity. Note that the return value of merge() is a persistent entity, while the parameter entity remains in a detached state. It is more efficient to use the change detection feature, so when possible, it is recommended to find() and then modify rather than using merge().
+The merge() method makes a detached entity persistent again. It checks the persistence context using the passed entity's identifier, queries the database if not found, copies all values from the passed entity to the queried persistent entity, and returns that persistent entity. The important point is that merge()'s return value is the persistent entity while the original parameter entity remains detached. Subsequent work must use the returned persistent entity for dirty checking to work.
 
 ### remove()
 
-The `remove()` method deletes a persistent entity. It does not delete immediately upon call but marks the entity for deletion in the persistence context, and the DELETE query is executed at transaction commit time. The entity to be deleted must be in a persistent state. To delete a detached entity, you must first make it persistent with merge() or query it again with find() before calling remove().
+The remove() method transitions a persistent entity to removed state. Like persist(), it doesn't execute a DELETE query immediately when called but registers the DELETE query in the write-behind SQL store. It actually executes at transaction commit time. remove() can only be used on persistent entities. To delete a detached entity, you must first make it persistent with find() or merge() before calling remove().
 
-### flush()
+### flush() and clear()
 
-The `flush()` method immediately synchronizes changes in the persistence context to the database. It sends queries in the write-behind SQL store to the database at the current point without waiting for transaction commit. Calling flush() does not commit the transaction nor empty the persistence context. It is automatically called just before JPQL query execution to ensure data consistency. When processing large amounts of data, calling flush() and clear() together at regular intervals can control memory usage.
+The flush() method immediately synchronizes persistence context changes to the database. It sends all queries in the write-behind SQL store to the database but doesn't commit the transaction. It's automatically called just before JPQL query execution to ensure queries can retrieve the latest data. The clear() method completely initializes the persistence context, making all managed entities detached. When processing large amounts of data, flush() and clear() are called together at regular intervals to prevent memory exhaustion from entities accumulating in the first-level cache.
 
-### clear()
+## Transactions and Persistence Context
 
-The `clear()` method completely initializes the persistence context, making all managed entities detached. It is used to prevent memory shortage caused by too many entities accumulating in the first-level cache when processing large amounts of data. After calling clear(), previously queried entities are no longer managed by the persistence context, so their changes are not reflected in the database.
+### Transaction-Scoped Persistence Context
 
-### detach()
+Spring uses transaction-scoped persistence context strategy by default. When a method with @Transactional annotation starts, the transaction and persistence context are created together. When the method ends, the persistence context terminates along with transaction commit. At transaction commit time, flush() is automatically called to perform dirty checking, comparing snapshots of persistent entities with their current state and automatically generating UPDATE queries for changed fields.
 
-The `detach()` method detaches only a specific entity from the persistence context, making it detached. Unlike clear() which detaches all entities, it can selectively detach a single entity. The detached entity is no longer subject to change detection, so modifying values does not reflect in the database. To make it persistent again, you must use merge().
+### Dirty Checking and Identity Guarantee
 
-## Transaction Management
-
-EntityManager is designed to operate within transaction scope. All data modification operations must be performed within a transaction. Query operations are possible without transactions, but performing them within transactions is recommended to utilize the benefits of the persistence context. In Java SE environments, transactions are controlled directly through the EntityTransaction interface using begin(), commit(), and rollback() methods. In Spring environments, declarative transaction management is performed using the `@Transactional` annotation, automatically starting, committing, or rolling back transactions through AOP.
-
-Transaction scope and EntityManager scope generally match. In Spring, when a method declared with `@Transactional` starts, the transaction and EntityManager are created. When the method ends, the transaction commits and EntityManager closes. At transaction commit time, flush() is automatically called to reflect changes in the persistence context to the database. The change detection (Dirty Checking) mechanism compares snapshots of persistent entities with their current state and automatically generates and executes UPDATE queries for changed fields.
+Dirty Checking is a feature where EntityManager stores a snapshot when making an entity persistent, compares it with the current state at flush time, finds changed fields, and automatically generates UPDATE queries. Without developers explicitly calling methods like update(), simply changing values through setters automatically reflects changes to the database. Identity Guarantee ensures that entities queried with the same identifier within the same transaction are always the same object instance. Calling em.find(User.class, 1L) multiple times always returns the identical instance, making == comparison return true.
 
 ## JPQL and Criteria API
 
-EntityManager can execute JPQL (Java Persistence Query Language) through the `createQuery()` method. JPQL is an object-oriented query language that writes queries targeting entity objects. It is similar to SQL but targets entity classes and fields rather than tables. JPQL is database-independent, so queries do not need to be modified when the database changes. It can express joins concisely using entity relationships and can easily implement features such as paging and sorting.
+### JPQL (Java Persistence Query Language)
+
+JPQL is an object-oriented query language that writes queries targeting entity objects. It targets entity classes and fields rather than tables and is database-independent, so queries don't need modification when the database changes. JPQL is executed via EntityManager.createQuery(). Using TypedQuery allows specifying result types for type safety. Parameter binding supports both position-based (:1) and name-based (:name) approaches.
 
 ```java
+// JPQL example
 TypedQuery<User> query = em.createQuery(
-    "SELECT u FROM User u WHERE u.age > :age", User.class);
-query.setParameter("age", 20);
+    "SELECT u FROM User u WHERE u.status = :status AND u.age > :age",
+    User.class
+);
+query.setParameter("status", UserStatus.ACTIVE);
+query.setParameter("age", 18);
 List<User> users = query.getResultList();
 ```
 
-When native SQL is needed, the `createNativeQuery()` method can be used to directly execute database-specific SQL. This is useful when complex statistical queries or database-specific features are required. Criteria API is a type-safe query writing method using CriteriaBuilder. Unlike JPQL, which writes queries as strings, it writes queries in Java code, allowing error verification at compile time. It has the advantage of flexibly assembling queries according to conditions when writing dynamic queries, but it also has the disadvantage of complex code and reduced readability.
+### Criteria API and Native Query
 
-## Persistence Context Management
-
-The first-level cache of the persistence context has a Map structure that uses the entity's identifier as the key and stores entity instances as values. When the same entity is queried multiple times with find() within the same transaction, the database is accessed only once initially, and subsequent queries retrieve from the first-level cache. The first-level cache is created when a transaction starts and disappears when the transaction ends. Unlike the second-level cache shared across the entire application, it has a very short lifecycle and does not cause concurrency issues.
-
-Write-behind (Transactional Write-Behind) is a mechanism where data modification methods such as persist() or remove() do not immediately execute SQL when called but collect queries in the write-behind SQL store. At transaction commit time, flush() is called to send all queries to the database at once. This improves performance by reducing database communication frequency and can execute multiple INSERT queries in one batch using JDBC batch functionality.
-
-Change detection (Dirty Checking) is a feature that automatically detects changes in persistent entities and generates UPDATE queries. Without developers explicitly calling methods like update(), simply changing values through setters automatically reflects the changes to the database at transaction commit time. EntityManager stores a snapshot of the initial state when storing entities in the persistence context. At flush() time, it compares the snapshot with the current entity and automatically generates UPDATE queries if there are changed fields.
-
-Identity guarantee is a feature that ensures entities queried with the same identifier within the same transaction are always the same instance. Even if find() is called multiple times, == comparison returns true. This provides Repeatable Read level isolation at the application level, ensuring data consistency.
+Criteria API writes queries in Java code using CriteriaBuilder. It compensates for JPQL's disadvantage of being string-based and unable to detect errors at compile time, enabling type-safe query writing. However, it has disadvantages of complex code and reduced readability, so it's best used selectively only when dynamic queries are needed. When native SQL is needed, the createNativeQuery() method can execute database-specific SQL directly, useful for complex statistical queries or when database-specific features are required.
 
 ## Relationship with Spring Data JPA
 
-Spring Data JPA's Repository interface is implemented internally using EntityManager. The SimpleJpaRepository class is the actual implementation where all CRUD methods operate through EntityManager. The save() method internally calls persist() if the entity is new and merge() if it already exists. findById() calls EntityManager's find(), and deleteById() calls find() followed by remove().
+Spring Data JPA's Repository interfaces (JpaRepository, CrudRepository) are implemented internally using EntityManager. The SimpleJpaRepository class is the actual implementation where save() calls persist() for new entities and merge() for existing ones, findById() calls EntityManager.find(), and deleteById() calls find() followed by remove(). Spring Data JPA provides convenience features like method name-based query generation, @Query annotation, and Specification to increase development productivity. However, for complex queries, bulk operations, or fine-grained persistence context control, injecting EntityManager directly with @PersistenceContext is more appropriate.
 
-Cases requiring direct implementation of `@Repository` using EntityManager include when complex queries, bulk operations, or dynamic queries that are difficult to implement with Spring Data JPA's basic features are needed. In this case, EntityManager is injected with `@PersistenceContext` to write queries directly using JPQL or Criteria API. Spring Data JPA greatly improves development productivity by providing convenience features such as method name-based query generation, paging and sorting, and Auditing. However, using pure EntityManager allows more fine-grained control and deeper understanding of JPA's operating principles. Mixing both approaches according to the situation is common in practice.
+## Practical Optimization Tips
 
-## Practical Tips
+### Large Data Processing
 
-When processing large amounts of data, handling thousands or more entities at once can cause memory shortage as all entities accumulate in the persistence context. It is essential to call flush() and clear() at regular intervals (e.g., every 100 entities) to empty the persistence context. Additionally, for batch processing, setting JDBC batch configuration (hibernate.jdbc.batch_size) to execute multiple INSERTs or UPDATEs in one batch can significantly improve performance.
+Processing thousands or more entities at once can cause memory exhaustion as all entities accumulate in the persistence context. You should call flush() and clear() at regular intervals (e.g., every 100 entities) to empty the persistence context. Additionally, executing multiple INSERTs or UPDATEs in one batch through JDBC batch settings (hibernate.jdbc.batch_size) can significantly improve performance.
 
-The N+1 problem is a typical performance issue that occurs when querying entities with relationships. After querying N parent entities, queries to retrieve child entities are executed N additional times for each parent, resulting in a total of N+1 queries. To solve this, use JPQL's fetch join to query parents and children together in one query, use `@EntityGraph` to explicitly load necessary relationships, or set batch size (hibernate.default_batch_fetch_size) to query child entities bundled in an IN clause.
+### Solving N+1 Problem
 
-Proxy objects are fake objects for implementing lazy loading. They are used when lazy loading is configured with getReference() or `@ManyToOne(fetch = FetchType.LAZY)`. Since proxy objects are classes that inherit from the actual entity, instanceof should be used instead of == for type comparison. LazyInitializationException occurs when trying to initialize a proxy object after the persistence context has closed. It occurs when accessing lazily loaded relationships outside the transaction scope. To solve this, pre-initialize necessary data within the transaction, use fetch join, or utilize the Open Session In View pattern.
+The N+1 problem is when N parent entities are queried and then queries to retrieve child entities execute N additional times for each parent, resulting in N+1 total queries. Solutions include using JPQL fetch join to query parents and children together in one query, using @EntityGraph to explicitly load necessary relationships, or setting hibernate.default_batch_fetch_size to query child entities bundled in an IN clause.
+
+## Conclusion
+
+EntityManager is the core JPA interface that standardized Hibernate's Session in the EJB 3.0 specification in 2006. It provides first-level cache, dirty checking, write-behind, and identity guarantee through the persistence context. It manages entity lifecycle through methods like persist(), find(), merge(), and remove(), executes object-oriented queries via JPQL and Criteria API, and is designed to operate within transaction scope. Spring Data JPA provides an abstraction layer based on EntityManager, but for complex queries or fine-grained control, using EntityManager directly is appropriate. For large data processing, manage memory with flush() and clear(), and optimize performance with batch settings and fetch join.

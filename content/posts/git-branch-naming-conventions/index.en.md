@@ -1,81 +1,102 @@
 ---
-title: "Git Branch Naming: For Effective Collaboration"
+title: "Git Branch Naming Conventions"
 date: 2024-07-23T20:54:17+09:00
-tags: ["git", "branching", "best-practices"]
+tags: ["git", "branching", "version-control"]
+description: "Git branch naming conventions were systematized with Vincent Driessen's Git Flow (2010), using prefixes like feature, bugfix, and hotfix along with issue tracker integration to improve team collaboration efficiency"
 draft: false
 ---
 
-## Introduction
+## History and Importance of Branch Naming
 
-Git is an essential version control tool in modern software development. Effective Git usage involves systematic branch management, and following a consistent branch naming convention is a crucial part of it. In this post, we will discuss the fundamental rules and best practices for Git branch naming.
+Git branch naming conventions began to be systematized when Vincent Driessen introduced Git Flow in his 2010 blog post "A successful Git branching model." Since then, various branching strategies emerged including GitHub Flow (2011) and GitLab Flow (2014), establishing prefix-based naming conventions like feature/, bugfix/, hotfix/, and release/ as industry standards. Consistent branch naming improves project readability, facilitates CI/CD pipeline automation, and significantly enhances the efficiency of code reviews and task tracking.
 
-## Basic Naming Conventions
+## Basic Naming Rules
 
-Here are the basic branch naming conventions:
+When creating branch names, use only lowercase letters and separate words with hyphens (-). Write in English to ensure compatibility in international collaboration environments. Keep names concise within 5-7 words while clearly conveying the branch's purpose. Avoid underscores (_), periods (.), and special characters (!, @, #) as they may have reserved meanings in Git or cause compatibility issues across operating systems.
 
-1. **Use lowercase**: Branch names should always be in lowercase.
-2. **Use hyphens (-)**: Separate words with hyphens.
-3. **Be concise**: Keep branch names concise but descriptive.
-4. **Use English**: Favor English for global accessibility.
+```bash
+# Good examples
+feature/user-authentication
+bugfix/login-error
 
-Example: `feature-user-authentication`
+# Bad examples
+Feature_User_Authentication  # Uppercase, underscores
+fix#123  # Special characters
+johns-branch  # Unclear purpose
+```
 
 ## Branch Prefixes
 
-To make the purpose of a branch clear, use prefixes such as:
+Use prefixes to immediately identify a branch's purpose. The most widely used prefixes include `feature/` for new feature development, `bugfix/` for general bug fixes, `hotfix/` for urgent production fixes, `release/` for new version release preparation, `refactor/` for code structure improvements, `docs/` for documentation updates, `test/` for test additions and modifications, `chore/` for build and configuration changes, `perf/` for performance improvements, and `style/` for code style changes.
 
-1. **feature/**: Developing new functionality
-   - Example: `feature/login-system`
-2. **design/**: Design changes
-   - Example: `design/landing-page-redesign`
-3. **bugfix/**: Bug fixes
-   - Example: `bugfix/login-error`
-4. **hotfix/**: Urgent production bug fixes
-   - Example: `hotfix/security-vulnerability`
-5. **release/**: Preparing a new product release
-   - Example: `release/v1.2.0`
-6. **refactor/**: Code refactoring
-   - Example: `refactor/improve-performance`
-7. **docs/**: Documentation updates
-   - Example: `docs/api-guide`
-8. **test/**: Test-related changes
-   - Example: `test/integration-tests`
-9. **chore/**: Build tasks, package manager configuration, etc.
-   - Example: `chore/update-dependencies`
-10. **style/**: Code style changes (formatting, linting, etc.)
-   - Example: `style/lint-fixes`
-11. **perf/**: Performance improvements
-    - Example: `perf/optimize-database-queries`
-
-Using these prefixes helps in quickly identifying the purpose of a branch and brings structure to project management.
+| Prefix | Purpose | Example |
+|--------|---------|---------|
+| feature/ | New feature development | feature/oauth-login |
+| bugfix/ | General bug fixes | bugfix/null-pointer-error |
+| hotfix/ | Urgent production fixes | hotfix/security-patch |
+| release/ | Release preparation | release/v2.1.0 |
+| refactor/ | Code refactoring | refactor/extract-service |
+| docs/ | Documentation updates | docs/api-reference |
+| test/ | Test additions/modifications | test/unit-coverage |
+| chore/ | Build/configuration changes | chore/update-deps |
+| perf/ | Performance improvements | perf/query-optimization |
+| style/ | Code style changes | style/lint-fixes |
 
 ## Issue Tracker Integration
 
-If you use an issue tracker (e.g., JIRA, GitHub Issues), it's advisable to incorporate the issue number into the branch name.
+When using issue trackers like JIRA, GitHub Issues, or Linear, including the issue ID in the branch name establishes traceability between issues and branches. This enables immediate reference to related issues during code review, and GitHub or GitLab automatically links issues and branches. The common format places the issue ID immediately after the prefix followed by a brief description.
 
-Example: `feature/LOGIN-123-implement-oauth`
+```bash
+feature/AUTH-123-oauth-login
+bugfix/BUG-456-fix-null-check
+hotfix/SEC-789-xss-patch
+```
 
-## Versioning
+## Long-lived Branches
 
-When working on a specific version, include the version number.
-
-Example: `release/2.1.0` or `hotfix/2.0.1-login-issue`
+Continuously maintained long-lived branches in a project typically include `main` (or `master`) where production code is deployed, `develop` as the integration branch for the next release, and optionally `staging` for staging environments. Since GitHub changed the default branch name from master to main in 2020, most new projects use main.
 
 ## Temporary Work Branches
 
-For personal experiments or temporary work, use a `wip/` (Work In Progress) prefix for the branch.
+For personal experiments or incomplete work, use the `wip/` (Work In Progress) prefix to explicitly indicate that the branch is not yet ready for review or merge. These branches should be renamed with appropriate prefixes or deleted after work completion.
 
-Example: `wip/experiment-new-algorithm`
+```bash
+wip/experiment-new-algorithm
+wip/spike-redis-caching
+```
 
-## Long-Lived Branches
+## Naming Strategies by Team Size
 
-The project's main long-lived branches are typically named as:
+### Small Teams (2-5 people)
 
-- `main` or `master`: Main release branch
-- `develop`: Development branch for the next release
+In small teams where direct communication is smooth, simple prefixes (`feat/`, `fix/`, `docs/`) suffice and issue numbers can be omitted. Short, concise formats like `feat/login` and `fix/typo` are efficient.
+
+### Large Teams (10+ people)
+
+In large teams, use additional namespaces to distinguish branches by module or team, and include issue numbers as mandatory. Formats like `frontend/feat/AUTH-123-oauth` and `backend/fix/API-456-timeout` clearly separate work areas.
+
+### Open Source Projects
+
+In open source projects with many external contributors, an option to include GitHub usernames for contributor identification may be provided. The format `feat/username/add-feature` enables tracking who is working on what.
+
+## Integration with CI/CD Automation
+
+Modern CI/CD pipelines can be configured to trigger different jobs based on branch name patterns. `feature/*` branches run only unit tests and lint checks, `release/*` branches auto-deploy to staging environments, and `hotfix/*` branches execute urgent production deployment pipelines. This automates deployment strategies based solely on branch names.
+
+```yaml
+# GitHub Actions example
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'release/**'
+      - 'hotfix/**'
+```
+
+## Branch Naming Anti-Patterns
+
+Branch name patterns to avoid include vague names like `fix`, `update`, `new-feature` where it's unclear what is being fixed; worker-centric names like `johns-branch`, `my-work` that focus on the worker rather than the purpose; date-based names like `2024-01-15`, `jan-update` that don't indicate content; names with special characters like `feature_login!`, `fix#123` that can cause Git issues; and excessively long names like `feature-add-new-user-authentication-system-with-oauth-jwt-mfa-support`.
 
 ## Conclusion
 
-Following a consistent Git branch naming convention greatly enhances project management. Sharing and adhering to these conventions among team members can significantly improve collaboration efficiency. Feel free to customize these rules based on your project's specifics.
-
-Remember, a good branch name should be self-explanatory, conveying the purpose and scope of the work.
+Git branch naming conventions have evolved steadily since Git Flow emerged in 2010, with prefix-based naming like feature/, bugfix/, hotfix/, and release/ now established as industry standards. The key practices are using lowercase letters and hyphens, including issue tracker IDs, and keeping names concise within 5-7 words. Adjusting rules to fit team size and project characteristics while maintaining consistency provides benefits in code review efficiency, task traceability, and CI/CD automation.

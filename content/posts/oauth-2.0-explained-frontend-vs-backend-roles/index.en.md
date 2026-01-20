@@ -1,312 +1,127 @@
 ---
-title: "Understanding OAuth 2.0: Role Distribution Between Frontend and Backend"
+title: "Complete Guide to OAuth 2.0: From Authorization Code Flow to Security Best Practices"
 date: 2024-08-03T11:21:01+09:00
-tags: ["oauth2.0", "authentication", "github", "spring boot"]
+tags: ["OAuth", "Authentication", "Security", "API", "Social Login"]
+description: "A comprehensive explanation of OAuth 2.0 core concepts and Authorization Code Flow mechanics, covering frontend and backend role distribution and security best practices"
 draft: false
 ---
 
-## Introduction
+OAuth 2.0 is an authorization framework standardized as RFC 6749 by the IETF (Internet Engineering Task Force) in 2012, designed to allow users to grant third-party applications limited access to their resources without exposing their credentials (passwords). It is currently adopted as the standard for social login and API authorization by most major internet services including Google, Facebook, GitHub, and Twitter.
 
-Let's dive into a detailed explanation of **OAuth 2.0**. We'll examine the entire flow using **GitHub OAuth** as an example, then break down the implementation roles between the **frontend** and **backend** with practical examples.
+## The Origins of OAuth
 
-## What is OAuth 2.0?
+> **The Problem OAuth Solves**
+>
+> Before OAuth, users had to directly provide their usernames and passwords to third-party applications, which created serious security risks. Users had no way to know which applications would safely manage their credentials, nor could they granularly control access permissions or revoke them at any time.
 
-**OAuth 2.0** is a **standard protocol** for securely delegating third-party access to user data.
-In simpler terms, it's a protocol used when a **user** wants to grant another application access to their data.
-It's commonly used in implementing **login systems**, allowing users to sign in using their accounts from other services.
+OAuth 1.0 was the first open authorization standard created in 2007 through collaboration between Twitter and several other companies, but it failed to achieve widespread adoption due to implementation complexity and demanding cryptographic signature requirements. To address these issues, OAuth 2.0 was released in 2012, abandoning backward compatibility with the previous version in favor of simplicity and flexibility, and significantly reducing client implementation complexity by relying on transport layer security through HTTPS.
 
-## OAuth 2.0 Terminology
+## Core Components of OAuth 2.0
 
-Before we proceed, let's clarify the key terms used in **OAuth 2.0**:
+### Role Definitions
 
-1. **Resource Owner**: The owner of the protected resource - the **user**.
-2. **Client**: The **application** seeking access to protected resources on behalf of the Resource Owner (the application we're building).
-3. **Resource Server**: The **server** hosting the protected resources (e.g., GitHub's API server).
-4. **Authorization Server**: The server that handles authentication and issues **access tokens**.
+OAuth 2.0 defines four roles, and understanding how each role interacts during the authorization process is key to grasping the entire protocol.
 
-## OAuth 2.0 Flow
+| Role | Description | Example |
+|------|-------------|---------|
+| **Resource Owner** | An entity capable of granting access to protected resources, typically the end user | A user with a GitHub account |
+| **Client** | An application accessing protected resources on behalf of the Resource Owner | A web application supporting GitHub login |
+| **Resource Server** | A server hosting protected resources that accepts requests using access tokens | GitHub API server |
+| **Authorization Server** | A server that authenticates the Resource Owner and issues access tokens after obtaining authorization | GitHub OAuth server |
 
-Let's break down the entire flow step by step using **GitHub OAuth** as an example.
+### Distinguishing Authentication and Authorization
 
-### 1. Application Registration
+> **OAuth 2.0 is an Authorization Protocol**
+>
+> OAuth 2.0 is fundamentally an authorization protocol, not an authentication protocol. Authentication is the process of confirming "who you are," while authorization is the process of determining "what you can do." OpenID Connect (OIDC) is what adds an authentication layer on top of OAuth 2.0.
 
-Before starting the **OAuth flow**, developers need to register their application with **GitHub**.
+## Grant Types
 
--   Create a new **OAuth App** in GitHub's **Developer Settings**.
--   Enter the application name, homepage URL, and **Authorization callback URL**.
--   GitHub will issue a **Client ID** and **Client Secret**.
+OAuth 2.0 defines several Grant Types to support various use scenarios, with each type designed for specific environments and security requirements.
 
-### 2. Authorization Request
+| Grant Type | Use Environment | Characteristics |
+|------------|-----------------|-----------------|
+| **Authorization Code** | Server-side web applications | Most secure, supports Refresh Token |
+| **Authorization Code + PKCE** | SPA, mobile apps | Secure authorization without Client Secret |
+| **Client Credentials** | Server-to-server communication | Client self-authentication without user involvement |
+| **Device Code** | Smart TVs, IoT devices | For devices with limited input capabilities |
+| **Refresh Token** | All environments | For access token renewal |
 
-When a user clicks the **"Login with GitHub"** button, the following process begins:
+The Implicit Grant and Resource Owner Password Credentials Grant have been officially marked as deprecated in the OAuth 2.1 draft specification and should not be used in new implementations for security reasons.
 
-1. The **Frontend Client** redirects the user to GitHub's **Authorization endpoint**.
+## Detailed Analysis of Authorization Code Flow
 
--   URL structure:
-    ```http
-    https://github.com/login/oauth/authorize?
-    client_id=YOUR_CLIENT_ID
-    &redirect_uri=YOUR_CALLBACK_URL
-    &scope=user
-    &state=RANDOM_STRING
-    ```
--   `client_id`: **Client ID** issued by GitHub
--   `redirect_uri`: **URL** to redirect to after authentication
--   `scope`: Requested permission scope (e.g., user, repo)
--   `state`: Random string to prevent **CSRF attacks**
+Authorization Code Flow is the most secure OAuth 2.0 flow for confidential clients and is used in web applications with backend servers.
 
-2. The user enters their credentials on the GitHub **login page**.
+![OAuth 2.0 Authorization Code Flow](oauth-flow.png)
 
-3. GitHub shows the requested **permissions** to the user and asks for **approval**.
+### Step 1: Application Registration
 
-### 3. Authorization Grant
+Before starting the OAuth flow, developers must register their client application with the Authorization Server, providing the application name, homepage URL, and Redirect URI (Authorization Callback URL). Upon completion, the Authorization Server issues a Client ID and Client Secret. The Client ID is a public identifier that can be used in the frontend, but the Client Secret must never be exposed in client-side code and should only be securely managed on the backend server.
 
-1. After user approval, GitHub redirects to the specified **`redirect_uri`** with **`code`** and **`state`** query parameters.
+### Step 2: Authorization Request
 
--   Redirect URL example:
-    ```http
-    https://your-app.com/callback?code=TEMPORARY_CODE&state=RANDOM_STRING
-    ```
--   `code`: Temporary authorization code
--   `state`: Must match the **state** value sent in the request
+When a user clicks the "Social Login" button, the client redirects the user to the Authorization Server's authorization endpoint, including several important parameters in the request. The `client_id` is the client identifier issued during registration, `redirect_uri` is the URI where the user will return after authorization, and `response_type=code` indicates that an Authorization Code is being requested. The `scope` specifies the scope of permissions being requested, and `state` is a random string to prevent CSRF attacks that must be returned unchanged in the authorization response.
 
-2. The **Frontend Client** receives this **temporary code** and sends it to the **Backend Client**.
+### Step 3: User Authentication and Consent
 
-### 4. Access Token Request
+The Authorization Server requests the user to log in (if not already logged in), displays the permissions (scope) requested by the client, and asks for consent. When the user consents, the Authorization Server generates an Authorization Code and redirects the user to the specified `redirect_uri` with the authorization code and state value included as URL query parameters.
 
-1. The **Backend Client** sends the **temporary code**, **client_id**, and **client_secret** to GitHub's **token endpoint**.
+### Step 4: Token Exchange
 
--   Sends a POST request to `https://github.com/login/oauth/access_token`
--   Request body example:
-    ```http
-    client_id=YOUR_CLIENT_ID
-    &client_secret=YOUR_CLIENT_SECRET
-    &code=TEMPORARY_CODE
-    &redirect_uri=YOUR_CALLBACK_URL
-    ```
+The client's backend server submits the received authorization code to the Authorization Server's token endpoint to exchange it for an access token. This request must be performed on the backend because it includes the Client Secret, and the authorization code is single-use with a very short validity period (typically 1-10 minutes), making it difficult to exploit even if intercepted.
 
-2. GitHub validates this information.
+### Step 5: Token Response
 
-### 5. Access Token Grant
+Upon successful validation, the Authorization Server issues an access token, typically returning the token type (Bearer), expiration time (expires_in), permission scope (scope), and optionally a Refresh Token.
 
-1. Upon successful validation, GitHub issues an **access token** to the **Backend Client**.
+### Step 6: Resource Access
 
--   Response example:
-    ```json
-    {
-        "access_token": "gho_16C7e42F292c6912E7710c838347Ae178B4a",
-        "token_type": "bearer",
-        "scope": "user"
-    }
-    ```
+The client includes the issued access token as a Bearer token in the HTTP Authorization header to call the Resource Server's API, and the Resource Server validates the token before returning the requested resource.
 
-2. The **Backend Client** securely stores this **access token**.
+## PKCE (Proof Key for Code Exchange)
 
-### 6. Protected Resource Access
+> **What is PKCE?**
+>
+> PKCE (Proof Key for Code Exchange, pronounced "pixie") is an OAuth 2.0 extension defined in RFC 7636, originally designed to prevent authorization code interception attacks in mobile apps, but now recommended for all public clients including SPAs. In OAuth 2.1, PKCE usage will be mandatory for all client types.
 
-1. The **Backend Client** uses the **access token** to request user information from the GitHub **API**.
-
--   Sends a GET request to `https://api.github.com/user`
--   Includes the **access token** in the header:
-    ```http
-    Authorization: token ACCESS_TOKEN
-    ```
-
-2. GitHub validates the token and returns the requested user information.
-
-### 7. User Authentication Complete
-
-1. The **Backend Client** uses the received **user information** to authenticate the user or create an account in its system (e.g., registration).
-
-2. The user is now logged into the **Client application**.
-
-This completes the **GitHub OAuth flow**.
+PKCE works by using a dynamically generated secret to link the authorization request and token request. The client first generates a high-entropy random string called the `code_verifier`, hashes it with SHA-256, Base64URL encodes it to create the `code_challenge`, and includes it in the authorization request. During the token request, the original `code_verifier` is sent along, and the Authorization Server hashes it to compare with the stored `code_challenge` to verify the request's authenticity. This mechanism prevents attackers who intercept the authorization code from obtaining tokens.
 
 ## Role Distribution Between Frontend and Backend
 
-### Frontend (React) Responsibilities:
+### Frontend Responsibilities
 
-1. Create a **Login with GitHub** button that redirects users to **GitHub's Authorization page** when clicked.
-2. Receive the temporary authorization code from the **callback URL** and send it to the **backend**.
+The frontend is responsible for redirecting users to the Authorization Server's authorization page, generating and storing a state value for CSRF prevention, and if using PKCE, generating and securely storing the code_verifier. After authorization completion, it extracts the authorization code from the callback URL and passes it to the backend, verifying the state value to confirm response integrity. Properly storing and managing access tokens or session information received from the backend is also the frontend's responsibility.
 
-### Backend (Spring Boot) Responsibilities:
+### Backend Responsibilities
 
-1. Request an **access token** using the **temporary authorization code** received from the **frontend**.
-2. Use the **access token** to fetch user information from the **GitHub API**.
-3. Authenticate the user or create an account in the system using the **user information**.
+The backend handles the most security-sensitive operations in the OAuth flow, securely storing the Client Secret and never exposing it to clients. It submits the authorization code received from the frontend to the Authorization Server's token endpoint to exchange it for an access token, then uses the issued token to query user information from the Resource Server. Based on the retrieved information, it creates user accounts in its own system or links to existing accounts, and issues its own authentication session or JWT to return to the client.
 
-## Implementation Examples
+## Security Considerations
 
-### Frontend (React) - Example
+### Essential Security Measures
 
-1. Implementing the **GitHub Login Button**:
+There are security measures that must be followed when implementing OAuth 2.0. All communications must occur over HTTPS; using HTTP allows tokens and authorization codes to be intercepted on the network. The state parameter must be a cryptographically secure random value, stored in the session and verified on callback to prevent CSRF attacks. The redirect_uri must exactly match the pre-registered value, and wildcards should not be allowed to prevent open redirect vulnerabilities.
 
-```jsx
-import React from "react";
+### Token Security
 
-export const GitHubLogin = () => {
-    const CLIENT_ID = "YOUR_GITHUB_CLIENT_ID";
-    const REDIRECT_URI = "http://localhost:3000/callback";
+Access tokens should be set with short validity periods (typically 15 minutes to 1 hour) to minimize damage even if tokens are stolen, with Refresh Tokens used to obtain new access tokens. Refresh Tokens should be stored in cookies with HttpOnly, Secure, and SameSite attributes set, or kept in backend sessions; storing them in browser localStorage or sessionStorage makes them vulnerable to XSS attacks.
 
-    // Redirect to GitHub login page
-    const handleLogin = () => {
-        window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=user`;
-    };
+### Principle of Minimum Scope
 
-    return <button onClick={handleLogin}>Login with GitHub</button>;
-};
-```
+Requesting only the minimum permissions required by the application is a fundamental security principle. Excessive permission requests not only reduce user consent rates but can also lead to greater damage if tokens are stolen, so only necessary scopes should be selectively requested.
 
-2. **Callback Handling**:
+## OAuth 2.0 vs OpenID Connect
 
-```jsx
-import React, { useEffect } from "react";
-import axios from "axios";
+| Aspect | OAuth 2.0 | OpenID Connect |
+|--------|-----------|----------------|
+| **Purpose** | Authorization | Authentication + Authorization |
+| **Tokens** | Access Token, Refresh Token | Adds ID Token |
+| **User Information** | Requires separate API call | Included in ID Token or UserInfo endpoint |
+| **Standardization** | User info format undefined | Defines standard claims (sub, email, name, etc.) |
 
-// Callback page
-export const Callback = () => {
-    useEffect(() => {
-        // Extract code from callback URL
-        const code = new URLSearchParams(window.location.search).get("code");
-        // If code exists, send it to backend
-        if (code) {
-            axios
-                .post("/api/github-callback", { code })
-                .then((response) => {
-                    // Handle successful login
-                    console.log(response.data);
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                });
-        }
-    }, []);
-
-    return <div>Processing login...</div>;
-};
-```
-
-### Backend (Golang-net/http) - Example
-
-1. **Package** and **Constants Definition**:
-
-```go
-package main
-
-import (
-    "encoding/json"
-    "fmt"
-    "net/http"
-    "net/url"
-    "strings"
-)
-
-const (
-    clientID     = "your-client-id"
-    clientSecret = "your-client-secret"
-    githubTokenURL = "https://github.com/login/oauth/access_token"
-    githubUserURL  = "https://api.github.com/user"
-)
-```
-
-2. Define **main function**, set up router and start server:
-
-```go
-func main() {
-    http.HandleFunc("/callback", handleCallback) // Register callback handler
-    http.ListenAndServe(":8080", nil)
-}
-```
-
-3. Implement **callback handler**:
-
-```go
-func handleCallback(w http.ResponseWriter, r *http.Request) {
-    code := r.URL.Query().Get("code") // Extract code from query parameters
-    if code == "" {
-        http.Error(w, "Missing code", http.StatusBadRequest)
-        return
-    }
-
-    token, err := getAccessToken(code) // Call function to request access token
-    if err != nil {
-        http.Error(w, "Failed to get token", http.StatusInternalServerError)
-        return
-    }
-
-    userInfo, err := getUserInfo(token) // Call function to request user info
-    if err != nil {
-        http.Error(w, "Failed to get user info", http.StatusInternalServerError)
-        return
-    }
-
-    // Normally, you would issue a JWT token or create a session using the user info
-    // This example simply returns the user info directly
-
-    fmt.Fprintf(w, "User Info: %s", userInfo)
-}
-```
-
-5. Implement **access token request function**:
-
-```go
-func getAccessToken(code string) (string, error) {
-    // Set up URL values for POST request
-    // Include user's code and client credentials
-    data := url.Values{
-        "grant_type":    {"authorization_code"},
-        "code":          {code},
-        "client_id":     {clientID},
-        "client_secret": {clientSecret},
-    }
-
-    // Send POST request to Authorization Server
-    resp, err := http.Post(githubTokenURL, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
-    if err != nil {
-        return "", err
-    }
-    defer resp.Body.Close()
-
-    // Parse JSON response
-    var result map[string]interface{}
-    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-        return "", err
-    }
-
-    // Extract access token from parsed JSON
-    return result["access_token"].(string), nil
-}
-```
-
-6. Implement **user information request function**:
-
-```go
-func getUserInfo(token string) (string, error) {
-    req, err := http.NewRequest("GET", githubUserURL, nil)
-    if err != nil {
-        return "", err
-    }
-
-    // Add access token to header
-    req.Header.Set("Authorization", "token "+token)
-
-    // Send GET request to Authorization Server
-    resp, err := http.DefaultClient.Do(req)
-    if err != nil {
-        return "", err
-    }
-    defer resp.Body.Close()
-
-    var userInfo map[string]interface{}
-    if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-        return "", err
-    }
-
-    // Return user information
-    return fmt.Sprintf("%v", userInfo), nil
-}
-```
+When implementing social login, most providers support OpenID Connect alongside OAuth 2.0, so using OIDC's ID Token is a more standardized approach when user authentication is required.
 
 ## Conclusion
 
-**OAuth 2.0** is a standard protocol for securely delegating access to user data. Through this implementation guide, we've seen how to properly implement GitHub OAuth in both frontend and backend systems while maintaining security and following best practices.
+OAuth 2.0 is the de facto standard for handling third-party authorization in modern web and mobile applications, and accurate understanding and proper implementation determine service security. Authorization Code Flow is the most secure flow but has implementation complexity, and adding PKCE allows it to be used safely even in public clients. Clearly separating frontend and backend responsibilities, securely managing Client Secrets and tokens, and always following the latest security best practices are the keys to successful OAuth implementation.

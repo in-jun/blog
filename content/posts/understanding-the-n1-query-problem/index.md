@@ -1,7 +1,8 @@
 ---
 title: "N+1 문제 알아보기"
 date: 2024-06-08T02:17:46+09:00
-tags: ["ORM", "java"]
+tags: ["jpa", "hibernate", "orm", "performance"]
+description: "N+1 문제는 ORM에서 연관 엔티티 조회 시 N개의 추가 쿼리가 발생하여 성능이 저하되는 문제다. Fetch Join으로 조인 쿼리를 실행하고 BatchSize로 IN절 배치 처리를 적용하며 EntityGraph로 동적 로딩을 제어하여 해결할 수 있다"
 draft: false
 ---
 

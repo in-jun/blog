@@ -1,228 +1,260 @@
 ---
 title: "What is CI/CD?"
 date: 2024-06-10T17:14:26+09:00
-tags: ["CI", "CD", "Continuous Integration", "Continuous Delivery"]
-description: "A comprehensive guide covering CI/CD's origins from Extreme Programming, build and test automation, differences between Continuous Delivery and Deployment, tool comparisons including Jenkins and GitHub Actions, and pipeline best practices"
+tags: ["CI", "CD", "continuous integration", "continuous deployment", "DevOps", "automation"]
+description: "A comprehensive guide covering CI/CD history from Extreme Programming origins, build automation, test automation, the difference between Continuous Delivery and Deployment, tool comparisons including Jenkins and GitHub Actions, and pipeline best practices."
 draft: false
 ---
 
+CI/CD stands for Continuous Integration and Continuous Delivery/Deployment, referring to a set of automated processes that automatically build, test, and deploy code changes during software development. It has become a core element of DevOps culture in modern software development. CI/CD enables developers to integrate and deploy code more frequently and safely, thereby shortening software release cycles and improving product quality by detecting bugs early.
+
 ## History and Origins of CI/CD
 
-CI/CD originated from the Extreme Programming (XP) methodology.
+CI/CD was born amid the innovation in software development methodologies during the 1990s, starting as one of the core practices of Extreme Programming (XP) and has continued to evolve to the present day.
 
-### Birth of Continuous Integration
+### The Birth of Continuous Integration
 
-The term Continuous Integration was first coined by Grady Booch, who developed UML, in 1994. However, CI as we know it today was created by Kent Beck in the mid-1990s as one of the practices of Extreme Programming.
+The term Continuous Integration was first used by Grady Booch, one of the developers of UML (Unified Modeling Language), in his 1994 publication, where it was presented as a concept of frequently integrating code to minimize conflicts. However, the concrete form of CI that we practice today began to develop in earnest when Kent Beck established it as one of the 12 core practices of Extreme Programming in the mid-1990s. Kent Beck empirically demonstrated the effectiveness of CI by applying XP methodology to the Chrysler C3 (Chrysler Comprehensive Compensation) project in 1996, and this project became an opportunity for all developers to experience and embrace the value of continuous integration.
 
-In 1996, all developers on the famous Chrysler C3 project experienced and enjoyed continuous integration.
+### The Popularization of CI/CD
 
-### Popularization of CI/CD
+CI/CD began to gain widespread adoption in 2000 when Martin Fowler, one of the founding members of the Agile Alliance, became an internal advocate for CI at ThoughtWorks. He published the famous article "Continuous Integration" in 2000, systematically organizing the core principles and best practices of CI, and continues to contribute to the development of CI/CD and software development methodologies as Chief Scientist at ThoughtWorks to this day.
 
-In 2000, Martin Fowler, one of the founding members of the Agile Alliance, became an internal advocate for CI at ThoughtWorks. He is now famous as the Chief Scientist at ThoughtWorks and greatly contributed to popularizing CI/CD.
+### The Development of Continuous Delivery
 
-### Evolution of Continuous Delivery
+In 2010, Jez Humble and David Farley systematically established the concept of Continuous Delivery with their book "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation." This book expanded on the Continuous Integration ideas presented by Martin Fowler, introduced the concept of the Deployment Pipeline, and presented a methodology for automating the entire process from code commit to production deployment. Subsequently, CI/CD has further evolved alongside the advancement of cloud computing, the emergence of container technology, and the popularization of Kubernetes. Large technology companies such as Netflix, Amazon, and Google actively adopted CI/CD, ushering in an era where hundreds or thousands of deployments per day became possible.
 
-Later in the 2000s, J.Humble and D.Farley expanded the Continuous Integration ideas presented by Martin Fowler to develop the concept of Continuous Delivery as a deployment pipeline.
+## What is CI (Continuous Integration)?
 
-## What is CI
+> **What is CI (Continuous Integration)?**
+>
+> A software development practice where code written by multiple developers is continuously integrated into the main branch, with automatic builds and tests performed on each integration to detect and resolve integration errors early.
 
-CI (Continuous Integration) means continuous integration. It is the process of automatically integrating, building, and testing code written by multiple developers.
+The core idea of CI is "integrate small changes frequently." In traditional software development, developers would work independently for long periods and then integrate their code at the end using a "Big Bang Integration" approach. This approach caused numerous conflicts and bugs at the point of integration, leading to a situation known as "Integration Hell." CI solves this problem by integrating code in small units frequently and running automated verification processes each time, enabling early detection and resolution of problems.
 
-### Purpose of CI
+### Core Principles of CI
 
-It automatically performs builds and tests whenever code changes occur. It helps discover build failures and bugs early.
+**Maintain a Single Source Repository**: All source code, test code, build scripts, configuration files, and other assets should be managed in a single version control system (Git, SVN, etc.), and all team members should work from the same repository.
 
-### CI Operation Process
+**Commit Frequently**: Developers should integrate code into the main branch at least once a day, and ideally commit small changes every few hours. This minimizes conflicts and enables quick identification of causes when problems occur.
 
-#### 1. Code Commit
+**Automate the Build**: The build should run automatically every time code is committed. The build process includes compilation, dependency resolution, static analysis, and more, and should be executable with a single command.
 
-Developers modify code and commit it to a repository like GitHub.
+**Automate Testing**: Automated tests should run after the build to verify the functional correctness of the code. This can include various levels of testing such as unit tests, integration tests, and functional tests.
 
-#### 2. Automatic Build
+**Keep the Build Fast**: Builds and tests should complete as quickly as possible, ideally within 10 minutes. If the build takes too long, developers will start other work without waiting for build results, reducing the effectiveness of CI.
 
-CI tools automatically fetch the code and perform a build.
+**Provide Immediate Feedback**: When a build or test fails, the development team should be notified immediately, and fixing the failed build should take priority over developing new features.
 
-Problems that can occur during the build process include:
+### How the CI Pipeline Works
 
-- Syntax errors
-- Missing required files
-- Library version conflicts
+**Stage 1: Code Commit**
 
-If the build fails, the development team immediately receives notifications via email or messenger.
+When a developer completes work locally and pushes changes to the version control system (Git, etc.), the CI pipeline is triggered. This typically starts automatically when a Pull Request is created or when code is pushed to a specific branch.
 
-#### 3. Automatic Testing
+**Stage 2: Source Code Checkout**
 
-If the build succeeds, various tests are executed sequentially:
+The CI server retrieves the latest code from the repository. Depending on the branching strategy, this may involve checking out code from a specific branch or checking out the Pull Request changes merged with the main branch.
 
-- Unit tests
-- Integration tests
-- Functional tests
+**Stage 3: Install Dependencies**
 
-Code quality and stability are verified.
+The libraries and dependencies required for the project are installed. Dependencies are resolved through package managers such as npm, pip, Maven, or Gradle, and caching can be utilized to shorten this stage.
 
-#### 4. Code Quality Inspection
+**Stage 4: Build**
 
-Code quality inspection tools check the following:
+The source code is compiled and built into an executable form. Problems such as syntax errors, type errors, and dependency conflicts may be discovered during this process. If the build fails, the pipeline stops and a notification is sent to the developer.
 
-- Compliance with coding rules
-- Potential bugs
+**Stage 5: Run Tests**
 
-## Two Meanings of CD
+If the build succeeds, various levels of automated tests are executed. Unit tests verify the behavior of individual functions or classes, integration tests verify interactions between multiple components, and E2E (End-to-End) tests verify the behavior of the entire system from a user perspective.
 
-CD has two meanings: Continuous Delivery and Continuous Deployment. While the two concepts seem similar, there are important differences.
+**Stage 6: Code Quality Inspection**
+
+Tools such as SonarQube, ESLint, and Checkstyle are used to analyze code quality. This includes checking coding convention compliance, code complexity, duplicate code, potential bug patterns, and security vulnerability scanning may also be performed at this stage.
+
+**Stage 7: Artifact Creation**
+
+If all verifications pass, deployable artifacts (JAR, WAR, Docker images, etc.) are created. These artifacts are tagged with versions and stored in artifact repositories (Nexus, Artifactory, Docker Registry, etc.).
+
+## The Two Meanings of CD
+
+CD is used to mean both Continuous Delivery and Continuous Deployment. The two concepts are closely related but have an important difference in their approach to production deployment.
 
 ### Continuous Delivery
 
-All code changes go through automated builds and tests and are always ready for production deployment.
+> **What is Continuous Delivery?**
+>
+> A software development approach where all code changes go through automated build, test, and verification processes and are maintained in a state ready to be deployed to production at any time, with actual production deployment performed manually after approval based on business decisions.
 
-#### Characteristics
+The core of Continuous Delivery is "always maintain a releasable state." When code is merged into the main branch, it is deployed to the staging environment through an automated pipeline, and once all tests and verifications are complete, it becomes ready to be deployed to production with the push of a button. However, the actual production deployment is triggered manually after approval from product managers, business stakeholders, and others.
 
-- Actual releases occur only after manual approval
-- Have an automated release process that can deploy your application anytime by clicking a button
-
-#### Suitable Environments
-
-- Environments where stability and coordination with business processes are crucial
-- Financial institutions
-- Healthcare providers
+**Environments Where Continuous Delivery is Suitable**:
+- Heavily regulated industries (finance, healthcare, government, etc.) where approval processes are required before deployment
+- When release timing needs to be coordinated with marketing campaigns, business events, etc.
+- When the impact on users is significant and careful release decisions are needed
+- Systems where rollback is complex or costly
 
 ### Continuous Deployment
 
-A concept that goes one step further than Continuous Delivery.
+> **What is Continuous Deployment?**
+>
+> A software development approach that goes one step further than Continuous Delivery, where all code changes that pass automated tests and verifications are automatically deployed to the production environment without human intervention.
 
-#### Characteristics
+Continuous Deployment pursues complete automation. When a developer commits code, it automatically goes through all stages of the CI pipeline (build, test, quality inspection, staging deployment, staging tests, etc.), and if there are no problems, it is also automatically deployed to production. This requires high test coverage, robust monitoring systems, and fast rollback mechanisms to be in place.
 
-- Every change that passes all stages of the production pipeline is automatically released to users without manual approval
-- Every code change that passes automated tests is immediately delivered to users
+**Environments Where Continuous Deployment is Suitable**:
+- Startups or web services where rapid user feedback and iteration are important
+- SaaS (Software as a Service) platforms
+- Environments that frequently perform A/B testing, experimental feature releases, etc.
+- Environments that have adopted microservices architecture enabling independent deployments
+- Large technology companies like Netflix, Amazon, and Etsy that deploy multiple times a day
 
-#### Suitable Environments
+### Continuous Delivery vs Continuous Deployment Comparison
 
-- Organizations that want fast innovation and minimal release friction
-- Startups
-- SaaS providers
-- Web-based platforms
-- Environments that benefit from rapid iteration on feedback
+| Category | Continuous Delivery | Continuous Deployment |
+|----------|---------------------|----------------------|
+| Production Deployment | Deploy after manual approval | Automatic deployment |
+| Deployment Frequency | Based on business decisions | Immediately upon code change |
+| Requirements | Automated testing, staging environment | High test coverage, monitoring, rollback mechanism |
+| Suitable Environment | Regulated industries, careful releases needed | Fast iteration, web services, SaaS |
+| Risk Management | Human makes final judgment | Relies on automated verification |
 
 ## Comparison of Major CI/CD Tools
 
+Various tools are available for implementing CI/CD, each with unique features and advantages and disadvantages. It is important to select a tool that fits the project requirements and environment.
+
 ### Jenkins
 
-A Java-based open-source tool called the father of CI.
+Jenkins is a Java-based open-source CI/CD tool that was born in 2011 when it split from the Hudson project. It is called the "father of CI" because it is the oldest and most widely used tool, and it can integrate with almost any development tool through more than 1,800 plugins.
 
-#### Advantages
+**Advantages**:
+- Vast plugin ecosystem supporting all SCMs including GitHub, GitLab, and Bitbucket, as well as most technology stacks including Docker, Kubernetes, AWS, and Azure
+- Pipeline as Code through Jenkinsfile allows managing pipelines as code
+- Complete customization enables implementation of complex workflows
+- Proven stability in large enterprise environments
+- Active community and abundant documentation
 
-- Being the oldest, it has a wide variety of plugins and abundant documentation
-- Supports all SCMs including GitHub, GitLab, and Bitbucket
-- Optimal when deep customization and control are needed in large enterprise environments
-
-#### Disadvantages
-
-- You must purchase and operate the build server yourself
-- Server management, updates, and security monitoring are required
-- Older interface compared to modern tools
+**Disadvantages**:
+- Requires building and operating your own server, creating infrastructure management overhead
+- Initial setup and maintenance require significant effort
+- Compatibility issues between plugins may occur
+- UI/UX feels dated compared to modern tools
 
 ### GitHub Actions
 
-Integrates natively and seamlessly with GitHub repositories.
+GitHub Actions is a CI/CD platform released by GitHub in 2019 that natively integrates with GitHub repositories for immediate use without separate configuration. Workflows are defined in YAML files, and community-created actions can be reused from the GitHub Marketplace.
 
-#### Advantages
+**Advantages**:
+- Perfect integration with GitHub repositories, with natural linkage to Pull Requests, Issues, etc.
+- Over 15,000 pre-built actions available in the GitHub Marketplace
+- Matrix builds make it easy to test multiple OS and language version combinations
+- Unlimited free use for public repositories
+- Intuitive workflow definition using YAML
 
-- Provides access to pre-built actions and workflows from the GitHub Marketplace
-- Ideal for small teams focusing on GitHub native projects and agility
+**Disadvantages**:
+- Usage-based costs for private repositories
+- Locked into the GitHub platform, making integration with other Git hosting services difficult
+- Self-hosted runner setup is not as flexible as Jenkins
+- YAML files can become verbose for complex workflows
 
-#### Disadvantages
+### GitLab CI/CD
 
-- Primarily designed for GitHub and is less intuitive for other platforms
-- Has usage limits in the free tier
-- Self-hosted runner setup is less flexible than Jenkins
+GitLab CI/CD is a CI/CD solution built into GitLab, part of an integrated DevOps platform that provides source code management, issue tracking, CI/CD, security scanning, and package registry all in one platform.
 
-### GitLab CI
+**Advantages**:
+- Manage the entire DevOps lifecycle from version control to deployment on a single platform
+- Security features including SAST, DAST, and container scanning are built-in by default
+- Auto DevOps feature enables automatic pipeline configuration with minimal setup
+- Close integration with Kubernetes
+- Supports both cloud hosting and self-hosting
 
-Integrates tightly with GitLab to provide a comprehensive DevOps experience.
-
-#### Advantages
-
-- Supports version control, issue tracking, and DevSecOps
-- Includes vulnerability scanning and compliance tools
-- Supports both cloud-hosted and self-hosted options
-- Security leader with built-in security scanning in all tiers
-- Provides the most comprehensive integrated DevOps experience
-
-#### Disadvantages
-
-- For non-standard workflows, flexibility is limited compared to Jenkins
+**Disadvantages**:
+- Paid plan required to use full features
+- Locked into the GitLab platform
+- Less flexible than Jenkins for non-standard workflows
 
 ### CircleCI
 
-Rated as a performance leader.
+CircleCI is a cloud-based CI/CD service known for fast build speeds and excellent Docker support. It is used by large technology companies including Meta, Adobe, and Spotify.
 
-#### Advantages
+**Advantages**:
+- Industry-leading build speed and performance
+- Native Docker support optimized for container-based workflows
+- Powerful caching mechanisms to reduce build time
+- Simplified configuration through Orbs (reusable configuration packages)
+- SSH debugging makes troubleshooting build failures easy
 
-- Trusted by companies like Meta, Adobe, and Nextdoor
-- Used by over 2 million developers
-- Known for fast builds, excellent Docker support, and comprehensive caching
-- Provides efficient containerized build and test workflows with native Docker support
-
-#### Disadvantages
-
-- Can experience occasional outages
-
-## CI/CD Pipeline Best Practices
-
-### Continuous Management and Improvement
-
-CI/CD pipelines are not built once and finished but require continuous management and improvement. There is no single correct answer for pipeline configuration, so you must apply models suitable for project situations and continuously evolve them.
-
-### Gradual Approach
-
-A gradual approach is important for successful adoption:
-
-- Start with the most important projects or teams
-- Create success stories and spread them to other teams
-
-### Cultural Change
-
-CI/CD is not just a tool but a new way of working:
-
-- Cultural change across the entire team is necessary
-- Form consensus on the value and necessity of automation
-- Create a culture that encourages continuous learning and improvement
-
-### Performance Optimization
-
-#### Parallelization
-
-- Execute independent tests simultaneously
-- Build a structure that can process multiple builds concurrently
-- Optimize execution time by appropriately dividing test suites
-
-#### Caching Strategy
-
-- Save download time by caching frequently used dependency libraries
-- Shorten build time by reusing previous build results
-
-### Monitoring and Improvement
-
-You should continuously monitor pipeline performance and stability metrics:
-
-- Identify and improve bottlenecks
-- Track failure rates and build times
+**Disadvantages**:
+- Free tier has limitations
+- Learning curve for complex workflow configuration
+- Occasional service outages
 
 ### Tool Selection Guide
 
-- For small teams, GitHub Actions is often the most affordable
-- If you have a small-scale project or use external cloud services, it's worth considering other services besides Jenkins
+| Situation | Recommended Tool |
+|-----------|-----------------|
+| Using GitHub, small team | GitHub Actions |
+| Need full DevOps platform integration | GitLab CI/CD |
+| Large enterprise, complex requirements | Jenkins |
+| Fast build speed, Docker-centric | CircleCI |
+| Self-hosting required | Jenkins or GitLab (Self-Managed) |
+| Minimize costs (open source projects) | GitHub Actions |
+
+## CI/CD Pipeline Best Practices
+
+A CI/CD pipeline is not something you build once and forget. It requires continuous management and improvement. The following best practices should be referenced to build and evolve effective pipelines.
+
+### Gradual Approach
+
+Rather than trying to build a perfect pipeline all at once, a gradual approach is more effective when adopting CI/CD. A strategy of starting with the most important projects or teams, creating success stories, and then spreading them across the organization is recommended.
+
+1. **Stage 1**: Start with basic build automation
+2. **Stage 2**: Add unit test automation
+3. **Stage 3**: Add integration tests and code quality checks
+4. **Stage 4**: Automatic deployment to staging environment
+5. **Stage 5**: Production deployment automation (Continuous Delivery/Deployment)
+
+### Cultural Change
+
+CI/CD is not simply about adopting tools but about changing the work methods and culture of the entire team. Successful CI/CD adoption requires the following cultural changes.
+
+- **Shared Responsibility**: Build and test success is the responsibility of the entire team, not individuals
+- **Embrace Quick Feedback**: View build failures as opportunities for improvement, not blame
+- **Automation-First Thinking**: Minimize manual work and automate everything possible
+- **Continuous Learning**: Learn from pipeline failures and continuously improve processes
+- **Transparency**: Share build status, deployment status, etc. with the entire team
+
+### Performance Optimization
+
+If CI/CD pipeline execution time becomes too long, developer productivity decreases and the benefits of CI/CD diminish. Pipeline performance should be continuously optimized.
+
+**Parallelization**: Run independent tests and tasks simultaneously to reduce overall pipeline time. Test suites can be appropriately divided and run in parallel across multiple nodes.
+
+**Caching Strategy**: Cache dependency libraries, build results, Docker layers, etc. to save time on repetitive downloads and builds. Most CI/CD tools provide caching functionality.
+
+**Selective Execution**: Apply strategies to run only tests related to changed code, or run only part of the pipeline depending on the scope of changes to reduce unnecessary work.
+
+**Resource Optimization**: Allocate appropriate resources (CPU, memory) for builds, and consider separating heavy tests into separate pipelines that run less frequently.
+
+### Monitoring and Continuous Improvement
+
+Pipeline performance and stability should be continuously monitored and improved. Tracking the following metrics is recommended.
+
+- **Build Time**: Monitor average build time and trends to detect performance degradation early
+- **Build Success Rate**: If failure rates are high, examine test stability or code quality issues
+- **Deployment Frequency**: Track how often deployments are made to production
+- **Change Lead Time**: Time from code commit to production deployment
+- **Mean Time to Recovery (MTTR)**: Time to recover from failures
+
+### Security Considerations
+
+CI/CD pipelines access sensitive information such as source code, credentials, and deployment permissions, so special attention to security is required.
+
+- **Secret Management**: Do not hardcode API keys, passwords, etc. in code. Use the CI/CD tool's secret management features or dedicated tools like HashiCorp Vault
+- **Principle of Least Privilege**: Grant only the minimum permissions necessary for the pipeline
+- **Security Scanning**: Integrate SAST, DAST, and dependency vulnerability scanning into the pipeline
+- **Audit Logs**: Record and retain pipeline execution and deployment history
 
 ## Conclusion
 
-CI/CD is a development methodology that originated from Extreme Programming in the 1990s and was developed by Kent Beck and Martin Fowler. It maintains code quality through build automation and test automation and automates the deployment process.
-
-Continuous Delivery ensures stability through manual approval. Continuous Deployment realizes fast releases through complete automation.
-
-Various tools exist including Jenkins, GitHub Actions, GitLab CI, and CircleCI, each with pros and cons. You should choose based on project scale and requirements.
-
-For successful CI/CD construction, the following are essential:
-
-- Gradual approach
-- Cultural change
-- Continuous improvement
+CI/CD is a software development methodology that started in the 1990s with Extreme Programming and was developed by Kent Beck, Martin Fowler, Jez Humble, and others. It maintains code quality through build and test automation and shortens software release cycles by automating the deployment process. Continuous Delivery ensures stable releases through manual approval, while Continuous Deployment enables fast feedback loops through complete automation. Organizations should choose the approach that fits their situation and requirements. Various tools including Jenkins, GitHub Actions, GitLab CI/CD, and CircleCI are available, each with its own advantages and disadvantages, so selection should consider project scale, platforms in use, and requirements. Successful CI/CD implementation requires a gradual approach, cultural change, and continuous improvement. Beyond simply adopting tools, the entire team must create a culture that shares the values of automation and continuous improvement.

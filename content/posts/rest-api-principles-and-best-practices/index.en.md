@@ -1,256 +1,482 @@
 ---
-title: "REST API: From Principles to Considerations"
+title: "The Complete Guide to REST API: From Principles to Practical Design"
 date: 2024-07-20T16:23:17+09:00
-tags: ["rest", "api", "design"]
-description: "A comprehensive guide to REST API design principles and best practices. Covers Roy Fielding's REST architectural style, 6 constraints, HTTP method usage, resource-centric URL design, versioning strategies, error handling, pagination, HATEOAS for practical REST API implementation with focus on decision-making criteria and trade-offs"
+tags: ["REST", "API", "Web Development", "Architecture", "HTTP"]
+description: "A comprehensive guide to REST API design principles and best practices covering Roy Fielding's REST architectural style, 6 constraints, Richardson Maturity Model, HTTP method usage, resource-centric URL design, versioning strategies, error handling, pagination, HATEOAS, and security considerations for practical REST API implementation."
 draft: false
 ---
 
-## Introduction
+REST (Representational State Transfer) is an architectural style for distributed hypermedia systems first introduced in Roy Fielding's 2000 doctoral dissertation "Architectural Styles and the Design of Network-based Software Architectures" at UC Irvine. Fielding, one of the principal authors of the HTTP protocol, analyzed the success factors of the web and systematized them into architectural principles. REST has become the de facto standard for modern web API design and is widely used for communication between various distributed systems including microservice architectures, mobile applications, and Single Page Applications (SPAs).
 
-In modern web development, Representational State Transfer (REST) APIs play a pivotal role. A well-designed REST API enables efficient communication between systems and greatly enhances developer productivity. This article covers everything from fundamental REST concepts to the 6 core principles, focusing on decision-making criteria and trade-offs for real-world API design.
+> **What is REST?**
+>
+> REST (Representational State Transfer) is a network-based software architectural style that identifies resources via URIs and transfers state through HTTP methods. "Representational" refers to resource representations (JSON, XML, etc.), while "State Transfer" refers to the transfer of resource state between client and server.
 
-## REST Fundamentals
+## History and Background of REST
 
-REST is a software architectural style introduced in Roy Fielding's 2000 doctoral dissertation. Before REST, web services primarily used SOAP and XML-RPC, which required complex XML-based message formats and strict protocols. Roy Fielding proposed a simple and scalable architecture that maximizes HTTP's advantages.
+### Evolution of Web Services
 
-### Richardson Maturity Model
+Before REST emerged, web services primarily used SOAP (Simple Object Access Protocol) and XML-RPC. These protocols required complex XML-based message formats, strict type systems, and service definitions through WSDL (Web Services Description Language), making implementation and maintenance difficult. SOAP had advantages in enterprise environments, supporting transactions, security, and message reliability, but had overhead of using complex XML envelopes even for simple data queries.
 
-Leonard Richardson classified REST API maturity into 4 levels:
+### Roy Fielding's Contribution
 
-- **Level 0**: Uses a single URI and method (HTTP as mere transport)
-- **Level 1**: Defines URIs for individual resources but uses only a single HTTP method
-- **Level 2**: Properly uses HTTP methods and status codes (target for most production APIs)
-- **Level 3**: Implements HATEOAS with links to possible next actions (rarely implemented)
+Roy Fielding was a principal author of the HTTP/1.0 and HTTP/1.1 specifications and co-founder of the Apache HTTP Server project, possessing deep understanding of web architecture. In his doctoral dissertation, he analyzed why the web succeeded and systematized these findings into the architectural style called REST. REST was designed to maximally leverage existing web infrastructure (HTTP, URI, caches, proxies) while building simple and scalable systems.
 
-### RESTful vs REST-like
+### Spread of REST APIs
 
-Implementing a perfect REST API is challenging in practice. **RESTful APIs** fully comply with all constraints including HATEOAS, while **REST-like APIs** primarily use HTTP methods and resource-based URLs. Most real-world APIs are closer to being REST-like.
+REST began to be widely adopted from the mid-2000s. When Flickr (2004), Amazon Web Services (2006), and Twitter (2006) released REST APIs, it became the standard for web APIs. Along with the rise of JSON format, REST became an attractive alternative for developers wanting to avoid SOAP's complexity, and its popularity grew further with the emergence of Ajax and mobile apps.
 
-## 6 Principles of REST
+## The 6 Constraints of REST
+
+REST is an architectural style, not a specific protocol or technology. Systems that follow these 6 constraints are considered RESTful.
 
 ### 1. Client-Server
 
-Separates concerns of clients and servers, enabling independent evolution. Through clear interface definition, servers handle data storage while clients handle user interfaces, improving system scalability.
+A constraint that separates concerns between clients and servers, enabling independent evolution. Servers handle data storage and business logic while clients handle user interfaces, allowing each to be developed, deployed, and scaled independently.
+
+> **Benefits of Separation of Concerns**
+>
+> Client-server separation improves scalability through server simplification, enables various clients (web, mobile, IoT) to use the same server API, and allows independent evolution of each component.
 
 ### 2. Stateless
 
-Each request is independent, and the server does not store client state. This enables high reliability, scalability, and efficient use of server resources. Session state is managed client-side by including all necessary information in requests, such as JWT tokens.
+A constraint where each request is independent and servers must not store client session state. All information needed for a request (authentication tokens, context data) must be included in the request itself.
 
 ```http
 GET /api/users/me HTTP/1.1
+Host: api.example.com
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Accept: application/json
 ```
+
+**Advantages of Statelessness:**
+- **Scalability**: Horizontal scaling is easy since servers don't maintain sessions
+- **Reliability**: Other servers can handle requests during server failures
+- **Simplicity**: Server implementation becomes simpler and resource efficiency improves
+
+**Disadvantages of Statelessness:**
+- Request size increases as authentication information must be included with every request
+- Client-side state management responsibility increases
 
 ### 3. Cacheable
 
-Responses must indicate whether they are cacheable. Using HTTP caching headers (Cache-Control, ETag) improves performance and reduces server load. ETag saves network bandwidth by returning a 304 status code when resources haven't changed.
+Responses must explicitly indicate whether they are cacheable. Cacheable responses can be reused by clients or intermediate caches (CDN, proxies), reducing server load and shortening response times.
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: max-age=3600, must-revalidate
+ETag: "a1b2c3d4e5f6"
+Last-Modified: Sat, 20 Jul 2024 10:00:00 GMT
+
+{"id": 123, "name": "John Doe", "email": "john@example.com"}
+```
+
+**Cache-Related Headers:**
+
+| Header | Description | Example |
+|--------|-------------|---------|
+| Cache-Control | Specifies caching policy | `max-age=3600, private` |
+| ETag | Resource version identifier | `"a1b2c3d4e5f6"` |
+| Last-Modified | Last modification time | `Sat, 20 Jul 2024 10:00:00 GMT` |
+| Expires | Cache expiration time (legacy) | `Sun, 21 Jul 2024 10:00:00 GMT` |
 
 ### 4. Layered System
 
-Clients only need to know about the immediately adjacent layer. Through the API Gateway pattern, clients communicate only with the gateway without needing to know about internal microservices. This enhances system scalability and security.
+A constraint where clients only need to know about the immediately adjacent layer and need not know the system structure beyond it. Adding intermediate layers like API Gateway, load balancers, cache servers, and CDN can improve system scalability, security, and performance.
+
+```
+[Client] → [CDN] → [Load Balancer] → [API Gateway] → [Microservices]
+```
+
+**Benefits of Layering:**
+- **Security**: Place firewalls, authentication servers in intermediate layers
+- **Scalability**: Horizontal scaling through load balancers
+- **Performance**: Shortened response time through CDN and cache servers
+- **Flexibility**: Internal structure can change without affecting clients
 
 ### 5. Uniform Interface
 
-The core principle of REST includes resource identification, resource manipulation through representations, self-descriptive messages, and HATEOAS. Through consistent resource naming conventions, proper HTTP method usage, and hyperlinks in responses, it simplifies system architecture and enhances client-server independence.
+REST's most important constraint that simplifies system architecture through consistent interfaces and reduces coupling between client and server.
+
+> **4 Elements of Uniform Interface**
+>
+> 1. **Resource Identification**: Uniquely identify resources through URIs
+> 2. **Resource Manipulation Through Representations**: Transfer resource state through representations like JSON, XML
+> 3. **Self-Descriptive Messages**: Messages contain information about how to process them
+> 4. **HATEOAS**: Responses include hyperlinks to possible next actions
 
 ### 6. Code on Demand (Optional)
 
-The server can transfer executable code to the client to dynamically extend client functionality. Client-side scripting with JavaScript is a typical example.
+An optional constraint where servers can transfer executable code (JavaScript, etc.) to clients to dynamically extend client functionality. Web browsers downloading and executing JavaScript is a typical example. This is REST's only optional constraint.
 
-## REST API Design Rules
+## Richardson Maturity Model
 
-### 1. Resource-Oriented URL Design
+Leonard Richardson presented a model classifying REST API maturity into 4 levels at the 2008 QCon conference. This model is widely used as a criterion for evaluating how RESTful an API is.
 
-Represent resources using nouns (`/users`, `/articles`), use plurals, lowercase, and hyphens (-). Express relationships clearly through hierarchical resource representation:
+| Level | Name | Characteristics | Example |
+|-------|------|-----------------|---------|
+| Level 0 | The Swamp of POX | Single URI, single HTTP method (mainly POST) | SOAP, XML-RPC |
+| Level 1 | Resources | URIs assigned to individual resources, single method | All operations POST to `/users/123` |
+| Level 2 | HTTP Verbs | Proper use of HTTP methods and status codes | Distinguishing GET, POST, PUT, DELETE |
+| Level 3 | Hypermedia Controls | HATEOAS implementation, links in responses | Related resource links in `_links` field |
 
+### RESTful API vs REST-like API
+
+**RESTful API** means an API that fully complies with all REST constraints including HATEOAS, while **REST-like API** means an API that uses HTTP methods and resource-based URLs but doesn't comply with some constraints like HATEOAS. In reality, most APIs are REST-like APIs at Richardson Maturity Model Level 2, and implementing complete RESTful APIs at Level 3 is rare.
+
+## REST API Design Principles
+
+### 1. Resource-Centric URL Design
+
+REST API URLs should represent resources, not actions. Use nouns and prefer plurals.
+
+**Good Examples:**
 ```
-GET /users/{userId}/posts/{postId}/comments
+GET    /users              # List users
+GET    /users/123          # Get specific user
+POST   /users              # Create new user
+PUT    /users/123          # Update entire user info
+PATCH  /users/123          # Partial user info update
+DELETE /users/123          # Delete user
 ```
 
-**Action-Based Endpoints**: Use verbs for operations difficult to express with standard CRUD:
-
+**Bad Examples:**
 ```
-POST /users/{id}/activate
-POST /orders/{id}/cancel
+GET    /getUsers
+POST   /createUser
+POST   /deleteUser?id=123
+GET    /user/123/get
 ```
 
-**URL Length Limits**: Most browsers have 2000-8000 character limits, so consider sending complex search conditions in POST request bodies or creating separate search APIs.
+**Hierarchical Resource Representation:**
+```
+GET /users/123/posts                    # User 123's post list
+GET /users/123/posts/456               # User 123's post 456
+GET /users/123/posts/456/comments      # Post 456's comment list
+```
 
-### 2. HTTP Methods and Status Codes
+**URL Design Rules:**
+- Use lowercase
+- Use hyphens (-) for word separation (avoid underscores)
+- Don't include file extensions
+- Don't include trailing slashes (/)
+- Avoid nesting more than 3 levels
 
-- **GET**: Retrieve resources (idempotent)
-- **POST**: Create new resources
-- **PUT**: Update entire resources (idempotent)
-- **PATCH**: Partial resource updates
-- **DELETE**: Delete resources (idempotent)
+### 2. Proper Use of HTTP Methods
 
-Key status codes: 200 (success), 201 (created), 204 (no content), 400 (bad request), 401 (unauthorized), 403 (forbidden), 404 (not found), 500 (server error)
+Each HTTP method has unique semantics. Understand and properly use safe and idempotent properties.
 
-### 3. Versioning Strategies
+| Method | Purpose | Safe | Idempotent | Request Body | Response Body |
+|--------|---------|------|------------|--------------|---------------|
+| GET | Retrieve resources | O | O | X | O |
+| POST | Create resources | X | X | O | O |
+| PUT | Update entire resource | X | O | O | O |
+| PATCH | Partial resource update | X | X | O | O |
+| DELETE | Delete resources | X | O | X | X/O |
+| HEAD | Retrieve headers only | O | O | X | X |
+| OPTIONS | Query supported methods | O | O | X | O |
 
-#### URL Versioning
+> **Safety and Idempotency**
+>
+> **Safe**: Requests don't change server state (GET, HEAD, OPTIONS)
+> **Idempotent**: Same result when executing the same request multiple times (GET, PUT, DELETE)
 
+### 3. Proper Use of HTTP Status Codes
+
+Clearly communicate request processing results through HTTP status codes.
+
+**Success Responses (2xx):**
+
+| Code | Meaning | Use Case |
+|------|---------|----------|
+| 200 OK | Success | GET, PUT, PATCH success |
+| 201 Created | Creation success | Resource created via POST (Location header required) |
+| 204 No Content | Success, no body | DELETE success, PUT update only |
+| 206 Partial Content | Partial content | Range request processing |
+
+**Client Errors (4xx):**
+
+| Code | Meaning | Use Case |
+|------|---------|----------|
+| 400 Bad Request | Invalid request | Request syntax error, invalid data |
+| 401 Unauthorized | Authentication needed | Missing or invalid credentials |
+| 403 Forbidden | No permission | Authenticated but insufficient permissions |
+| 404 Not Found | Resource not found | Non-existent resource |
+| 409 Conflict | Conflict | Resource state conflict |
+| 422 Unprocessable Entity | Cannot process | Syntax correct, semantic error |
+| 429 Too Many Requests | Limit exceeded | Rate limiting |
+
+**Server Errors (5xx):**
+
+| Code | Meaning | Use Case |
+|------|---------|----------|
+| 500 Internal Server Error | Server error | Unexpected server error |
+| 502 Bad Gateway | Gateway error | Upstream server response error |
+| 503 Service Unavailable | Service unavailable | Server overload, maintenance |
+| 504 Gateway Timeout | Gateway timeout | Upstream response timeout |
+
+### 4. Versioning Strategies
+
+APIs may change over time, so versioning strategies are needed to add new features while maintaining backward compatibility.
+
+**URL Path Versioning:**
 ```
 GET /api/v1/users
+GET /api/v2/users
 ```
 
-**Pros**: Clear, intuitive, easy to test in browsers, simple caching
-**Cons**: Longer URLs, debate about violating REST principles due to resource URI changes
+**Pros**: Clear, intuitive, easy browser testing, simple caching
+**Cons**: URLs get longer, REST principle debate (URIs should identify resources)
 
-#### Header Versioning
-
+**Header Versioning:**
 ```http
+GET /api/users HTTP/1.1
 Accept: application/vnd.myapp.v1+json
 ```
 
-**Pros**: Cleaner URLs, aligns with REST principles, utilizes content negotiation
-**Cons**: Difficult to test in browsers, complex caching configuration
+**Pros**: Clean URLs, aligns with REST principles, uses content negotiation
+**Cons**: Difficult browser testing, complex caching configuration
 
-#### Version Change Criteria
+**Query Parameter Versioning:**
+```
+GET /api/users?version=1
+```
 
-- **Major changes**: Removing endpoints, fundamental response format changes, authentication method changes
-- **Minor changes**: Adding endpoints/fields (backward compatible), optional parameters
-- **No change needed**: Bug fixes, performance improvements, internal implementation changes
+**Pros**: Simple implementation, easy browser testing
+**Cons**: Version may appear optional, complex caching
 
-In practice, URL versioning is most widely used, while header versioning is chosen when pursuing REST purism.
+**Practical Recommendation**: URL path versioning is most widely used and adopted by most major APIs (Google, Facebook, Twitter).
 
-### 4. Pagination Strategies
+### 5. Pagination Strategies
 
-#### Offset-based Pagination
+When returning large amounts of data, limit response size through pagination.
 
+**Offset-Based Pagination:**
 ```
 GET /api/users?page=2&per_page=20
+GET /api/users?offset=20&limit=20
 ```
 
-**Pros**: Simple implementation, can jump to specific pages
-**Cons**: Performance degradation with large datasets, duplicates or omissions when data is added/deleted
-
-#### Cursor-based Pagination
-
+**Cursor-Based Pagination:**
 ```
 GET /api/users?cursor=eyJpZCI6MTAwfQ==&limit=20
 ```
 
-**Pros**: Consistent performance with large datasets, stable with real-time data changes
-**Cons**: Cannot jump to specific pages, complex implementation
+| Method | Pros | Cons | Suitable For |
+|--------|------|------|--------------|
+| Offset-based | Simple implementation, can jump to specific pages | Performance degradation with large data, duplicates/omissions on data changes | Small datasets, page numbers needed |
+| Cursor-based | Consistent performance with large data, stable with real-time data | Cannot jump to specific pages, complex implementation | Large datasets, infinite scroll, real-time feeds |
 
-**Selection criteria**: Use Offset for small datasets or when page numbers are needed, Cursor for large datasets or real-time feeds.
-
-### 5. HATEOAS
-
-Include links to related resources in responses, allowing clients to discover possible next actions:
-
+**Pagination Response Example:**
 ```json
 {
-  "id": 711,
-  "name": "John Doe",
+  "data": [...],
+  "pagination": {
+    "total": 1000,
+    "page": 2,
+    "per_page": 20,
+    "total_pages": 50,
+    "next_cursor": "eyJpZCI6MTIwfQ=="
+  },
   "_links": {
-    "self": { "href": "/users/711" },
-    "posts": { "href": "/users/711/posts" }
+    "self": "/api/users?page=2",
+    "next": "/api/users?page=3",
+    "prev": "/api/users?page=1",
+    "first": "/api/users?page=1",
+    "last": "/api/users?page=50"
   }
 }
 ```
 
-If not pursuing perfect REST (Level 3), implement optionally. It reduces coupling between client and server.
+### 6. Filtering, Sorting, and Searching
 
-### 6. Error Handling
+Provide filtering, sorting, and search functionality through query parameters.
 
-Use consistent error response formats to enhance developer experience:
+**Filtering:**
+```
+GET /api/users?status=active&role=admin
+GET /api/posts?created_after=2024-01-01&tag=javascript
+```
+
+**Sorting:**
+```
+GET /api/users?sort=created_at           # Ascending
+GET /api/users?sort=-created_at          # Descending (- prefix)
+GET /api/users?sort=name,-created_at     # Multiple sorts
+```
+
+**Searching:**
+```
+GET /api/users?q=john
+GET /api/posts?search=REST+API
+```
+
+**Field Selection (Sparse Fieldsets):**
+```
+GET /api/users?fields=id,name,email
+GET /api/posts?fields[posts]=title,content&fields[author]=name
+```
+
+### 7. HATEOAS (Hypermedia as the Engine of Application State)
+
+A core REST principle that includes links to related resources in responses, enabling clients to discover possible next actions.
 
 ```json
 {
-  "status": 400,
-  "code": "INVALID_EMAIL",
-  "message": "The provided email is invalid",
-  "details": "The email 'johndoe@' is missing a domain name"
+  "id": 123,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "status": "active",
+  "_links": {
+    "self": {"href": "/api/users/123"},
+    "posts": {"href": "/api/users/123/posts"},
+    "deactivate": {"href": "/api/users/123/deactivate", "method": "POST"},
+    "delete": {"href": "/api/users/123", "method": "DELETE"}
+  }
 }
 ```
 
-`code` enables programmatic handling, `message` provides human-readable description, and `details` offers additional context.
+> **Benefits of HATEOAS**
+>
+> Since clients follow response links rather than hardcoded URLs, servers can change URL structures without modifying clients. However, implementation complexity increases and most clients don't utilize this, so it's optionally implemented in practice.
+
+### 8. Error Handling
+
+Use consistent error response formats to improve developer experience.
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed",
+    "details": [
+      {
+        "field": "email",
+        "message": "Invalid email format",
+        "code": "INVALID_FORMAT"
+      },
+      {
+        "field": "age",
+        "message": "Age must be positive",
+        "code": "INVALID_VALUE"
+      }
+    ],
+    "timestamp": "2024-07-20T16:23:17Z",
+    "path": "/api/users",
+    "request_id": "req_abc123"
+  }
+}
+```
+
+**Error Response Fields:**
+- `code`: Error code for programmatic handling
+- `message`: Human-readable error description
+- `details`: Field-level detailed error information
+- `request_id`: Unique identifier for log tracing
 
 ## Security Considerations
 
-### Authentication and Authorization
+### Authentication Methods
 
-**Basic Authentication**: Simple but requires HTTPS. Suitable for server-to-server communication or internal systems.
-
-**Bearer Token (JWT)**: Most widely used, maintains statelessness. Consists of Header (algorithm), Payload (user information), and Signature (integrity verification).
-
-**OAuth 2.0**: Securely grants access to third-party applications. Choose when accessing on behalf of users or needing fine-grained permission control.
-
-**Selection criteria**:
-- Internal systems, server-to-server: API Key or Basic Auth
-- General user authentication: JWT
-- Third-party app integration, social login: OAuth 2.0
+| Method | Characteristics | Suitable For |
+|--------|----------------|--------------|
+| API Key | Simple, included in request header or query | Server-to-server, internal systems |
+| Basic Auth | Username:password Base64 encoded | Simple auth, HTTPS required |
+| Bearer Token (JWT) | Stateless, self-contained token | General user authentication |
+| OAuth 2.0 | Delegated authorization | Third-party app integration, social login |
 
 ### Rate Limiting
 
-Prevents excessive API calls and protects server resources. Provide limit information with 429 Too Many Requests and `X-RateLimit-*` headers:
+Set request limits to prevent API abuse and protect server resources.
 
 ```http
+HTTP/1.1 429 Too Many Requests
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 0
-X-RateLimit-Reset: 1735689600
+X-RateLimit-Reset: 1721484600
+Retry-After: 3600
+Content-Type: application/json
+
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Request limit exceeded. Please try again in 1 hour."
+  }
+}
 ```
 
-**Token Bucket**: Can handle burst traffic, complex implementation
-**Sliding Window**: More accurate limiting, can leverage Redis
+**Rate Limiting Algorithms:**
+- **Token Bucket**: Allows burst traffic, complex implementation
+- **Sliding Window**: Accurate limiting, uses Redis
+- **Fixed Window**: Simple implementation, possible bursts at boundaries
 
-## Performance Optimization
+### CORS (Cross-Origin Resource Sharing)
 
-- **Caching**: Leverage Cache-Control, ETag headers
-- **Response compression**: Use gzip to save bandwidth
-- **Payload minimization**: Return only necessary data, consider supporting Sparse Fieldsets
+Configure CORS headers to allow API access from different domains.
 
-## Documentation
+```http
+Access-Control-Allow-Origin: https://example.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Max-Age: 86400
+```
 
-Good API documentation significantly enhances developer experience.
+## API Documentation
 
-### OpenAPI/Swagger
+### OpenAPI (Swagger)
 
-The most widely used standard. Define APIs in YAML/JSON and provide interactive documentation with Swagger UI. Can auto-generate from code using FastAPI or Express+Swagger JSDoc.
+OpenAPI Specification is the industry standard for defining REST APIs. It describes APIs in YAML or JSON format and can provide interactive documentation through Swagger UI.
 
-### Documentation Tool Selection
+```yaml
+openapi: 3.0.0
+info:
+  title: User API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      summary: List users
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+```
 
+**Documentation Tool Selection:**
 - **Public APIs**: OpenAPI/Swagger (standard, rich tool ecosystem)
 - **Internal APIs**: Postman Collections (easy team collaboration)
-- **Quick prototyping**: API Blueprint (Markdown-based)
-
-## Practical Design Example
-
-Core endpoint structure for a blog API:
-
-```
-POST   /api/auth/register           # User registration
-POST   /api/auth/login              # Login
-GET    /api/users/{id}              # Profile retrieval
-PATCH  /api/users/{id}              # Profile update
-
-GET    /api/posts                   # Post list (filtering, pagination)
-GET    /api/posts/{id}              # Post details
-POST   /api/posts                   # Create post
-PUT    /api/posts/{id}              # Update post
-DELETE /api/posts/{id}              # Delete post
-
-GET    /api/posts/{id}/comments     # Comment list
-POST   /api/posts/{id}/comments     # Create comment
-PATCH  /api/posts/{id}/comments/{cid} # Update comment
-DELETE /api/posts/{id}/comments/{cid} # Delete comment
-```
-
-Support filtering (`?status=published&tag=javascript`), sorting (`?sort=-created_at`), and pagination (`?page=1&per_page=20`) via query parameters, and include metadata and links in responses.
+- **Quick Prototyping**: API Blueprint (Markdown-based)
 
 ## Limitations and Alternatives to REST
 
-REST is versatile but not the optimal solution for every scenario:
+REST is a versatile and widely adopted architectural style, but it's not optimal for every situation.
 
-- **Real-time communication**: WebSocket (bidirectional, low latency)
-- **Complex data requirements**: GraphQL (clients request only needed data, prevents over-fetching)
-- **High-performance microservices**: gRPC (Protobuf, HTTP/2 based)
-
-Understand trade-offs of each technology and select based on project requirements.
+| Technology | Pros | Cons | Suitable For |
+|------------|------|------|--------------|
+| REST | Simple, standardized, easy caching | Over-fetching, multiple requests needed | General CRUD, public APIs |
+| GraphQL | Precise data requests, single endpoint | Complex caching, learning curve | Complex data requirements, mobile apps |
+| gRPC | High performance, strong typing, bidirectional streaming | Limited browser support, difficult debugging | Inter-microservice communication |
+| WebSocket | Real-time bidirectional communication, low latency | Not stateless, complex load balancing | Chat, real-time notifications, games |
 
 ## Conclusion
 
-REST API design is a complex process that must consider not just technical decisions but also user experience and business requirements. Understanding principles is important, but rather than blindly following them, it's crucial to grasp trade-offs of each design decision and apply them flexibly to project characteristics. The key to successful API design is targeting practical and consistent APIs rather than perfect RESTful APIs, while emphasizing documentation and developer experience.
+REST API design is a complex process that must consider not just technical decisions but also user experience and business requirements. Understanding REST's 6 constraints and referencing the Richardson Maturity Model is important, but rather than blindly following them, it's crucial to understand the trade-offs of each design decision and apply them flexibly according to project characteristics. Targeting practical and consistent REST-like APIs (Level 2) while emphasizing thorough documentation and developer experience is the key to successful API design, rather than implementing perfect RESTful APIs (Level 3).
+
+## References
+
+- [Roy Fielding's Doctoral Dissertation](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)
+- [Richardson Maturity Model](https://martinfowler.com/articles/richardsonMaturityModel.html)
+- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [MDN Web Docs - HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP)

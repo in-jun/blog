@@ -1,193 +1,101 @@
 ---
-title: "Getting to know Spring Boot"
+title: "Getting to Know Spring Boot"
 date: 2024-05-16T22:14:17+09:00
+tags: ["spring", "spring-boot", "java", "backend"]
+description: "Spring Boot, released by Pivotal in 2014, replaces Spring Framework's complex XML configuration with auto-configuration and provides embedded servers for rapid development of standalone applications"
 draft: false
-tags: ["Spring", "Spring boot"]
 ---
 
-![spring](image.png)
+## History and Background of Spring Framework
 
-### What is Spring?
+Spring Framework is a Java-based enterprise application framework first released in 2003, based on ideas Rod Johnson presented in his 2002 book "Expert One-on-One J2EE Design and Development." It emerged as an alternative to the complex and heavyweight EJB (Enterprise JavaBeans) 2.x at the time, proposing a lightweight development approach based on POJOs (Plain Old Java Objects). EJB 2.x was tightly coupled to containers, making unit testing difficult, required extensive XML configuration, and had low development productivity. Spring addressed these issues by making IoC (Inversion of Control) and DI (Dependency Injection) its core concepts, reducing coupling between objects and improving testability.
 
-> Spring is a framework based on the Java language that provides various features for developing enterprise-grade applications.
+Spring Framework has continuously evolved since the official 1.0 release in 2004. Spring 2.0 in 2006 added XML namespaces and annotation support. Spring 3.0 in 2009 strengthened Java 5-based annotation configuration (@Configuration, @Bean) and REST support. Spring 4.0 in 2013 began supporting Java 8 lambdas and WebSocket. The current Spring 6.0 (2022) uses Java 17 as default, adopts Jakarta EE 9+ namespaces (using jakarta.* instead of javax.*), and strengthens GraalVM native image support for optimization in cloud-native environments.
 
-Spring has the following characteristics:
+## Birth and Philosophy of Spring Boot
 
--   **Lightweight container**: Spring is a lightweight container that manages the creation of objects, their lifecycle, and dependency management.
+Spring Boot is a framework released by Pivotal (now VMware) in 2014 to automate complex configuration for Spring Framework-based applications and enable rapid prototyping. Following the "Convention over Configuration" philosophy, it allows developers to focus on business logic. Before Spring Boot, creating a Spring MVC web application required dozens to hundreds of lines of XML configuration in files like web.xml, applicationContext.xml, and dispatcher-servlet.xml. Developers also had to separately install external servlet containers like Tomcat or Jetty and deploy WAR files.
 
--   **Inversion of Control (IoC)**: Spring supports Inversion of Control, which allows the Spring container to manage the creation, lifecycle, and dependency management of objects.
+Spring Boot's core features are Auto-configuration, Embedded Server, Starter Dependencies, and Actuator. Auto-configuration detects libraries on the classpath and automatically registers beans needed for those technologies. Embedded servers include Tomcat, Jetty, or Undertow within the JAR file, enabling application execution with the java -jar command. Starter dependencies bundle related libraries into single dependencies, solving version compatibility issues. Actuator provides application status, metrics, and health check endpoints for easy monitoring in production environments.
 
--   **Dependency Injection (DI)**: Spring supports Dependency Injection, which allows the Spring container to manage the dependencies between objects.
+## Spring IoC Container and Dependency Injection
 
--   **Aspect-Oriented Programming (AOP)**: Spring supports Aspect-Oriented Programming, which allows key logic to be separated from common logic for management.
+### Inversion of Control (IoC)
 
--   **Transaction Management**: Spring supports transaction management, which allows database operations to be processed as transaction units.
+Inversion of Control is a design principle where the framework, not the developer, manages the program's control flow. In traditional programming, developers directly create objects and call methods. In IoC, the framework manages object creation and lifecycle, calling the developer's code at appropriate times. Spring's IoC container (ApplicationContext) reads bean definitions to create objects, inject dependencies, and manage bean initialization and destruction. This reduces coupling between objects and facilitates testing and maintenance.
 
--   **Exception Handling**: Spring supports exception handling, which allows exceptions to be processed when they occur.
+### Dependency Injection (DI)
 
--   **Testing**: Spring supports testing, which allows unit tests, integration tests, and system tests to be performed.
-
-### What is Spring Boot?
-
-> Spring Boot is a framework that helps facilitate the development of web applications using the Spring framework.
-
-Spring Boot has the following characteristics:
-
--   **Embedded server**: Spring Boot provides an embedded server (Tomcat, Jetty, Undertow) so that web applications can be executed without having to install a separate server.
-
--   **Auto-configuration**: Spring Boot auto-configures Spring applications with the `@SpringBootApplication` annotation.
-
--   **Dependency Management**: Spring Boot uses `starters` to manage dependencies. `starters` are collections of dependencies that provide specific features.
-
--   **Spring Boot CLI**: The Spring Boot CLI (Command Line Interface) can be used to quickly develop Spring Boot applications.
-
--   **Spring Boot Actuator**: Spring Boot Actuator can be used to monitor the status of applications.
-
--   **Spring Boot Starters**: Spring Boot Starters are collections of dependencies that provide specific features.
-
-### What is a Spring Bean?
-
-> A Spring bean is an object managed by the Spring container.
-> Simply put, a Spring bean is an object created by the Spring container instead of using the new operator.
-> The Singleton pattern is applied to create and manage Spring beans.
-
-For example, you can register a Spring bean with the `@Component` annotation as follows:
+Dependency Injection is a pattern where objects receive their dependencies from external sources. Since the container injects dependencies rather than objects creating or finding them directly, loose coupling is achieved. Spring supports three injection methods: Constructor Injection, Setter Injection, and Field Injection. Since Spring 4.3, @Autowired can be omitted for single constructors. Constructor injection is currently recommended for immutability and testability.
 
 ```java
-@Component
-public class HelloService {
-    public String sayHello() {
-        return "Hello, World!";
+@Service
+public class OrderService {
+    private final OrderRepository orderRepository;
+    private final PaymentService paymentService;
+
+    // Constructor injection - @Autowired can be omitted (single constructor)
+    public OrderService(OrderRepository orderRepository, PaymentService paymentService) {
+        this.orderRepository = orderRepository;
+        this.paymentService = paymentService;
     }
 }
 ```
 
-In the code above, the `HelloService` class is registered as a Spring bean with the `@Component` annotation.
-Therefore, the Spring container creates and manages an instance of the `HelloService` class.
+## Spring Beans and Bean Scopes
 
-You can also register a Spring bean with the `@Bean` annotation.
+### Concept of Spring Beans
 
-```java
-@Configuration
-public class AppConfig {
-    @Bean
-    public HelloService helloService() {
-        return new HelloService();
-    }
-}
-```
+A Spring Bean is a Java object managed by the Spring IoC container. The container manages the entire lifecycle including creation, dependency injection, initialization, and destruction. Beans can be auto-scanned using stereotype annotations like @Component, @Service, @Repository, and @Controller, or explicitly registered through @Bean methods in @Configuration classes. Spring Boot's @ComponentScan (included in @SpringBootApplication) automatically scans all components in the base package and subpackages.
 
-And you can inject a Spring bean with the `@Autowired` annotation.
+### Bean Scopes
 
-```java
-@Component
-public class HelloController {
-    @Autowired
-    private HelloService helloService;
+Bean Scope defines the range in which bean instances exist. In the default Singleton scope, only one instance is created per Spring container and shared across all requests. Prototype scope creates a new instance each time a bean is requested. In web environments, Request, Session, and Application scopes are additionally provided, sharing lifecycles with HTTP requests, HTTP sessions, and servlet contexts respectively.
 
-    public String sayHello() {
-        return helloService.sayHello();
-    }
-}
-```
+| Scope | Description | Lifecycle |
+|-------|-------------|-----------|
+| singleton | One instance per container (default) | Container start ~ shutdown |
+| prototype | New instance per request | Not managed after creation |
+| request | Created per HTTP request | Request start ~ end |
+| session | Created per HTTP session | Session creation ~ expiration |
+| application | Created per servlet context | Context start ~ shutdown |
 
-In the code above, the `HelloController` class injects the `HelloService` Spring bean with the `@Autowired` annotation.
-Therefore, the Spring container creates an instance of the `HelloService` class and injects it into the `helloService` field of the `HelloController` class.
+## AOP (Aspect-Oriented Programming)
 
-### Singleton Pattern
+### Concepts and Terminology of AOP
 
-> The Singleton pattern is a design pattern that ensures that only one instance of a class is created.
+AOP (Aspect-Oriented Programming) is a programming paradigm that modularizes cross-cutting concerns. It separates code that repeats across multiple modules—like logging, transaction management, security, and caching—from core business logic. Key AOP terms include Aspect (a class that modularizes cross-cutting concerns), Join Point (a point where advice can be applied), Pointcut (an expression that selects join points), Advice (code executed at specific join points), and Weaving (the process of applying aspects to target objects). Spring AOP performs weaving by generating proxies at runtime.
 
-Creating objects multiple times can waste memory.
-Therefore, it is recommended to apply the Singleton pattern to create an object only once and then continue to use the created instance.
+### Types of Advice
 
-Singleton pattern code example
-
-```java
-public class Singleton {
-    private static Singleton instance;
-
-    private Singleton() {
-    }
-
-    public static Singleton getInstance() {
-        if (instance == null) {
-            instance = new Singleton();
-        }
-        return instance;
-    }
-}
-```
-
-In the code above, the `Singleton` class applies the Singleton pattern to create an object only once and then continues to use the created instance.
-
-> Typical use cases: `Spring Bean`, `Logger`, `Runtime`
-
-### Spring Bean Scope
-
-> The scope of a Spring bean refers to the range of which the Spring container creates and manages the Spring bean.
-
-![Spring Bean Scope](image-1.png)
-
-The scope of a Spring bean can be set as follows:
-
--   `singleton`: The Spring container creates the Spring bean only once and then continues to use the created instance. This is the default scope.
--   `prototype`: The Spring container creates a new instance of the Spring bean each time it is requested.
--   `request`: The Spring bean is created for each HTTP request and disposed of when the request is complete.
--   `session`: The Spring bean is created for each HTTP session and disposed of when the session is complete.
--   `application`: The Spring bean is created for each servlet context and disposed of when the context is terminated.
-
-The scope of a Spring bean can be set as follows:
-
-```java
-@Component
-@Scope("prototype")
-public class HelloService {
-    public HelloService() {
-        System.out.println("HelloService created");
-    }
-}
-```
-
-In the code above, the `@Scope("prototype")` annotation is used to set the scope of the `HelloService` Spring bean to `prototype`.
-
-### What are DI, IOC, AOP?
-
-> -   DI (Dependency Injection): Dependency Injection refers to the management of dependency relationships between objects by the Spring container.
-> -   IOC (Inversion of Control): Inversion of Control refers to the management of the creation, lifecycle, and dependency management of objects by the Spring container.
-> -   AOP (Aspect-Oriented Programming): Aspect-Oriented Programming refers to the separation and management of key logic and common logic.
-
-For example, Dependency Injection can be done with the `@Autowired` annotation as follows:
-
-```java
-@Component
-public class HelloController {
-    @Autowired
-    private HelloService helloService;
-
-    public String sayHello() {
-        return helloService.sayHello();
-    }
-}
-```
-
-In the code above, the `HelloController` class injects the `HelloService` Spring bean with the `@Autowired` annotation.
-
-AOP can also be applied with the `@Aspect` annotation.
+Spring AOP provides five Advice types. @Before executes before the target method, @AfterReturning after normal return, @AfterThrowing when an exception occurs, @After executes regardless of normal or exceptional completion, and @Around can control both before and after target method execution. @Around is the most powerful, able to control everything including whether to execute the method, manipulate return values, and handle exceptions. However, for simple tasks, using purpose-appropriate advice improves code readability.
 
 ```java
 @Aspect
 @Component
-public class LoggingAspect {
-    @Before("execution(* com.example.demo..*.*(..))")
-    public void logBefore(JoinPoint joinPoint) {
-        System.out.println("Before: " + joinPoint.getSignature().getName());
+public class PerformanceAspect {
+
+    @Around("execution(* com.example.service.*.*(..))")
+    public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object result = joinPoint.proceed();
+        long executionTime = System.currentTimeMillis() - start;
+        System.out.println(joinPoint.getSignature() + " execution time: " + executionTime + "ms");
+        return result;
     }
 }
 ```
 
-In the code above, the `LoggingAspect` class applies AOP with the `@Aspect` annotation.
-And the `Before` annotation is used to set the `logBefore` method to be executed before all methods in the` com.example.demo` package are executed.
-Eventually, when the `logBefore` method is executed, `Before: method name` is printed.
+## Spring Boot Auto-Configuration
 
-In this way, Spring supports DI, IOC, and AOP for managing dependencies between objects and separating and managing common logic.
+### How Auto-Configuration Works
+
+Spring Boot's Auto-configuration is activated by the @EnableAutoConfiguration annotation (included in @SpringBootApplication). It conditionally loads configuration classes defined in the META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports file of the spring-boot-autoconfigure module. Each auto-configuration class uses conditional annotations like @ConditionalOnClass, @ConditionalOnMissingBean, and @ConditionalOnProperty to activate only when specific classes exist on the classpath, specific beans don't exist, or specific properties are set. If developers have explicitly configured beans, auto-configuration backs off and developer settings take precedence.
+
+### Starter Dependencies
+
+Starter Dependencies bundle all libraries needed for specific functionality into a single dependency. spring-boot-starter-web includes dependencies needed for web development like Spring MVC, embedded Tomcat, and Jackson JSON. spring-boot-starter-data-jpa includes JPA-related dependencies like Spring Data JPA, Hibernate, and HikariCP. Using starters eliminates the need to manage individual library versions, as compatible versions managed by the spring-boot-dependencies BOM (Bill of Materials) are automatically applied, preventing version conflict issues.
+
+## Conclusion
+
+Spring Framework emerged in 2003 as an alternative to EJB's complexity, changing the paradigm of Java enterprise development through IoC and DI. Spring Boot, released in 2014, dramatically reduced configuration complexity through auto-configuration and embedded servers, providing an optimized environment for microservices and cloud-native development. Spring's core is dependency injection through the IoC container, reducing coupling between objects and improving testability. Bean scopes and AOP enable declarative management of object lifecycles and cross-cutting concerns. Spring Boot starters and auto-configuration allow developers to focus on business logic, while Actuator facilitates monitoring and management in production environments, making Spring the de facto standard for modern Java backend development.
