@@ -1,8 +1,8 @@
 ---
-title: "홈랩 #7 - CI/CD 구축해서 배포 자동화하기 (1)"
+title: "홈랩 쿠버네티스 #7 - 내부 개발자 플랫폼(IDP) 구축하기 (1)"
 date: 2025-02-28T04:32:32+09:00
 draft: false
-description: "홈랩 쿠버네티스 환경에 CI/CD 시스템의 기반이 되는 Harbor 레지스트리, Argo Events, Argo Workflows를 설치하는 방법을 설명한다."
+description: "홈랩 쿠버네티스 클러스터에 Harbor 컨테이너 레지스트리와 Argo Events, Argo Workflows를 설치하여 CI/CD 파이프라인의 기반을 구축하는 방법을 다룬다."
 tags:
     [
         "kubernetes",
@@ -13,43 +13,37 @@ tags:
         "argo-workflows",
         "gitops",
     ]
-series: ["홈랩"]
+series: ["홈랩 쿠버네티스"]
 ---
 
 ## 개요
 
-[이전 글](homelab-k8s-secrets)에서는 홈랩 쿠버네티스 클러스터에 Vault를 설치하고 시크릿 관리 시스템을 구축했다. 이번 글에서는 CI/CD 시스템의 기반이 되는 세 가지 핵심 컴포넌트인 Harbor 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 설정하는 방법을 알아본다.
+[이전 글](/posts/homelab-k8s-secrets/)에서는 HashiCorp Vault를 설치하고 Vault Secrets Operator와 ArgoCD Vault Plugin을 활용하여 시크릿 관리 시스템을 구축했다. 이번 글에서는 CI/CD 파이프라인을 구성하기 위해 필요한 세 가지 핵심 컴포넌트인 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 구성을 완료하는 방법을 다룬다.
 
 ![CI/CD](image.png)
 
-## CI/CD 시스템의 구성 요소
+## CI/CD 시스템 구성 요소
 
-홈랩 환경에서 완전한 CI/CD 파이프라인을 구축하기 위해서는 다음과 같은 핵심 컴포넌트들이 필요하다:
+홈랩 환경에서 완전한 CI/CD 파이프라인을 구축하기 위해서는 다음과 같은 핵심 구성 요소가 필요하다:
 
-1. **컨테이너 레지스트리**: 빌드된 이미지를 저장하고 관리하는 저장소
-2. **이벤트 처리 시스템**: 코드 변경 등의 이벤트를 감지하고 처리하는 시스템
-3. **워크플로우 엔진**: 빌드, 테스트, 배포 등의 작업을 실행하는 엔진
-4. **선언적 배포 시스템**: 배포 상태를 관리하고 동기화하는 시스템
+- **컨테이너 레지스트리**: 빌드된 컨테이너 이미지를 저장하고 배포하는 중앙 저장소로, Docker Hub와 같은 퍼블릭 레지스트리에 의존하지 않고 자체적으로 이미지를 관리할 수 있게 한다.
+- **이벤트 처리 시스템**: Git 저장소의 코드 변경, 웹훅 수신 등 다양한 이벤트를 감지하고 이에 반응하여 후속 작업을 트리거하는 역할을 담당한다.
+- **워크플로우 엔진**: 코드 빌드, 테스트 실행, 컨테이너 이미지 생성 등 실제 CI/CD 작업을 정의하고 실행하는 엔진이다.
+- **GitOps 배포 시스템**: Git 저장소에 정의된 원하는 상태를 클러스터에 자동으로 동기화하는 시스템으로, 이전 시리즈에서 설치한 ArgoCD가 이 역할을 담당한다.
 
-이 중 4번(선언적 배포 시스템)은 이미 이전 글에서 설치한 ArgoCD가 담당한다. 이번 글에서는 나머지 세 가지 컴포넌트를 설치하고 구성한다.
+이번 글에서는 컨테이너 레지스트리, 이벤트 처리 시스템, 워크플로우 엔진을 각각 Harbor, Argo Events, Argo Workflows로 구현하고, 다음 글에서 이들을 ArgoCD와 통합하여 완전한 CI/CD 파이프라인을 완성한다.
 
-## 1. Harbor 설치
+## Harbor 설치
 
-Harbor는 CNCF가 호스팅하는 오픈소스 레지스트리 프로젝트로, 컨테이너 이미지와 Helm 차트를 저장하고 관리할 수 있는 기능을 제공한다.
+> **Harbor란?**
+>
+> Harbor는 CNCF(Cloud Native Computing Foundation)의 졸업 프로젝트로, VMware에서 시작하여 2018년 CNCF에 기증된 오픈소스 컨테이너 레지스트리이다. Docker Hub와 같은 기본적인 이미지 저장 기능 외에도 RBAC(역할 기반 접근 제어), 취약점 스캐닝, 이미지 서명, 복제 정책 등 엔터프라이즈급 기능을 제공하며, 프라이빗 환경에서 컨테이너 이미지를 안전하게 관리하기 위한 완전한 솔루션을 제공한다.
 
-Docker Hub와 같은 퍼블릭 레지스트리에 의존하지 않고 완전히 자체 호스팅된 CI/CD 환경을 구축하기 위해 Harbor를 선택했다.
+Harbor를 선택한 이유는 퍼블릭 레지스트리에 의존하지 않고 완전히 자체 호스팅된 CI/CD 환경을 구축하기 위해서이며, Harbor가 제공하는 취약점 스캐닝과 접근 제어 기능은 홈랩 환경에서도 보안을 강화하는 데 유용하다.
 
-### Harbor 특징
+### Harbor Helm 차트 구성
 
--   RBAC(역할 기반 접근 제어)를 통한 세밀한 접근 권한 관리
--   취약점 스캐닝 기능으로 보안 강화
--   컨테이너 이미지와 Helm 차트를 함께 관리
--   프로젝트별 격리 및 할당량 관리
--   이미지 복제 및 미러링 기능
-
-### GitOps 방식 Harbor 설치 준비
-
-이전 글에서와 마찬가지로 GitOps 방식으로 Harbor를 설치한다. 먼저 Git 저장소에 Harbor 설치를 위한 디렉토리와 파일들을 생성한다:
+이전 글들과 마찬가지로 GitOps 방식으로 Harbor를 설치한다. Git 저장소에 Harbor 설치를 위한 디렉토리와 파일을 생성한다:
 
 ```bash
 mkdir -p k8s-resource/apps/harbor/templates
@@ -96,11 +90,16 @@ harbor:
                 size: 15Gi
 ```
 
-위 설정에서 주목할 점은 `harborAdminPassword`에 Vault 참조가 사용되었다는 것이다. ArgoCD의 Vault 플러그인을 통해 실제 배포 시 이 값이 Vault에서 가져온 값으로 대체된다.
+이 설정의 핵심 사항은 다음과 같다:
 
-또한 레지스트리 스토리지로 15GB의 볼륨을 할당한다.
+- **expose.type: ClusterIP**: Harbor 서비스를 클러스터 내부에서만 접근 가능하게 설정하고 외부 접근은 Traefik IngressRoute를 통해 제공한다.
+- **harborAdminPassword**: Vault 경로 참조를 사용하여 ArgoCD Vault Plugin이 배포 시 실제 비밀번호로 대체한다.
+- **persistence**: 레지스트리에 15GB의 영구 스토리지를 할당하여 컨테이너 이미지를 저장한다.
+- **upload_purging**: 12시간마다 오래된 업로드 파일을 정리하여 스토리지를 효율적으로 관리한다.
 
-이제 Traefik IngressRoute를 만들어 Harbor UI에 접근할 수 있게 한다. `templates/ingressroute.yaml` 파일을 생성한다:
+### Traefik IngressRoute 구성
+
+Harbor UI와 API에 접근하기 위한 IngressRoute를 `templates/ingressroute.yaml` 파일로 생성한다:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -133,12 +132,9 @@ spec:
                 namespace: harbor
 ```
 
-여기서는 두 가지 라우팅 규칙을 정의한다:
+이 IngressRoute는 두 가지 라우팅 규칙을 정의하는데, 기본 경로는 Harbor 웹 포털로 라우팅하고 API 관련 경로(`/api/`, `/service/`, `/v2/`, `/chartrepo/`, `/c/`)는 Harbor 코어 서비스로 라우팅한다. `intweb`과 `intwebsec` 엔트리 포인트를 사용하여 내부 네트워크에서만 접근 가능하게 설정한다.
 
-1. 기본 경로(`/`)는 Harbor 웹 포털로 라우팅
-2. API, 서비스, 레지스트리 경로는 Harbor 코어 서비스로 라우팅
-
-또한 대용량 이미지 업로드를 위한 미들웨어도 필요하다. `templates/middleware.yaml` 파일을 생성한다:
+대용량 컨테이너 이미지 업로드를 위한 미들웨어를 `templates/middleware.yaml` 파일로 생성한다:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -153,11 +149,9 @@ spec:
         retryExpression: ""
 ```
 
-이 미들웨어는 대용량 파일 업로드를 처리하기 위한 버퍼 설정을 담당한다. 최대 요청 크기와 메모리 버퍼 크기를 약 1GB로 설정한다.
+이 미들웨어는 요청 본문 크기 제한을 약 1GB로 설정하여 대용량 컨테이너 이미지도 업로드할 수 있게 한다.
 
-이를 통해 큰 컨테이너 이미지도 원활하게 업로드할 수 있다.
-
-### 변경 사항 커밋 및 배포
+### Harbor 배포
 
 변경 사항을 커밋하고 푸시한다:
 
@@ -167,64 +161,48 @@ git commit -m "Add Harbor configuration"
 git push
 ```
 
-이제 ArgoCD가 변경 사항을 감지하고 Harbor를 자동으로 배포할 것이다. 배포 상태는 다음 명령어로 확인할 수 있다:
+ArgoCD가 변경 사항을 감지하고 자동으로 Harbor를 배포한다. 배포 상태를 확인한다:
 
 ```bash
 kubectl get pods -n harbor
 ```
 
-모든 Pod가 Ready 상태가 되면 Harbor가 성공적으로 배포된 것이다.
+모든 Pod가 `Running` 상태가 되면 Harbor가 성공적으로 배포된 것이다.
 
-### Harbor UI 접속 및 구성
+### Harbor 접속 및 테스트
 
-Harbor UI에 접속하기 위해 호스트 파일에 다음 항목을 추가한다:
+로컬 컴퓨터의 hosts 파일에 다음 항목을 추가한다:
 
 ```
 192.168.0.200 harbor.injunweb.com
 ```
 
-웹 브라우저에서 `https://harbor.injunweb.com`으로 접속한다. 로그인 정보는 다음과 같다:
+웹 브라우저에서 `https://harbor.injunweb.com`에 접속하여 `admin` 계정과 Vault에 저장된 비밀번호로 로그인한다. 로그인 후 새 프로젝트를 생성하고 Docker CLI에서 이미지 푸시를 테스트한다:
 
--   사용자명: admin
--   비밀번호: Vault에서 가져온 비밀번호
+```bash
+docker login harbor.injunweb.com -u admin -p <비밀번호>
+docker pull nginx:alpine
+docker tag nginx:alpine harbor.injunweb.com/injunweb/nginx:alpine
+docker push harbor.injunweb.com/injunweb/nginx:alpine
+```
 
-로그인 후 다음과 같은 설정을 진행한다:
+이미지가 성공적으로 푸시되면 Harbor UI에서 해당 이미지를 확인할 수 있다.
 
-1. 새 프로젝트 생성:
+## Argo Events 설치
 
-    - 'Projects' > 'NEW PROJECT'
-    - Name: injunweb
-    - Access Level: Private
+> **Argo Events란?**
+>
+> Argo Events는 쿠버네티스 네이티브 이벤트 기반 자동화 프레임워크로, Argoproj 생태계의 일부이며 CNCF에 기증되어 활발하게 개발되고 있다. GitHub 웹훅, AWS SQS, Kafka, NATS 등 20개 이상의 이벤트 소스를 지원하며, 이벤트를 감지하면 Argo Workflows, 쿠버네티스 오브젝트 생성, AWS Lambda 등 다양한 타겟을 트리거할 수 있다.
 
-2. Docker CLI에서 로그인 테스트:
+Argo Events의 아키텍처는 세 가지 핵심 컴포넌트로 구성된다:
 
-    ```bash
-    docker login harbor.injunweb.com -u admin -p <비밀번호>
-    ```
+- **EventBus**: 이벤트 소스와 센서 간의 메시지 전달을 담당하는 전송 계층으로, NATS 또는 JetStream을 백엔드로 사용한다.
+- **EventSource**: 외부 시스템(GitHub, AWS SNS, 웹훅 등)에서 이벤트를 수신하고 EventBus로 전달하는 역할을 한다.
+- **Sensor**: EventBus에서 이벤트를 구독하고, 필터 조건에 맞는 이벤트가 발생하면 지정된 트리거(Argo Workflow 실행, HTTP 요청 등)를 수행한다.
 
-3. 테스트 이미지 푸시:
-    ```bash
-    docker pull nginx:alpine
-    docker tag nginx:alpine harbor.injunweb.com/injunweb/nginx:alpine
-    docker push harbor.injunweb.com/injunweb/nginx:alpine
-    ```
+### Argo Events Helm 차트 구성
 
-이미지가 성공적으로 푸시되면 Harbor UI에서 이를 확인할 수 있다.
-
-## 2. Argo Events 설치
-
-Argo Events는 쿠버네티스 기반의 이벤트 중심 자동화 프레임워크다. 다양한 이벤트 소스(Git 웹훅, 메시지 큐, AWS SNS 등)의 이벤트를 감지하고, 그에 따른 워크플로우를 트리거할 수 있다.
-
-### Argo Events 특징
-
--   선언적 설정을 통한 이벤트 중심 워크플로우
--   다양한 이벤트 소스 지원
--   확장 가능한 이벤트 필터링과 변환
--   다양한 트리거 대상 지원 (Argo Workflows, 쿠버네티스 리소스 등)
-
-### GitOps 방식 Argo Events 설치 준비
-
-Git 저장소에 Argo Events 설치를 위한 디렉토리와 파일들을 생성한다:
+Git 저장소에 Argo Events 설치를 위한 디렉토리와 파일을 생성한다:
 
 ```bash
 mkdir -p k8s-resource/apps/argo-events/templates
@@ -235,8 +213,8 @@ cd k8s-resource/apps/argo-events
 
 ```yaml
 apiVersion: v2
-name: argo-event
-description: argo-event chart for Kubernetes
+name: argo-events
+description: argo-events chart for Kubernetes
 type: application
 version: 1.0.0
 appVersion: "v1.9.3"
@@ -246,13 +224,13 @@ dependencies:
       repository: "https://argoproj.github.io/argo-helm"
 ```
 
-`values.yaml` 파일은 기본 설정을 사용하므로 빈 파일로 생성한다. 필요한 경우에만 설정을 추가할 수 있다:
+`values.yaml` 파일은 기본 설정을 사용하므로 비어 있는 상태로 생성한다:
 
 ```yaml
-# 기본 설정을 사용
+# 기본 설정 사용
 ```
 
-### 변경 사항 커밋 및 배포
+### Argo Events 배포
 
 변경 사항을 커밋하고 푸시한다:
 
@@ -262,27 +240,28 @@ git commit -m "Add Argo Events configuration"
 git push
 ```
 
-배포 상태는 다음 명령어로 확인할 수 있다:
+배포 상태를 확인한다:
 
 ```bash
 kubectl get pods -n argo-events
 ```
 
-## 3. Argo Workflows 설치
+## Argo Workflows 설치
 
-Argo Workflows는 쿠버네티스 위에서 복잡한 컨테이너 기반 워크플로우를 정의하고 실행하기 위한 도구다. 빌드, 테스트, 배포와 같은 CI/CD 작업의 실행 엔진 역할을 한다.
+> **Argo Workflows란?**
+>
+> Argo Workflows는 쿠버네티스 네이티브 워크플로우 엔진으로, 2017년 Applatix(현재 Intuit)에서 개발되어 현재 CNCF 졸업 프로젝트로 유지보수되고 있다. 복잡한 컨테이너 기반 작업을 DAG(Directed Acyclic Graph) 또는 단계별 방식으로 정의하고 실행할 수 있으며, CI/CD 파이프라인, 데이터 처리, 머신러닝 파이프라인 등 다양한 워크로드에 활용된다.
 
-### Argo Workflows 특징
+Argo Workflows의 주요 기능은 다음과 같다:
 
--   DAG(Directed Acyclic Graph) 또는 단계별 워크플로우 정의
--   병렬 처리 및 아티팩트 공유
--   재시도 전략 및 타임아웃 설정
--   조건부 실행 및 반복 작업
--   유연한 템플릿 시스템
+- **DAG 및 단계별 워크플로우**: 작업 간의 의존성을 정의하여 순차적 또는 병렬로 실행할 수 있다.
+- **아티팩트 관리**: 워크플로우 단계 간에 파일이나 데이터를 전달하고 S3, GCS, MinIO 등에 저장할 수 있다.
+- **재시도 및 타임아웃**: 실패한 단계에 대한 자동 재시도와 타임아웃 설정을 지원한다.
+- **워크플로우 템플릿**: 재사용 가능한 워크플로우 정의를 템플릿으로 관리하여 코드 중복을 줄인다.
 
-### GitOps 방식 Argo Workflows 설치 준비
+### Argo Workflows Helm 차트 구성
 
-Git 저장소에 Argo Workflows 설치를 위한 디렉토리와 파일들을 생성한다:
+Git 저장소에 Argo Workflows 설치를 위한 디렉토리와 파일을 생성한다:
 
 ```bash
 mkdir -p k8s-resource/apps/argo-workflows/templates
@@ -293,8 +272,8 @@ cd k8s-resource/apps/argo-workflows
 
 ```yaml
 apiVersion: v2
-name: argocd-workflow
-description: argocd-workflow chart for Kubernetes
+name: argo-workflows
+description: argo-workflows chart for Kubernetes
 type: application
 version: 1.0.0
 appVersion: "v3.6.2"
@@ -312,9 +291,9 @@ argo-workflows:
         authMode: "server"
 ```
 
-간단한 설정으로 시작하고, 필요에 따라 추가 설정을 할 수 있다. 여기서는 서버 인증 모드만 지정했다.
+`authMode: server`는 Argo Workflows 서버 자체의 인증을 사용하는 설정으로, 홈랩 환경에서 간단하게 접근할 수 있게 한다.
 
-Traefik IngressRoute를 만들어 Argo Workflows UI에 접근할 수 있게 한다. `templates/ingressroute.yaml` 파일을 생성한다:
+Argo Workflows UI에 접근하기 위한 IngressRoute를 `templates/ingressroute.yaml` 파일로 생성한다:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -334,9 +313,7 @@ spec:
                 port: 2746
 ```
 
-이 라우트는 `argo-workflows.injunweb.com` 호스트로 들어오는 요청을 Argo Workflows 서버로 라우팅한다.
-
-### 변경 사항 커밋 및 배포
+### Argo Workflows 배포
 
 변경 사항을 커밋하고 푸시한다:
 
@@ -346,27 +323,25 @@ git commit -m "Add Argo Workflows configuration"
 git push
 ```
 
-배포 상태는 다음 명령어로 확인할 수 있다:
+배포 상태를 확인한다:
 
 ```bash
 kubectl get pods -n argo-workflows
 ```
 
-Argo Workflows UI에 접속하기 위해 호스트 파일에 다음 항목을 추가한다:
+로컬 컴퓨터의 hosts 파일에 다음 항목을 추가하고 웹 브라우저에서 `https://argo-workflows.injunweb.com`에 접속하여 Argo Workflows UI를 확인한다:
 
 ```
 192.168.0.200 argo-workflows.injunweb.com
 ```
 
-웹 브라우저에서 `https://argo-workflows.injunweb.com`으로 접속한다.
+## EventBus 및 EventSource 설정
 
-## 4. EventBus 및 기본 이벤트 소스 설정
-
-Argo Events는 EventBus라는 컴포넌트를 사용하여 이벤트 소스와 센서 간의 통신을 관리한다. 이제 기본 EventBus 및 GitHub 웹훅을 위한 EventSource를 설정한다.
+Argo Events가 동작하려면 EventBus를 생성하고 이벤트를 수신할 EventSource를 구성해야 한다.
 
 ### EventBus 생성
 
-`eventbus.yaml` 파일을 생성한다:
+EventBus는 이벤트 소스와 센서 간의 통신을 담당하는 메시징 백본이다. NATS 기반의 EventBus를 생성한다:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -381,74 +356,63 @@ spec:
             auth: none
 ```
 
-이 매니페스트는 NATS 기반의 EventBus를 생성한다. NATS는 경량 메시징 시스템으로, 이벤트 소스와 센서 간의 통신을 담당한다. 3개의 복제본을 생성하여 고가용성을 보장한다.
+이 EventBus는 3개의 NATS 복제본을 생성하여 고가용성을 보장하며, `default`라는 이름으로 생성되어 EventSource와 Sensor가 명시적으로 EventBus를 지정하지 않아도 자동으로 이 EventBus를 사용한다.
 
 ### GitHub EventSource 생성
 
-GitHub 웹훅을 받기 위한 EventSource를 생성한다:
+GitHub 저장소의 웹훅 이벤트를 수신하기 위한 EventSource를 생성한다:
 
-```bash
-kubectl apply -f - <<EOF
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: github
-  namespace: argo-events
+    name: github
+    namespace: argo-events
 spec:
-  service:
-    ports:
-      - port: 12000
-        targetPort: 12000
-  github:
-    example:
-      repositories:
-        - owner: injunweb
-          names:
-            - example-repo
-      webhook:
-        endpoint: /webhook
-        port: "12000"
-        method: POST
-      events:
-        - push
-      apiToken:
-        name: github-access
-        key: token
-      insecure: true
-      active: true
-      contentType: json
-EOF
+    service:
+        ports:
+            - port: 12000
+              targetPort: 12000
+    github:
+        example:
+            repositories:
+                - owner: injunweb
+                  names:
+                      - example-repo
+            webhook:
+                endpoint: /webhook
+                port: "12000"
+                method: POST
+            events:
+                - push
+            apiToken:
+                name: github-access
+                key: token
+            insecure: true
+            active: true
+            contentType: json
 ```
 
-이 매니페스트는 GitHub 저장소의 푸시 이벤트를 수신하는 EventSource를 생성한다.
+이 EventSource의 구성 요소는 다음과 같다:
 
--   포트 12000으로 웹훅을 수신한다
--   injunweb/example-repo 저장소의 푸시 이벤트를 감지한다
--   GitHub API 토큰은 'github-access' 시크릿에서 가져온다
+- **service.ports**: EventSource가 웹훅을 수신할 포트를 12000으로 설정한다.
+- **repositories**: 웹훅을 수신할 GitHub 저장소를 지정한다.
+- **webhook.endpoint**: 웹훅 수신 경로를 `/webhook`으로 설정한다.
+- **events**: `push` 이벤트를 감지하도록 설정한다.
+- **apiToken**: GitHub API 토큰을 `github-access` 시크릿에서 가져온다.
 
-이제 EventBus와 EventSource의 상태를 확인할 수 있다:
+EventBus와 EventSource 상태를 확인한다:
 
 ```bash
 kubectl get eventbus -n argo-events
 kubectl get eventsource -n argo-events
 ```
 
-## 5. 구성 요소 통합
+## 구성 요소 통합 테스트
 
-이제 세 가지 핵심 구성 요소가 모두 설치되었다. 각 구성 요소의 역할을 정리하면 다음과 같다:
+설치된 구성 요소들이 정상적으로 동작하는지 간단한 테스트를 수행한다.
 
-1. **Harbor**: 컨테이너 이미지를 안전하게 저장하고 관리한다.
-2. **Argo Events**: GitHub 웹훅 등의 이벤트를 감지하고 처리한다.
-3. **Argo Workflows**: 빌드, 테스트 등의 CI/CD 작업을 실행한다.
-4. **ArgoCD**(이전에 설치): GitOps 방식으로 애플리케이션을 자동 배포한다.
-
-이 네 가지 구성 요소를 통합하여 완전한 CI/CD 파이프라인을 구축하는 방법은 다음 글에서 자세히 다룰 것이다.
-
-### 기본 테스트
-
-구성 요소들이 정상적으로 작동하는지 간단히 테스트해보자.
-
-#### Harbor에 이미지 푸시
+### Harbor 이미지 푸시 테스트
 
 ```bash
 docker pull nginx:alpine
@@ -456,11 +420,11 @@ docker tag nginx:alpine harbor.injunweb.com/injunweb/nginx:test
 docker push harbor.injunweb.com/injunweb/nginx:test
 ```
 
-이 명령어는 nginx 이미지를 가져와서 Harbor 레지스트리의 태그를 붙이고 푸시한다.
+Harbor UI에서 푸시된 이미지를 확인할 수 있다.
 
-#### Argo Workflows에서 간단한 워크플로우 실행
+### Argo Workflows 워크플로우 테스트
 
-간단한 워크플로우 YAML 파일을 생성한다 (`hello-world.yaml`):
+간단한 워크플로우를 생성하여 Argo Workflows가 정상적으로 동작하는지 확인한다:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -478,32 +442,26 @@ spec:
               args: ["Hello World!"]
 ```
 
-이 워크플로우는 docker/whalesay 이미지를 사용하여 "Hello World!" 메시지를 출력한다.
-
-워크플로우를 실행한다:
+이 워크플로우를 클러스터에 적용한다:
 
 ```bash
 kubectl apply -f hello-world.yaml
 ```
 
-Argo Workflows UI에서 실행 결과를 확인할 수 있다.
+Argo Workflows UI에서 워크플로우 실행 결과를 확인할 수 있다.
 
-## 6. 다음 단계
+## 다음 단계
 
-이제 CI/CD 시스템의 기본 구성 요소가 설치되었지만, 이들을 효과적으로 통합하려면 몇 가지 추가 구성이 필요하다:
+이번 글에서 설치한 세 가지 구성 요소(Harbor, Argo Events, Argo Workflows)는 CI/CD 파이프라인의 기반을 구성하지만, 실제로 동작하는 파이프라인을 완성하려면 다음과 같은 추가 구성이 필요하다:
 
-1. **Sensor 설정**: Argo Events의 EventSource에서 이벤트를 감지하고 Argo Workflows를 트리거하는 Sensor를 구성해야 한다.
-
-2. **워크플로우 템플릿 생성**: 애플리케이션 빌드, 이미지 생성, 배포를 위한 재사용 가능한 워크플로우 템플릿을 만들어야 한다.
-
-3. **GitOps 파이프라인 구성**: GitHub에서 코드 변경이 발생하면 자동으로 빌드하고 배포하는 전체 파이프라인을 구성해야 한다.
-
-4. **보안 강화**: 시크릿 관리, 접근 제어 등의 보안 관련 설정을 추가해야 한다.
-
-이러한 추가 구성은 다음 글에서 자세히 다룰 예정이다.
+- **Sensor 구성**: EventSource에서 수신한 이벤트를 필터링하고 Argo Workflows를 트리거하는 Sensor를 생성해야 한다.
+- **워크플로우 템플릿**: 애플리케이션 빌드, 컨테이너 이미지 생성, Harbor 푸시 등의 작업을 수행하는 재사용 가능한 워크플로우 템플릿을 작성해야 한다.
+- **ArgoCD 연동**: 워크플로우가 완료된 후 ArgoCD를 통해 새 이미지를 클러스터에 배포하는 과정을 자동화해야 한다.
 
 ## 마치며
 
-이번 글에서는 CI/CD 시스템의 핵심 구성 요소인 Harbor, Argo Events, Argo Workflows를 설치하고 기본 설정하는 방법을 알아보았다. 이 세 가지 구성 요소와 이전에 설치한 ArgoCD를 통합하면, 코드 변경에서부터 자동 배포까지 전체 과정을 자동화하는 완전한 CI/CD 파이프라인을 구축할 수 있다.
+이번 글에서는 홈랩 쿠버네티스 클러스터에 CI/CD 파이프라인의 핵심 구성 요소인 Harbor 컨테이너 레지스트리, Argo Events 이벤트 처리 시스템, Argo Workflows 워크플로우 엔진을 설치하고 기본 구성을 완료하는 방법을 살펴보았다.
 
-[다음 글](homelab-k8s-cicd-2)에서는 이 구성 요소들을 통합하여 실제로 작동하는 CI/CD 파이프라인을 구축하는 방법을 다룰 것이다.
+다음 글에서는 이 구성 요소들을 Sensor와 워크플로우 템플릿으로 연결하고 ArgoCD와 통합하여 완전한 CI/CD 파이프라인을 구축하는 방법을 알아본다.
+
+[다음 글: 홈랩 쿠버네티스 #8 - 내부 개발자 플랫폼(IDP) 구축하기 (2)](/posts/homelab-k8s-cicd-2/)

@@ -1,61 +1,71 @@
 ---
-title: "Homelab #5 - Configuring External Access"
+title: "Homelab Kubernetes #5 - External Access with Cloudflare DDNS"
 date: 2025-02-26T14:07:36+09:00
 draft: false
-description: "Learn how to configure external access to a homelab Kubernetes cluster and set up DDNS using Cloudflare."
-tags: ["kubernetes", "homelab", "traefik", "cloudflare", "ddns", "gitops"]
-series: ["Homelab"]
+description: "This guide covers configuring Cloudflare DNS settings, implementing a custom DDNS Worker, and setting up router port forwarding to enable external internet access to services running in a homelab Kubernetes cluster."
+tags: ["kubernetes", "homelab", "traefik", "cloudflare", "ddns", "gitops", "port-forwarding"]
+series: ["Homelab Kubernetes"]
 ---
 
 ## Overview
 
-In the [previous post](homelab-k8s-internal-services), we installed the Traefik ingress controller in our homelab Kubernetes cluster and configured secure access to internal management services. In this post, we will explore how to configure external access to services running in the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-internal-services/), we installed the Traefik ingress controller and configured secure access to management interfaces by separating internal and external services. This post covers how to configure DNS settings, dynamic IP management, and router port forwarding to enable external internet access to services running in the homelab Kubernetes cluster.
 
 ## Network Architecture Summary
 
-First, let's briefly summarize our network architecture:
+First, let's briefly summarize the network architecture configured in the previous post:
 
-1. **Internal Load Balancer (192.168.0.200)**: Exposes only management interfaces and is accessible only from the internal network
-2. **External Load Balancer (192.168.0.201)**: Exposes only public services and is accessible from outside through port forwarding
+1. **Internal Load Balancer (192.168.0.200)**: Exposes only management interfaces like ArgoCD, Longhorn, and Traefik dashboard, accessible only from within the internal network.
+2. **External Load Balancer (192.168.0.201)**: Exposes only public services like blogs and personal projects, accessible from the external internet through router port forwarding.
 
 ![Network Architecture](image.png)
 
-This design provides separation at the service level, reducing the risk of accidentally exposing critical management interfaces to the outside.
+This design provides service-level separation that reduces the risk of accidentally exposing management interfaces to the outside. By setting port forwarding targets only to the external load balancer IP, the internal load balancer is completely isolated from external access.
 
 ## Configuring External Access
 
-To access Kubernetes services from outside, three main steps are required:
+Three main steps are required to enable external internet access to Kubernetes services:
 
-1. Domain DNS configuration (Cloudflare)
-2. Dynamic IP management (DDNS)
-3. Router port forwarding
+1. **Domain DNS Configuration**: Configure DNS records for the domain in Cloudflare.
+2. **Dynamic IP Management (DDNS)**: Automatically update DNS records whenever the dynamic IP of home internet changes.
+3. **Router Port Forwarding**: Forward incoming HTTP/HTTPS traffic from outside to Traefik in the Kubernetes cluster.
 
 ### 1. Cloudflare DNS Configuration
 
-Add the following DNS records in the Cloudflare dashboard:
+> **What is Cloudflare?**
+>
+> Cloudflare is a web infrastructure and security company founded in 2009 that provides CDN (Content Delivery Network) distributed across the globe, DDoS protection, DNS services, and WAF (Web Application Firewall). Its free plan offers powerful security features and DNS management capabilities, making it widely used in homelab environments.
 
--   A record: `injunweb.com` → Public IP address
--   A record: `*.injunweb.com` → Public IP address (wildcard subdomain)
+Configure the domain's DNS records in the Cloudflare dashboard as follows:
 
-Configuring a wildcard subdomain (`*.injunweb.com`) allows all subdomains that are not separately registered to resolve to the same IP. This makes management convenient because you don't need to add a DNS record every time you add a new service. For example, subdomains like `hello.injunweb.com`, `blog.injunweb.com`, and `api.injunweb.com` all connect to the same IP without separate configuration. Traefik routes to the appropriate service based on the hostname.
+- **A Record**: `injunweb.com` → Public IP address
+- **A Record**: `*.injunweb.com` → Public IP address (wildcard subdomain)
 
-Cloudflare's proxy feature (orange cloud icon) provides several security features including DDoS protection, caching, and Web Application Firewall (WAF). When this feature is enabled, requests are routed through Cloudflare's servers. This also has the effect of hiding the actual IP address of the domain.
+Setting up a wildcard subdomain (`*.injunweb.com`) causes all subdomains not separately registered to resolve to the same IP. This means subdomains like `hello.injunweb.com`, `blog.injunweb.com`, and `api.injunweb.com` are all routed to Traefik without requiring separate DNS record additions, and Traefik distributes traffic to the appropriate service based on hostname.
 
-Cloudflare's SSL/TLS setting should be set to "Full" mode to encrypt the connection between Cloudflare and the server as well.
+Enabling Cloudflare's proxy feature (orange cloud icon) routes all traffic through Cloudflare servers, applying security features like DDoS protection, caching, and WAF, while also hiding the domain's actual IP address to prevent direct attacks.
+
+Configure SSL/TLS settings to "Full" or "Full (Strict)" mode to encrypt the connection between Cloudflare and the origin server (Traefik) as well.
 
 ### 2. Dynamic DNS (DDNS) Configuration
 
-Home internet connections typically use dynamic IPs, so DDNS configuration is necessary. Initially, I tried existing DDNS services like No-IP, DuckDNS, and Dyn. These services had several limitations:
+Home internet services typically have ISPs (Internet Service Providers) dynamically assign IP addresses, which can change when routers reboot or lease times expire. This necessitates DDNS (Dynamic DNS) configuration to automatically update DNS records when IP changes occur.
 
-1. **Subdomain limitations**: Most free plans provided only a limited number of subdomains.
-2. **Renewal requirements**: Free services usually required manual renewal every 30 days.
-3. **Limited customization**: Fine-grained control through APIs was difficult.
+Initially, existing DDNS services like No-IP, DuckDNS, and Dyn were tried, but they had the following limitations:
 
-Since I was already managing the domain with Cloudflare, developing a custom DDNS solution using Cloudflare's API and Workers was a better choice. This approach resolved all limitations. It made managing wildcard domains and multiple subdomains particularly easy.
+1. **Subdomain Limitations**: Most free plans provided only a limited number of subdomains, making wildcard domain support impossible.
+2. **Renewal Requirements**: Free services usually required manual account renewal every 30 days.
+3. **Limited Customization**: Fine-grained control through APIs was difficult, and certain settings (like enabling proxying) could not be adjusted.
+
+Since the domain was already managed with Cloudflare, the decision was made to develop a custom DDNS solution using Cloudflare's API and Workers. This approach resolved all limitations and enabled easy management of wildcard domains and multiple subdomains.
 
 #### Cloudflare Worker Implementation
 
-Steps to create a Cloudflare Worker:
+> **What is Cloudflare Workers?**
+>
+> Cloudflare Workers is a serverless platform that allows JavaScript code to run on Cloudflare's global edge network. Launched in 2017, code executes on each request and can be used for various purposes including API endpoints, redirects, and authentication. The free plan allows processing up to 100,000 requests per day.
+
+The steps to create a Cloudflare Worker are as follows:
 
 1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com).
 2. Select "Workers & Pages" from the left menu.
@@ -64,26 +74,24 @@ Steps to create a Cloudflare Worker:
 
 ```javascript
 const CONFIG = {
-    API_TOKEN: "your-cloudflare-api-token", // Cloudflare API token
-    ZONE_ID: "your-cloudflare-zone-id", // Zone ID for your domain
-    USE_BASIC_AUTH: true, // Whether to use basic authentication
-    USERNAME: "ddns-username", // Authentication username
-    PASSWORD: "ddns-password", // Authentication password
-    DEFAULT_TTL: 120, // DNS record TTL
-    PROXY_ENABLED: false, // Whether to enable Cloudflare proxy
+    API_TOKEN: "your-cloudflare-api-token",
+    ZONE_ID: "your-cloudflare-zone-id",
+    USE_BASIC_AUTH: true,
+    USERNAME: "ddns-username",
+    PASSWORD: "ddns-password",
+    DEFAULT_TTL: 120,
+    PROXY_ENABLED: false,
     DNS_RECORDS_IPV4: {
-        "injunweb.com": "dns-record-id-for-domain", // Domain and DNS record ID
+        "injunweb.com": "dns-record-id-for-domain",
     },
-    DNS_RECORDS_IPV6: {}, // IPv6 records (add if needed)
+    DNS_RECORDS_IPV6: {},
 };
 
-// IP pattern validation regex
 const IP_PATTERNS = {
     IPv4: /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/,
     IPv6: /^(?:(?:[a-fA-F\d]{1,4}:){7}(?:[a-fA-F\d]{1,4}|:)|(?:[a-fA-F\d]{1,4}:){6}(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|:[a-fA-F\d]{1,4}|:)|(?:[a-fA-F\d]{1,4}:){5}(?::(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,2}|:)|(?:[a-fA-F\d]{1,4}:){4}(?:(?::[a-fA-F\d]{1,4}){0,1}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,3}|:)|(?:[a-fA-F\d]{1,4}:){3}(?:(?::[a-fA-F\d]{1,4}){0,2}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,4}|:)|(?:[a-fA-F\d]{1,4}:){2}(?:(?::[a-fA-F\d]{1,4}){0,3}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,5}|:)|(?:[a-fA-F\d]{1,4}:){1}(?:(?::[a-fA-F\d]{1,4}){0,4}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,6}|:)|(?::(?:(?::[a-fA-F\d]{1,4}){0,5}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,7}|:)))(?:%[0-9a-zA-Z]{1,})?$/,
 };
 
-// Response creation function
 const createResponse = (data, status = 200) => {
     return new Response(JSON.stringify(data), {
         status,
@@ -94,20 +102,16 @@ const createResponse = (data, status = 200) => {
     });
 };
 
-// IP address validation function
 const validateIPAddress = (ip) => {
     if (IP_PATTERNS.IPv4.test(ip)) return { valid: true, type: "A" };
     if (IP_PATTERNS.IPv6.test(ip)) return { valid: true, type: "AAAA" };
     return { valid: false, type: null };
 };
 
-// Basic authentication check function
 const checkAuthentication = (request) => {
     if (!CONFIG.USE_BASIC_AUTH) return true;
-
     const authHeader = request.headers.get("Authorization");
     if (!authHeader?.startsWith("Basic ")) return false;
-
     try {
         const [username, password] = atob(authHeader.slice(6)).split(":");
         return username === CONFIG.USERNAME && password === CONFIG.PASSWORD;
@@ -116,7 +120,6 @@ const checkAuthentication = (request) => {
     }
 };
 
-// DNS record update function
 async function updateDNSRecord(recordId, data) {
     const response = await fetch(
         `https://api.cloudflare.com/client/v4/zones/${CONFIG.ZONE_ID}/dns_records/${recordId}`,
@@ -132,55 +135,33 @@ async function updateDNSRecord(recordId, data) {
     return await response.json();
 }
 
-// Request handling function
 async function handleRequest(request) {
-    // Check authentication
     if (!checkAuthentication(request)) {
         return createResponse({ success: false, error: "Unauthorized" }, 401);
     }
 
-    // Check domain parameter
     const url = new URL(request.url);
     const domain = url.searchParams.get("domain");
     if (!domain) {
-        return createResponse(
-            { success: false, error: "Domain name missing" },
-            400
-        );
+        return createResponse({ success: false, error: "Domain name missing" }, 400);
     }
 
-    // Get client IP address
     const clientIP = request.headers.get("CF-Connecting-IP");
     if (!clientIP) {
-        return createResponse(
-            { success: false, error: "Could not determine client IP" },
-            500
-        );
+        return createResponse({ success: false, error: "Could not determine client IP" }, 500);
     }
 
-    // Validate IP address format
     const ipValidation = validateIPAddress(clientIP);
     if (!ipValidation.valid) {
-        return createResponse(
-            { success: false, error: "Invalid IP address format" },
-            400
-        );
+        return createResponse({ success: false, error: "Invalid IP address format" }, 400);
     }
 
-    // Find DNS record ID
-    const dnsRecords =
-        ipValidation.type === "A"
-            ? CONFIG.DNS_RECORDS_IPV4
-            : CONFIG.DNS_RECORDS_IPV6;
+    const dnsRecords = ipValidation.type === "A" ? CONFIG.DNS_RECORDS_IPV4 : CONFIG.DNS_RECORDS_IPV6;
     const dnsRecordId = dnsRecords[domain];
     if (!dnsRecordId) {
-        return createResponse(
-            { success: false, error: "Domain not found" },
-            404
-        );
+        return createResponse({ success: false, error: "Domain not found" }, 404);
     }
 
-    // Update DNS record
     try {
         const updateData = {
             type: ipValidation.type,
@@ -200,139 +181,115 @@ async function handleRequest(request) {
                 type: ipValidation.type,
             });
         } else {
-            return createResponse(
-                {
-                    success: false,
-                    error: "Failed to update DNS record",
-                    details: result.errors?.[0]?.message || "Unknown error",
-                },
-                500
-            );
+            return createResponse({
+                success: false,
+                error: "Failed to update DNS record",
+                details: result.errors?.[0]?.message || "Unknown error",
+            }, 500);
         }
     } catch (error) {
-        return createResponse(
-            {
-                success: false,
-                error: "Internal server error",
-                details: error.message,
-            },
-            500
-        );
+        return createResponse({
+            success: false,
+            error: "Internal server error",
+            details: error.message,
+        }, 500);
     }
 }
 
-// Worker event listener
 addEventListener("fetch", (event) => {
     event.respondWith(handleRequest(event.request));
 });
 ```
 
-This code provides the following key features:
+This Worker code provides the following functionality:
 
-1. **Basic authentication**: Authenticates requests using username and password.
-2. **IP address validation**: Verifies that the client IP format is valid.
-3. **DNS record update**: Updates DNS records using the Cloudflare API.
-4. **Response handling**: Returns success or failure status in JSON format.
+- **Basic Authentication**: Authenticates requests with username and password to prevent unauthorized access.
+- **IP Address Validation**: Verifies that the requesting client's IP is a valid IPv4 or IPv6 format.
+- **DNS Record Update**: Calls the Cloudflare API to update the DNS record of the specified domain to the client IP.
+- **Response Handling**: Returns success or failure status in JSON format so the router can parse the result.
 
-5. Click the "Save and Deploy" button.
-6. Once deployment is complete, note the Worker name. You will use this name (e.g., `your-worker.workers.dev`) in the router configuration.
+5. Click the "Save and Deploy" button to deploy the Worker.
+6. Once deployment is complete, note the Worker URL (e.g., `your-worker.workers.dev`).
 
 #### Obtaining Cloudflare API Token and DNS Record IDs
 
-1. **Generate API token**:
+**Generate API Token**:
 
-    - Navigate to "My Profile" → "API Tokens" → "Create Token" in the Cloudflare dashboard.
-    - Select the "Edit Zone DNS" template or set permissions manually.
-    - Restrict access to only the specific domain.
-    - Generate the token and store it securely.
+1. Navigate to "My Profile" → "API Tokens" → "Create Token" in the Cloudflare dashboard.
+2. Select the "Edit Zone DNS" template or manually set "Zone.DNS" edit permission.
+3. Restrict Zone Resources to allow access only to the specific domain.
+4. Generate the token and store it securely.
 
-2. **Find Zone ID**:
+**Find Zone ID**:
 
-    - Navigate to your domain in the Cloudflare dashboard.
-    - Find the "Zone ID" in the right sidebar of the "Overview" page.
+Select the domain in the Cloudflare dashboard and find "Zone ID" in the right sidebar of the "Overview" page.
 
-3. **Find DNS record IDs**:
-    - Run the following command in a terminal:
-        ```bash
-        curl -X GET "https://api.cloudflare.com/client/v4/zones/{Zone-ID}/dns_records" \
-             -H "Authorization: Bearer {API-Token}" \
-             -H "Content-Type: application/json"
-        ```
-    - Find the `id` field for each domain in the response and set it in the `DNS_RECORDS_IPV4` object.
+**Find DNS Record IDs**:
+
+Run the following command in the terminal to query the list of DNS records and each record's ID for the domain:
+
+```bash
+curl -X GET "https://api.cloudflare.com/client/v4/zones/{Zone-ID}/dns_records" \
+     -H "Authorization: Bearer {API-Token}" \
+     -H "Content-Type: application/json"
+```
+
+Find the `id` field for each domain in the response and set it in the `DNS_RECORDS_IPV4` object in the Worker code.
 
 #### TP-Link Router DDNS Configuration
 
-DDNS configuration options vary widely across router manufacturers. For TP-Link routers, most natively support well-known DDNS providers such as No-IP and DynDNS. I initially tried to use these default services. However, I decided to use custom DDNS configuration due to the limitations mentioned above.
-
-Fortunately, TP-Link routers provide a "Custom" DDNS service option:
+Most routers support default DDNS providers like No-IP and DynDNS, but if using a custom DDNS service, the router must support this capability. TP-Link routers provide a "Custom" DDNS option that allows configuring arbitrary DDNS services.
 
 ![TP-Link DDNS Configuration](image-1.png)
 
 1. Navigate to "Services" → "Dynamic DNS" → "Custom DNS" in the router management interface.
 2. Click the "Add" button and configure as follows:
-
     - **Update URL**: `http://[USERNAME]:[PASSWORD]@your-worker.workers.dev?domain=[DOMAIN]`
-    - **Interface**: The network interface you are using (typically WAN)
-    - **Account Name** and **Password**: Values set in the Worker code
-    - **Domain Name**: The domain name to update
-      (Replace "your-worker.workers.dev" with your Worker URL here, and keep [USERNAME], [PASSWORD], and [DOMAIN] as-is. The router automatically substitutes these with the appropriate values.)
+    - **Interface**: WAN interface
+    - **Account Name** and **Password**: USERNAME and PASSWORD values set in the Worker code
+    - **Domain Name**: The domain to update (e.g., `injunweb.com`)
 
-The URL format was particularly tricky. Initially, I filled in the actual values but it did not work. After several attempts, I discovered that placeholders like [USERNAME], [PASSWORD], and [DOMAIN] must be left as-is for the router to automatically substitute them. Additionally, requests sent by the router did not include its own IP address as a query parameter. The Worker had to use Cloudflare's "CF-Connecting-IP" header to obtain the IP of the requesting client.
+In the URL format, `[USERNAME]`, `[PASSWORD]`, and `[DOMAIN]` are placeholders that should be kept as-is, as the router automatically substitutes them with actual values. Only replace the `your-worker.workers.dev` part with the actual Worker URL.
+
+Since the router's request does not include the IP address as a query parameter, the Worker uses Cloudflare's `CF-Connecting-IP` header to obtain the public IP of the requesting client (router).
 
 ### 3. Router Port Forwarding Configuration
 
-Finally, port forwarding must be configured on the router so that incoming traffic from outside can pass through the home network and reach Traefik in the Kubernetes cluster:
+Configure port forwarding on the router so that HTTP (80) and HTTPS (443) traffic from the external internet can pass through the home network and reach Traefik in the Kubernetes cluster.
 
-1.  Access the router management page in a web browser (typically `http://192.168.0.1` or `http://192.168.1.1`).
-2.  Log in with the router administrator account.
-3.  For TP-Link routers, navigate to "Transmission" → "NAT" → "Virtual Servers" menu.
-4.  Add two rules as follows:
+1. Access the router management page in a web browser (typically `http://192.168.0.1` or `http://192.168.1.1`).
+2. Log in with the router administrator account.
+3. For TP-Link routers, navigate to "Transmission" → "NAT" → "Virtual Servers" menu.
+4. Add two port forwarding rules as follows:
 
-    ![Router Port Forwarding](image-2.png)
+![Router Port Forwarding](image-2.png)
 
-5.  Save and apply the settings.
+| External Port | Internal IP   | Internal Port | Protocol |
+| ------------- | ------------- | ------------- | -------- |
+| 80            | 192.168.0.201 | 80            | TCP      |
+| 443           | 192.168.0.201 | 443           | TCP      |
 
-The important point is to set the Internal Server IP to **192.168.0.201**. This completely isolates the internal load balancer (192.168.0.200) from outside access, preventing the risk of accidentally exposing management services to the outside.
+5. Save and apply the settings.
+
+The important point is to set the Internal Server IP to **192.168.0.201** (external load balancer). This excludes the internal load balancer (192.168.0.200) from port forwarding targets, completely isolating it from external access.
 
 ## Configuring External Service Routing
 
-Now we configure ingress routes for externally accessible services. Let's deploy a simple web application for testing:
-
-```yaml
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-    name: hello-world
-    namespace: default
-spec:
-    entryPoints:
-        - web
-        - websecure
-    routes:
-        - match: Host(`hello.injunweb.com`)
-          kind: Rule
-          services:
-              - name: hello-world
-                port: 80
-```
-
-The key point here is setting the `entryPoints` to `web` and `websecure` to make it accessible from outside. In the earlier Traefik configuration, these entry points connect to the external load balancer (192.168.0.201).
+With port forwarding complete, configure IngressRoutes for externally accessible services. Use the external entrypoints `web` and `websecure` so that traffic enters through the external load balancer (192.168.0.201).
 
 ## Verifying Let's Encrypt Certificate Issuance
 
-Once external access is available, Let's Encrypt can verify domain ownership through HTTP challenge and automatically issue SSL/TLS certificates. Certificate issuance status can be checked with the following command:
+Once external access is available, Traefik's Let's Encrypt integration verifies domain ownership through HTTP-01 challenge and automatically issues SSL/TLS certificates. Certificate issuance status can be checked with the following command:
 
 ```bash
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
 ```
 
-This command accesses the Traefik pod and checks the contents of the acme.json file where certificate information is stored. The jq command formats the JSON data for readability.
-
-When certificates are issued successfully, certificate information is stored in the `acme.json` file. Traefik automatically renews certificates when their expiration approaches.
+This command accesses the Traefik pod to query the contents of the `acme.json` file where certificate information is stored, and `jq` formats the JSON data for readability. When certificates are successfully issued, certificate information for each domain is displayed, and Traefik automatically attempts renewal starting 30 days before certificate expiration.
 
 ## Deploying a Test Application
 
-Deploy a simple test application to verify the configuration works properly:
+Deploy a simple test application to verify the configuration is working properly:
 
 ```yaml
 apiVersion: apps/v1
@@ -387,9 +344,9 @@ spec:
 
 This manifest defines three resources:
 
-1. **Deployment**: Deploys a pod running the nginxdemos/hello image.
-2. **Service**: Creates a service to access the deployed pods.
-3. **IngressRoute**: Sets up routing rules to access the service through the hello.injunweb.com domain.
+1. **Deployment**: Deploys a pod running the `nginxdemos/hello` image, which provides a simple Nginx demo page displaying server information.
+2. **Service**: Creates a ClusterIP service to access the deployed pods from within the cluster.
+3. **IngressRoute**: Routes requests for the `hello.injunweb.com` host to the hello-world service through external entrypoints (`web`, `websecure`).
 
 Deploy the application with the following command:
 
@@ -399,32 +356,32 @@ kubectl apply -f hello-world.yaml
 
 ## Access Testing
 
-Now that all configuration is complete, let's test access from both internal and external networks.
+With all configuration complete, test whether access is available from both internal and external networks.
 
-### 1. Internal Network Test
+### Internal Network Test
 
-From the internal network, access each service through the following URLs:
+From the internal network (home network), access each service through the following URLs and verify they display properly:
 
--   http://traefik.injunweb.com/dashboard/ - Traefik dashboard
--   http://argocd.injunweb.com - ArgoCD UI
--   http://longhorn.injunweb.com - Longhorn UI
--   http://hello.injunweb.com - Test application
+- `http://traefik.injunweb.com/dashboard/` - Traefik dashboard
+- `http://argocd.injunweb.com` - ArgoCD UI
+- `http://longhorn.injunweb.com` - Longhorn UI
+- `http://hello.injunweb.com` - Test application
 
-Verify that all services are accessible normally.
+### External Network Test
 
-### 2. External Network Test
+From an external network (mobile data or another network), access the following URLs and verify that service separation is working as intended:
 
-Now access the following URLs from an external network (e.g., mobile data network):
+- `https://traefik.injunweb.com/dashboard/` - Not accessible (as intended)
+- `https://argocd.injunweb.com` - Not accessible (as intended)
+- `https://longhorn.injunweb.com` - Not accessible (as intended)
+- `https://hello.injunweb.com` - Accessible normally
 
--   https://traefik.injunweb.com/dashboard/ - Not accessible (as intended)
--   https://argocd.injunweb.com - Not accessible (as intended)
--   https://longhorn.injunweb.com - Not accessible (as intended)
--   https://hello.injunweb.com - Accessible
-
-Verify that internal management services are not accessible from outside and only the test application is accessible from outside. This demonstrates that the service separation strategy is working as intended.
+If internal management services are not accessible from outside and only the test application is accessible from outside, the service separation strategy is working as intended.
 
 ## Conclusion
 
-In this post, we explored how to install the Traefik ingress controller in a homelab Kubernetes cluster and configure safe separation and access for internal services and external services. We also implemented a custom DDNS solution for domain management in a dynamic IP environment.
+This post covered configuring Cloudflare DNS settings, implementing a custom DDNS solution using Cloudflare Workers, and setting up router port forwarding to enable external internet access to homelab Kubernetes cluster services. By separating internal and external load balancers and setting port forwarding targets only to the external IP, exposure of management interfaces to the outside can be prevented.
 
-In the [next post](homelab-k8s-secrets), we will learn how to install Vault in the homelab Kubernetes cluster to securely manage secrets.
+The next post covers installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
+
+[Next Post: Homelab Kubernetes #6 - Secret Management with Vault and ArgoCD](/posts/homelab-k8s-secrets/)

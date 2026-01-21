@@ -1,37 +1,37 @@
 ---
-title: "홈랩 #6 - Vault를 활용한 시크릿 관리"
+title: "홈랩 쿠버네티스 #6 - Vault와 ArgoCD로 시크릿 관리하기"
 date: 2025-02-26T16:20:14+09:00
 draft: false
-description: "홈랩 쿠버네티스 환경에 HashiCorp Vault를 설치하고 안전한 시크릿 관리 시스템을 구축하는 방법을 설명한다."
+description: "홈랩 쿠버네티스 클러스터에 HashiCorp Vault를 설치하고 Vault Secrets Operator와 ArgoCD Vault Plugin을 통해 GitOps 방식으로 안전한 시크릿 관리 시스템을 구축하는 방법을 다룬다."
 tags: ["kubernetes", "homelab", "vault", "secrets", "gitops", "security"]
-series: ["홈랩"]
+series: ["홈랩 쿠버네티스"]
 ---
 
 ## 개요
 
-[이전 글](homelab-k8s-external-access)에서는 홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고 외부 접근을 구성했다. 이번 글에서는 쿠버네티스 클러스터에서 민감한 정보(비밀번호, API 키, 인증서 등)를 안전하게 관리하기 위한 HashiCorp Vault 설치와 구성 방법을 다룬다.
+[이전 글](/posts/homelab-k8s-external-access/)에서는 Cloudflare DNS 설정, 커스텀 DDNS Worker 구현, 라우터 포트포워딩을 구성하여 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 했다. 이번 글에서는 쿠버네티스 클러스터에서 비밀번호, API 키, 인증서 같은 민감한 정보를 안전하게 관리하기 위해 HashiCorp Vault를 설치하고 구성하는 방법을 알아본다.
 
 ![Vault Logo](image.png)
 
-## 왜 기본 쿠버네티스 시크릿으로는 부족했나?
+## 기본 쿠버네티스 시크릿의 한계
 
-GitOps 방식으로 홈랩 환경을 구성하면서 시크릿 관리가 난제였다. 기본 쿠버네티스 Secret을 사용해보니 몇 가지 한계가 명확했다.
+GitOps 방식으로 홈랩 환경을 구성하면서 시크릿 관리가 가장 큰 난제였으며, 기본 쿠버네티스 Secret을 사용해보니 여러 가지 한계점이 명확하게 드러났다.
 
-첫째, GitOps와의 통합 문제다. Git에 시크릿을 그대로 저장할 수 없고, base64로 인코딩해도 쉽게 복원 가능해 보안에 취약하다.
+첫째, GitOps와의 통합 문제가 있다. Git 저장소에 시크릿을 그대로 저장할 수 없고, base64로 인코딩해도 단순한 디코딩으로 원본 값을 복원할 수 있어 보안에 취약하다. Sealed Secrets나 SOPS 같은 도구도 검토했으나, 단순 암호화를 넘어선 종합적인 시크릿 관리 솔루션이 필요했다.
 
-Sealed Secrets나 SOPS 같은 도구도 검토했으나 단순 암호화를 넘어선 종합적인 시크릿 관리 솔루션이 필요했다.
+둘째, 시크릿 갱신 문제가 있다. 외부 API 토큰이나 인증서는 주기적으로 갱신이 필요한데, 매번 수동으로 처리하는 것은 비효율적이고 실수가 발생하기 쉽다. 자동화된 시크릿 로테이션 관리가 필요했다.
 
-둘째, 시크릿 갱신 문제다. 외부 API 토큰이나 인증서는 주기적으로 갱신이 필요한데, 매번 수동으로 처리하는 건 비효율적이다. 자동화된 방식의 시크릿 로테이션 관리가 필요했다.
+> **HashiCorp Vault란?**
+>
+> HashiCorp Vault는 2015년에 HashiCorp가 오픈소스로 공개한 시크릿 관리 도구로, 비밀번호, API 키, 인증서 같은 민감한 데이터를 중앙에서 안전하게 저장하고 관리하며, 세밀한 접근 제어, 감사 로깅, 자동 시크릿 갱신 같은 엔터프라이즈급 기능을 제공하고 쿠버네티스와의 통합도 지원한다.
 
-HashiCorp Vault는 이런 문제들을 해결해주는 솔루션이다. 시크릿 암호화, 접근 제어, 자동 갱신 기능과 함께 쿠버네티스와의 통합도 지원한다.
+HashiCorp Vault는 시크릿 암호화, 접근 제어, 자동 갱신 기능과 함께 쿠버네티스 및 GitOps 워크플로우와의 통합도 지원하여 이러한 문제들을 해결할 수 있는 솔루션으로 선택하게 되었다.
 
-GitOps 워크플로우에 통합할 수 있는 방법도 제공해 선택하게 되었다.
-
-## 홈랩 환경에 Vault 설치하기
+## Vault 설치하기
 
 ### 1. GitOps 구성을 위한 디렉토리 준비
 
-홈랩 환경의 모든 것을 GitOps로 관리하므로 Vault 설치도 같은 방식으로 진행했다. 먼저 필요한 디렉토리 구조를 생성한다.
+홈랩 환경의 모든 리소스를 GitOps로 관리하므로 Vault 설치도 동일한 방식으로 진행하며, 먼저 필요한 디렉토리 구조를 생성한다:
 
 ```bash
 mkdir -p k8s-resources/apps/vault/templates
@@ -40,7 +40,7 @@ cd k8s-resources/apps/vault
 
 ### 2. Helm 차트 구성
 
-`Chart.yaml` 파일을 다음과 같이 작성했다.
+`Chart.yaml` 파일을 다음과 같이 작성한다:
 
 ```yaml
 apiVersion: v2
@@ -55,7 +55,9 @@ dependencies:
       repository: "https://helm.releases.hashicorp.com"
 ```
 
-`values.yaml` 파일에는 Vault 설정을 추가했다.
+이 설정은 HashiCorp 공식 Helm 저장소에서 Vault v0.27.0 차트를 가져와 설치하도록 정의한다.
+
+`values.yaml` 파일에는 Vault 설정을 추가한다:
 
 ```yaml
 vault:
@@ -63,14 +65,14 @@ vault:
         enabled: true
 
     ui:
-        enabled: true # 웹 기반 관리 UI 활성화
+        enabled: true
 ```
 
-고가용성 설정도 고려했으나, 홈랩 환경에서는 자원 낭비라고 판단해 간소화했다. 필요시 후에 업그레이드하는 방식으로 접근했다.
+고가용성(HA) 설정도 고려했으나 홈랩 환경에서는 리소스 낭비라고 판단하여 간소화했으며, 필요시 나중에 업그레이드하는 방식으로 접근했다.
 
 ### 3. 인그레스 구성
 
-Vault UI에 접근하기 위한 인그레스 라우트를 구성했다. 이전에 설정한 Traefik 인그레스 컨트롤러를 활용했다.
+Vault UI에 접근하기 위한 인그레스 라우트를 구성하며, 이전에 설정한 Traefik 인그레스 컨트롤러를 활용한다.
 
 `templates/ingressroute.yaml` 파일:
 
@@ -92,9 +94,9 @@ spec:
                 port: 8200
 ```
 
-`entryPoints`를 `intweb`과 `intwebsec`로 설정해 Vault UI는 내부 네트워크에서만 접근 가능하도록 했다. 시크릿 관리 인터페이스인 만큼 외부 노출은 보안 위험이기 때문이다.
+`entryPoints`를 `intweb`과 `intwebsec`로 설정하여 Vault UI는 내부 네트워크에서만 접근 가능하도록 했으며, 시크릿 관리 인터페이스인 만큼 외부 노출은 심각한 보안 위험이 되기 때문이다.
 
-### 4. GitHub에 변경사항 추가 및 ArgoCD로 배포
+### 4. Git 저장소에 추가 및 ArgoCD로 배포
 
 ```bash
 git add .
@@ -102,19 +104,19 @@ git commit -m "Add Vault Helm chart configuration"
 git push origin main
 ```
 
+ArgoCD가 Git 저장소의 변경 사항을 감지하여 자동으로 클러스터에 배포한다.
+
 ## Vault 초기화 및 언실링
 
-Vault 설치 후에는 두 가지 중요한 단계가 필요하다: 초기화와 언실링. 이 과정은 암호화 키 생성과 활성화 과정으로, 보안을 위해 자동화하지 않고 수동으로 진행한다.
+Vault 설치 후에는 초기화(initialization)와 언실링(unsealing)이라는 두 가지 중요한 단계가 필요하며, 이 과정은 암호화 키 생성과 활성화 과정으로 보안을 위해 자동화하지 않고 수동으로 진행한다.
 
 ### 1. 초기화 수행
 
-Vault 파드에 접속하여 초기화를 수행한다.
+Vault 파드에 접속하여 초기화를 수행한다:
 
 ```bash
-# Vault 서버에 접속
 kubectl -n vault exec -it vault-0 -- /bin/sh
 
-# 초기화 수행 (기본 5개 키, 3개 필요)
 vault operator init
 ```
 
@@ -134,16 +136,15 @@ Initial Root Token: hvs.6xu4j8TSoFBJ3EFNpW791e0I
 
 ### 2. 언실링 수행
 
-초기화 후에는 언실링 과정이 필요하다. 5개 중 3개의 키를 사용하여 Vault를 언실링한다.
+초기화 후에는 언실링 과정이 필요하며, 기본 설정에서는 5개의 키 중 3개를 사용하여 Vault를 언실링한다:
 
 ```bash
-# 언실링 수행 (3개 키 필요)
 vault operator unseal wO14Gu9jIfGtae33/8U3l9mFv9QERnQS/IMoA1jJZ0vF
 vault operator unseal FfL8J4QoIP/7fRrKJ7NN/5W8zG2ODzL9MiCJV5UcQmjx
 vault operator unseal IgNkd4APfXmJywTqh+JjWbkiVgEHBTS+wjUGy/mtQ1pL
 ```
 
-세 번째 키를 입력하면 Vault가 활성화된다. 상태 확인:
+세 번째 키를 입력하면 Vault가 활성화되며, 상태를 확인한다:
 
 ```bash
 vault status
@@ -160,21 +161,21 @@ Threshold       3
 ...
 ```
 
-`Sealed: false` 표시는 정상적으로 언실링되었음을 의미한다.
+`Sealed: false`는 정상적으로 언실링되었음을 의미한다.
 
-Shamir의 비밀 공유 알고리즘을 활용하는 점이 주목할 만하다. 기업 환경에서는 이 5개의 키를 서로 다른 관리자에게 분산시켜, 최소 3명이 동의해야만 Vault를 열 수 있게 하는 4-eyes principle을 구현한다.
-
-홈랩에서는 한 사람이 관리하지만, 엔터프라이즈 보안 원칙을 경험해볼 수 있는 부분이다.
+> **Shamir의 비밀 공유 알고리즘**
+>
+> Vault는 Shamir의 비밀 공유(Shamir's Secret Sharing) 알고리즘을 사용하여 마스터 키를 여러 조각으로 분할하며, 기업 환경에서는 이 5개의 키를 서로 다른 관리자에게 분산시켜 최소 3명이 동의해야만 Vault를 열 수 있게 하는 4-eyes principle을 구현한다. 홈랩에서는 한 사람이 관리하지만 엔터프라이즈 보안 원칙을 경험해볼 수 있다.
 
 ## Vault 웹 UI 접근
 
-Vault가 활성화되면 웹 UI를 통해 관리할 수 있다. 호스트 파일에 다음 항목을 추가한다.
+Vault가 활성화되면 웹 UI를 통해 관리할 수 있으며, 로컬 컴퓨터의 호스트 파일에 다음 항목을 추가한다:
 
 ```
 192.168.0.200 vault.injunweb.com
 ```
 
-브라우저에서 `http://vault.injunweb.com`으로 접속하면 Vault UI를 볼 수 있다. 로그인에는 초기화 과정에서 받은 루트 토큰을 사용한다.
+브라우저에서 `http://vault.injunweb.com`으로 접속하면 Vault UI가 표시되고, 로그인에는 초기화 과정에서 받은 루트 토큰을 사용한다.
 
 ![Vault UI Login](image-1.png)
 
@@ -184,22 +185,19 @@ Vault가 활성화되면 웹 UI를 통해 관리할 수 있다. 호스트 파일
 
 UI는 직관적으로 구성되어 있어 복잡한 정책 설정이나 시크릿 관리 작업도 효율적으로 수행할 수 있다.
 
-## Vault 기본 설정하기
+## Vault 기본 설정
 
 Vault 설치와 초기화가 완료되었으면 쿠버네티스와의 통합을 위한 기본 설정을 진행한다.
 
 ### 1. 쿠버네티스 인증 설정
 
-쿠버네티스 인증 방식을 사용하면 파드가 자신의 서비스 계정 토큰으로 Vault에 인증할 수 있다. Vault 파드에 접속하여 다음 명령을 실행한다.
+쿠버네티스 인증 방식을 사용하면 파드가 자신의 서비스 계정 토큰으로 Vault에 인증할 수 있으며, Vault 파드에 접속하여 다음 명령을 실행한다:
 
 ```bash
-# Vault 로그인 (루트 토큰 사용)
 vault login hvs.6xu4j8TSoFBJ3EFNpW791e0I
 
-# Kubernetes 인증 활성화
 vault auth enable kubernetes
 
-# Kubernetes 인증 구성
 vault write auth/kubernetes/config \
   kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
   token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
@@ -207,44 +205,41 @@ vault write auth/kubernetes/config \
   issuer="https://kubernetes.default.svc.cluster.local"
 ```
 
-이 설정은 Vault가 쿠버네티스 서비스 계정 토큰의 유효성을 검증할 수 있게 해준다.
+이 설정은 Vault가 쿠버네티스 서비스 계정 토큰의 유효성을 검증할 수 있게 하며, 쿠버네티스 API 서버와의 통신을 통해 인증 요청을 처리한다.
 
 ### 2. KV 시크릿 엔진 활성화
 
-Key-Value(KV) 엔진은 가장 기본적인 시크릿 저장 방식이다. 버전 2 엔진을 활성화한다.
+Key-Value(KV) 엔진은 가장 기본적인 시크릿 저장 방식으로, 버전 2 엔진을 활성화한다:
 
 ```bash
 vault secrets enable -path=secret kv-v2
 ```
 
-KV 버전 2는 시크릿 버전 관리, 소프트 삭제 등 유용한 기능을 제공한다.
+KV 버전 2는 시크릿 버전 관리, 소프트 삭제, 메타데이터 저장 같은 유용한 기능을 제공하여 시크릿 변경 이력 추적과 실수로 인한 삭제 복구가 가능하다.
 
 ### 3. 정책 및 역할 생성
 
-Vault에서 접근 제어의 핵심은 정책(Policy)이다. 애플리케이션에서 사용할 샘플 정책을 생성한다.
+Vault에서 접근 제어의 핵심은 정책(Policy)이며, 애플리케이션에서 사용할 샘플 정책을 생성한다:
 
 ```bash
-# 샘플 정책 생성
 cat <<EOF > app-policy.hcl
-# app/* 경로의 모든 시크릿에 대한 읽기 권한
 path "secret/data/app/*" {
   capabilities = ["read"]
 }
 
-# app/* 경로의 메타데이터 읽기 권한
 path "secret/metadata/app/*" {
   capabilities = ["read", "list"]
 }
 EOF
 
-# 정책 등록
 vault policy write app-policy app-policy.hcl
 ```
 
-그리고 쿠버네티스 인증을 위한 역할을 생성한다.
+이 정책은 `secret/data/app/*` 경로의 모든 시크릿에 대한 읽기 권한과 메타데이터 조회 권한을 부여한다.
+
+그리고 쿠버네티스 인증을 위한 역할을 생성한다:
 
 ```bash
-# Kubernetes 인증 역할 생성
 vault write auth/kubernetes/role/app \
   bound_service_account_names=app \
   bound_service_account_namespaces=default \
@@ -256,16 +251,14 @@ vault write auth/kubernetes/role/app \
 
 ### 4. 샘플 시크릿 생성
 
-테스트를 위한 샘플 시크릿을 생성한다.
+테스트를 위한 샘플 시크릿을 생성한다:
 
 ```bash
-# KV 버전 2 시크릿 생성
 vault kv put secret/app/config \
   db.username="dbuser" \
   db.password="supersecret" \
   api.key="api12345"
 
-# 생성한 시크릿 확인
 vault kv get secret/app/config
 ```
 
@@ -288,11 +281,11 @@ db.password    supersecret
 db.username    dbuser
 ```
 
-이제 Vault에 기본적인 시크릿이 저장되었다. 다음으로 이 시크릿을 쿠버네티스 애플리케이션에서 사용할 수 있는 방법 두 가지를 구현해본다.
+이제 Vault에 기본적인 시크릿이 저장되었으며, 다음으로 이 시크릿을 쿠버네티스 애플리케이션에서 사용할 수 있는 두 가지 방법을 구현한다.
 
-## Vault Secrets Operator 설치하기
+## Vault Secrets Operator 설치
 
-첫 번째 접근법은 Vault Secrets Operator를 사용하는 것이다. 이 Operator는 Vault의 시크릿을 쿠버네티스 Secret으로 자동 동기화해준다. 기존 애플리케이션 코드 변경 없이 Vault 시크릿을 활용할 수 있는 장점이 있다.
+첫 번째 접근법은 Vault Secrets Operator를 사용하는 것으로, 이 Operator는 Vault의 시크릿을 쿠버네티스 Secret으로 자동 동기화하여 기존 애플리케이션 코드 변경 없이 Vault 시크릿을 활용할 수 있는 장점이 있다.
 
 ### 1. Operator 설정 추가
 
@@ -317,33 +310,28 @@ dependencies:
 vault-secrets-operator:
     defaultVaultConnection:
         enabled: true
-        address: "http://vault.vault.svc.cluster.local:8200" # 클러스터 내부 Vault 주소
+        address: "http://vault.vault.svc.cluster.local:8200"
 ```
 
-이 설정은 Operator가 Vault에 접근할 수 있는 기본 정보를 제공한다.
+이 설정은 Operator가 클러스터 내부의 Vault에 접근할 수 있는 기본 연결 정보를 제공한다.
 
 ### 2. Operator용 Vault 역할 생성
 
-Vault에 접속하여 Operator용 정책과 역할을 생성한다.
+Vault에 접속하여 Operator용 정책과 역할을 생성한다:
 
 ```bash
-# 정책 파일 생성
 cat <<EOF > operator-policy.hcl
-# app/* 경로의 시크릿 읽기 권한
 path "secret/data/app/*" {
   capabilities = ["read"]
 }
 
-# app/* 경로의 메타데이터 읽기 권한
 path "secret/metadata/app/*" {
   capabilities = ["read", "list"]
 }
 EOF
 
-# 정책 등록
 vault policy write operator-policy operator-policy.hcl
 
-# 역할 생성
 vault write auth/kubernetes/role/vault-secrets-operator \
   bound_service_account_names=vault-secrets-operator \
   bound_service_account_namespaces=vault-secrets-operator \
@@ -373,13 +361,13 @@ NAME                                      READY   STATUS    RESTARTS   AGE
 vault-secrets-operator-75bcd5b69d-x2jf9   2/2     Running   0          45s
 ```
 
-## 시크릿 동기화 리소스 구성하기
+## 시크릿 동기화 리소스 구성
 
-Vault Secrets Operator를 통해 Vault의 시크릿을 쿠버네티스 Secret으로 동기화하는 설정을 한다.
+Vault Secrets Operator를 통해 Vault의 시크릿을 쿠버네티스 Secret으로 동기화하는 설정을 진행한다.
 
 ### 1. VaultAuth 리소스 생성
 
-`VaultAuth` 리소스는 Vault에 인증하는 방법을 정의한다.
+`VaultAuth` 리소스는 Vault에 인증하는 방법을 정의한다:
 
 ```yaml
 apiVersion: secrets.hashicorp.com/v1beta1
@@ -388,16 +376,16 @@ metadata:
     name: default
     namespace: default
 spec:
-    method: kubernetes # 인증 방식 (쿠버네티스)
-    mount: kubernetes # Vault 인증 마운트 경로
+    method: kubernetes
+    mount: kubernetes
     kubernetes:
-        role: vault-secrets-operator # Vault 쿠버네티스 인증 역할
-        serviceAccount: default # 사용할 서비스 계정
+        role: vault-secrets-operator
+        serviceAccount: default
 ```
 
 ### 2. VaultStaticSecret 리소스 생성
 
-`VaultStaticSecret` 리소스는 Vault의 특정 시크릿을 쿠버네티스 Secret으로 동기화하도록 지정한다.
+`VaultStaticSecret` 리소스는 Vault의 특정 시크릿을 쿠버네티스 Secret으로 동기화하도록 지정한다:
 
 ```yaml
 apiVersion: secrets.hashicorp.com/v1beta1
@@ -406,17 +394,17 @@ metadata:
     name: app-config
     namespace: default
 spec:
-    type: kv-v2 # 시크릿 엔진 타입
-    mount: secret # 시크릿 엔진 마운트 경로
-    path: app/config # Vault 시크릿 경로
+    type: kv-v2
+    mount: secret
+    path: app/config
     destination:
-        name: app-config # 생성할 쿠버네티스 Secret 이름
-        create: true # Secret이 없으면 생성
-    refreshAfter: 30s # 30초마다 동기화
-    vaultAuthRef: default # 사용할 VaultAuth 리소스
+        name: app-config
+        create: true
+    refreshAfter: 30s
+    vaultAuthRef: default
 ```
 
-`refreshAfter: 30s` 설정은 Vault에서 시크릿이 변경될 때 30초 내에 쿠버네티스 Secret도 자동으로 업데이트되도록 한다.
+`refreshAfter: 30s` 설정은 Vault에서 시크릿이 변경될 때 30초 내에 쿠버네티스 Secret도 자동으로 업데이트되도록 하며, 시크릿 변경 시 애플리케이션 재배포 없이 최신 값을 반영할 수 있다.
 
 ### 3. 배포 및 확인
 
@@ -446,10 +434,9 @@ kubectl get secret app-config -o jsonpath="{.data.db\.password}" | base64 -d
 
 ### 4. 시크릿 자동 갱신 테스트
 
-Vault에서 시크릿을 변경했을 때 자동으로 쿠버네티스 Secret이 업데이트되는지 확인:
+Vault에서 시크릿을 변경했을 때 쿠버네티스 Secret이 자동으로 업데이트되는지 확인한다:
 
 ```bash
-# Vault에서 시크릿 변경
 vault kv put secret/app/config \
   db.username="dbuser" \
   db.password="newpassword" \
@@ -461,9 +448,9 @@ kubectl get secret app-config -o jsonpath="{.data.db\.password}" | base64 -d
 
 결과가 `newpassword`로 변경되면 자동 갱신이 정상 작동하는 것이다.
 
-## ArgoCD Vault Plugin 설치하기
+## ArgoCD Vault Plugin 설치
 
-두 번째 접근법은 ArgoCD Vault Plugin을 구성하는 것이다. 이 플러그인은 GitOps 워크플로우에 깊게 통합되어, Git 저장소에는 시크릿 참조만 저장하고 ArgoCD가 배포할 때 실제 값으로 대체한다.
+두 번째 접근법은 ArgoCD Vault Plugin을 구성하는 것으로, 이 플러그인은 GitOps 워크플로우에 깊게 통합되어 Git 저장소에는 시크릿 참조만 저장하고 ArgoCD가 배포할 때 실제 값으로 대체한다.
 
 ### 1. ArgoCD Helm 차트 값 파일 수정
 
@@ -534,28 +521,25 @@ argo-cd:
               emptyDir: {}
 ```
 
+이 설정은 ArgoCD repo-server에 Vault Plugin을 사이드카 컨테이너로 추가하여 Helm 차트 렌더링 시 시크릿 참조를 실제 값으로 대체할 수 있도록 한다.
+
 ### 2. ArgoCD용 Vault 역할 생성
 
 Vault에 접속하여 ArgoCD용 정책과 역할을 생성한다:
 
 ```bash
-# ArgoCD 정책 생성
 cat <<EOF > argocd-policy.hcl
-# app/* 경로의 시크릿 읽기 권한
 path "secret/data/app/*" {
   capabilities = ["read"]
 }
 
-# app/* 경로의 메타데이터 읽기 권한
 path "secret/metadata/app/*" {
   capabilities = ["read", "list"]
 }
 EOF
 
-# 정책 등록
 vault policy write argocd argocd-policy.hcl
 
-# Kubernetes 인증 역할 생성
 vault write auth/kubernetes/role/argocd \
   bound_service_account_names=argocd-repo-server \
   bound_service_account_namespaces=argocd \
@@ -575,10 +559,10 @@ metadata:
     namespace: argocd
 type: Opaque
 stringData:
-    AVP_AUTH_TYPE: "k8s" # 쿠버네티스 인증 방식
-    AVP_K8S_ROLE: "argocd" # Vault 역할 이름
-    AVP_TYPE: "vault" # Vault 타입
-    VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200" # Vault 주소
+    AVP_AUTH_TYPE: "k8s"
+    AVP_K8S_ROLE: "argocd"
+    AVP_TYPE: "vault"
+    VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200"
 ```
 
 ### 4. ConfigMap 생성
@@ -622,7 +606,9 @@ data:
           lockRepo: false
 ```
 
-## 애플리케이션에서 시크릿 활용하기
+이 ConfigMap은 ArgoCD Vault Plugin의 동작 방식을 정의하며, Helm 차트를 렌더링한 후 시크릿 참조를 Vault의 실제 값으로 대체하는 파이프라인을 구성한다.
+
+## 애플리케이션에서 시크릿 활용
 
 이제 두 가지 방법으로 Vault 시크릿을 애플리케이션에서 사용할 수 있다.
 
@@ -653,15 +639,11 @@ spec:
                       - name: DB_PASSWORD
                         valueFrom:
                             secretKeyRef:
-                                name: app-config # Operator가 동기화한 Secret
+                                name: app-config
                                 key: db.password
 ```
 
-이 방식의 장점은 기존 애플리케이션 코드를 전혀 수정할 필요가 없다는 것이다. 표준 쿠버네티스 Secret 참조 방식을 그대로 사용한다.
-
-```bash
-kubectl apply -f demo-app.yaml
-```
+이 방식의 장점은 기존 애플리케이션 코드를 전혀 수정할 필요가 없다는 것으로, 표준 쿠버네티스 Secret 참조 방식을 그대로 사용하면서 Vault의 시크릿 관리 기능을 활용할 수 있다.
 
 ### 2. ArgoCD Vault Plugin으로 대체되는 시크릿 사용
 
@@ -674,7 +656,7 @@ metadata:
     name: demo-app-avp
     namespace: default
     annotations:
-        avp.kubernetes.io/path: "secret/data/app/config" # Vault 경로
+        avp.kubernetes.io/path: "secret/data/app/config"
 spec:
     replicas: 1
     selector:
@@ -690,17 +672,17 @@ spec:
                   image: nginx:alpine
                   env:
                       - name: DB_PASSWORD
-                        value: <path:secret/data/app/config#db.password> # 플레이스홀더
+                        value: <path:secret/data/app/config#db.password>
 ```
 
-이 방식의 장점은 시크릿 값이 Git에 저장되지 않는다는 점이다. `<path:secret/data/app/config#db.password>` 같은 플레이스홀더만 Git에 저장한다.
+이 방식의 장점은 시크릿 값이 Git에 저장되지 않는다는 점으로, `<path:secret/data/app/config#db.password>` 같은 플레이스홀더만 Git에 저장되고 실제 값은 ArgoCD가 배포 시점에 Vault에서 가져온다.
 
-실제 값은 ArgoCD가 배포 시점에 Vault에서 가져온다.
-
-ArgoCD에서 애플리케이션을 생성할 때 "argocd-vault-plugin"을 Config Management Plugin으로 선택해야 한다. 그러면 ArgoCD가 매니페스트를 클러스터에 적용하기 전에 `<path:...>` 형식의 참조를 실제 값으로 대체한다.
+ArgoCD에서 애플리케이션을 생성할 때 "argocd-vault-plugin-helm"을 Config Management Plugin으로 선택하면 ArgoCD가 매니페스트를 클러스터에 적용하기 전에 `<path:...>` 형식의 참조를 실제 값으로 대체한다.
 
 ## 마치며
 
-이번 글에서는 홈랩 쿠버네티스 클러스터에 Vault를 설치하고, 안전한 시크릿 관리 시스템을 구축하는 방법을 알아보았다. 또한 ArgoCD Vault Plugin과 Vault Secrets Operator를 통해 GitOps 방식으로 시크릿을 관리하는 방법도 살펴보았다.
+이번 글에서는 홈랩 쿠버네티스 클러스터에 HashiCorp Vault를 설치하고, Vault Secrets Operator와 ArgoCD Vault Plugin을 통해 안전한 시크릿 관리 시스템을 구축하는 방법을 살펴보았다. Vault Secrets Operator는 기존 애플리케이션 코드 변경 없이 시크릿을 쿠버네티스 Secret으로 동기화할 수 있고, ArgoCD Vault Plugin은 Git 저장소에 민감한 정보를 저장하지 않으면서 GitOps 워크플로우를 유지할 수 있다.
 
-[다음 글](homelab-k8s-cicd-1)에서는 CI/CD 파이프라인을 구축하는 방법을 알아볼 것이다.
+다음 글에서는 Harbor, Argo Events, Argo Workflows를 설치하여 CI/CD 파이프라인의 기반을 구축하는 방법을 알아본다.
+
+[다음 글: 홈랩 쿠버네티스 #7 - 내부 개발자 플랫폼(IDP) 구축하기 (1)](/posts/homelab-k8s-cicd-1/)

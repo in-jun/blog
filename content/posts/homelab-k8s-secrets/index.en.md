@@ -1,33 +1,37 @@
 ---
-title: "Homelab #6 - Secret Management with Vault"
+title: "Homelab Kubernetes #6 - Secret Management with Vault and ArgoCD"
 date: 2025-02-26T16:20:14+09:00
 draft: false
-description: "This guide explains how to install HashiCorp Vault in a homelab Kubernetes environment and build a secure secret management system."
+description: "This guide covers installing HashiCorp Vault in a homelab Kubernetes cluster and building a secure secret management system using GitOps methodology with Vault Secrets Operator and ArgoCD Vault Plugin."
 tags: ["kubernetes", "homelab", "vault", "secrets", "gitops", "security"]
-series: ["Homelab"]
+series: ["Homelab Kubernetes"]
 ---
 
 ## Overview
 
-In the [previous post](homelab-k8s-external-access), we installed the Traefik ingress controller on our homelab Kubernetes cluster and configured external access. This post covers installing and configuring HashiCorp Vault for securely managing sensitive information (passwords, API keys, certificates, etc.) in the Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-external-access/), we configured Cloudflare DNS settings, implemented a custom DDNS Worker, and set up router port forwarding to enable external internet access to homelab Kubernetes cluster services. This post covers how to install and configure HashiCorp Vault to securely manage sensitive information like passwords, API keys, and certificates in the Kubernetes cluster.
 
 ![Vault Logo](image.png)
 
-## Why Default Kubernetes Secrets Were Insufficient
+## Limitations of Default Kubernetes Secrets
 
-Secret management proved challenging while building the homelab environment using the GitOps approach. Several limitations became clear when using default Kubernetes Secrets.
+Secret management was the biggest challenge while building the homelab environment using GitOps methodology. Several limitations became clear when using default Kubernetes Secrets.
 
-First, there is the integration issue with GitOps. Secrets cannot be stored directly in Git, and even base64 encoding is vulnerable to security risks since it can be easily decoded. While we reviewed tools like Sealed Secrets and SOPS, we needed a comprehensive secret management solution beyond simple encryption.
+First, there is the GitOps integration issue. Secrets cannot be stored directly in Git repositories, and even base64 encoding is vulnerable since original values can be restored through simple decoding. Tools like Sealed Secrets and SOPS were also reviewed, but a comprehensive secret management solution beyond simple encryption was needed.
 
-Second, there is the secret rotation problem. External API tokens and certificates require periodic renewal, but manual handling is inefficient. Automated secret rotation management was necessary.
+Second, there is the secret rotation problem. External API tokens and certificates require periodic renewal, but manual handling is inefficient and prone to errors. Automated secret rotation management was necessary.
 
-HashiCorp Vault solves these problems. It provides secret encryption, access control, and automatic renewal features along with Kubernetes integration. It also offers methods to integrate with GitOps workflows, which led to its selection.
+> **What is HashiCorp Vault?**
+>
+> HashiCorp Vault is a secret management tool that HashiCorp released as open source in 2015. It securely stores and manages sensitive data like passwords, API keys, and certificates in a centralized location, provides enterprise-grade features such as fine-grained access control, audit logging, and automatic secret renewal, and supports Kubernetes integration.
 
-## Installing Vault in the Homelab Environment
+HashiCorp Vault provides secret encryption, access control, and automatic renewal features along with integration with Kubernetes and GitOps workflows, making it the chosen solution to address these problems.
+
+## Installing Vault
 
 ### 1. Preparing Directories for GitOps Configuration
 
-Since everything in the homelab environment is managed through GitOps, Vault installation follows the same approach. First, create the necessary directory structure.
+Since all resources in the homelab environment are managed through GitOps, Vault installation follows the same approach. First, create the necessary directory structure:
 
 ```bash
 mkdir -p k8s-resources/apps/vault/templates
@@ -36,7 +40,7 @@ cd k8s-resources/apps/vault
 
 ### 2. Helm Chart Configuration
 
-Create the `Chart.yaml` file as follows.
+Create the `Chart.yaml` file as follows:
 
 ```yaml
 apiVersion: v2
@@ -51,7 +55,9 @@ dependencies:
       repository: "https://helm.releases.hashicorp.com"
 ```
 
-Add Vault settings to the `values.yaml` file.
+This configuration defines fetching and installing the Vault v0.27.0 chart from the official HashiCorp Helm repository.
+
+Add Vault settings to the `values.yaml` file:
 
 ```yaml
 vault:
@@ -59,14 +65,14 @@ vault:
         enabled: true
 
     ui:
-        enabled: true # Enable web-based management UI
+        enabled: true
 ```
 
-High availability configuration was considered, but it was deemed wasteful of resources in the homelab environment. The approach was to upgrade later if needed.
+High availability (HA) configuration was considered but deemed wasteful of resources in the homelab environment, so it was simplified with the approach of upgrading later if needed.
 
 ### 3. Ingress Configuration
 
-Configure an ingress route to access the Vault UI. This uses the Traefik ingress controller configured previously.
+Configure an ingress route to access the Vault UI, utilizing the Traefik ingress controller configured previously.
 
 `templates/ingressroute.yaml` file:
 
@@ -88,9 +94,9 @@ spec:
                 port: 8200
 ```
 
-Setting `entryPoints` to `intweb` and `intwebsec` ensures the Vault UI is only accessible from the internal network. External exposure poses a security risk since it is a secret management interface.
+Setting `entryPoints` to `intweb` and `intwebsec` ensures the Vault UI is accessible only from the internal network, as external exposure of a secret management interface poses a serious security risk.
 
-### 4. Add Changes to GitHub and Deploy with ArgoCD
+### 4. Add to Git Repository and Deploy with ArgoCD
 
 ```bash
 git add .
@@ -98,19 +104,19 @@ git commit -m "Add Vault Helm chart configuration"
 git push origin main
 ```
 
+ArgoCD detects changes in the Git repository and automatically deploys to the cluster.
+
 ## Vault Initialization and Unsealing
 
-After Vault installation, two important steps are required: initialization and unsealing. These processes involve encryption key generation and activation. They are performed manually rather than automated for security reasons.
+After Vault installation, two important steps are required: initialization and unsealing. These processes involve encryption key generation and activation, and are performed manually rather than automated for security reasons.
 
 ### 1. Perform Initialization
 
-Access the Vault pod to perform initialization.
+Access the Vault pod to perform initialization:
 
 ```bash
-# Access Vault server
 kubectl -n vault exec -it vault-0 -- /bin/sh
 
-# Perform initialization (default 5 keys, 3 required)
 vault operator init
 ```
 
@@ -130,16 +136,15 @@ Initial Root Token: hvs.6xu4j8TSoFBJ3EFNpW791e0I
 
 ### 2. Perform Unsealing
 
-After initialization, the unsealing process is required. Use 3 of the 5 keys to unseal Vault.
+After initialization, the unsealing process is required. In the default configuration, use 3 of the 5 keys to unseal Vault:
 
 ```bash
-# Perform unsealing (3 keys required)
 vault operator unseal wO14Gu9jIfGtae33/8U3l9mFv9QERnQS/IMoA1jJZ0vF
 vault operator unseal FfL8J4QoIP/7fRrKJ7NN/5W8zG2ODzL9MiCJV5UcQmjx
 vault operator unseal IgNkd4APfXmJywTqh+JjWbkiVgEHBTS+wjUGy/mtQ1pL
 ```
 
-After entering the third key, Vault becomes active. Check status:
+After entering the third key, Vault becomes active. Check the status:
 
 ```bash
 vault status
@@ -156,13 +161,15 @@ Threshold       3
 ...
 ```
 
-The `Sealed: false` indication means unsealing was successful.
+`Sealed: false` indicates that unsealing was successful.
 
-The use of Shamir's Secret Sharing algorithm is noteworthy. In enterprise environments, these 5 keys are distributed to different administrators so that Vault can only be opened with the agreement of at least 3 people, implementing the four-eyes principle. Although managed by one person in the homelab, this provides experience with enterprise security principles.
+> **Shamir's Secret Sharing Algorithm**
+>
+> Vault uses Shamir's Secret Sharing algorithm to split the master key into multiple pieces. In enterprise environments, these 5 keys are distributed to different administrators so that Vault can only be opened with the agreement of at least 3 people, implementing the four-eyes principle. Although managed by one person in the homelab, this provides experience with enterprise security principles.
 
 ## Accessing the Vault Web UI
 
-Once Vault is active, it can be managed through the web UI. Add the following entry to the hosts file.
+Once Vault is active, it can be managed through the web UI. Add the following entry to the local computer's hosts file:
 
 ```
 192.168.0.200 vault.injunweb.com
@@ -178,22 +185,19 @@ Dashboard displayed after login:
 
 The UI is intuitively organized, allowing efficient execution of complex policy settings and secret management tasks.
 
-## Configuring Vault Basics
+## Basic Vault Configuration
 
 Once Vault installation and initialization are complete, proceed with basic configuration for Kubernetes integration.
 
 ### 1. Kubernetes Authentication Setup
 
-Using Kubernetes authentication allows pods to authenticate to Vault with their service account tokens. Access the Vault pod and execute the following commands.
+Using Kubernetes authentication allows pods to authenticate to Vault with their service account tokens. Access the Vault pod and execute the following commands:
 
 ```bash
-# Vault login (using root token)
 vault login hvs.6xu4j8TSoFBJ3EFNpW791e0I
 
-# Enable Kubernetes authentication
 vault auth enable kubernetes
 
-# Configure Kubernetes authentication
 vault write auth/kubernetes/config \
   kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
   token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
@@ -201,44 +205,41 @@ vault write auth/kubernetes/config \
   issuer="https://kubernetes.default.svc.cluster.local"
 ```
 
-This configuration enables Vault to verify the validity of Kubernetes service account tokens.
+This configuration enables Vault to verify the validity of Kubernetes service account tokens and process authentication requests through communication with the Kubernetes API server.
 
 ### 2. Enable KV Secret Engine
 
-The Key-Value (KV) engine is the most basic secret storage method. Enable the version 2 engine.
+The Key-Value (KV) engine is the most basic secret storage method. Enable the version 2 engine:
 
 ```bash
 vault secrets enable -path=secret kv-v2
 ```
 
-KV version 2 provides useful features like secret versioning and soft deletion.
+KV version 2 provides useful features like secret versioning, soft deletion, and metadata storage, enabling secret change history tracking and recovery from accidental deletion.
 
 ### 3. Create Policy and Role
 
-Policies are the core of access control in Vault. Create a sample policy for application use.
+Policies are the core of access control in Vault. Create a sample policy for application use:
 
 ```bash
-# Create sample policy
 cat <<EOF > app-policy.hcl
-# Read permission for all secrets under app/* path
 path "secret/data/app/*" {
   capabilities = ["read"]
 }
 
-# Read permission for metadata under app/* path
 path "secret/metadata/app/*" {
   capabilities = ["read", "list"]
 }
 EOF
 
-# Register policy
 vault policy write app-policy app-policy.hcl
 ```
 
-Then create a role for Kubernetes authentication.
+This policy grants read permission for all secrets under the `secret/data/app/*` path and permission to query metadata.
+
+Then create a role for Kubernetes authentication:
 
 ```bash
-# Create Kubernetes authentication role
 vault write auth/kubernetes/role/app \
   bound_service_account_names=app \
   bound_service_account_namespaces=default \
@@ -250,16 +251,14 @@ This configuration means that when the `app` service account in the `default` na
 
 ### 4. Create Sample Secret
 
-Create a sample secret for testing.
+Create a sample secret for testing:
 
 ```bash
-# Create KV version 2 secret
 vault kv put secret/app/config \
   db.username="dbuser" \
   db.password="supersecret" \
   api.key="api12345"
 
-# Verify created secret
 vault kv get secret/app/config
 ```
 
@@ -286,7 +285,7 @@ Now basic secrets are stored in Vault. Next, implement two methods for using the
 
 ## Installing Vault Secrets Operator
 
-The first approach is to use the Vault Secrets Operator. This Operator automatically synchronizes Vault secrets to Kubernetes Secrets. It has the advantage of enabling Vault secret usage without changing existing application code.
+The first approach is to use the Vault Secrets Operator. This Operator automatically synchronizes Vault secrets to Kubernetes Secrets, with the advantage of utilizing Vault secrets without changing existing application code.
 
 ### 1. Add Operator Configuration
 
@@ -311,33 +310,28 @@ dependencies:
 vault-secrets-operator:
     defaultVaultConnection:
         enabled: true
-        address: "http://vault.vault.svc.cluster.local:8200" # Vault address within cluster
+        address: "http://vault.vault.svc.cluster.local:8200"
 ```
 
-This configuration provides basic information for the Operator to access Vault.
+This configuration provides default connection information for the Operator to access Vault within the cluster.
 
 ### 2. Create Vault Role for Operator
 
-Access Vault to create a policy and role for the Operator.
+Access Vault to create a policy and role for the Operator:
 
 ```bash
-# Create policy file
 cat <<EOF > operator-policy.hcl
-# Read permission for secrets under app/* path
 path "secret/data/app/*" {
   capabilities = ["read"]
 }
 
-# Read permission for metadata under app/* path
 path "secret/metadata/app/*" {
   capabilities = ["read", "list"]
 }
 EOF
 
-# Register policy
 vault policy write operator-policy operator-policy.hcl
 
-# Create role
 vault write auth/kubernetes/role/vault-secrets-operator \
   bound_service_account_names=vault-secrets-operator \
   bound_service_account_namespaces=vault-secrets-operator \
@@ -373,7 +367,7 @@ Configure settings to synchronize Vault secrets to Kubernetes Secrets through th
 
 ### 1. Create VaultAuth Resource
 
-The `VaultAuth` resource defines how to authenticate to Vault.
+The `VaultAuth` resource defines how to authenticate to Vault:
 
 ```yaml
 apiVersion: secrets.hashicorp.com/v1beta1
@@ -382,16 +376,16 @@ metadata:
     name: default
     namespace: default
 spec:
-    method: kubernetes # Authentication method (Kubernetes)
-    mount: kubernetes # Vault authentication mount path
+    method: kubernetes
+    mount: kubernetes
     kubernetes:
-        role: vault-secrets-operator # Vault Kubernetes authentication role
-        serviceAccount: default # Service account to use
+        role: vault-secrets-operator
+        serviceAccount: default
 ```
 
 ### 2. Create VaultStaticSecret Resource
 
-The `VaultStaticSecret` resource specifies synchronization of a specific Vault secret to a Kubernetes Secret.
+The `VaultStaticSecret` resource specifies synchronization of a specific Vault secret to a Kubernetes Secret:
 
 ```yaml
 apiVersion: secrets.hashicorp.com/v1beta1
@@ -400,17 +394,17 @@ metadata:
     name: app-config
     namespace: default
 spec:
-    type: kv-v2 # Secret engine type
-    mount: secret # Secret engine mount path
-    path: app/config # Vault secret path
+    type: kv-v2
+    mount: secret
+    path: app/config
     destination:
-        name: app-config # Kubernetes Secret name to create
-        create: true # Create Secret if it doesn't exist
-    refreshAfter: 30s # Synchronize every 30 seconds
-    vaultAuthRef: default # VaultAuth resource to use
+        name: app-config
+        create: true
+    refreshAfter: 30s
+    vaultAuthRef: default
 ```
 
-The `refreshAfter: 30s` setting ensures that when secrets change in Vault, the Kubernetes Secret is automatically updated within 30 seconds.
+The `refreshAfter: 30s` setting ensures that when secrets change in Vault, the Kubernetes Secret is automatically updated within 30 seconds, allowing the latest values to be reflected without application redeployment.
 
 ### 3. Deploy and Verify
 
@@ -443,7 +437,6 @@ kubectl get secret app-config -o jsonpath="{.data.db\.password}" | base64 -d
 Verify that when a secret changes in Vault, the Kubernetes Secret is automatically updated:
 
 ```bash
-# Change secret in Vault
 vault kv put secret/app/config \
   db.username="dbuser" \
   db.password="newpassword" \
@@ -528,28 +521,25 @@ argo-cd:
               emptyDir: {}
 ```
 
+This configuration adds the Vault Plugin as a sidecar container to the ArgoCD repo-server, enabling replacement of secret references with actual values during Helm chart rendering.
+
 ### 2. Create Vault Role for ArgoCD
 
 Access Vault to create a policy and role for ArgoCD:
 
 ```bash
-# Create ArgoCD policy
 cat <<EOF > argocd-policy.hcl
-# Read permission for secrets under app/* path
 path "secret/data/app/*" {
   capabilities = ["read"]
 }
 
-# Read permission for metadata under app/* path
 path "secret/metadata/app/*" {
   capabilities = ["read", "list"]
 }
 EOF
 
-# Register policy
 vault policy write argocd argocd-policy.hcl
 
-# Create Kubernetes authentication role
 vault write auth/kubernetes/role/argocd \
   bound_service_account_names=argocd-repo-server \
   bound_service_account_namespaces=argocd \
@@ -569,10 +559,10 @@ metadata:
     namespace: argocd
 type: Opaque
 stringData:
-    AVP_AUTH_TYPE: "k8s" # Kubernetes authentication method
-    AVP_K8S_ROLE: "argocd" # Vault role name
-    AVP_TYPE: "vault" # Vault type
-    VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200" # Vault address
+    AVP_AUTH_TYPE: "k8s"
+    AVP_K8S_ROLE: "argocd"
+    AVP_TYPE: "vault"
+    VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200"
 ```
 
 ### 4. Create ConfigMap
@@ -616,6 +606,8 @@ data:
           lockRepo: false
 ```
 
+This ConfigMap defines the ArgoCD Vault Plugin's behavior, configuring a pipeline that renders Helm charts and then replaces secret references with actual values from Vault.
+
 ## Using Secrets in Applications
 
 Now Vault secrets can be used in applications through two methods.
@@ -647,15 +639,11 @@ spec:
                       - name: DB_PASSWORD
                         valueFrom:
                             secretKeyRef:
-                                name: app-config # Secret synchronized by Operator
+                                name: app-config
                                 key: db.password
 ```
 
-The advantage of this method is that no modification to existing application code is needed. The standard Kubernetes Secret reference method is used as is.
-
-```bash
-kubectl apply -f demo-app.yaml
-```
+The advantage of this method is that no modification to existing application code is needed. Vault's secret management features can be utilized while using the standard Kubernetes Secret reference method as-is.
 
 ### 2. Using Secrets Replaced by ArgoCD Vault Plugin
 
@@ -668,7 +656,7 @@ metadata:
     name: demo-app-avp
     namespace: default
     annotations:
-        avp.kubernetes.io/path: "secret/data/app/config" # Vault path
+        avp.kubernetes.io/path: "secret/data/app/config"
 spec:
     replicas: 1
     selector:
@@ -684,15 +672,17 @@ spec:
                   image: nginx:alpine
                   env:
                       - name: DB_PASSWORD
-                        value: <path:secret/data/app/config#db.password> # Placeholder
+                        value: <path:secret/data/app/config#db.password>
 ```
 
 The advantage of this method is that secret values are not stored in Git. Only placeholders like `<path:secret/data/app/config#db.password>` are stored in Git, and actual values are retrieved from Vault by ArgoCD at deployment time.
 
-When creating an application in ArgoCD, select "argocd-vault-plugin" as the Config Management Plugin. ArgoCD will then replace `<path:...>` format references with actual values before applying manifests to the cluster.
+When creating an application in ArgoCD, selecting "argocd-vault-plugin-helm" as the Config Management Plugin causes ArgoCD to replace `<path:...>` format references with actual values before applying manifests to the cluster.
 
 ## Conclusion
 
-This post covered installing Vault in a homelab Kubernetes cluster and building a secure secret management system. It also explored managing secrets in a GitOps manner through the ArgoCD Vault Plugin and Vault Secrets Operator.
+This post covered installing HashiCorp Vault in a homelab Kubernetes cluster and building a secure secret management system with Vault Secrets Operator and ArgoCD Vault Plugin. Vault Secrets Operator can synchronize secrets to Kubernetes Secrets without changing existing application code, and ArgoCD Vault Plugin can maintain GitOps workflow without storing sensitive information in Git repositories.
 
-In the [next post](homelab-k8s-cicd-1), we will explore building a CI/CD pipeline.
+The next post covers installing Harbor, Argo Events, and Argo Workflows to build the foundation for a CI/CD pipeline.
+
+[Next Post: Homelab Kubernetes #7 - Building an Internal Developer Platform (IDP) (1)](/posts/homelab-k8s-cicd-1/)
