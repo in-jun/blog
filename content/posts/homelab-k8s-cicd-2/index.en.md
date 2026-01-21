@@ -1,8 +1,8 @@
 ---
-title: "Homelab #8 - Building CI/CD for Automated Deployment (2)"
+title: "Homelab Kubernetes #8 - Building an Internal Developer Platform (IDP) (2)"
 date: 2025-02-28T07:47:18+09:00
 draft: false
-description: "This post explains how to build a GitOps-based project automation system in a homelab Kubernetes environment and complete a full CI/CD pipeline."
+description: "This guide covers building an Internal Developer Platform using Helm chart-based project templates and ArgoCD ApplicationSet in a homelab Kubernetes cluster, enabling deployment of projects with complete CI/CD pipelines from a single YAML file."
 tags:
     [
         "kubernetes",
@@ -13,73 +13,83 @@ tags:
         "argo-events",
         "argo-workflows",
         "helm",
+        "idp",
+        "platform-engineering",
     ]
-series: ["Homelab"]
+series: ["Homelab Kubernetes"]
 ---
 
 ## Overview
 
-In the [previous post](homelab-k8s-cicd-1), we installed the core components of the CI/CD system: Harbor registry, Argo Events, and Argo Workflows. In this post, we will integrate these three components with the previously installed ArgoCD to complete a full CI/CD pipeline and build a GitOps-based project automation system.
+In the [previous post](/posts/homelab-k8s-cicd-1/), we installed Harbor container registry, Argo Events, and Argo Workflows as the foundation for a CI/CD pipeline. This post covers integrating these components with ArgoCD and designing Helm chart-based project templates to build an Internal Developer Platform (IDP) that enables deployment of projects with complete CI/CD pipelines from a single YAML file.
 
-## Integrating CI/CD with GitOps
+![Internal Developer Platform Architecture](image.png)
 
-The integration of traditional CI systems with GitOps is a natural evolution. Traditional CI focused on detecting code changes, building, and testing, while GitOps focuses on declaratively managing deployment state and automatically synchronizing it. Combining these two approaches enables building a fully automated pipeline from code changes to automatic deployment.
+## What is an Internal Developer Platform
 
-![Integrating CI/CD with GitOps](image.png)
+> **What is an Internal Developer Platform (IDP)?**
+>
+> An Internal Developer Platform is a system that provides developers with an abstracted self-service interface to deploy and operate applications without directly configuring infrastructure and deployment pipelines. As a core deliverable of platform engineering, it aims to improve developer experience and reduce operational burden through standardized deployment processes.
 
-## Designing the Project Template
+Traditional CI/CD pipelines require individual configuration for each project, while an Internal Developer Platform uses template-based abstraction to automatically provision all infrastructure including CI/CD pipelines, databases, and network settings when developers write a simple configuration file. The platform built in this post operates with the following flow:
 
-Designing a template that can be reused across multiple projects is very important. This reduces the burden of building infrastructure from scratch every time you start a new project. In this post, we will use Helm charts to create a reusable project template and learn how to build a complete CI/CD pipeline with simple declarations.
+1. **A developer pushes code to a Git repository.**
+2. **A GitHub webhook sends an event to Argo Events' EventSource.**
+3. **Argo Events' Sensor filters the event and triggers an Argo Workflow.**
+4. **Argo Workflows builds the code and pushes the container image to Harbor.**
+5. **When the workflow completes, it calls the GitHub API to update the project configuration file.**
+6. **ArgoCD detects the changed configuration file and deploys the application with the new image.**
+
+## Project Template Design
+
+We design a Helm chart-based project template that can be reused across multiple projects. Using this template, a project with a complete CI/CD pipeline can be deployed with just a simple YAML configuration file.
 
 ### Project Template Requirements
 
-To easily manage multiple projects in a homelab environment, the template should include the following features:
+The features that the template should provide for efficiently managing multiple projects in a homelab environment are as follows:
 
-1. **Automated CI/CD Pipeline**: Automatic build and deployment on code changes
-2. **Declarative Resource Management**: Application and database configuration via YAML files
-3. **Security Management**: Safe management of secrets and authentication information
-4. **Network Configuration**: Ingress setup for internal and external access
+- **Automated CI/CD Pipeline**: Automatically builds and deploys when code changes in a GitHub repository.
+- **Declarative Resource Management**: Define applications, databases, and network settings in YAML files.
+- **Secrets Management Integration**: Safely manage passwords, API keys, and other secrets through Vault integration.
+- **Multi-Application Support**: Manage multiple applications and databases within a single project.
 
-## Git Repository Structure for Project Management
+### Git Repository Structure
 
-We use two Git repositories for project management:
-
-1. **Project Configuration Repository**: `https://github.com/injunweb/projects-gitops`
-
-    - Stores configuration information (YAML files) for each project
-    - Defines applications to deploy and database information
-
-2. **Helm Chart Repository**: `chart` directory in the same repository
-    - Contains Helm charts defining project templates
-    - Defines CI/CD pipeline and Kubernetes resource templates
-
-### Repository Directory Structure
-
-The project configuration repository is designed with the following structure:
+The Git repository for project management is designed with the following structure:
 
 ```
 projects-gitops/
-├── .github/workflows/      # GitHub Action workflows
-│   └── update-config.yaml  # Configuration update API workflow
-├── applicationset.yaml     # ArgoCD ApplicationSet definition
-├── chart/                  # Helm chart directory
-│   ├── Chart.yaml          # Chart information
-│   └── templates/          # Template directory
-│       ├── app/            # Application-related templates
-│       │   ├── ci/         # CI pipeline templates
-│       │   ├── deployment.yaml  # Deployment template
-│       │   └── ...
-│       ├── db/             # Database-related templates
-│       └── ...
-└── projects/               # Project configuration directory
-    ├── project1.yaml       # Project 1 configuration
-    ├── project2.yaml       # Project 2 configuration
+├── .github/workflows/
+│   └── update-config.yaml
+├── applicationset.yaml
+├── chart/
+│   ├── Chart.yaml
+│   └── templates/
+│       ├── app/
+│       │   ├── ci/
+│       │   │   ├── eventbus.yaml
+│       │   │   ├── eventsource.yaml
+│       │   │   ├── sensor.yaml
+│       │   │   └── workflow-template.yaml
+│       │   ├── deployment.yaml
+│       │   ├── service.yaml
+│       │   └── ingressroute.yaml
+│       └── db/
+│           ├── statefulset.yaml
+│           └── service.yaml
+└── projects/
+    ├── project-a.yaml
+    ├── project-b.yaml
     └── ...
 ```
 
-## Designing the ApplicationSet
+In this structure, the `chart/` directory contains the Helm chart shared by all projects, and the `projects/` directory contains the configuration files for each project. To deploy a new project, simply add a YAML file to the `projects/` directory.
 
-ApplicationSet is a powerful mechanism that automatically creates multiple ArgoCD applications. This allows you to deploy new projects simply by adding a new file to the `projects` directory.
+## ApplicationSet Configuration
+
+> **What is ApplicationSet?**
+>
+> ApplicationSet is an ArgoCD feature that uses templates and generators to automatically create and manage multiple Applications. It can dynamically create Applications based on file lists in Git repositories, directory structures, cluster lists, and more, enabling efficient management of large-scale multi-project environments.
 
 Create the `applicationset.yaml` file as follows:
 
@@ -126,75 +136,84 @@ spec:
                     - CreateNamespace=true
 ```
 
-The core features of this ApplicationSet are:
+This ApplicationSet uses a Git file generator to find all files matching the `projects/*.yaml` pattern and automatically creates an ArgoCD Application for each file. The filename with the `.yaml` extension removed is used as the project name and namespace, and secrets stored in Vault are safely injected through the ArgoCD Vault Plugin.
 
-1. It finds all files matching the `projects/*.yaml` pattern.
-2. It creates an ArgoCD application for each file.
-3. Applications use the Helm chart in the chart directory and the project configuration file.
-4. It securely handles secret values through the ArgoCD Vault Plugin.
+## Project Configuration File Structure
 
-Go template syntax is used to extract project names and namespaces from file names. For example, the `projects/myapp.yaml` file creates an application and namespace named `myapp`.
-
-## Project Configuration Structure
-
-Each project is defined by a YAML file with the following structure:
+Each project is defined with a YAML file in the following structure:
 
 ```yaml
 applications:
-    - name: app1 # Application name
+    - name: api
       git:
-          type: github # Git repository type
-          owner: example-org # Repository owner
-          repo: custom-app # Repository name
-          branch: develop # Branch
-          hash: ~ # Commit hash to build and deploy
-      port: 8000 # Container port
-      domains: # List of access domains
-          - custom1.example.com
+          type: github
+          owner: myorg
+          repo: my-api
+          branch: main
+          hash: ~
+      port: 8080
+      domains:
+          - api.example.com
+
+    - name: frontend
+      git:
+          type: github
+          owner: myorg
+          repo: my-frontend
+          branch: main
+          hash: ~
+      port: 80
+      domains:
+          - www.example.com
+          - example.com
 
 databases:
-    - name: mysql # Database name
-      type: mysql # Database type (mysql, postgres, redis, mongodb)
-      version: "8.0" # Version
-      port: 3306 # Port
-      size: 2Gi # Storage size
+    - name: mysql
+      type: mysql
+      version: "8.0"
+      port: 3306
+      size: 5Gi
+
+    - name: redis
+      type: redis
+      version: "7.0"
+      port: 6379
+      size: 1Gi
 ```
 
-This structure is concise yet contains all necessary information. The `applications[].git.hash` field specifies the specific commit to build and deploy. If this value is empty, no deployment is created. It is automatically set after the CI pipeline completes successfully.
+The key fields in this configuration file are:
 
-## Designing the CI Pipeline
+- **applications[].git.hash**: The Git commit hash that the CI pipeline will build and deploy. It is initially empty and automatically updated when a build succeeds. Deployments are only created when this value exists.
+- **applications[].domains**: A list of domains for accessing the application. A Traefik IngressRoute is created for each domain.
+- **databases[]**: A list of databases to use in the project, supporting MySQL, PostgreSQL, Redis, and MongoDB.
 
-The CI pipeline is built using Argo Events and Argo Workflows. This pipeline consists of the following steps:
+## CI Pipeline Templates
 
-1. **Event Detection**: Detect changes in Git repository (Argo Events)
-2. **Build Trigger**: Start build workflow when changes are detected (Argo Events → Argo Workflows)
-3. **Container Build**: Build source code to create container image (Argo Workflows)
-4. **Image Push**: Push built image to Harbor registry (Argo Workflows)
-5. **Configuration Update**: Update project configuration with built image hash (GitHub API)
+The CI pipeline is implemented with a combination of Argo Events and Argo Workflows, defined as Helm chart templates for reuse across all projects.
 
-### EventBus Configuration
+### EventBus Template
 
-Configure an event bus for each project:
+A template that creates an independent event bus for each project:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: EventBus
 metadata:
-  name: {{ $.Values.project }}-ci-eventbus
-  namespace: {{ $.Values.project }}
+    name: {{ $.Values.project }}-ci-eventbus
+    namespace: {{ $.Values.project }}
 spec:
-  nats:
-    native:
-      auth: none
-      replicas: 3
-      antiAffinity: false
+    nats:
+        native:
+            replicas: 3
+            auth: none
+            antiAffinity: false
 ```
 
-This template creates an independent event bus for each project. The NATS-based event bus handles communication between event sources and sensors.
+This EventBus is configured with 3 NATS replicas for high availability and establishes an independent event transport layer for each project.
 
-### GitHub EventSource Configuration
+### EventSource Template
 
-Configure EventSource to receive GitHub webhooks:
+An EventSource template that receives GitHub webhooks:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -202,44 +221,44 @@ Configure EventSource to receive GitHub webhooks:
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: {{ $.Values.project }}-{{ $app.name }}-github-eventsource
-  namespace: {{ $.Values.project }}
+    name: {{ $.Values.project }}-{{ $app.name }}-github-eventsource
+    namespace: {{ $.Values.project }}
 spec:
-  eventBusName: {{ $.Values.project }}-ci-eventbus
-  template:
-    serviceAccountName: {{ $.Values.project }}-ci-workflow-sa
-  service:
-    ports:
-      - port: 12000
-        targetPort: 12000
-        name: webhook
-  github:
-    {{ $.Values.project }}-{{ $app.name }}-github-trigger:
-      repositories:
-        - owner: {{ $app.git.owner }}
-          names:
-            - {{ $app.git.repo }}
-      webhook:
-        endpoint: /{{ $.Values.project }}-{{ $app.name }}
-        port: "12000"
-        method: POST
-        url: https://webhook.injunweb.com
-      events:
-        - push
-      apiToken:
-        name: {{ $.Values.project }}-github-access-secret
-        key: token
-      insecure: false
-      active: true
-      contentType: json
+    eventBusName: {{ $.Values.project }}-ci-eventbus
+    template:
+        serviceAccountName: {{ $.Values.project }}-ci-workflow-sa
+    service:
+        ports:
+            - port: 12000
+              targetPort: 12000
+              name: webhook
+    github:
+        {{ $.Values.project }}-{{ $app.name }}-github-trigger:
+            repositories:
+                - owner: {{ $app.git.owner }}
+                  names:
+                      - {{ $app.git.repo }}
+            webhook:
+                endpoint: /{{ $.Values.project }}-{{ $app.name }}
+                port: "12000"
+                method: POST
+                url: https://webhook.injunweb.com
+            events:
+                - push
+            apiToken:
+                name: {{ $.Values.project }}-github-access-secret
+                key: token
+            insecure: false
+            active: true
+            contentType: json
 {{- end }}
 ```
 
-This template creates an EventSource that receives GitHub webhooks for each application in the project. Each application detects push events from its own GitHub repository.
+This template creates an EventSource for each application defined in the project configuration, detecting push events from GitHub repositories. The `webhook.url` is the externally accessible webhook endpoint where GitHub sends events.
 
-### Sensor Configuration (Event Filtering)
+### Sensor Template
 
-Configure Sensor to detect only push events to specific branches:
+A Sensor template that filters events and triggers workflows:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -247,55 +266,55 @@ Configure Sensor to detect only push events to specific branches:
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: {{ $.Values.project }}-{{ $app.name }}-github-workflow-sensor
-  namespace: {{ $.Values.project }}
+    name: {{ $.Values.project }}-{{ $app.name }}-github-workflow-sensor
+    namespace: {{ $.Values.project }}
 spec:
-  eventBusName: {{ $.Values.project }}-ci-eventbus
-  template:
-    serviceAccountName: {{ $.Values.project }}-ci-workflow-sa
-  dependencies:
-    - name: github-dep
-      eventSourceName: {{ $.Values.project }}-{{ $app.name }}-github-eventsource
-      eventName: {{ $.Values.project }}-{{ $app.name }}-github-trigger
-      filters:
-        data:
-          - path: body.ref
-            type: string
-            comparator: "="
-            value:
-              - "refs/heads/{{ $app.git.branch }}"
-  triggers:
-    - template:
-        name: workflow-trigger
-        k8s:
-          operation: create
-          source:
-            resource:
-              apiVersion: argoproj.io/v1alpha1
-              kind: Workflow
-              metadata:
-                generateName: {{ $.Values.project }}-{{ $app.name }}-build-workflow-
-              spec:
-                arguments:
+    eventBusName: {{ $.Values.project }}-ci-eventbus
+    template:
+        serviceAccountName: {{ $.Values.project }}-ci-workflow-sa
+    dependencies:
+        - name: github-dep
+          eventSourceName: {{ $.Values.project }}-{{ $app.name }}-github-eventsource
+          eventName: {{ $.Values.project }}-{{ $app.name }}-github-trigger
+          filters:
+              data:
+                  - path: body.ref
+                    type: string
+                    comparator: "="
+                    value:
+                        - "refs/heads/{{ $app.git.branch }}"
+    triggers:
+        - template:
+              name: workflow-trigger
+              k8s:
+                  operation: create
+                  source:
+                      resource:
+                          apiVersion: argoproj.io/v1alpha1
+                          kind: Workflow
+                          metadata:
+                              generateName: {{ $.Values.project }}-{{ $app.name }}-build-workflow-
+                          spec:
+                              arguments:
+                                  parameters:
+                                      - name: git_sha
+                              workflowTemplateRef:
+                                  name: {{ $.Values.project }}-{{ $app.name }}-build-workflow-template
                   parameters:
-                    - name: git_sha
-                workflowTemplateRef:
-                  name: {{ $.Values.project }}-{{ $app.name }}-build-workflow-template
-          parameters:
-            - src:
-                dependencyName: github-dep
-                dataKey: body.after
-              dest: spec.arguments.parameters.0.value
-      retryStrategy:
-        steps: 3
+                      - src:
+                            dependencyName: github-dep
+                            dataKey: body.after
+                        dest: spec.arguments.parameters.0.value
+          retryStrategy:
+              steps: 3
 {{- end }}
 ```
 
-This template creates a Sensor for each application. The Sensor detects only push events to a specific branch (e.g., "develop") and passes the commit hash to the workflow. Filters allow processing only events from the desired branch.
+This Sensor filters only push events to specific branches (e.g., main, develop) in the `filters.data` section, and when matching events occur, it creates a Workflow by referencing the WorkflowTemplate. The `body.after` value (the commit hash after the push) is passed as a workflow parameter.
 
-### Workflow Template (CI Job Definition)
+### WorkflowTemplate
 
-Define workflow template for build and deployment tasks:
+A WorkflowTemplate that defines build and configuration update tasks:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -303,118 +322,118 @@ Define workflow template for build and deployment tasks:
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: {{ $.Values.project }}-{{ $app.name }}-build-workflow-template
-  namespace: {{ $.Values.project }}
+    name: {{ $.Values.project }}-{{ $app.name }}-build-workflow-template
+    namespace: {{ $.Values.project }}
 spec:
-  serviceAccountName: {{ $.Values.project }}-ci-workflow-sa
-  entrypoint: build
-  arguments:
-    parameters:
-      - name: git_sha
-        description: "Git commit hash"
-  volumes:
-    - name: docker-config
-      secret:
-        secretName: registry-secret
-        items:
-          - key: .dockerconfigjson
-            path: config.json
-  templates:
-    - name: build
-      dag:
-        tasks:
-          - name: build
-            template: build-container
-            arguments:
-              parameters:
-                - name: sha
-                  value: "{{`{{workflow.parameters.git_sha}}`}}"
-          - name: update-config
-            template: update-config
-            dependencies: [build]
-            arguments:
-              parameters:
-                - name: sha
-                  value: "{{`{{workflow.parameters.git_sha}}`}}"
-
-    - name: build-container
-      inputs:
+    serviceAccountName: {{ $.Values.project }}-ci-workflow-sa
+    entrypoint: build
+    arguments:
         parameters:
-          - name: sha
-      hostAliases:
-        - ip: "192.168.0.200"
-          hostnames:
-            - "harbor.injunweb.com"
-      container:
-        image: gcr.io/kaniko-project/executor:latest
-        args:
-          - "--context=git://github.com/{{ $app.git.owner }}/{{ $app.git.repo }}.git#refs/heads/{{ $app.git.branch }}#{{`{{inputs.parameters.sha}}`}}"
-          - "--dockerfile=Dockerfile"
-          - "--destination=harbor.injunweb.com/injunweb/{{ $.Values.project }}-{{ $app.name }}:{{`{{inputs.parameters.sha}}`}}"
-          - "--destination=harbor.injunweb.com/injunweb/{{ $.Values.project }}-{{ $app.name }}:latest"
-          - "--registry-mirror=harbor.injunweb.com/proxy"
-          - "--cache=true"
-          - "--cache-repo=harbor.injunweb.com/injunweb/cache"
-        env:
-          - name: GIT_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ $.Values.project }}-github-access-secret
-                key: username
-          - name: GIT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ $.Values.project }}-github-access-secret
-                key: token
-        volumeMounts:
-          - name: docker-config
-            mountPath: /kaniko/.docker/
+            - name: git_sha
+              description: "Git commit hash"
+    volumes:
+        - name: docker-config
+          secret:
+              secretName: registry-secret
+              items:
+                  - key: .dockerconfigjson
+                    path: config.json
+    templates:
+        - name: build
+          dag:
+              tasks:
+                  - name: build
+                    template: build-container
+                    arguments:
+                        parameters:
+                            - name: sha
+                              value: "{{`{{workflow.parameters.git_sha}}`}}"
+                  - name: update-config
+                    template: update-config
+                    dependencies: [build]
+                    arguments:
+                        parameters:
+                            - name: sha
+                              value: "{{`{{workflow.parameters.git_sha}}`}}"
 
-    - name: update-config
-      inputs:
-        parameters:
-          - name: sha
-      container:
-        image: curlimages/curl:latest
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            echo "[CONFIG] Updating gitops repository..."
-            curl -X POST https://api.github.com/repos/injunweb/projects-gitops/dispatches \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -d '{
-                "event_type": "config-api",
-                "client_payload": {
-                  "path": "projects/{{$.Values.project}}/applications/{{$app.name}}",
-                  "action": "apply",
-                  "spec": {
-                    "git": {
-                      "hash": "'"{{`{{inputs.parameters.sha}}`}}"'"
-                    }
-                  }
-                }
-              }'
-        env:
-          - name: GITHUB_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: {{ $.Values.project }}-github-access-secret
-                key: token
+        - name: build-container
+          inputs:
+              parameters:
+                  - name: sha
+          hostAliases:
+              - ip: "192.168.0.200"
+                hostnames:
+                    - "harbor.injunweb.com"
+          container:
+              image: gcr.io/kaniko-project/executor:latest
+              args:
+                  - "--context=git://github.com/{{ $app.git.owner }}/{{ $app.git.repo }}.git#refs/heads/{{ $app.git.branch }}#{{`{{inputs.parameters.sha}}`}}"
+                  - "--dockerfile=Dockerfile"
+                  - "--destination=harbor.injunweb.com/injunweb/{{ $.Values.project }}-{{ $app.name }}:{{`{{inputs.parameters.sha}}`}}"
+                  - "--destination=harbor.injunweb.com/injunweb/{{ $.Values.project }}-{{ $app.name }}:latest"
+                  - "--cache=true"
+                  - "--cache-repo=harbor.injunweb.com/injunweb/cache"
+              env:
+                  - name: GIT_USERNAME
+                    valueFrom:
+                        secretKeyRef:
+                            name: {{ $.Values.project }}-github-access-secret
+                            key: username
+                  - name: GIT_PASSWORD
+                    valueFrom:
+                        secretKeyRef:
+                            name: {{ $.Values.project }}-github-access-secret
+                            key: token
+              volumeMounts:
+                  - name: docker-config
+                    mountPath: /kaniko/.docker/
+
+        - name: update-config
+          inputs:
+              parameters:
+                  - name: sha
+          container:
+              image: curlimages/curl:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                  - |
+                      curl -X POST https://api.github.com/repos/injunweb/projects-gitops/dispatches \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        -H "Authorization: Bearer $GITHUB_TOKEN" \
+                        -d '{
+                          "event_type": "config-api",
+                          "client_payload": {
+                            "path": "projects/{{$.Values.project}}/applications/{{$app.name}}",
+                            "action": "apply",
+                            "spec": {
+                              "git": {
+                                "hash": "'"{{`{{inputs.parameters.sha}}`}}"'"
+                              }
+                            }
+                          }
+                        }'
+              env:
+                  - name: GITHUB_TOKEN
+                    valueFrom:
+                        secretKeyRef:
+                            name: {{ $.Values.project }}-github-access-secret
+                            key: token
 {{- end }}
 ```
 
-The key features of the workflow template are:
+The key components of this WorkflowTemplate are:
 
-1. **Kaniko**: Builds container images securely without Docker daemon. This allows building images without privilege escalation, which is good for security.
-2. **Caching**: Uses caching to reduce build time. Reuses layers from previous builds to improve performance.
-3. **GitHub API**: Calls GitHub API to update project configuration after build. This automatically updates the hash value of the image to deploy.
+- **DAG Template**: Defines two tasks, `build` and `update-config`, as a DAG with dependencies so that the configuration update only runs after a successful build.
+- **Kaniko**: A tool for building images inside containers without a Docker daemon, allowing safe image building without privilege escalation. Caching is enabled to reduce build times.
+- **GitHub API Call**: When the build succeeds, it triggers a repository_dispatch event to update the `git.hash` value in the project configuration file.
 
-DAG (Directed Acyclic Graph) template is used to define dependencies between tasks. The configuration update task runs only after the build completes successfully.
+## CD Pipeline Templates
 
-## Designing the CD Pipeline
+When the CI pipeline updates the project configuration file, ArgoCD detects the changes and performs deployment with the new image.
 
-The CD pipeline is implemented through ArgoCD. Deployment occurs automatically by detecting project configuration updates from the CI pipeline. Deployment resources are defined as follows:
+### Deployment Template
+
+A Deployment template for application deployment:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -423,132 +442,72 @@ The CD pipeline is implemented through ArgoCD. Deployment occurs automatically b
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $app.name }}-app
-  namespace: {{ $.Values.project }}
+    name: {{ $app.name }}-app
+    namespace: {{ $.Values.project }}
 spec:
-  replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-  selector:
-    matchLabels:
-      app: {{ $app.name }}-app
-  template:
-    metadata:
-      labels:
-        app: {{ $app.name }}-app
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - {{ $app.name }}-app
-                topologyKey: "kubernetes.io/hostname"
-      terminationGracePeriodSeconds: 120
-      containers:
-        - name: {{ $app.name }}-app
-          image: harbor.injunweb.com/injunweb/{{ $.Values.project }}-{{ $app.name }}:{{ $app.git.hash }}
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/sh", "-c", "sleep 10"]
-          ports:
-            - containerPort: {{ $app.port }}
-          readinessProbe:
-            tcpSocket:
-              port: {{ $app.port }}
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            successThreshold: 3
-          envFrom:
-            - secretRef:
-                name: {{ $.Values.project }}-{{ $app.name }}-secret
-                optional: true
-          env:
-            {{- range $db := $.Values.databases }}
-            {{- if eq $db.type "mysql" }}
-            - name: {{ $db.name | upper }}_HOST
-              value: {{ $db.name }}
-            - name: {{ $db.name | upper }}_PORT
-              value: {{ $db.port | quote }}
-            - name: {{ $db.name | upper }}_DATABASE
-              value: {{ $db.name }}_db
-            - name: {{ $db.name | upper }}_USER
-              value: {{ $db.name }}_user
-            - name: {{ $db.name | upper }}_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Values.project }}-{{ $db.name }}-secret
-                  key: password
-            {{- end }}
-            {{- if eq $db.type "redis" }}
-            - name: {{ $db.name | upper }}_HOST
-              value: {{ $db.name }}
-            - name: {{ $db.name | upper }}_PORT
-              value: {{ $db.port | quote }}
-            - name: {{ $db.name | upper }}_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Values.project }}-{{ $db.name }}-secret
-                  key: password
-            {{- end }}
-            {{- if eq $db.type "postgres" }}
-            - name: {{ $db.name | upper }}_HOST
-              value: {{ $db.name }}
-            - name: {{ $db.name | upper }}_PORT
-              value: {{ $db.port | quote }}
-            - name: {{ $db.name | upper }}_DB
-              value: {{ $db.name }}_db
-            - name: {{ $db.name | upper }}_USER
-              value: {{ $db.name }}_user
-            - name: {{ $db.name | upper }}_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Values.project }}-{{ $db.name }}-secret
-                  key: password
-            {{- end }}
-            {{- if eq $db.type "mongodb" }}
-            - name: {{ $db.name | upper }}_HOST
-              value: {{ $db.name }}
-            - name: {{ $db.name | upper }}_PORT
-              value: {{ $db.port | quote }}
-            - name: {{ $db.name | upper }}_DB
-              value: {{ $db.name }}_db
-            - name: {{ $db.name | upper }}_USER
-              value: {{ $db.name }}_user
-            - name: {{ $db.name | upper }}_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Values.project }}-{{ $db.name }}_secret
-                  key: password
-            {{- end }}
-            {{- end }}
-      imagePullSecrets:
-        - name: registry-secret
+    replicas: 1
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+    selector:
+        matchLabels:
+            app: {{ $app.name }}-app
+    template:
+        metadata:
+            labels:
+                app: {{ $app.name }}-app
+        spec:
+            affinity:
+                podAntiAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                        - weight: 100
+                          podAffinityTerm:
+                              labelSelector:
+                                  matchExpressions:
+                                      - key: app
+                                        operator: In
+                                        values:
+                                            - {{ $app.name }}-app
+                              topologyKey: "kubernetes.io/hostname"
+            terminationGracePeriodSeconds: 120
+            containers:
+                - name: {{ $app.name }}-app
+                  image: harbor.injunweb.com/injunweb/{{ $.Values.project }}-{{ $app.name }}:{{ $app.git.hash }}
+                  lifecycle:
+                      preStop:
+                          exec:
+                              command: ["/bin/sh", "-c", "sleep 10"]
+                  ports:
+                      - containerPort: {{ $app.port }}
+                  readinessProbe:
+                      tcpSocket:
+                          port: {{ $app.port }}
+                      initialDelaySeconds: 20
+                      periodSeconds: 10
+                      successThreshold: 3
+                  envFrom:
+                      - secretRef:
+                            name: {{ $.Values.project }}-{{ $app.name }}-secret
+                            optional: true
+            imagePullSecrets:
+                - name: registry-secret
 {{- end }}
 {{- end }}
 ```
 
-An important point here is that deployment is created only when the `$app.git.hash` value exists. This means deployment occurs only after the CI pipeline completes successfully and the project configuration is updated.
+The key point of this template is the `{{- if $app.git.hash }}` condition, which ensures that the Deployment is only created when the `git.hash` value is set. This guarantees that deployment only occurs after the CI pipeline has completed successfully.
 
-The key features of the deployment template are:
+The main features of the Deployment template are:
 
-1. **Rolling Update**: Uses rolling update as deployment strategy to implement zero-downtime deployment.
-2. **Pod Distribution**: Distributes pods of the same application across different nodes through pod anti-affinity.
-3. **Graceful Shutdown**: Allows application to terminate gracefully through `preStop` hook and appropriate termination grace period.
-4. **Environment Variables**: Provides database connection information and other settings as environment variables.
+- **Rolling Update**: The `maxSurge: 1`, `maxUnavailable: 0` settings implement zero-downtime deployment.
+- **Pod Anti-Affinity**: Distributes Pods of the same application across different nodes to improve availability.
+- **Graceful Shutdown**: The `preStop` hook and 120-second termination grace period allow existing connections to complete normally.
 
-## Ingress Configuration
+### IngressRoute Template
 
-Configure ingress routes to access applications:
+An IngressRoute template that provides external access to applications:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -558,28 +517,28 @@ Configure ingress routes to access applications:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ $.Values.project }}-{{ $app.name }}-{{ $domain | replace "." "-" }}-route
-  namespace: {{ $.Values.project }}
+    name: {{ $.Values.project }}-{{ $app.name }}-{{ $domain | replace "." "-" }}-route
+    namespace: {{ $.Values.project }}
 spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - match: Host(`{{ $domain }}`)
-      kind: Rule
-      services:
-        - name: {{ $app.name }}
-          port: {{ $app.port }}
+    entryPoints:
+        - web
+        - websecure
+    routes:
+        - match: Host(`{{ $domain }}`)
+          kind: Rule
+          services:
+              - name: {{ $app.name }}
+                port: {{ $app.port }}
 {{- end }}
 {{- end }}
 {{- end }}
 ```
 
-This template creates a Traefik IngressRoute for each application domain. It uses `web` and `websecure` entry points for external access.
+This template creates a Traefik IngressRoute for each domain defined in the project configuration, using the `web` and `websecure` entry points to handle both HTTP and HTTPS requests.
 
-## Database Configuration
+### Database StatefulSet Template
 
-Deploy databases defined in project configuration:
+A StatefulSet template for database deployment:
 
 ```yaml
 {{- range $db := .Values.databases }}
@@ -587,76 +546,71 @@ Deploy databases defined in project configuration:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ $.Values.project }}-{{ $db.name }}-db
-  namespace: {{ $.Values.project }}
+    name: {{ $.Values.project }}-{{ $db.name }}-db
+    namespace: {{ $.Values.project }}
 spec:
-  serviceName: {{ $db.name }}
-  selector:
-    matchLabels:
-      app: {{ $.Values.project }}-{{ $db.name }}-db
-  template:
-    metadata:
-      labels:
-        app: {{ $.Values.project }}-{{ $db.name }}-db
-    spec:
-      containers:
-      - name: {{ $db.name }}
-        image: {{ $db.type }}:{{ $db.version }}
-        {{- if eq $db.type "mysql" }}
-        env:
-        - name: MYSQL_DATABASE
-          value: {{ $db.name }}_db
-        - name: MYSQL_USER
-          value: {{ $db.name }}_user
-        - name: MYSQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ $.Values.project }}-{{ $db.name }}-secret
-              key: password
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ $.Values.project }}-{{ $db.name }}-secret
-              key: password
-        {{- else if eq $db.type "redis" }}
-        args: ["--requirepass", "$(REDIS_PASSWORD)"]
-        env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ $.Values.project }}-{{ $db.name }}-secret
-              key: password
-        # ... configuration for other database types ...
-        {{- end }}
-        ports:
-        - containerPort: {{ $db.port }}
-        volumeMounts:
-        - name: {{ $.Values.project }}-{{ $db.name }}-data
-          {{- if eq $db.type "mysql" }}
-          mountPath: /var/lib/mysql
-          {{- else if eq $db.type "redis" }}
-          mountPath: /data
-          {{- else if eq $db.type "postgres" }}
-          mountPath: /var/lib/postgresql/data
-          {{- else if eq $db.type "mongodb" }}
-          mountPath: /data/db
-          {{- end }}
-  volumeClaimTemplates:
-  - metadata:
-      name: {{ $.Values.project }}-{{ $db.name }}-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: {{ $db.size }}
+    serviceName: {{ $db.name }}
+    selector:
+        matchLabels:
+            app: {{ $.Values.project }}-{{ $db.name }}-db
+    template:
+        metadata:
+            labels:
+                app: {{ $.Values.project }}-{{ $db.name }}-db
+        spec:
+            containers:
+                - name: {{ $db.name }}
+                  image: {{ $db.type }}:{{ $db.version }}
+                  {{- if eq $db.type "mysql" }}
+                  env:
+                      - name: MYSQL_DATABASE
+                        value: {{ $db.name }}_db
+                      - name: MYSQL_USER
+                        value: {{ $db.name }}_user
+                      - name: MYSQL_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: {{ $.Values.project }}-{{ $db.name }}-secret
+                                key: password
+                      - name: MYSQL_ROOT_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: {{ $.Values.project }}-{{ $db.name }}-secret
+                                key: password
+                  {{- else if eq $db.type "redis" }}
+                  args: ["--requirepass", "$(REDIS_PASSWORD)"]
+                  env:
+                      - name: REDIS_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: {{ $.Values.project }}-{{ $db.name }}-secret
+                                key: password
+                  {{- end }}
+                  ports:
+                      - containerPort: {{ $db.port }}
+                  volumeMounts:
+                      - name: {{ $.Values.project }}-{{ $db.name }}-data
+                        mountPath: {{- if eq $db.type "mysql" }} /var/lib/mysql
+                                   {{- else if eq $db.type "redis" }} /data
+                                   {{- else if eq $db.type "postgres" }} /var/lib/postgresql/data
+                                   {{- else if eq $db.type "mongodb" }} /data/db
+                                   {{- end }}
+    volumeClaimTemplates:
+        - metadata:
+              name: {{ $.Values.project }}-{{ $db.name }}-data
+          spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                  requests:
+                      storage: {{ $db.size }}
 {{- end }}
 ```
 
-This template creates a StatefulSet for each database defined in project configuration. It applies different configurations depending on database type (MySQL, Redis, PostgreSQL, MongoDB) and creates persistent volumes for data storage.
+This template supports four database types: MySQL, PostgreSQL, Redis, and MongoDB, and automatically configures the appropriate environment variables and volume mount paths for each type.
 
-## GitHub Action for Configuration Updates
+## GitHub Actions Configuration Update Workflow
 
-Configure GitHub Action called by CI pipeline to update project configuration:
+A GitHub Actions workflow called by the CI pipeline to update project configuration files:
 
 ```yaml
 name: Configuration API
@@ -686,61 +640,38 @@ jobs:
                   SPEC='${{ toJson(github.event.client_payload.spec) }}'
 
                   IFS='/' read -r -a PATH_ARRAY <<< "$PATH_PARAMS"
-                  RESOURCE_TYPE="${PATH_ARRAY[0]}"
                   PROJECT="${PATH_ARRAY[1]}"
                   SUB_RESOURCE="${PATH_ARRAY[2]}"
                   NAME="${PATH_ARRAY[3]}"
 
                   FILE="projects/$PROJECT.yaml"
 
-                  case "$ACTION" in
-                    "apply")
-                      mkdir -p $(dirname $FILE)
-                      if [ "$RESOURCE_TYPE" = "projects" ] && [ ! -f "$FILE" ]; then
-                        echo "applications: []" > $FILE
-                        echo "databases: []" >> $FILE
-                      fi
-
-                      if [ -f "$FILE" ]; then
-                        if [ "$SUB_RESOURCE" = "applications" ]; then
-                          yq eval "(.applications[] | select(.name == \"$NAME\")) *= ${SPEC}" -i $FILE
-                        elif [ "$SUB_RESOURCE" = "databases" ]; then
-                          yq eval "(.databases[] | select(.name == \"$NAME\")) *= ${SPEC}" -i $FILE
-                        fi
-                      fi
-                      ;;
-
-                    "remove")
-                      if [ -f "$FILE" ]; then
-                        if [ "$SUB_RESOURCE" = "applications" ]; then
-                          yq eval "del(.applications[] | select(.name == \"$NAME\"))" -i $FILE
-                        elif [ "$SUB_RESOURCE" = "databases" ]; then
-                          yq eval "del(.databases[] | select(.name == \"$NAME\"))" -i $FILE
-                        elif [ -z "$SUB_RESOURCE" ]; then
-                          rm $FILE
-                        fi
-                      fi
-                      ;;
-                  esac
+                  if [ "$ACTION" = "apply" ] && [ -f "$FILE" ]; then
+                    if [ "$SUB_RESOURCE" = "applications" ]; then
+                      yq eval "(.applications[] | select(.name == \"$NAME\")) *= ${SPEC}" -i $FILE
+                    elif [ "$SUB_RESOURCE" = "databases" ]; then
+                      yq eval "(.databases[] | select(.name == \"$NAME\")) *= ${SPEC}" -i $FILE
+                    fi
+                  fi
 
             - name: Commit and push changes
               run: |
-                  git config user.name "in-jun"
-                  git config user.email "injuninjune@gmail.com"
+                  git config user.name "CI Bot"
+                  git config user.email "ci@example.com"
                   git add .
                   git commit -m "${{ github.event.client_payload.action }} ${{ github.event.client_payload.path }}"
                   git push
 ```
 
-This GitHub Action receives repository dispatch events to update project configuration files. It uses the `yq` tool to parse and modify YAML files. When the CI pipeline completes successfully, it calls this API to update project configuration with the built image hash.
+This workflow receives `repository_dispatch` events and uses the `yq` tool to parse and modify project configuration files. When the CI pipeline build succeeds, this workflow is triggered to update the `git.hash` field to the new commit hash, and ArgoCD detects this change and performs deployment with the new image.
 
-## Creating and Using Projects
+## Project Creation and Usage
 
-Now let's learn how to create a new project with a complete CI/CD pipeline.
+The process for creating a new project with a complete CI/CD pipeline is as follows:
 
-### 1. Create Project Definition File
+### Creating a Project Configuration File
 
-Create `projects/myproject.yaml` file:
+Create the `projects/myproject.yaml` file:
 
 ```yaml
 applications:
@@ -748,59 +679,46 @@ applications:
       git:
           type: github
           owner: myorg
-          repo: my-app-api
+          repo: my-api-server
           branch: main
       port: 8080
       domains:
-          - api.example.com
-    - name: frontend
-      git:
-          type: github
-          owner: myorg
-          repo: my-app-frontend
-          branch: main
-      port: 80
-      domains:
-          - example.com
+          - api.myproject.example.com
+
 databases:
     - name: mysql
       type: mysql
       version: "8.0"
       port: 3306
-      size: 1Gi
+      size: 2Gi
 ```
 
-This file defines a project with two applications (API and frontend) and a MySQL database.
+### Storing Secrets in Vault
 
-### 2. Store Secrets in Vault
-
-Store required secrets for the application in Vault:
+Store the secrets required for the project in Vault:
 
 ```bash
-# Store GitHub access token
-vault kv put injunweb/myproject-github-access username=myusername token=ghp_xxxxxxxxxxxx
-
-# Store application secrets
-vault kv put injunweb/myproject-api API_KEY=secretkey DB_PASSWORD=dbpass
+vault kv put injunweb/myproject-github-access username=myuser token=ghp_xxxxx
+vault kv put injunweb/myproject-mysql-secret password=mysecretpassword
+vault kv put injunweb/myproject-api-secret API_KEY=my-api-key
 ```
 
-### 3. Verify Project Deployment
+### Verifying Deployment
 
-After committing and pushing the new project definition file, ArgoCD automatically creates the application. You can check deployment status in the ArgoCD UI:
+When you commit and push the project configuration file, ArgoCD automatically creates the resources:
 
 ```bash
-# Verify namespace creation
 kubectl get ns myproject
-
-# Verify CI/CD resources
 kubectl get eventbus,eventsource,sensor -n myproject
-
-# Verify database deployment
 kubectl get statefulset -n myproject
 ```
 
+When you push code to the GitHub repository, the CI pipeline is triggered and build and deployment are performed automatically.
+
 ## Conclusion
 
-In this post, we learned how to build a complete CI/CD pipeline in a homelab Kubernetes environment. The greatest achievement is designing a reusable template for all projects and being able to build a complete CI/CD pipeline with just simple YAML files.
+This post covered building your own Internal Developer Platform (IDP) using Helm chart-based project templates and ArgoCD ApplicationSet in a homelab Kubernetes cluster. With this platform, developers can write a simple YAML configuration file to automatically provision all infrastructure including CI/CD pipelines, databases, and network settings, allowing them to focus on development without repetitive infrastructure setup work when adding new projects.
 
-In the [next post](homelab-k8s-monitoring), we will learn how to enhance monitoring and logging systems and build dashboards for system management.
+The next post covers installing Prometheus, Grafana, and Loki to build a monitoring system that collects and visualizes cluster metrics and logs.
+
+[Next Post: Homelab Kubernetes #9 - Monitoring with Prometheus and Grafana](/posts/homelab-k8s-monitoring/)

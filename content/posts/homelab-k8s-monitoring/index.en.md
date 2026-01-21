@@ -1,54 +1,46 @@
 ---
-title: "Homelab #9 - Building a Monitoring System"
+title: "Homelab Kubernetes #9 - Monitoring with Prometheus and Grafana"
 date: 2025-02-28T08:46:48+09:00
 draft: false
-description: "This guide explains how to build a simple monitoring system by installing Prometheus, Grafana, and Loki in a homelab Kubernetes environment."
-tags:
-    [
-        "kubernetes",
-        "homelab",
-        "monitoring",
-        "prometheus",
-        "grafana",
-        "loki",
-        "gitops",
-    ]
-series: ["Homelab"]
+description: "This guide covers installing Kube-Prometheus-Stack and Loki-Stack in a homelab Kubernetes cluster to build an integrated monitoring system for metric collection, visualization, and log aggregation."
+tags: ["kubernetes", "homelab", "monitoring", "prometheus", "grafana", "loki", "gitops"]
+series: ["Homelab Kubernetes"]
 ---
 
 ## Overview
 
-In the [previous post](homelab-k8s-cicd-2), we completed the CI/CD system and built a project automation system. This guide explores how to build a basic monitoring system for the homelab Kubernetes cluster. We will install Prometheus and Grafana and configure basic dashboards to provide an at-a-glance view of cluster status. We will also install Loki for log collection to create an integrated monitoring environment.
+In the [previous post](/posts/homelab-k8s-cicd-2/), we completed the CI/CD pipeline integrating GitHub Actions with ArgoCD and built a project automation system. This post covers how to install Prometheus and Grafana to collect and visualize metrics, and install Loki to centrally collect and analyze logs, building an integrated monitoring environment for the homelab Kubernetes cluster.
 
 ![Grafana](image.png)
 
 ## The Need for Monitoring
 
-When operating a homelab Kubernetes cluster, the following information needs to be checked periodically:
+When operating a homelab Kubernetes cluster, you need to periodically check node and pod status, resource usage like CPU and memory, whether applications are operating normally, and log data for identifying causes when problems occur. To visually monitor this information, the following tools are used.
 
-1. **Cluster Status**: Status of nodes, pods, deployments, etc.
-2. **Resource Usage**: CPU, memory, disk, and network usage
-3. **Application Status**: Whether pods are operating normally
-4. **System Logs**: Log data for identifying causes when problems occur
+> **What is Prometheus?**
+>
+> Prometheus is an open-source monitoring system that started at SoundCloud in 2012 and joined the CNCF (Cloud Native Computing Foundation) in 2016. It collects and stores metrics in a time-series database and allows data querying and analysis through a powerful query language called PromQL. It is the most widely used monitoring tool in Kubernetes environments.
 
-To visually monitor this information, we use the following tools:
+> **What is Grafana?**
+>
+> Grafana is an open-source data visualization platform developed by Torkel Ödegaard in 2014. It can integrate with various data sources like Prometheus, Loki, and Elasticsearch to build dashboards, and provides an intuitive UI and rich visualization options to effectively present monitoring data.
 
--   **Prometheus**: Collection and storage of time-series metric data
--   **Grafana**: Visualization of collected data and dashboard provision
--   **Loki**: Log collection and query tool
+> **What is Loki?**
+>
+> Loki is a log aggregation system developed by Grafana Labs in 2018. Inspired by Prometheus, it uses label-based indexing to collect and store logs, and enables resource-efficient log management by indexing only metadata rather than full log content.
 
 ## Installing Kube-Prometheus-Stack
 
-We use Kube-Prometheus-Stack, a Helm chart that allows us to install and manage both Prometheus and Grafana at once. As with previous guides, we will install using the GitOps approach.
+Since installing and configuring Prometheus and Grafana individually is complex, we use Kube-Prometheus-Stack, a Helm chart that allows installing and managing both tools at once. As with previous posts, we install using the GitOps approach.
 
-### Creating Directory and File Structure
+### 1. Creating Directory and File Structure
 
 ```bash
 mkdir -p k8s-resource/apps/kube-prometheus-stack/templates
 cd k8s-resource/apps/kube-prometheus-stack
 ```
 
-### Creating Chart.yaml
+### 2. Creating Chart.yaml
 
 Create the `Chart.yaml` file as follows:
 
@@ -65,9 +57,9 @@ dependencies:
       repository: "https://prometheus-community.github.io/helm-charts"
 ```
 
-This file defines the use of version 68.1.0 of the kube-prometheus-stack chart provided by the Prometheus Community.
+This configuration defines using version 68.1.0 of the kube-prometheus-stack chart provided by the Prometheus Community. This chart includes all components needed for monitoring including Prometheus, Grafana, Alertmanager, Node Exporter, and Kube State Metrics.
 
-### Creating values.yaml
+### 3. Creating values.yaml
 
 Create the `values.yaml` file as follows:
 
@@ -156,15 +148,14 @@ kube-prometheus-stack:
         enabled: false
 ```
 
-The characteristics of this configuration are as follows:
+The key characteristics of this configuration are as follows:
 
-1. **Alertmanager**: Disabled to conserve resources.
-2. **Grafana**: Allows anonymous access so dashboards can be viewed without login.
-3. **Prometheus**: Data retention period is set to 5 days to limit disk usage.
-4. **Resource Limits**: Appropriate resource limits are set for each component.
-5. **Loki Data Source**: Pre-adds Loki data source to Grafana to enable log querying.
+- **Alertmanager**: Disabled to conserve resources since an alerting system is not essential in a homelab environment.
+- **Grafana**: Configured to allow anonymous access so dashboards can be viewed without login, and pre-adds the Loki data source to enable log querying.
+- **Prometheus**: Data retention period is set to 5 days to limit disk usage, and 20Gi storage is allocated.
+- **Resource Limits**: Appropriate CPU and memory limits are set for each component to efficiently use cluster resources.
 
-### Configuring Ingress
+### 4. Configuring Ingress
 
 Create the `templates/ingressroute.yaml` file to configure access through Traefik:
 
@@ -193,7 +184,7 @@ spec:
 
 This IngressRoute uses the `intweb` and `intwebsec` entry points to make it accessible only from the internal network. `prometheus.injunweb.com` routes to the Prometheus server, and `grafana.injunweb.com` routes to Grafana.
 
-### Committing Changes and Deploying
+### 5. Committing Changes and Deploying
 
 Add and commit the created files to the Git repository:
 
@@ -203,40 +194,37 @@ git commit -m "Add kube-prometheus-stack configuration"
 git push
 ```
 
-ArgoCD will detect the changes and automatically deploy Kube-Prometheus-Stack. You can check the installation status with the following command:
+ArgoCD detects the changes and automatically deploys Kube-Prometheus-Stack. You can check the installation status with the following command:
 
 ```bash
 kubectl get pods -n kube-prometheus-stack
 ```
 
-When successfully installed, you should see results similar to the following:
+When successfully installed, results similar to the following are displayed:
 
 ```
-NAME                                                      READY   STATUS    RESTARTS   AGE
-alertmanager-kube-prometheus-stack-alertmanager-0         2/2     Running   0          2m
-kube-prometheus-stack-grafana-7dc95d688d-vwm6j            3/3     Running   0          2m
-kube-prometheus-stack-kube-state-metrics-c6d6bc845-zrdbp  1/1     Running   0          2m
-kube-prometheus-stack-operator-5dc88c8847-9xp6g           1/1     Running   0          2m
+NAME                                                       READY   STATUS    RESTARTS   AGE
+kube-prometheus-stack-grafana-7dc95d688d-vwm6j             3/3     Running   0          2m
+kube-prometheus-stack-kube-state-metrics-c6d6bc845-zrdbp   1/1     Running   0          2m
+kube-prometheus-stack-operator-5dc88c8847-9xp6g            1/1     Running   0          2m
 kube-prometheus-stack-prometheus-node-exporter-4jlnz       1/1     Running   0          2m
 kube-prometheus-stack-prometheus-node-exporter-7m8nj       1/1     Running   0          2m
 kube-prometheus-stack-prometheus-node-exporter-c445j       1/1     Running   0          2m
-kube-prometheus-stack-prometheus-node-exporter-j7lf6       1/1     Running   0          2m
-kube-prometheus-stack-prometheus-node-exporter-w4q9v       1/1     Running   0          2m
 prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   0          2m
 ```
 
 ## Installing Loki-Stack
 
-Now we install Loki-Stack for log collection and analysis. Loki is a horizontally scalable log aggregation system inspired by Prometheus.
+Now we install Loki-Stack for log collection and analysis. Loki is a horizontally scalable log aggregation system that uses label-based indexing similar to Prometheus to collect and store logs.
 
-### Creating Directory and File Structure
+### 1. Creating Directory and File Structure
 
 ```bash
 mkdir -p k8s-resource/apps/loki-stack/templates
 cd k8s-resource/apps/loki-stack
 ```
 
-### Creating Chart.yaml
+### 2. Creating Chart.yaml
 
 Create the `Chart.yaml` file as follows:
 
@@ -253,7 +241,7 @@ dependencies:
       repository: "https://grafana.github.io/helm-charts"
 ```
 
-### Creating values.yaml
+### 3. Creating values.yaml
 
 Create the `values.yaml` file as follows:
 
@@ -302,14 +290,14 @@ loki-stack:
         enabled: true
 ```
 
-The characteristics of this configuration are as follows:
+The key characteristics of this configuration are as follows:
 
-1. **Loki**: Allocates 20Gi storage for storing log data and is configured to reject logs older than 7 days (168 hours).
-2. **Promtail**: Enables the agent that collects logs from each node and sends them to Loki.
-3. **Grafana**: Disabled since it was already installed with Kube-Prometheus-Stack.
-4. **ServiceMonitor**: Enabled so that Prometheus can collect Loki metrics.
+- **Loki**: Allocates 20Gi storage for storing log data and is configured to reject logs older than 7 days (168 hours) to manage disk usage.
+- **Promtail**: Enables the DaemonSet agent that collects container logs from each node and sends them to Loki.
+- **Grafana, Prometheus**: Disabled since they were already installed with Kube-Prometheus-Stack.
+- **ServiceMonitor**: Enables ServiceMonitor so Prometheus can collect Loki metrics.
 
-### Committing Changes and Deploying
+### 4. Committing Changes and Deploying
 
 Add and commit the created files to the Git repository:
 
@@ -325,9 +313,16 @@ After installation is complete, you can verify with the following command:
 kubectl get pods -n loki-stack
 ```
 
+```
+NAME                            READY   STATUS    RESTARTS   AGE
+loki-stack-0                    1/1     Running   0          2m
+loki-stack-promtail-xxxxx       1/1     Running   0          2m
+loki-stack-promtail-yyyyy       1/1     Running   0          2m
+```
+
 ## Accessing the Monitoring System
 
-Modify the hosts file to enable access to Grafana and Prometheus:
+Modify the local computer's hosts file to enable access to Grafana and Prometheus:
 
 ```
 192.168.0.200 prometheus.injunweb.com grafana.injunweb.com
@@ -335,18 +330,18 @@ Modify the hosts file to enable access to Grafana and Prometheus:
 
 You can now access the following URLs in your web browser:
 
--   Grafana: http://grafana.injunweb.com
--   Prometheus: http://prometheus.injunweb.com
+- Grafana: `http://grafana.injunweb.com`
+- Prometheus: `http://prometheus.injunweb.com`
 
-## Exploring Grafana Dashboards
+## Using Grafana Dashboards
 
-Kube-Prometheus-Stack provides several useful dashboards by default. When you access Grafana, click the "Dashboards" icon in the left menu and check the list of pre-configured dashboards in the "Browse" section.
+Kube-Prometheus-Stack provides several useful dashboards for cluster monitoring by default. When you access Grafana, click the "Dashboards" icon in the left menu and check the list of pre-configured dashboards in the "Browse" section.
 
-In particular, the "Kubernetes / Compute Resources" related dashboards in the "General" folder are very useful for understanding cluster resource usage. The "Node Exporter" related dashboards allow you to check detailed system metrics for each node, which helps with hardware-level monitoring.
+In particular, the "Kubernetes / Compute Resources" related dashboards in the "General" folder are very useful for understanding cluster CPU, memory, and network usage at the namespace, pod, and container level. The "Node Exporter" related dashboards allow checking detailed hardware-level metrics for each node such as disk I/O, network traffic, and system load, which helps with infrastructure monitoring.
 
 ## Exploring Logs with Loki
 
-You can explore system logs in Grafana using the Loki data source. Loki uses a query language called LogQL to filter and search logs.
+You can centrally explore all container logs in the cluster using the Loki data source in Grafana. Loki uses a query language called LogQL to filter and search logs.
 
 ### Basic Log Queries
 
@@ -370,8 +365,16 @@ After navigating to the "Explore" menu in Grafana and selecting "Loki" as the da
 {namespace="traefik"} |= "error"
 ```
 
-Through Loki, you can manage various logs centrally and quickly identify causes when problems occur.
+**Viewing logs within a specific time range:**
+
+```
+{namespace="default"} |= "timeout" | json
+```
+
+Through Loki, you can centrally manage logs distributed across multiple pods and nodes, and quickly identify causes when problems occur using LogQL queries.
 
 ## Conclusion
 
-This concludes the homelab Kubernetes series. We have completed a full homelab Kubernetes environment by building everything from basic cluster installation to storage, networking, GitOps, CI/CD, and monitoring systems. With this infrastructure as a foundation, you can now test and develop various projects. Having a cloud-like environment at home without cost burden will be a great help for technology learning and experimentation.
+This post covered installing Kube-Prometheus-Stack and Loki-Stack in a homelab Kubernetes cluster to build an integrated monitoring system for metric collection, visualization, and log aggregation.
+
+This concludes the homelab Kubernetes series. We have completed a full homelab Kubernetes environment by building everything from basic cluster installation to ArgoCD GitOps environment, Longhorn distributed storage, Traefik ingress controller, Vault secret management, CI/CD pipeline, and a monitoring system using Prometheus, Grafana, and Loki. With this infrastructure as a foundation, you can test and develop various projects in a production-like Kubernetes environment without cloud service cost burden.

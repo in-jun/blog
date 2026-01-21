@@ -1,8 +1,8 @@
 ---
-title: "Homelab #7 - Building CI/CD for Deployment Automation (1)"
+title: "Homelab Kubernetes #7 - Building an Internal Developer Platform (IDP) (1)"
 date: 2025-02-28T04:32:32+09:00
 draft: false
-description: "This guide explains how to install Harbor registry, Argo Events, and Argo Workflows, which form the foundation of a CI/CD system in a homelab Kubernetes environment."
+description: "This guide covers installing Harbor container registry, Argo Events, and Argo Workflows on a homelab Kubernetes cluster to build the foundation for a CI/CD pipeline."
 tags:
     [
         "kubernetes",
@@ -13,41 +13,37 @@ tags:
         "argo-workflows",
         "gitops",
     ]
-series: ["Homelab"]
+series: ["Homelab Kubernetes"]
 ---
 
 ## Overview
 
-In the [previous post](homelab-k8s-secrets), we installed Vault in the homelab Kubernetes cluster and set up a secrets management system. In this post, we will explore how to install and configure three core components that form the foundation of a CI/CD system: Harbor registry, Argo Events, and Argo Workflows.
+In the [previous post](/posts/homelab-k8s-secrets/), we installed HashiCorp Vault and built a secrets management system using Vault Secrets Operator and ArgoCD Vault Plugin. This post covers installing and configuring three core components needed to build a CI/CD pipeline: Harbor container registry, Argo Events, and Argo Workflows.
 
 ![CI/CD](image.png)
 
-## Components of the CI/CD System
+## CI/CD System Components
 
-To build a complete CI/CD pipeline in a homelab environment, the following core components are required:
+Building a complete CI/CD pipeline in a homelab environment requires the following core components:
 
-1. **Container Registry**: A repository for storing and managing built images
-2. **Event Processing System**: A system that detects and processes events such as code changes
-3. **Workflow Engine**: An engine that executes tasks like building, testing, and deployment
-4. **Declarative Deployment System**: A system that manages and synchronizes deployment state
+- **Container Registry**: A central repository for storing and distributing built container images, enabling self-management of images without depending on public registries like Docker Hub.
+- **Event Processing System**: Responsible for detecting various events such as code changes in Git repositories and webhook receipts, and triggering subsequent tasks in response.
+- **Workflow Engine**: An engine for defining and executing actual CI/CD tasks such as code building, test execution, and container image creation.
+- **GitOps Deployment System**: A system that automatically synchronizes the desired state defined in Git repositories to the cluster. ArgoCD, installed in a previous series post, handles this role.
 
-Among these, component 4 (declarative deployment system) is already handled by ArgoCD, which was installed in a previous post. In this post, we will install and configure the remaining three components.
+In this post, we implement the container registry, event processing system, and workflow engine using Harbor, Argo Events, and Argo Workflows respectively. In the next post, we integrate these with ArgoCD to complete a full CI/CD pipeline.
 
-## 1. Installing Harbor
+## Installing Harbor
 
-Harbor is an open-source registry project hosted by the CNCF that provides functionality for storing and managing container images and Helm charts. We chose Harbor to build a completely self-hosted CI/CD environment without depending on public registries like Docker Hub.
+> **What is Harbor?**
+>
+> Harbor is a graduated project of the CNCF (Cloud Native Computing Foundation). It is an open-source container registry that started at VMware and was donated to CNCF in 2018. Beyond basic image storage functionality like Docker Hub, it provides enterprise-grade features including RBAC (Role-Based Access Control), vulnerability scanning, image signing, and replication policies, offering a complete solution for securely managing container images in private environments.
 
-### Harbor Features
+The reason for choosing Harbor is to build a completely self-hosted CI/CD environment without depending on public registries. Harbor's vulnerability scanning and access control features are useful for enhancing security even in homelab environments.
 
--   Fine-grained access control through RBAC (Role-Based Access Control)
--   Enhanced security with vulnerability scanning
--   Unified management of container images and Helm charts
--   Project-level isolation and quota management
--   Image replication and mirroring capabilities
+### Harbor Helm Chart Configuration
 
-### Preparing GitOps-based Harbor Installation
-
-As with previous posts, we will install Harbor using the GitOps approach. First, create the directory and files for Harbor installation in the Git repository:
+As with previous posts, we install Harbor using the GitOps approach. Create the directory and files for Harbor installation in the Git repository:
 
 ```bash
 mkdir -p k8s-resource/apps/harbor/templates
@@ -94,9 +90,16 @@ harbor:
                 size: 15Gi
 ```
 
-Note that the `harborAdminPassword` configuration uses a Vault reference. This value will be replaced with the actual value from Vault during deployment through ArgoCD's Vault plugin. Additionally, 15GB of volume is allocated for registry storage.
+The key points of this configuration are:
 
-Now create a Traefik IngressRoute to enable access to the Harbor UI. Create the `templates/ingressroute.yaml` file:
+- **expose.type: ClusterIP**: Configures the Harbor service to be accessible only within the cluster, with external access provided through Traefik IngressRoute.
+- **harborAdminPassword**: Uses a Vault path reference so ArgoCD Vault Plugin replaces it with the actual password during deployment.
+- **persistence**: Allocates 15GB of persistent storage to the registry for storing container images.
+- **upload_purging**: Cleans up old upload files every 12 hours to efficiently manage storage.
+
+### Traefik IngressRoute Configuration
+
+Create an IngressRoute for accessing the Harbor UI and API as the `templates/ingressroute.yaml` file:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -129,12 +132,9 @@ spec:
                 namespace: harbor
 ```
 
-Here, we define two routing rules:
+This IngressRoute defines two routing rules: the default path routes to the Harbor web portal, and API-related paths (`/api/`, `/service/`, `/v2/`, `/chartrepo/`, `/c/`) route to the Harbor core service. It uses the `intweb` and `intwebsec` entry points to allow access only from the internal network.
 
-1. Default path (`/`) routes to the Harbor web portal
-2. API, service, and registry paths route to the Harbor core service
-
-We also need middleware for large image uploads. Create the `templates/middleware.yaml` file:
+Create middleware for large container image uploads as the `templates/middleware.yaml` file:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -149,9 +149,9 @@ spec:
         retryExpression: ""
 ```
 
-This middleware handles buffering configuration for large file uploads. By setting the maximum request size and memory buffer to approximately 1GB, large container images can be uploaded smoothly.
+This middleware sets the request body size limit to approximately 1GB, allowing large container images to be uploaded.
 
-### Committing Changes and Deploying
+### Deploying Harbor
 
 Commit and push the changes:
 
@@ -161,62 +161,46 @@ git commit -m "Add Harbor configuration"
 git push
 ```
 
-ArgoCD will now detect the changes and automatically deploy Harbor. You can check the deployment status with the following command:
+ArgoCD detects the changes and automatically deploys Harbor. Check the deployment status:
 
 ```bash
 kubectl get pods -n harbor
 ```
 
-When all pods reach the Ready state, Harbor has been successfully deployed.
+When all Pods are in `Running` status, Harbor has been successfully deployed.
 
-### Accessing and Configuring Harbor UI
+### Accessing and Testing Harbor
 
-To access the Harbor UI, add the following entry to your hosts file:
+Add the following entry to your local computer's hosts file:
 
 ```
 192.168.0.200 harbor.injunweb.com
 ```
 
-Access `https://harbor.injunweb.com` in your web browser. The login credentials are:
+Access `https://harbor.injunweb.com` in a web browser and log in with the `admin` account and the password stored in Vault. After logging in, create a new project and test image pushing from the Docker CLI:
 
--   Username: admin
--   Password: Password retrieved from Vault
-
-After logging in, proceed with the following configuration:
-
-1. Create a new project:
-
-    - Go to 'Projects' > 'NEW PROJECT'
-    - Name: injunweb
-    - Access Level: Private
-
-2. Test login from Docker CLI:
-
-    ```bash
-    docker login harbor.injunweb.com -u admin -p <password>
-    ```
-
-3. Push a test image:
-    ```bash
-    docker pull nginx:alpine
-    docker tag nginx:alpine harbor.injunweb.com/injunweb/nginx:alpine
-    docker push harbor.injunweb.com/injunweb/nginx:alpine
-    ```
+```bash
+docker login harbor.injunweb.com -u admin -p <password>
+docker pull nginx:alpine
+docker tag nginx:alpine harbor.injunweb.com/injunweb/nginx:alpine
+docker push harbor.injunweb.com/injunweb/nginx:alpine
+```
 
 Once the image is successfully pushed, you can verify it in the Harbor UI.
 
-## 2. Installing Argo Events
+## Installing Argo Events
 
-Argo Events is a Kubernetes-based event-driven automation framework. It can detect events from various event sources (Git webhooks, message queues, AWS SNS, etc.) and trigger corresponding workflows.
+> **What is Argo Events?**
+>
+> Argo Events is a Kubernetes-native event-driven automation framework. It is part of the Argoproj ecosystem and was donated to CNCF where it is actively developed. It supports over 20 event sources including GitHub webhooks, AWS SQS, Kafka, and NATS. When events are detected, it can trigger various targets such as Argo Workflows, Kubernetes object creation, and AWS Lambda.
 
-### Argo Events Features
+The Argo Events architecture consists of three core components:
 
--   Event-driven workflows through declarative configuration
--   Support for various event sources
--   Extensible event filtering and transformation
--   Support for various trigger targets (Argo Workflows, Kubernetes resources, etc.)
+- **EventBus**: The transport layer responsible for message delivery between event sources and sensors, using NATS or JetStream as the backend.
+- **EventSource**: Responsible for receiving events from external systems (GitHub, AWS SNS, webhooks, etc.) and forwarding them to the EventBus.
+- **Sensor**: Subscribes to events from the EventBus and performs specified triggers (Argo Workflow execution, HTTP requests, etc.) when events matching filter conditions occur.
 
-### Preparing GitOps-based Argo Events Installation
+### Argo Events Helm Chart Configuration
 
 Create the directory and files for Argo Events installation in the Git repository:
 
@@ -229,8 +213,8 @@ Create the `Chart.yaml` file:
 
 ```yaml
 apiVersion: v2
-name: argo-event
-description: argo-event chart for Kubernetes
+name: argo-events
+description: argo-events chart for Kubernetes
 type: application
 version: 1.0.0
 appVersion: "v1.9.3"
@@ -240,13 +224,13 @@ dependencies:
       repository: "https://argoproj.github.io/argo-helm"
 ```
 
-The `values.yaml` file uses default settings, so create it as an empty file. You can add configuration only when needed:
+The `values.yaml` file uses default settings, so create it empty:
 
 ```yaml
 # Using default configuration
 ```
 
-### Committing Changes and Deploying
+### Deploying Argo Events
 
 Commit and push the changes:
 
@@ -256,25 +240,26 @@ git commit -m "Add Argo Events configuration"
 git push
 ```
 
-You can check the deployment status with the following command:
+Check the deployment status:
 
 ```bash
 kubectl get pods -n argo-events
 ```
 
-## 3. Installing Argo Workflows
+## Installing Argo Workflows
 
-Argo Workflows is a tool for defining and executing complex container-based workflows on Kubernetes. It serves as the execution engine for CI/CD tasks such as building, testing, and deployment.
+> **What is Argo Workflows?**
+>
+> Argo Workflows is a Kubernetes-native workflow engine. It was developed by Applatix (now Intuit) in 2017 and is currently maintained as a CNCF graduated project. It can define and execute complex container-based tasks using DAG (Directed Acyclic Graph) or step-based approaches, and is used for various workloads including CI/CD pipelines, data processing, and machine learning pipelines.
 
-### Argo Workflows Features
+The main features of Argo Workflows include:
 
--   DAG (Directed Acyclic Graph) or step-based workflow definitions
--   Parallel processing and artifact sharing
--   Retry strategies and timeout configuration
--   Conditional execution and loop operations
--   Flexible template system
+- **DAG and Step-based Workflows**: Define dependencies between tasks to execute sequentially or in parallel.
+- **Artifact Management**: Transfer files or data between workflow steps and store them in S3, GCS, MinIO, etc.
+- **Retry and Timeout**: Support for automatic retry of failed steps and timeout settings.
+- **Workflow Templates**: Manage reusable workflow definitions as templates to reduce code duplication.
 
-### Preparing GitOps-based Argo Workflows Installation
+### Argo Workflows Helm Chart Configuration
 
 Create the directory and files for Argo Workflows installation in the Git repository:
 
@@ -287,8 +272,8 @@ Create the `Chart.yaml` file:
 
 ```yaml
 apiVersion: v2
-name: argocd-workflow
-description: argocd-workflow chart for Kubernetes
+name: argo-workflows
+description: argo-workflows chart for Kubernetes
 type: application
 version: 1.0.0
 appVersion: "v3.6.2"
@@ -306,9 +291,9 @@ argo-workflows:
         authMode: "server"
 ```
 
-Start with a simple configuration and add more settings as needed. Here, only the server authentication mode is specified.
+`authMode: server` is a setting that uses the Argo Workflows server's own authentication, allowing simple access in a homelab environment.
 
-Create a Traefik IngressRoute to enable access to the Argo Workflows UI. Create the `templates/ingressroute.yaml` file:
+Create an IngressRoute for accessing the Argo Workflows UI as the `templates/ingressroute.yaml` file:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -328,9 +313,7 @@ spec:
                 port: 2746
 ```
 
-This route directs requests coming to the `argo-workflows.injunweb.com` host to the Argo Workflows server.
-
-### Committing Changes and Deploying
+### Deploying Argo Workflows
 
 Commit and push the changes:
 
@@ -340,27 +323,25 @@ git commit -m "Add Argo Workflows configuration"
 git push
 ```
 
-You can check the deployment status with the following command:
+Check the deployment status:
 
 ```bash
 kubectl get pods -n argo-workflows
 ```
 
-To access the Argo Workflows UI, add the following entry to your hosts file:
+Add the following entry to your local computer's hosts file and access `https://argo-workflows.injunweb.com` in a web browser to verify the Argo Workflows UI:
 
 ```
 192.168.0.200 argo-workflows.injunweb.com
 ```
 
-Access `https://argo-workflows.injunweb.com` in your web browser.
+## EventBus and EventSource Configuration
 
-## 4. EventBus and Basic Event Source Configuration
-
-Argo Events uses a component called EventBus to manage communication between event sources and sensors. Now let's configure the basic EventBus and EventSource for GitHub webhooks.
+For Argo Events to function, you need to create an EventBus and configure an EventSource to receive events.
 
 ### Creating EventBus
 
-Create the `eventbus.yaml` file:
+The EventBus is the messaging backbone responsible for communication between event sources and sensors. Create a NATS-based EventBus:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -375,74 +356,63 @@ spec:
             auth: none
 ```
 
-This manifest creates a NATS-based EventBus. NATS is a lightweight messaging system that handles communication between event sources and sensors. Three replicas are created to ensure high availability.
+This EventBus creates 3 NATS replicas to ensure high availability. Named `default`, EventSources and Sensors automatically use this EventBus without explicitly specifying it.
 
 ### Creating GitHub EventSource
 
-Create an EventSource to receive GitHub webhooks:
+Create an EventSource to receive webhook events from a GitHub repository:
 
-```bash
-kubectl apply -f - <<EOF
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: github
-  namespace: argo-events
+    name: github
+    namespace: argo-events
 spec:
-  service:
-    ports:
-      - port: 12000
-        targetPort: 12000
-  github:
-    example:
-      repositories:
-        - owner: injunweb
-          names:
-            - example-repo
-      webhook:
-        endpoint: /webhook
-        port: "12000"
-        method: POST
-      events:
-        - push
-      apiToken:
-        name: github-access
-        key: token
-      insecure: true
-      active: true
-      contentType: json
-EOF
+    service:
+        ports:
+            - port: 12000
+              targetPort: 12000
+    github:
+        example:
+            repositories:
+                - owner: injunweb
+                  names:
+                      - example-repo
+            webhook:
+                endpoint: /webhook
+                port: "12000"
+                method: POST
+            events:
+                - push
+            apiToken:
+                name: github-access
+                key: token
+            insecure: true
+            active: true
+            contentType: json
 ```
 
-This manifest creates an EventSource that receives push events from a GitHub repository.
+The components of this EventSource are:
 
--   Receives webhooks on port 12000
--   Detects push events from the injunweb/example-repo repository
--   GitHub API token is retrieved from the 'github-access' secret
+- **service.ports**: Sets port 12000 for the EventSource to receive webhooks.
+- **repositories**: Specifies the GitHub repository to receive webhooks from.
+- **webhook.endpoint**: Sets the webhook receive path to `/webhook`.
+- **events**: Configured to detect `push` events.
+- **apiToken**: Retrieves the GitHub API token from the `github-access` secret.
 
-Now you can check the status of the EventBus and EventSource:
+Check the EventBus and EventSource status:
 
 ```bash
 kubectl get eventbus -n argo-events
 kubectl get eventsource -n argo-events
 ```
 
-## 5. Component Integration
+## Component Integration Testing
 
-All three core components are now installed. The role of each component can be summarized as follows:
+Perform simple tests to verify the installed components are functioning correctly.
 
-1. **Harbor**: Securely stores and manages container images.
-2. **Argo Events**: Detects and processes events such as GitHub webhooks.
-3. **Argo Workflows**: Executes CI/CD tasks such as building and testing.
-4. **ArgoCD** (previously installed): Automatically deploys applications using the GitOps approach.
-
-How to integrate these four components to build a complete CI/CD pipeline will be covered in detail in the next post.
-
-### Basic Testing
-
-Let's do some basic testing to ensure the components are working correctly.
-
-#### Pushing an Image to Harbor
+### Harbor Image Push Test
 
 ```bash
 docker pull nginx:alpine
@@ -450,11 +420,11 @@ docker tag nginx:alpine harbor.injunweb.com/injunweb/nginx:test
 docker push harbor.injunweb.com/injunweb/nginx:test
 ```
 
-This command pulls the nginx image, tags it for the Harbor registry, and pushes it.
+You can verify the pushed image in the Harbor UI.
 
-#### Running a Simple Workflow in Argo Workflows
+### Argo Workflows Workflow Test
 
-Create a simple workflow YAML file (`hello-world.yaml`):
+Create a simple workflow to verify Argo Workflows is functioning correctly:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -472,32 +442,26 @@ spec:
               args: ["Hello World!"]
 ```
 
-This workflow uses the docker/whalesay image to output a "Hello World!" message.
-
-Execute the workflow:
+Apply this workflow to the cluster:
 
 ```bash
 kubectl apply -f hello-world.yaml
 ```
 
-You can check the execution result in the Argo Workflows UI.
+You can check the workflow execution results in the Argo Workflows UI.
 
-## 6. Next Steps
+## Next Steps
 
-The basic components of the CI/CD system are now installed, but some additional configuration is needed to integrate them effectively:
+The three components installed in this post (Harbor, Argo Events, Argo Workflows) form the foundation of a CI/CD pipeline, but the following additional configurations are needed to complete a working pipeline:
 
-1. **Sensor Configuration**: Configure sensors that detect events from Argo Events EventSource and trigger Argo Workflows.
-
-2. **Creating Workflow Templates**: Create reusable workflow templates for application building, image creation, and deployment.
-
-3. **Configuring GitOps Pipeline**: Configure the complete pipeline that automatically builds and deploys when code changes occur in GitHub.
-
-4. **Security Hardening**: Add security-related configurations such as secrets management and access control.
-
-These additional configurations will be covered in detail in the next post.
+- **Sensor Configuration**: Create Sensors that filter events received from EventSource and trigger Argo Workflows.
+- **Workflow Templates**: Write reusable workflow templates that perform tasks such as application building, container image creation, and Harbor push.
+- **ArgoCD Integration**: Automate the process of deploying new images to the cluster through ArgoCD after workflows complete.
 
 ## Conclusion
 
-In this post, we explored how to install and configure Harbor, Argo Events, and Argo Workflows, the core components of a CI/CD system. By integrating these three components with the previously installed ArgoCD, we can build a complete CI/CD pipeline that automates the entire process from code changes to automatic deployment.
+This post covered installing and completing basic configuration of Harbor container registry, Argo Events event processing system, and Argo Workflows workflow engine, the core components of a CI/CD pipeline, on a homelab Kubernetes cluster.
 
-In the [next post](homelab-k8s-cicd-2), we will cover how to integrate these components to build a fully functional CI/CD pipeline.
+The next post covers connecting these components with Sensors and workflow templates and integrating them with ArgoCD to build a complete CI/CD pipeline.
+
+[Next Post: Homelab Kubernetes #8 - Building an Internal Developer Platform (IDP) (2)](/posts/homelab-k8s-cicd-2/)
