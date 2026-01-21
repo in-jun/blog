@@ -1,5 +1,5 @@
 ---
-title: "홈랩 쿠버네티스 #6 - Vault와 ArgoCD로 시크릿 관리하기"
+title: "홈랩 쿠버네티스 #6 - HashiCorp Vault로 시크릿 관리하기"
 date: 2025-02-26T16:20:14+09:00
 draft: false
 description: "홈랩 쿠버네티스 클러스터에 HashiCorp Vault를 설치하고 Vault Secrets Operator와 ArgoCD Vault Plugin을 통해 GitOps 방식으로 안전한 시크릿 관리 시스템을 구축하는 방법을 다룬다."
@@ -9,7 +9,7 @@ series: ["홈랩 쿠버네티스"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-external-access/)에서는 Cloudflare DNS 설정, 커스텀 DDNS Worker 구현, 라우터 포트포워딩을 구성하여 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 했다. 이번 글에서는 쿠버네티스 클러스터에서 비밀번호, API 키, 인증서 같은 민감한 정보를 안전하게 관리하기 위해 HashiCorp Vault를 설치하고 구성하는 방법을 알아본다.
+[이전 글](/posts/homelab-k8s-external-access/)에서는 DDNS와 포트포워딩을 구성하여 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 했다. 이번 글에서는 쿠버네티스 클러스터에서 비밀번호, API 키, 인증서 같은 민감한 정보를 안전하게 관리하기 위해 HashiCorp Vault를 설치하고 구성하는 방법을 알아본다.
 
 ![Vault Logo](image.png)
 
@@ -681,7 +681,7 @@ ArgoCD에서 애플리케이션을 생성할 때 "argocd-vault-plugin-helm"을 C
 
 ## 마치며
 
-이번 글에서는 홈랩 쿠버네티스 클러스터에 HashiCorp Vault를 설치하고, Vault Secrets Operator와 ArgoCD Vault Plugin을 통해 안전한 시크릿 관리 시스템을 구축하는 방법을 살펴보았다. Vault Secrets Operator는 기존 애플리케이션 코드 변경 없이 시크릿을 쿠버네티스 Secret으로 동기화할 수 있고, ArgoCD Vault Plugin은 Git 저장소에 민감한 정보를 저장하지 않으면서 GitOps 워크플로우를 유지할 수 있다.
+이번 글에서는 홈랩 쿠버네티스 클러스터에 HashiCorp Vault를 설치하고 안전한 시크릿 관리 시스템을 구축하는 방법을 살펴보았다. Vault Secrets Operator는 기존 애플리케이션 코드 변경 없이 시크릿을 쿠버네티스 Secret으로 동기화할 수 있고, ArgoCD Vault Plugin은 Git 저장소에 민감한 정보를 저장하지 않으면서 GitOps 워크플로우를 유지할 수 있다.
 
 다음 글에서는 Harbor, Argo Events, Argo Workflows를 설치하여 CI/CD 파이프라인의 기반을 구축하는 방법을 알아본다.
 

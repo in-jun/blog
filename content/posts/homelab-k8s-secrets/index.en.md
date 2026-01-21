@@ -1,5 +1,5 @@
 ---
-title: "Homelab Kubernetes #6 - Secret Management with Vault and ArgoCD"
+title: "Homelab Kubernetes #6 - Secret Management with HashiCorp Vault"
 date: 2025-02-26T16:20:14+09:00
 draft: false
 description: "This guide covers installing HashiCorp Vault in a homelab Kubernetes cluster and building a secure secret management system using GitOps methodology with Vault Secrets Operator and ArgoCD Vault Plugin."
@@ -9,7 +9,7 @@ series: ["Homelab Kubernetes"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-external-access/), we configured Cloudflare DNS settings, implemented a custom DDNS Worker, and set up router port forwarding to enable external internet access to homelab Kubernetes cluster services. This post covers how to install and configure HashiCorp Vault to securely manage sensitive information like passwords, API keys, and certificates in the Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-external-access/), we configured DDNS and port forwarding to enable external internet access to homelab Kubernetes cluster services. This post covers how to install and configure HashiCorp Vault to securely manage sensitive information like passwords, API keys, and certificates in the Kubernetes cluster.
 
 ![Vault Logo](image.png)
 
@@ -681,7 +681,7 @@ When creating an application in ArgoCD, selecting "argocd-vault-plugin-helm" as 
 
 ## Conclusion
 
-This post covered installing HashiCorp Vault in a homelab Kubernetes cluster and building a secure secret management system with Vault Secrets Operator and ArgoCD Vault Plugin. Vault Secrets Operator can synchronize secrets to Kubernetes Secrets without changing existing application code, and ArgoCD Vault Plugin can maintain GitOps workflow without storing sensitive information in Git repositories.
+This post covered installing HashiCorp Vault in a homelab Kubernetes cluster and building a secure secret management system. Vault Secrets Operator can synchronize secrets to Kubernetes Secrets without changing existing application code, and ArgoCD Vault Plugin can maintain GitOps workflow without storing sensitive information in Git repositories.
 
 The next post covers installing Harbor, Argo Events, and Argo Workflows to build the foundation for a CI/CD pipeline.
 

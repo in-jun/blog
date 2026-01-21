@@ -1,5 +1,5 @@
 ---
-title: "Homelab Kubernetes #5 - External Access with Cloudflare DDNS"
+title: "Homelab Kubernetes #5 - External Access with DDNS and Port Forwarding"
 date: 2025-02-26T14:07:36+09:00
 draft: false
 description: "This guide covers configuring Cloudflare DNS settings, implementing a custom DDNS Worker, and setting up router port forwarding to enable external internet access to services running in a homelab Kubernetes cluster."
@@ -9,7 +9,7 @@ series: ["Homelab Kubernetes"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-internal-services/), we installed the Traefik ingress controller and configured secure access to management interfaces by separating internal and external services. This post covers how to configure DNS settings, dynamic IP management, and router port forwarding to enable external internet access to services running in the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-internal-services/), we installed the Traefik ingress controller and configured secure access to management interfaces by separating internal and external services. This post covers how to configure DDNS and port forwarding to enable external internet access to services running in the homelab Kubernetes cluster.
 
 ## Network Architecture Summary
 
@@ -380,8 +380,8 @@ If internal management services are not accessible from outside and only the tes
 
 ## Conclusion
 
-This post covered configuring Cloudflare DNS settings, implementing a custom DDNS solution using Cloudflare Workers, and setting up router port forwarding to enable external internet access to homelab Kubernetes cluster services. By separating internal and external load balancers and setting port forwarding targets only to the external IP, exposure of management interfaces to the outside can be prevented.
+This post covered configuring DDNS and port forwarding to enable external internet access to homelab Kubernetes cluster services. By separating internal and external load balancers and setting port forwarding targets only to the external IP, exposure of management interfaces to the outside can be prevented.
 
 The next post covers installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
 
-[Next Post: Homelab Kubernetes #6 - Secret Management with Vault and ArgoCD](/posts/homelab-k8s-secrets/)
+[Next Post: Homelab Kubernetes #6 - Secret Management with HashiCorp Vault](/posts/homelab-k8s-secrets/)

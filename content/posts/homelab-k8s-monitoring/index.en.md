@@ -9,7 +9,7 @@ series: ["Homelab Kubernetes"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-cicd-2/), we completed the CI/CD pipeline integrating GitHub Actions with ArgoCD and built a project automation system. This post covers how to install Prometheus and Grafana to collect and visualize metrics, and install Loki to centrally collect and analyze logs, building an integrated monitoring environment for the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-cicd-2/), we built an Internal Developer Platform (IDP) using Helm chart-based project templates and ArgoCD ApplicationSet. This post covers how to install Prometheus and Grafana to collect and visualize metrics, and install Loki to centrally collect and analyze logs, building an integrated monitoring environment for the homelab Kubernetes cluster.
 
 ![Grafana](image.png)
 

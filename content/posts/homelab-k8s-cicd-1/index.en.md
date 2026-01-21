@@ -18,7 +18,7 @@ series: ["Homelab Kubernetes"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-secrets/), we installed HashiCorp Vault and built a secrets management system using Vault Secrets Operator and ArgoCD Vault Plugin. This post covers installing and configuring three core components needed to build a CI/CD pipeline: Harbor container registry, Argo Events, and Argo Workflows.
+In the [previous post](/posts/homelab-k8s-secrets/), we installed HashiCorp Vault to build a secure secrets management system. This post covers installing and configuring three core components needed to build a CI/CD pipeline: Harbor container registry, Argo Events, and Argo Workflows.
 
 ![CI/CD](image.png)
 

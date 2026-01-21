@@ -18,7 +18,7 @@ series: ["홈랩 쿠버네티스"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-secrets/)에서는 HashiCorp Vault를 설치하고 Vault Secrets Operator와 ArgoCD Vault Plugin을 활용하여 시크릿 관리 시스템을 구축했다. 이번 글에서는 CI/CD 파이프라인을 구성하기 위해 필요한 세 가지 핵심 컴포넌트인 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 구성을 완료하는 방법을 다룬다.
+[이전 글](/posts/homelab-k8s-secrets/)에서는 HashiCorp Vault를 설치하여 안전한 시크릿 관리 시스템을 구축했다. 이번 글에서는 CI/CD 파이프라인을 구성하기 위해 필요한 세 가지 핵심 컴포넌트인 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 구성을 완료하는 방법을 다룬다.
 
 ![CI/CD](image.png)
 

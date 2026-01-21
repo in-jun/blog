@@ -9,7 +9,7 @@ series: ["홈랩 쿠버네티스"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-cicd-2/)에서는 GitHub Actions와 ArgoCD를 연동한 CI/CD 파이프라인을 완성하고 프로젝트 자동화 시스템을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터를 모니터링하기 위해 Prometheus와 Grafana를 설치하여 메트릭을 수집하고 시각화하며, Loki를 설치하여 로그를 중앙에서 수집하고 분석할 수 있는 통합 모니터링 환경을 구성하는 방법을 알아본다.
+[이전 글](/posts/homelab-k8s-cicd-2/)에서는 Helm 차트 기반 프로젝트 템플릿과 ArgoCD ApplicationSet을 활용하여 내부 개발자 플랫폼(IDP)을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터를 모니터링하기 위해 Prometheus와 Grafana를 설치하여 메트릭을 수집하고 시각화하며, Loki를 설치하여 로그를 중앙에서 수집하고 분석할 수 있는 통합 모니터링 환경을 구성하는 방법을 알아본다.
 
 ![Grafana](image.png)
 
