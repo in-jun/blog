@@ -375,4 +375,4 @@ This post covered installing the Traefik ingress controller on a homelab Kuberne
 
 The next post covers configuring DDNS and port forwarding to make homelab services accessible from the external internet using the external load balancer.
 
-[Next Post: Homelab Kubernetes #5 - External Access with Cloudflare DDNS](/posts/homelab-k8s-external-access/)
+[Next Post: Homelab Kubernetes #5 - External Access with DDNS and Port Forwarding](/posts/homelab-k8s-external-access/)

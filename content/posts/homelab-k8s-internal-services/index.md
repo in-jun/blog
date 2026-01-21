@@ -375,4 +375,4 @@ C:\Windows\System32\drivers\etc\hosts
 
 다음 글에서는 외부용 로드밸런서를 활용하여 홈랩 서비스를 외부 인터넷에서 접근할 수 있도록 DDNS와 포트 포워딩을 구성하는 방법을 알아본다.
 
-[다음 글: 홈랩 쿠버네티스 #5 - Cloudflare DDNS로 외부 접근 설정하기](/posts/homelab-k8s-external-access/)
+[다음 글: 홈랩 쿠버네티스 #5 - DDNS와 포트포워딩으로 외부에서 접속하기](/posts/homelab-k8s-external-access/)
