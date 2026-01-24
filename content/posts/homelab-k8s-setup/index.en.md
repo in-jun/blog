@@ -23,11 +23,11 @@ The hardware setup consists of five Dell OptiPlex Micro units as nodes with TP-L
 
 First, an operating system must be installed on each node. Windows 10, which was originally installed on the Dell OptiPlex Micro units, is removed and replaced with Ubuntu 24.04 LTS Server version. Ubuntu Server was chosen because it has no GUI, resulting in lower system resource usage and optimization for server environments like Kubernetes. The LTS (Long Term Support) version provides security updates and technical support for 5 years until 2029, making it suitable for stable server operations.
 
-For installation, download the Ubuntu ISO file, create a bootable USB using tools like Rufus or balenaEtcher, then select USB boot in the BIOS to proceed with the installation.
+For installation, I downloaded the Ubuntu ISO file, created a bootable USB using tools like Rufus or balenaEtcher, then selected USB boot in the BIOS to proceed with the installation.
 
 ![Installation initial screen](image-1.png)
 
-After booting, select "Try or Install Ubuntu" and proceed with the installation. Basic setup screens for language selection, keyboard layout, and network configuration will appear. Following the defaults, the server configuration screen shown below will appear.
+After booting, I selected "Try or Install Ubuntu" and proceeded with the installation. Basic setup screens for language selection, keyboard layout, and network configuration appeared. Following the defaults, the server configuration screen shown below appeared.
 
 ![SSH setup screen](image-2.png)
 
@@ -39,7 +39,7 @@ On the additional package installation screen, pre-configured packages like Dock
 
 ![Installation complete screen](image-4.png)
 
-When installation is complete, the screen shown above will appear. Select "Reboot Now" to restart the system. Repeat this process identically on all nodes to complete the operating system installation.
+When installation was complete, the screen shown above appeared. I selected "Reboot Now" to restart the system and repeated this process identically on all nodes to complete the operating system installation.
 
 ## Network Configuration
 

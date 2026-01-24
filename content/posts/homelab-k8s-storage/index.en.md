@@ -23,7 +23,7 @@ Initially, the following approaches were attempted:
 
 1. **Local Storage**: The simplest approach using local disks on each node directly, but when pods were rescheduled to different nodes, data stored on the original node became inaccessible. The critical drawback is that data recovery is impossible when a node fails.
 
-2. **NFS (Network File System)**: Configuring a separate NAS device as an NFS server for shared storage across all nodes allows pods to access the same data regardless of which node they run on. However, the NFS server becomes a single point of failure, making all storage inaccessible when the server fails. Stability issues with NFS file locking in Kubernetes environments were also experienced.
+2. **NFS (Network File System)**: Configuring a separate NAS device as an NFS server for shared storage across all nodes allowed pods to access the same data regardless of which node they ran on. However, the NFS server became a single point of failure, making all storage inaccessible when the server failed. Stability issues with NFS file locking in Kubernetes environments were also experienced.
 
 3. **Rook-Ceph**: Deploying the Kubernetes-native distributed storage solution Ceph through the Rook operator provides powerful features and high reliability. However, it requires a minimum of 3 OSD (Object Storage Daemon) nodes and has significant memory and CPU overhead, creating resource burden in a homelab environment built with Dell OptiPlex Micro units.
 
