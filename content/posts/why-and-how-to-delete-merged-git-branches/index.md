@@ -1,8 +1,8 @@
 ---
-title: "Merge 후 브랜치 삭제: 왜 그리고 어떻게"
+title: "병합된 Git 브랜치 삭제 방법"
 date: 2024-07-11T22:27:22+09:00
-tags: ["git", "version control", "collaboration", "branch management"]
-description: "Git 브랜치의 생성부터 삭제까지 전체 라이프사이클을 이해하고, 병합된 브랜치를 안전하게 확인하고 삭제하는 방법과 자동화 스크립트, GitHub/GitLab의 자동 삭제 설정, 그리고 실수로 삭제한 브랜치를 복구하는 방법까지 포괄적으로 다룬다."
+tags: ["Git", "버전관리", "협업"]
+description: "병합 완료된 Git 브랜치를 안전하게 삭제하는 방법을 다룬다."
 draft: false
 ---
 

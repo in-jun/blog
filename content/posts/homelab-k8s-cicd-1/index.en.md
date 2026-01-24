@@ -1,19 +1,10 @@
 ---
-title: "Homelab Kubernetes #7 - Building an Internal Developer Platform (IDP) (1)"
+title: "Mini PC Kubernetes #7: Building IDP (1)"
 date: 2025-02-28T04:32:32+09:00
 draft: false
-description: "This guide covers installing Harbor container registry, Argo Events, and Argo Workflows on a homelab Kubernetes cluster to build the foundation for a CI/CD pipeline."
-tags:
-    [
-        "kubernetes",
-        "homelab",
-        "ci/cd",
-        "harbor",
-        "argo-events",
-        "argo-workflows",
-        "gitops",
-    ]
-series: ["Homelab Kubernetes"]
+description: "Building CI/CD pipelines for Kubernetes deployments."
+tags: ["Kubernetes", "CI/CD", "DevOps"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

@@ -1,8 +1,8 @@
 ---
-title: "Baekjoon 27440: Make it One 3 (C++)"
+title: "Baekjoon 27440 Make it One 3 Solution"
 date: 2024-05-29T19:58:08+09:00
-tags: ["Baekjoon", "Algorithm", "Dynamic Programming", "Memoization", "BFS"]
-description: "This article covers how to solve Baekjoon 27440 'Make it One 3' using dynamic programming and memoization, explaining the algorithm that finds the minimum number of operations to reduce a large number up to 10^18 to 1 in O(log² n) time complexity, along with detailed C++ implementation."
+tags: ["Algorithm", "Dynamic Programming"]
+description: "Dynamic programming solution for Baekjoon problem 27440."
 draft: false
 ---
 

@@ -1,8 +1,8 @@
 ---
-title: "CI/CD란 무엇인가?"
+title: "CI/CD 지속적 통합과 배포"
 date: 2024-06-10T17:14:26+09:00
-tags: ["CI", "CD", "지속적 통합", "지속적 배포", "DevOps", "자동화"]
-description: "Extreme Programming에서 유래한 CI/CD의 역사부터 빌드 자동화, 테스트 자동화, Continuous Delivery와 Deployment의 차이, Jenkins와 GitHub Actions 등 도구 비교, 파이프라인 구축 모범 사례까지 포괄적으로 다룬다."
+tags: ["CI/CD", "DevOps", "자동화"]
+description: "지속적 통합과 지속적 배포의 개념과 구현 방법을 다룬다."
 draft: false
 ---
 

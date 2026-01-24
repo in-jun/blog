@@ -1,8 +1,8 @@
 ---
-title: "Spring Boot 알아보기"
+title: "Spring Boot 시작하기"
 date: 2024-05-16T22:14:17+09:00
-tags: ["spring", "spring-boot", "java", "backend"]
-description: "Spring Boot는 2014년 Pivotal에서 출시한 프레임워크로, Spring Framework의 복잡한 XML 설정을 자동 구성으로 대체하고 내장 서버를 제공하여 독립 실행 가능한 애플리케이션을 빠르게 개발할 수 있게 한다"
+tags: ["Spring", "Java", "프레임워크"]
+description: "Spring Boot의 핵심 개념과 프로젝트 설정 방법을 다룬다."
 draft: false
 ---
 

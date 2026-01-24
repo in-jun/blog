@@ -1,8 +1,8 @@
 ---
-title: "The Complete Guide to the Bellman-Ford Algorithm"
+title: "Bellman-Ford Algorithm"
 date: 2024-06-17T18:40:50+09:00
-tags: ["Bellman-Ford", "algorithm", "shortest-path", "graph", "negative-weight", "negative-cycle"]
-description: "A comprehensive guide covering the history of the Bellman-Ford algorithm independently discovered by Richard Bellman in 1958 and Lester Ford in 1956, its dynamic programming-based edge relaxation principles, O(VE) time complexity analysis, negative weight handling and negative cycle detection methods, and real-world applications including RIP routing and arbitrage detection."
+tags: ["Algorithm", "Graph", "Shortest Path"]
+description: "Shortest path algorithm for graphs with negative edge weights."
 draft: false
 ---
 

@@ -1,8 +1,8 @@
 ---
-title: "서블릿 Filter란 무엇인가"
+title: "서블릿 Filter"
 date: 2024-06-04T16:29:15+09:00
-tags: ["spring", "servlet", "filter", "java"]
-description: "서블릿 필터는 Servlet 2.3 명세(2001년)에서 도입된 HTTP 요청/응답 전처리 및 후처리 컴포넌트로, 서블릿 컨테이너 레벨에서 동작하며 인증, 로깅, 인코딩 설정 등 횡단 관심사를 처리한다"
+tags: ["Spring", "Java", "서블릿"]
+description: "서블릿 Filter의 동작 원리와 활용 방법을 설명한다."
 draft: false
 ---
 

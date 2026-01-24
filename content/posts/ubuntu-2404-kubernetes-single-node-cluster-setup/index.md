@@ -1,8 +1,8 @@
 ---
-title: "Ubuntu 24.04 LTS 단일 노드 쿠버네티스 클러스터 구축 완벽 가이드"
+title: "우분투 24.04 쿠버네티스 단일 노드 클러스터 설치"
 date: 2024-07-27T23:23:40+09:00
-tags: ["Kubernetes", "Ubuntu", "Container", "kubeadm", "DevOps"]
-description: "Ubuntu 24.04 LTS에서 kubeadm을 사용하여 단일 노드 쿠버네티스 클러스터를 구축하는 전체 과정을 다루며, 컨테이너 런타임 설정부터 네트워크 플러그인 설치까지 단계별로 설명한다"
+tags: ["Ubuntu", "Kubernetes", "Linux"]
+description: "우분투 24.04에서 단일 노드 쿠버네티스 클러스터를 구축하는 방법을 설명한다."
 draft: false
 ---
 

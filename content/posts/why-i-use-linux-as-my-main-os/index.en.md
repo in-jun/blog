@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide: Why Developers Choose Linux as Their Primary OS"
+title: "Linux as a Development Operating System"
 date: 2024-05-16T13:16:11+09:00
-tags: ["Linux", "Ubuntu", "Operating System", "Development", "DevOps"]
-description: "From Linux history and philosophy to distribution comparisons, development environment setup, and comparisons with Windows and macOS, this guide explains why developers should choose Linux"
+tags: ["Linux", "Operating System", "Development"]
+description: "Advantages of Linux as a development environment."
 draft: false
 ---
 

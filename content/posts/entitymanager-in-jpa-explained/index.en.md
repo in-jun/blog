@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to EntityManager"
+title: "JPA EntityManager"
 date: 2024-06-07T19:12:36+09:00
-tags: ["jpa", "hibernate", "entitymanager", "orm"]
-description: "EntityManager is the core JPA interface that standardized Hibernate's Session. It manages the persistence context and controls entity lifecycle through methods like persist, find, merge, and remove, executing queries via JPQL and Criteria API"
+tags: ["JPA", "ORM", "Java"]
+description: "EntityManager role and persistence context management in JPA."
 draft: false
 ---
 

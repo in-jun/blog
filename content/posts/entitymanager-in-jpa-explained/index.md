@@ -1,8 +1,8 @@
 ---
-title: "EntityManager 완벽 가이드"
+title: "JPA EntityManager"
 date: 2024-06-07T19:12:36+09:00
-tags: ["jpa", "hibernate", "entitymanager", "orm"]
-description: "EntityManager는 JPA의 핵심 인터페이스로 Hibernate Session을 표준화한 것이다. 영속성 컨텍스트를 관리하고 persist, find, merge, remove 등의 메서드로 엔티티 생명주기를 제어하며, JPQL과 Criteria API로 쿼리를 실행한다"
+tags: ["JPA", "ORM", "Java"]
+description: "JPA EntityManager의 역할과 영속성 컨텍스트 관리 방법을 설명한다."
 draft: false
 ---
 

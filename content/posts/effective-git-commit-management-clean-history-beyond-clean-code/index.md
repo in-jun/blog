@@ -1,8 +1,8 @@
 ---
-title: "효과적인 Git 커밋 관리: 클린 코드를 넘어 클린 히스토리로"
+title: "Git 커밋 관리와 클린 히스토리"
 date: 2024-07-13T09:41:43+09:00
-tags: ["git", "commit", "rebase", "version-control"]
-description: "Git 커밋 관리 기법은 2005년 Git 탄생과 함께 발전해왔으며, 단일 책임 원칙 적용, interactive rebase를 통한 히스토리 정리, fixup/squash를 활용한 커밋 병합이 깔끔한 프로젝트 히스토리의 핵심이다"
+tags: ["Git", "버전관리"]
+description: "Interactive rebase와 squash를 사용한 Git 히스토리 관리 기법을 설명한다."
 draft: false
 ---
 

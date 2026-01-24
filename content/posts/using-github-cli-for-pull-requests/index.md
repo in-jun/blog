@@ -1,8 +1,8 @@
 ---
-title: "GitHub CLI로 풀 리퀘스트(PR) 보내기"
+title: "GitHub CLI로 Pull Request 관리하기"
 date: 2024-07-19T00:39:08+09:00
-tags: ["github", "cli", "pr", "git", "devops"]
-description: "GitHub CLI(gh)는 터미널에서 GitHub 작업을 수행하는 공식 명령줄 도구로, PR 생성부터 리뷰, 병합까지 모든 워크플로우를 GUI 없이 효율적으로 처리할 수 있으며, 자동화와 스크립팅에도 활용할 수 있다."
+tags: ["Git", "GitHub", "자동화"]
+description: "GitHub CLI를 사용한 Pull Request 생성과 관리 방법을 다룬다."
 draft: false
 ---
 

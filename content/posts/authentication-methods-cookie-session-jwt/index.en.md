@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Web Authentication: From Cookies and Sessions to JWT and RTR"
+title: "Web Authentication with Cookies, Sessions, and JWT"
 date: 2024-06-02T14:18:40+09:00
-tags: ["Authentication", "JWT", "Session", "Cookie", "OAuth", "Security"]
-description: "A detailed comparison of the core web authentication concepts including Cookies, Sessions, and JWT, explaining their operation principles and differences, along with security enhancement methods through Refresh Token and RTR (Refresh Token Rotation) strategies from a practical perspective"
+tags: ["Authentication", "Security", "JWT"]
+description: "Cookie, Session, and JWT-based web authentication with refresh token strategies."
 draft: false
 ---
 

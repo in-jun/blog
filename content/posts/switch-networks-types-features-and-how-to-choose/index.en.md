@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Network Switches: Understanding L1 to L7 by Layer"
+title: "Network Switch Types and Selection"
 date: 2024-08-01T16:20:21+09:00
-tags: ["Network", "Switch", "OSI", "Load Balancer", "Infrastructure"]
-description: "A detailed explanation of network switch types and characteristics according to the OSI 7-layer model, covering operating principles, use cases, and selection criteria from L1 hubs to L7 application switches"
+tags: ["Network", "Switch", "Hardware"]
+description: "Network switch types and selection criteria."
 draft: false
 ---
 

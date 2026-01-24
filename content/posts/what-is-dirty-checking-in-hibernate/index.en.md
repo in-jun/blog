@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Dirty Checking"
+title: "Dirty Checking in JPA"
 date: 2024-06-08T02:47:28+09:00
-tags: ["jpa", "hibernate", "orm", "java"]
-description: "Dirty Checking is a change detection mechanism developed by Hibernate where the persistence context stores snapshots and compares them at flush time to automatically generate UPDATE queries. Use @DynamicUpdate for partial field updates and optimize bulk processing with batch settings and bulk operations"
+tags: ["JPA", "ORM", "Java"]
+description: "Change detection mechanism in JPA."
 draft: false
 ---
 

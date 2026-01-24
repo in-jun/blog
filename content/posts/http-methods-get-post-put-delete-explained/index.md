@@ -1,9 +1,9 @@
 ---
-title: "HTTP 메서드 완벽 가이드: GET, POST, PUT, DELETE부터 보안까지"
+title: "HTTP 메서드 GET POST PUT DELETE"
 date: 2024-05-25T14:05:29+09:00
-tags: ["HTTP", "REST API", "웹 개발", "CORS"]
+tags: ["HTTP", "API", "프로토콜"]
 draft: false
-description: "HTTP/1.1 표준 명세(RFC 7231)에 정의된 9가지 HTTP 메서드의 역사, 특성, 활용법을 다루며, 멱등성과 안전성 개념부터 RESTful API 설계 원칙, CORS preflight 요청 처리, 실전 예제, 보안 고려사항까지 웹 개발에서 HTTP 메서드를 올바르게 사용하는 방법을 포괄적으로 설명한다."
+description: "GET, POST, PUT, DELETE 등 HTTP 메서드의 특징과 사용법을 설명한다."
 ---
 
 HTTP(HyperText Transfer Protocol) 메서드는 1991년 Tim Berners-Lee가 World Wide Web을 고안하면서 처음 등장한 이후 지속적으로 발전해온 클라이언트-서버 간 통신 규약의 핵심 요소로, HTTP/1.1 표준(RFC 7231)에서는 GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, TRACE의 9가지 표준 메서드를 정의하고 있으며, 각 메서드는 멱등성(Idempotency)과 안전성(Safety)이라는 중요한 특성을 가지고 RESTful API 설계와 웹 애플리케이션 개발에서 핵심적인 역할을 담당한다.

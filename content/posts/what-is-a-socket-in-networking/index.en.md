@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Sockets: From TCP/UDP to WebSocket"
+title: "Network Sockets"
 date: 2024-06-08T21:22:40+09:00
-tags: ["Network", "Socket", "TCP", "UDP", "WebSocket"]
-description: "A comprehensive guide covering Berkeley Sockets history, TCP/UDP socket mechanics, core socket programming functions, client-server architecture, and the relationship with WebSocket"
+tags: ["Network", "Socket", "Programming"]
+description: "Network socket concepts and TCP/UDP socket programming."
 draft: false
 ---
 

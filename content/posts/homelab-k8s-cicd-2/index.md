@@ -1,22 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #8 - 내부 개발자 플랫폼(IDP) 구축하기 (2)"
+title: "미니PC Kubernetes #8: IDP 구축 (2)"
 date: 2025-02-28T07:47:18+09:00
 draft: false
-description: "홈랩 쿠버네티스 클러스터에서 Helm 차트 기반 프로젝트 템플릿과 ArgoCD ApplicationSet을 활용하여 YAML 파일 하나로 완전한 CI/CD 파이프라인을 갖춘 프로젝트를 배포할 수 있는 내부 개발 플랫폼을 구축하는 방법을 다룬다."
-tags:
-    [
-        "kubernetes",
-        "homelab",
-        "ci/cd",
-        "gitops",
-        "argocd",
-        "argo-events",
-        "argo-workflows",
-        "helm",
-        "idp",
-        "platform-engineering",
-    ]
-series: ["홈랩 쿠버네티스"]
+description: "쿠버네티스 기반 내부 개발자 플랫폼 구축 방법을 다룬다."
+tags: ["Kubernetes", "DevOps", "플랫폼"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

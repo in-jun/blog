@@ -1,8 +1,8 @@
 ---
-title: "Creating Pull Requests with GitHub CLI"
+title: "Managing Pull Requests with GitHub CLI"
 date: 2024-07-19T00:39:08+09:00
-tags: ["github", "cli", "pr", "git", "devops"]
-description: "GitHub CLI (gh) is the official command-line tool for performing GitHub operations in the terminal. It enables efficient handling of the entire workflow from PR creation to review and merge without GUI, and can also be used for automation and scripting."
+tags: ["Git", "GitHub", "Automation"]
+description: "Creating and managing pull requests using GitHub CLI."
 draft: false
 ---
 

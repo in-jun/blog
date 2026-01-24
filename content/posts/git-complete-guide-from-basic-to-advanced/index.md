@@ -1,8 +1,8 @@
 ---
-title: "Git 사용법: 기초부터 고급 기능까지"
+title: "Git 기본부터 고급 기능까지"
 date: 2024-07-08T20:52:04+09:00
-tags: ["git", "version-control", "devops"]
-description: "Git은 2005년 Linus Torvalds가 리눅스 커널 개발을 위해 만든 분산 버전 관리 시스템으로, Working Directory, Staging Area, Local/Remote Repository의 4영역 구조와 핵심 명령어를 다룬다"
+tags: ["Git", "버전관리"]
+description: "Git의 기본 개념과 고급 기능을 다룬다."
 draft: false
 ---
 

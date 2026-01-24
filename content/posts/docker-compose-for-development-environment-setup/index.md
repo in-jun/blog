@@ -1,8 +1,8 @@
 ---
-title: "Docker Compose 완벽 가이드: 멀티 컨테이너 개발 환경 구성의 모든 것"
+title: "Docker Compose 멀티 컨테이너 개발 환경"
 date: 2025-02-17T22:49:32+09:00
-tags: ["Docker Compose", "개발환경", "인프라", "DevOps", "컨테이너", "마이크로서비스"]
-description: "Docker Compose의 개념과 역사, YAML 파일 구조, 실전 개발 환경 구성 예제, 네트워크와 볼륨 관리, 환경별 설정 분리, 문제 해결 방법까지 멀티 컨테이너 애플리케이션 관리의 모든 것을 체계적으로 설명하는 완벽 가이드"
+tags: ["Docker", "컨테이너", "DevOps"]
+description: "Docker Compose를 사용한 멀티 컨테이너 개발 환경 구성 방법을 다룬다."
 draft: false
 ---
 

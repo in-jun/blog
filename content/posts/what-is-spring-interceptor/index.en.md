@@ -1,8 +1,8 @@
 ---
-title: "What is Spring Interceptor?"
+title: "Spring Interceptor"
 date: 2024-06-04T17:14:49+09:00
-tags: ["spring", "interceptor", "java"]
-description: "Spring Interceptor is a mechanism for handling common functionality before and after controller invocation, introduced in Spring Framework 2.0 (2006). It handles cross-cutting concerns such as authentication, logging, and execution time measurement through preHandle, postHandle, and afterCompletion methods"
+tags: ["Spring", "Java", "Interceptor"]
+description: "Spring interceptor role and differences from filters."
 draft: false
 ---
 

@@ -1,8 +1,8 @@
 ---
-title: "1차 캐시와 2차 캐시 완벽 가이드"
+title: "JPA 1차 캐시와 2차 캐시"
 date: 2024-06-08T03:39:05+09:00
-tags: ["jpa", "hibernate", "orm", "cache"]
-description: "1차 캐시는 트랜잭션 범위의 필수 캐시로 영속성 컨텍스트에서 동작하고, 2차 캐시는 애플리케이션 전체에서 공유되는 선택적 캐시다. EhCache, Infinispan, Hazelcast 등의 제공자와 READ_ONLY, READ_WRITE 등의 동시성 전략을 선택할 수 있다"
+tags: ["JPA", "ORM", "캐시"]
+description: "JPA의 1차 캐시와 2차 캐시의 차이와 동작 방식을 설명한다."
 draft: false
 ---
 

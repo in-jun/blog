@@ -1,8 +1,8 @@
 ---
-title: "Complete VS Code Shortcuts Guide: Essential Shortcuts for Productivity"
+title: "VS Code Best Keyboard Shortcuts"
 date: 2024-06-21T00:18:52+09:00
-tags: ["VS Code", "Shortcuts", "Editor", "Productivity", "IDE"]
-description: "Systematically organized VS Code core shortcuts, explaining essential shortcuts and their usage by category including editing, search, multi-cursor, debugging, and terminal"
+tags: ["VS Code", "Productivity", "Editor"]
+description: "Essential VS Code keyboard shortcuts for productivity."
 draft: false
 ---
 

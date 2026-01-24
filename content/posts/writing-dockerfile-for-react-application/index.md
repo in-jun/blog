@@ -1,8 +1,8 @@
 ---
-title: "React 애플리케이션 Dockerfile 작성 완벽 가이드: 빌드부터 배포까지"
+title: "React 애플리케이션 Dockerfile 작성"
 date: 2025-02-17T21:56:12+09:00
-tags: ["React", "Docker", "최적화", "배포", "컨테이너", "nginx", "DevOps"]
-description: "React 애플리케이션의 컨테이너화를 위한 Dockerfile 작성 방법, 멀티 스테이지 빌드, 레이어 캐싱 최적화, 환경 변수 관리, nginx 설정, 보안 강화까지 프로덕션 수준의 React 컨테이너 이미지를 만드는 모든 것을 체계적으로 설명하는 완벽 가이드"
+tags: ["React", "Docker", "DevOps"]
+description: "React 애플리케이션용 Dockerfile 작성과 최적화 방법을 다룬다."
 draft: false
 ---
 

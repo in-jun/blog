@@ -1,8 +1,8 @@
 ---
-title: "Docker 완벽 가이드: 컨테이너 기술의 역사부터 핵심 개념까지"
+title: "Docker 컨테이너 기술"
 date: 2025-02-17T22:33:27+09:00
-tags: ["Docker", "Container", "가상화", "인프라", "DevOps", "클라우드"]
-description: "Docker의 탄생 배경과 역사, 컨테이너와 가상 머신의 차이, 핵심 구성 요소, 작동 원리, 실제 활용 사례까지 컨테이너 기술의 모든 것을 체계적으로 설명하는 완벽 가이드"
+tags: ["Docker", "컨테이너", "가상화"]
+description: "Docker 컨테이너 기술의 개념과 가상 머신과의 차이를 설명한다."
 draft: false
 ---
 

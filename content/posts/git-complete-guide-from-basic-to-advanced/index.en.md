@@ -1,8 +1,8 @@
 ---
-title: "How to Use Git: From Basic to Advanced"
+title: "Git From Basics to Advanced Features"
 date: 2024-07-08T20:52:04+09:00
-tags: ["git", "version-control", "devops"]
-description: "Git is a distributed version control system created by Linus Torvalds in 2005 for Linux kernel development, covering the 4-area structure of Working Directory, Staging Area, Local/Remote Repository and essential commands"
+tags: ["Git", "Version Control"]
+description: "Git fundamentals and advanced features for version control."
 draft: false
 ---
 

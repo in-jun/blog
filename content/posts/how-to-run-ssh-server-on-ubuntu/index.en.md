@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Ubuntu SSH Server: From Installation to Security Hardening"
+title: "Running OpenSSH Server on Ubuntu"
 date: 2024-08-14T15:16:40+09:00
-tags: ["Ubuntu", "SSH", "Linux", "Networking", "Security"]
-description: "Covers the entire process of installing and configuring an SSH server on Ubuntu, explaining step by step from SSH protocol history and operation principles to public key authentication, firewall configuration, and security hardening"
+tags: ["Linux", "Ubuntu", "SSH"]
+description: "Installing and configuring OpenSSH server on Ubuntu."
 draft: false
 ---
 

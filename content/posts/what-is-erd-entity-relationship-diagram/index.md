@@ -1,9 +1,9 @@
 ---
-title: "ERD(Entity Relationship Diagram)란"
+title: "ERD 엔티티 관계 다이어그램"
 date: 2024-05-25T16:02:12+09:00
 draft: false
-tags: ["ERD", "Database"]
-description: "Peter Chen이 1976년 MIT에서 발표한 ERD의 역사와 발전, 엔티티/속성/관계의 핵심 개념, Chen/IE(Crow's Foot)/IDEF1X/UML 표기법 비교, 카디널리티와 옵셔널리티 상세 설명, 강한 엔티티와 약한 엔티티의 차이, 정규화와 ERD 설계 모범 사례, dbdiagram/Draw.io/Lucidchart/ERDPlus 도구 비교까지 정리"
+tags: ["ERD", "데이터베이스", "모델링"]
+description: "엔티티 관계 다이어그램의 구성 요소와 작성 방법을 다룬다."
 ---
 
 ## ERD의 역사와 탄생 배경

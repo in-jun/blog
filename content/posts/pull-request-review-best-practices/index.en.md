@@ -1,8 +1,8 @@
 ---
-title: "The Complete Guide to PR (Pull Request) Reviews"
+title: "Pull Request Review Best Practices"
 date: 2024-07-31T22:06:49+09:00
-tags: ["git", "pull-request", "code-review", "best-practices", "collaboration"]
-description: "A comprehensive guide covering the history of code reviews, the purpose and value of PR reviews, effective review checklists, comment level distinctions like blocking/suggestion/nit, how to write good feedback, and building a healthy review culture."
+tags: ["Git", "Code Review", "Collaboration"]
+description: "Writing effective pull requests and conducting code reviews."
 draft: false
 ---
 

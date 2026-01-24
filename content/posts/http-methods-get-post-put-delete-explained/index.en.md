@@ -1,9 +1,9 @@
 ---
-title: "The Complete Guide to HTTP Methods: From GET, POST, PUT, DELETE to Security"
+title: "HTTP Methods GET POST PUT DELETE"
 date: 2024-05-25T14:05:29+09:00
-tags: ["HTTP", "REST API", "Web Development", "CORS"]
+tags: ["HTTP", "API", "Protocol"]
 draft: false
-description: "A comprehensive guide covering the history, characteristics, and usage of all 9 HTTP methods defined in the HTTP/1.1 specification (RFC 7231), from idempotency and safety concepts to RESTful API design principles, CORS preflight request handling, practical examples, and security considerations for proper HTTP method usage in web development."
+description: "HTTP methods including GET, POST, PUT, and DELETE."
 ---
 
 HTTP (HyperText Transfer Protocol) methods are core elements of client-server communication protocols that have continuously evolved since Tim Berners-Lee first introduced them when designing the World Wide Web in 1991. The HTTP/1.1 standard (RFC 7231) defines 9 standard methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, and TRACE. Each method has important characteristics of idempotency and safety, playing essential roles in RESTful API design and web application development.

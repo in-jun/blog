@@ -1,8 +1,8 @@
 ---
-title: "The Complete Guide to REST API: From Principles to Practical Design"
+title: "REST API Design Principles and Best Practices"
 date: 2024-07-20T16:23:17+09:00
-tags: ["REST", "API", "Web Development", "Architecture", "HTTP"]
-description: "A comprehensive guide to REST API design principles and best practices covering Roy Fielding's REST architectural style, 6 constraints, Richardson Maturity Model, HTTP method usage, resource-centric URL design, versioning strategies, error handling, pagination, HATEOAS, and security considerations for practical REST API implementation."
+tags: ["REST", "API", "Design"]
+description: "REST API design principles and best practices."
 draft: false
 ---
 

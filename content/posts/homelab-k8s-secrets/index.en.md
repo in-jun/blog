@@ -1,10 +1,10 @@
 ---
-title: "Homelab Kubernetes #6 - Secret Management with HashiCorp Vault"
+title: "Mini PC Kubernetes #6: Vault Secrets Management"
 date: 2025-02-26T16:20:14+09:00
 draft: false
-description: "This guide covers installing HashiCorp Vault in a homelab Kubernetes cluster and building a secure secret management system using GitOps methodology with Vault Secrets Operator and ArgoCD Vault Plugin."
-tags: ["kubernetes", "homelab", "vault", "secrets", "gitops", "security"]
-series: ["Homelab Kubernetes"]
+description: "Managing Kubernetes secrets with HashiCorp Vault."
+tags: ["Kubernetes", "Security", "Vault"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

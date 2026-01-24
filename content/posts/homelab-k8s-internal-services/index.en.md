@@ -1,10 +1,10 @@
 ---
-title: "Homelab Kubernetes #4 - Traefik Ingress and Internal/External Service Separation"
+title: "Mini PC Kubernetes #4: Internal Services"
 date: 2025-02-25T11:37:43+09:00
 draft: false
-description: "This guide covers installing the Traefik ingress controller on a homelab Kubernetes cluster and configuring secure access to management interfaces like ArgoCD and Longhorn by separating internal and external services."
-tags: ["kubernetes", "homelab", "traefik", "ingress", "gitops", "argocd", "metallb"]
-series: ["Homelab Kubernetes"]
+description: "Configuring internal services in Kubernetes cluster."
+tags: ["Kubernetes", "Network", "Service"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

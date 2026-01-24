@@ -1,8 +1,8 @@
 ---
-title: "Spring Data JPA와 JPA의 차이점 완벽 가이드"
+title: "Spring Data JPA와 JPA 주요 차이점"
 date: 2024-06-07T04:14:51+09:00
-tags: ["spring", "jpa", "hibernate", "orm"]
-description: "JPA는 2006년 Hibernate를 기반으로 탄생한 자바 ORM 표준이며 Spring Data JPA는 Repository 패턴으로 보일러플레이트를 제거한다. 쿼리 메서드와 @Query로 간단한 쿼리를 처리하고 QueryDSL로 복잡한 동적 쿼리를 타입 세이프하게 작성할 수 있다"
+tags: ["Spring", "JPA", "ORM"]
+description: "JPA와 Spring Data JPA의 차이점을 설명한다."
 draft: false
 ---
 

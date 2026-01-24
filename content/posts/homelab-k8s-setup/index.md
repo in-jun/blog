@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #1 - 5대의 미니PC로 K8s 클러스터 구축하기"
+title: "미니PC Kubernetes #1: 클러스터 구축"
 date: 2025-02-24T07:26:52+09:00
 draft: false
-description: "Dell OptiPlex Micro를 활용하여 홈랩 쿠버네티스 클러스터를 구축하는 과정을 단계별로 설명하며, 하드웨어 선정부터 OS 설치, 네트워크 설정, 쿠버네티스 및 MetalLB 로드밸런서 설치까지 전체 과정을 다룬다."
-tags: ["kubernetes", "homelab", "dell", "optiplex", "k8s", "metalLB", "calico"]
-series: ["홈랩 쿠버네티스"]
+description: "미니PC 환경에서 쿠버네티스 클러스터를 구축하는 방법을 다룬다."
+tags: ["Kubernetes", "미니PC", "인프라"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

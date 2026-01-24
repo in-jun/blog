@@ -1,8 +1,8 @@
 ---
-title: "Effective Git Commit Management: Beyond Clean Code to Clean History"
+title: "Git Commit Management and Clean History"
 date: 2024-07-13T09:41:43+09:00
-tags: ["git", "commit", "rebase", "version-control"]
-description: "Git commit management techniques evolved alongside Git's creation in 2005, with key practices being applying single responsibility principle, cleaning history with interactive rebase, and merging commits using fixup/squash for clean project history"
+tags: ["Git", "Version Control"]
+description: "Managing Git history with interactive rebase and squash."
 draft: false
 ---
 

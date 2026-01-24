@@ -1,8 +1,8 @@
 ---
-title: "Complete Vim Guide: From History to Practical Usage"
+title: "Vim Text Editor Tutorial"
 date: 2024-07-06T20:17:05+09:00
-tags: ["Vim", "Editor", "Linux", "CLI", "Productivity"]
-description: "A comprehensive guide covering Vim's history and modal editing philosophy, detailed commands for Normal/Insert/Visual/Command modes, search and substitution techniques, the plugin ecosystem, vimrc configuration methods, and practical tips"
+tags: ["Vim", "Linux", "Editor"]
+description: "Vim editor basics and essential commands."
 draft: false
 ---
 

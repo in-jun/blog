@@ -1,8 +1,8 @@
 ---
 title: "Git 브랜치 네이밍 규칙"
 date: 2024-07-23T20:54:17+09:00
-tags: ["git", "branching", "version-control"]
-description: "Git 브랜치 네이밍 규칙은 Vincent Driessen의 Git Flow(2010년)에서 체계화되었으며, feature, bugfix, hotfix 등의 접두사와 이슈 트래커 연동을 통해 팀 협업 효율성을 높인다"
+tags: ["Git", "버전관리"]
+description: "Git 브랜치 이름 작성 규칙과 접두사 사용 방법을 다룬다."
 draft: false
 ---
 

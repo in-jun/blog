@@ -1,22 +1,10 @@
 ---
-title: "Homelab Kubernetes #8 - Building an Internal Developer Platform (IDP) (2)"
+title: "Mini PC Kubernetes #8: Building IDP (2)"
 date: 2025-02-28T07:47:18+09:00
 draft: false
-description: "This guide covers building an Internal Developer Platform using Helm chart-based project templates and ArgoCD ApplicationSet in a homelab Kubernetes cluster, enabling deployment of projects with complete CI/CD pipelines from a single YAML file."
-tags:
-    [
-        "kubernetes",
-        "homelab",
-        "ci/cd",
-        "gitops",
-        "argocd",
-        "argo-events",
-        "argo-workflows",
-        "helm",
-        "idp",
-        "platform-engineering",
-    ]
-series: ["Homelab Kubernetes"]
+description: "Building an internal developer platform on Kubernetes."
+tags: ["Kubernetes", "DevOps", "Platform"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

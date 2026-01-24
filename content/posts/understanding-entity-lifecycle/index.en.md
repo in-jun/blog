@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to JPA Entity Lifecycle"
+title: "Understanding JPA Entity Lifecycle"
 date: 2024-06-08T01:18:57+09:00
-tags: ["jpa", "java", "hibernate", "persistence"]
-description: "JPA entities have four states: transient, managed, detached, and removed, with state transitions occurring through EntityManager methods. Understanding the persistence context's first-level cache and dirty checking, along with flush and clear timing, enables performance optimization"
+tags: ["JPA", "ORM", "Java"]
+description: "JPA entity lifecycle states and transitions."
 draft: false
 ---
 

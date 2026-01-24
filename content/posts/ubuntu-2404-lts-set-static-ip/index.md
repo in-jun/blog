@@ -1,8 +1,8 @@
 ---
-title: "Ubuntu 24.04 LTS 고정 IP 설정 완벽 가이드: Netplan, nmcli, nmtui"
+title: "우분투 24.04 LTS 고정 IP 설정"
 date: 2024-08-10T11:26:57+09:00
-tags: ["Ubuntu", "Linux", "Networking", "Static IP", "Netplan"]
-description: "Ubuntu 24.04 LTS에서 고정 IP를 설정하는 세 가지 방법인 Netplan, nmcli, nmtui를 상세히 설명하고, 각 방법의 특징과 문제 해결 방법까지 다룬다"
+tags: ["Ubuntu", "네트워크", "Linux"]
+description: "우분투 24.04 LTS에서 고정 IP 주소를 설정하는 방법을 다룬다."
 draft: false
 ---
 

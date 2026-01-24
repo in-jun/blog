@@ -1,8 +1,8 @@
 ---
-title: "Exploring the Dispatcher Servlet"
+title: "Spring MVC Dispatcher Servlet"
 date: 2024-06-05T08:14:35+09:00
-tags: ["spring", "spring-mvc", "servlet", "java"]
-description: "A comprehensive guide to DispatcherServlet, the core component of Spring MVC, covering its history, the Front Controller pattern, detailed request processing flow, key components like HandlerMapping/HandlerAdapter/ViewResolver, initialization process, Spring Boot auto-configuration, differences between @Controller and @RestController, and practical tips including Interceptor vs Filter differences and async request handling."
+tags: ["Spring", "Java", "MVC"]
+description: "Front controller pattern implementation in Spring MVC."
 draft: false
 ---
 

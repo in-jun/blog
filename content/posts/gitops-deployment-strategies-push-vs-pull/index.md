@@ -1,8 +1,8 @@
 ---
-title: "GitOps 배포 전략: Push vs Pull 완벽 비교"
+title: "GitOps 배포 전략 Push vs Pull"
 date: 2025-02-14T03:52:02+09:00
-tags: ["GitOps", "CI/CD", "Kubernetes", "DevOps", "ArgoCD", "Flux"]
-description: "2017년 Weaveworks에서 탄생한 GitOps의 개념과 역사부터, Push 방식과 Pull 방식의 배포 전략 차이, ArgoCD와 Flux의 특징 비교, 그리고 조직 상황에 맞는 도구 선택 가이드까지 포괄적으로 다룬다."
+tags: ["GitOps", "Kubernetes", "DevOps"]
+description: "GitOps의 Push 방식과 Pull 방식 배포 전략을 비교한다."
 draft: false
 ---
 

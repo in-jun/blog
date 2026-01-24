@@ -1,8 +1,8 @@
 ---
-title: "What Is a Servlet Filter?"
+title: "Servlet Filter"
 date: 2024-06-04T16:29:15+09:00
-tags: ["spring", "servlet", "filter", "java"]
-description: "Servlet Filter is an HTTP request/response preprocessing and postprocessing component introduced in Servlet 2.3 specification (2001), operating at the servlet container level to handle cross-cutting concerns such as authentication, logging, and encoding configuration"
+tags: ["Spring", "Java", "Servlet"]
+description: "Servlet filter operation and usage."
 draft: false
 ---
 

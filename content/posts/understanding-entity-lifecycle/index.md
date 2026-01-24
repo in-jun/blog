@@ -1,8 +1,8 @@
 ---
-title: "JPA 엔티티 생명주기 완벽 가이드"
+title: "JPA 엔티티 생명주기"
 date: 2024-06-08T01:18:57+09:00
-tags: ["jpa", "java", "hibernate", "persistence"]
-description: "JPA 엔티티는 비영속, 영속, 준영속, 삭제의 4가지 상태를 가지며 EntityManager 메서드를 통해 상태가 전이된다. 영속성 컨텍스트의 1차 캐시와 변경 감지 기능을 활용하고 flush와 clear의 동작 시점을 이해하면 성능을 최적화할 수 있다"
+tags: ["JPA", "ORM", "Java"]
+description: "JPA 엔티티의 생명주기 상태와 전이를 설명한다."
 draft: false
 ---
 

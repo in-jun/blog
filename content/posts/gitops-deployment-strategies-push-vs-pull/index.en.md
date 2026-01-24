@@ -1,8 +1,8 @@
 ---
-title: "GitOps Deployment Strategies: A Comprehensive Comparison of Push vs Pull"
+title: "GitOps Deployment Strategies Push vs Pull"
 date: 2025-02-14T03:52:02+09:00
-tags: ["GitOps", "CI/CD", "Kubernetes", "DevOps", "ArgoCD", "Flux"]
-description: "A comprehensive guide covering the concept and history of GitOps born at Weaveworks in 2017, differences between Push and Pull deployment strategies, comparison of ArgoCD and Flux features, and a tool selection guide based on organizational context."
+tags: ["GitOps", "Kubernetes", "DevOps"]
+description: "Comparing push and pull deployment strategies in GitOps."
 draft: false
 ---
 

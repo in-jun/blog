@@ -1,8 +1,8 @@
 ---
-title: "Call by Value vs Call by Reference 완벽 가이드: 함수 인자 전달 방식의 모든 것"
+title: "Call by Value와 Call by Reference"
 date: 2024-05-16T22:14:17+09:00
-tags: ["Programming", "Computer Science", "C", "C++", "Java", "Python"]
-description: "Call by Value와 Call by Reference의 개념과 역사, 메모리 동작 원리, C/C++/Java/Python 언어별 구현 방식, Call by Sharing 개념, 성능 비교와 실전 활용 가이드까지 함수 인자 전달 방식을 체계적으로 정리"
+tags: ["프로그래밍", "컴퓨터과학"]
+description: "함수 인자 전달 방식인 Call by Value와 Call by Reference의 차이를 설명한다."
 draft: false
 ---
 

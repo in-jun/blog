@@ -1,8 +1,8 @@
 ---
 title: "Git Branch Naming Conventions"
 date: 2024-07-23T20:54:17+09:00
-tags: ["git", "branching", "version-control"]
-description: "Git branch naming conventions were systematized with Vincent Driessen's Git Flow (2010), using prefixes like feature, bugfix, and hotfix along with issue tracker integration to improve team collaboration efficiency"
+tags: ["Git", "Version Control"]
+description: "Branch naming rules and prefix usage in Git workflows."
 draft: false
 ---
 

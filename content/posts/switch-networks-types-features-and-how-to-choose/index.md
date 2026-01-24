@@ -1,8 +1,8 @@
 ---
-title: "네트워크 스위치 완벽 가이드: L1부터 L7까지 계층별 이해"
+title: "네트워크 스위치 종류와 선택"
 date: 2024-08-01T16:20:21+09:00
-tags: ["Network", "Switch", "OSI", "Load Balancer", "Infrastructure"]
-description: "OSI 7계층 모델에 따른 네트워크 스위치의 종류와 특징을 상세히 설명하고, L1 허브부터 L7 애플리케이션 스위치까지 각 계층별 작동 원리, 사용 사례, 선택 기준을 다룬다"
+tags: ["네트워크", "스위치", "하드웨어"]
+description: "네트워크 스위치의 종류와 선택 기준을 다룬다."
 draft: false
 ---
 

@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Building a Single-Node Kubernetes Cluster on Ubuntu 24.04 LTS"
+title: "Setting Up Single-Node Kubernetes Cluster on Ubuntu 24.04"
 date: 2024-07-27T23:23:40+09:00
-tags: ["Kubernetes", "Ubuntu", "Container", "kubeadm", "DevOps"]
-description: "Covers the entire process of building a single-node Kubernetes cluster using kubeadm on Ubuntu 24.04 LTS, explaining step by step from container runtime configuration to network plugin installation"
+tags: ["Ubuntu", "Kubernetes", "Linux"]
+description: "Setting up single-node Kubernetes cluster on Ubuntu 24.04."
 draft: false
 ---
 

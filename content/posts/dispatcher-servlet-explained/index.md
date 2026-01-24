@@ -1,8 +1,8 @@
 ---
-title: "디스패처 서블릿(Dispatcher Servlet) 알아보기"
+title: "Spring MVC Dispatcher Servlet"
 date: 2024-06-05T08:14:35+09:00
-tags: ["spring", "spring-mvc", "servlet", "java"]
-description: "스프링 MVC의 핵심 컴포넌트인 DispatcherServlet의 역사, Front Controller 패턴, 상세한 요청 처리 흐름, HandlerMapping/HandlerAdapter/ViewResolver 등 주요 컴포넌트, 초기화 과정, Spring Boot 자동 설정, @Controller와 @RestController의 동작 차이를 다루며, Interceptor와 Filter의 차이, 비동기 요청 처리 등 실전 팁까지 포괄적으로 설명한다."
+tags: ["Spring", "Java", "MVC"]
+description: "Spring MVC의 프론트 컨트롤러인 DispatcherServlet의 동작 방식을 설명한다."
 draft: false
 ---
 

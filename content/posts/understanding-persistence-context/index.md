@@ -1,8 +1,8 @@
 ---
-title: "영속성 컨텍스트 완벽 가이드"
+title: "JPA 영속성 컨텍스트"
 date: 2024-06-08T03:12:19+09:00
-tags: ["jpa", "hibernate", "orm", "java"]
-description: "영속성 컨텍스트는 JPA의 핵심 개념으로 1차 캐시, 동일성 보장, 쓰기 지연, 변경 감지 기능을 제공한다. 트랜잭션 범위로 동작하며, OSIV 패턴은 뷰까지 영속성을 유지하지만 커넥션 풀 소진 위험이 있다"
+tags: ["JPA", "ORM", "Java"]
+description: "JPA 영속성 컨텍스트의 역할과 1차 캐시 동작을 설명한다."
 draft: false
 ---
 

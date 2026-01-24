@@ -1,8 +1,8 @@
 ---
-title: "Core Technologies of Linux Containers: Complete Guide to Namespaces and Cgroups"
+title: "Namespaces and Cgroups in Docker"
 date: 2024-06-05T21:59:22+09:00
-tags: ["Linux", "Docker", "Container", "Namespace", "Cgroups"]
-description: "A detailed explanation of how Linux kernel Namespaces and Cgroups implement container isolation and resource management, including their relationship with Docker and security considerations"
+tags: ["Docker", "Linux", "Container"]
+description: "Linux namespaces and cgroups for Docker container isolation."
 draft: false
 ---
 

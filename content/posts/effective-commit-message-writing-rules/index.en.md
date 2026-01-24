@@ -1,8 +1,8 @@
 ---
-title: "Effective Commit Message Writing Guidelines"
+title: "Effective Commit Message Writing Rules"
 date: 2024-07-12T08:48:08+09:00
-tags: ["git", "commit", "conventional-commits", "version-control"]
-description: "Commit message conventions started with Tim Pope's guidelines in 2008 and evolved into the Conventional Commits standard in 2017, with key principles including 50-character subject limit, imperative mood, type prefixes, and explaining what and why in the body"
+tags: ["Git", "Version Control"]
+description: "Writing effective commit messages following Conventional Commits standard."
 draft: false
 ---
 

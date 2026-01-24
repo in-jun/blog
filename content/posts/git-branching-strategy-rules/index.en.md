@@ -1,9 +1,9 @@
 ---
-title: "Git Branching Strategies: Comparing Git Flow and GitHub Flow"
+title: "Git Branching Strategies Git Flow and GitHub Flow"
 date: 2024-07-10T08:01:40+09:00
-description: "Git branching strategies began with Vincent Driessen's Git Flow in 2010, evolving to GitHub Flow (2011) and GitLab Flow (2014), and the appropriate strategy should be selected based on project scale and release cycle"
+description: "Comparing Git Flow and GitHub Flow branching models."
 draft: false
-tags: ["git", "branching", "git-flow", "github-flow", "devops"]
+tags: ["Git", "Version Control", "DevOps"]
 ---
 
 ## History and Background of Branching Strategies

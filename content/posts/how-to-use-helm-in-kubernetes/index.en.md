@@ -1,8 +1,8 @@
 ---
-title: "Complete Helm Guide: Everything About Kubernetes Package Management"
+title: "Using Helm in Kubernetes"
 date: 2024-07-28T23:22:52+09:00
-tags: ["Kubernetes", "Helm", "DevOps", "Cloud Native", "Package Management"]
-description: "Understand Helm's core concepts and operation principles, covering the entire process of Kubernetes application packaging and deployment from chart structure, template writing, release management, to CI/CD integration"
+tags: ["Kubernetes", "Helm", "Package Manager"]
+description: "Deploying applications in Kubernetes with Helm package manager."
 draft: false
 ---
 

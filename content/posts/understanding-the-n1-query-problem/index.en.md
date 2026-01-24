@@ -1,8 +1,8 @@
 ---
-title: "Understanding the N+1 Problem"
+title: "Understanding the JPA N+1 Query Problem"
 date: 2024-06-08T02:17:46+09:00
-tags: ["jpa", "hibernate", "orm", "performance"]
-description: "The N+1 problem causes performance degradation when ORM executes N additional queries while retrieving associated entities. Use Fetch Join for join queries, BatchSize for IN clause batch processing, and EntityGraph for dynamic loading control to solve this issue"
+tags: ["JPA", "ORM", "Performance"]
+description: "JPA N+1 query problem causes and solutions."
 draft: false
 ---
 
