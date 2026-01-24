@@ -313,4 +313,4 @@ kubectl delete -f test.yaml
 
 다음 글에서는 Traefik 인그레스 컨트롤러를 설치하고 내부 서비스에 접근할 수 있도록 구성하는 방법을 알아본다.
 
-[다음 글: 홈랩 쿠버네티스 #4 - Traefik 인그레스와 내부/외부 서비스 분리](/posts/homelab-k8s-internal-services/)
+[다음 글: 미니PC Kubernetes #4: 내부 서비스 구성](/posts/homelab-k8s-internal-services/)

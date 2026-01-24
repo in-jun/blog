@@ -455,4 +455,4 @@ Argo Workflows UI에서 워크플로우 실행 결과를 확인할 수 있다.
 
 다음 글에서는 이 구성 요소들을 Sensor와 워크플로우 템플릿으로 연결하고 ArgoCD와 통합하여 완전한 CI/CD 파이프라인을 구축하는 방법을 알아본다.
 
-[다음 글: 홈랩 쿠버네티스 #8 - 내부 개발자 플랫폼(IDP) 구축하기 (2)](/posts/homelab-k8s-cicd-2/)
+[다음 글: 미니PC Kubernetes #8: IDP 구축 (2)](/posts/homelab-k8s-cicd-2/)

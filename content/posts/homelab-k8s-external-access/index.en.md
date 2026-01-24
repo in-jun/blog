@@ -384,4 +384,4 @@ This post covered configuring DDNS and port forwarding to enable external intern
 
 The next post covers installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
 
-[Next Post: Homelab Kubernetes #6 - Secret Management with HashiCorp Vault](/posts/homelab-k8s-secrets/)
+[Next Post: Mini PC Kubernetes #6: Vault Secrets Management](/posts/homelab-k8s-secrets/)

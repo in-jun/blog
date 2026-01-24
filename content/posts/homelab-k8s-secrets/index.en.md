@@ -685,4 +685,4 @@ This post covered installing HashiCorp Vault in a homelab Kubernetes cluster and
 
 The next post covers installing Harbor, Argo Events, and Argo Workflows to build the foundation for a CI/CD pipeline.
 
-[Next Post: Homelab Kubernetes #7 - Building an Internal Developer Platform (IDP) (1)](/posts/homelab-k8s-cicd-1/)
+[Next Post: Mini PC Kubernetes #7: Building IDP (1)](/posts/homelab-k8s-cicd-1/)

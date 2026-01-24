@@ -384,4 +384,4 @@ kubectl apply -f hello-world.yaml
 
 다음 글에서는 HashiCorp Vault를 설치하여 비밀번호, API 키 같은 민감한 정보를 안전하게 관리하는 방법을 알아본다.
 
-[다음 글: 홈랩 쿠버네티스 #6 - HashiCorp Vault로 시크릿 관리하기](/posts/homelab-k8s-secrets/)
+[다음 글: 미니PC Kubernetes #6: Vault 시크릿 관리](/posts/homelab-k8s-secrets/)

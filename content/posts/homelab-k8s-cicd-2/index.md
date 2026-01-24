@@ -709,4 +709,4 @@ GitHub 저장소에 코드를 푸시하면 CI 파이프라인이 트리거되어
 
 다음 글에서는 Prometheus, Grafana, Loki를 설치하여 클러스터의 메트릭과 로그를 수집하고 시각화하는 모니터링 시스템을 구축하는 방법을 알아본다.
 
-[다음 글: 홈랩 쿠버네티스 #9 - Prometheus와 Grafana로 모니터링하기](/posts/homelab-k8s-monitoring/)
+[다음 글: 미니PC Kubernetes #9: Prometheus 모니터링](/posts/homelab-k8s-monitoring/)
