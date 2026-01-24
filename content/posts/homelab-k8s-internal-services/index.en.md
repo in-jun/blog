@@ -33,7 +33,7 @@ Initially, the Nginx Ingress Controller, the most widely used in the Kubernetes 
 >
 > Traefik is a cloud-native reverse proxy and load balancer that Containous (now Traefik Labs) began developing in 2015. It is optimized for microservices environments and Kubernetes, with built-in support for dynamic configuration changes and Let's Encrypt integration, making it widely used in container orchestration environments.
 
-Eventually, a more integrated solution was sought. Traefik was chosen because it provides all necessary features in a single package, with the following advantages:
+Eventually, a more integrated solution was sought. Traefik was chosen because it provided all necessary features in a single package, with the following advantages:
 
 - **Configuration Simplicity**: The Let's Encrypt ACME protocol is built-in by default, enabling automatic certificate issuance and renewal without a separate cert-manager.
 - **Dashboard Functionality**: A built-in web dashboard allows visual monitoring of current routing status, service status, and middleware configuration.
