@@ -455,4 +455,4 @@ This post covered installing and completing basic configuration of Harbor contai
 
 The next post covers connecting these components with Sensors and workflow templates and integrating them with ArgoCD to build a complete CI/CD pipeline.
 
-[Next Post: Homelab Kubernetes #8 - Building an Internal Developer Platform (IDP) (2)](/posts/homelab-k8s-cicd-2/)
+[Next Post: Mini PC Kubernetes #8: Building IDP (2)](/posts/homelab-k8s-cicd-2/)

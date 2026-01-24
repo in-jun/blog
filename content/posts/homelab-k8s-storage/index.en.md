@@ -313,4 +313,4 @@ This post covered installing and configuring the Longhorn distributed storage sy
 
 The next post covers installing the Traefik ingress controller and configuring access to internal services.
 
-[Next Post: Homelab Kubernetes #4 - Traefik Ingress and Internal/External Service Separation](/posts/homelab-k8s-internal-services/)
+[Next Post: Mini PC Kubernetes #4: Internal Services](/posts/homelab-k8s-internal-services/)

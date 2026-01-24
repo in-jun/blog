@@ -245,4 +245,4 @@ ARP와 NDP 프로토콜에 대해 더 자세히 알아보려면 다음 글을 �
 
 다음 글에서는 ArgoCD를 설치하여 GitOps 방식으로 쿠버네티스 리소스를 관리하는 방법을 알아본다.
 
-[다음 글: 홈랩 쿠버네티스 #2 - ArgoCD로 GitOps 환경 구축하기](/posts/homelab-k8s-gitops/)
+[다음 글: 미니PC Kubernetes #2: ArgoCD GitOps](/posts/homelab-k8s-gitops/)

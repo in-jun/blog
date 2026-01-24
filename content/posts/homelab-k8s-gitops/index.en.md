@@ -383,4 +383,4 @@ From then on, when you want to deploy a new application, simply add a new folder
 
 In this post, we installed ArgoCD on our homelab Kubernetes cluster and applied the App of Apps pattern to build a GitOps-based infrastructure management environment. All cluster configurations can now be declaratively managed from Git repositories, and changes are automatically reflected in the cluster. This GitOps-based system serves as the foundation for installing and managing various components covered in subsequent posts in this series, including storage, networking, and monitoring.
 
-[Next Post: Homelab Kubernetes #3 - Distributed Storage with Longhorn](/posts/homelab-k8s-storage/)
+[Next Post: Mini PC Kubernetes #3: Longhorn Storage](/posts/homelab-k8s-storage/)

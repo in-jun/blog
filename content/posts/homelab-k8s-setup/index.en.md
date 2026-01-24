@@ -245,4 +245,4 @@ This post covered building a Kubernetes cluster consisting of 5 nodes using Dell
 
 The next post covers installing ArgoCD to manage Kubernetes resources using the GitOps approach.
 
-[Next Post: Homelab Kubernetes #2 - Setting Up GitOps with ArgoCD](/posts/homelab-k8s-gitops/)
+[Next Post: Mini PC Kubernetes #2: ArgoCD GitOps](/posts/homelab-k8s-gitops/)

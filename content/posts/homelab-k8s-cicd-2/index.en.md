@@ -709,4 +709,4 @@ This post covered building your own Internal Developer Platform (IDP) using Helm
 
 The next post covers installing Prometheus, Grafana, and Loki to build a monitoring system that collects and visualizes cluster metrics and logs.
 
-[Next Post: Homelab Kubernetes #9 - Monitoring with Prometheus and Grafana](/posts/homelab-k8s-monitoring/)
+[Next Post: Mini PC Kubernetes #9: Prometheus Monitoring](/posts/homelab-k8s-monitoring/)

@@ -685,4 +685,4 @@ ArgoCD에서 애플리케이션을 생성할 때 "argocd-vault-plugin-helm"을 C
 
 다음 글에서는 Harbor, Argo Events, Argo Workflows를 설치하여 CI/CD 파이프라인의 기반을 구축하는 방법을 알아본다.
 
-[다음 글: 홈랩 쿠버네티스 #7 - 내부 개발자 플랫폼(IDP) 구축하기 (1)](/posts/homelab-k8s-cicd-1/)
+[다음 글: 미니PC Kubernetes #7: IDP 구축 (1)](/posts/homelab-k8s-cicd-1/)

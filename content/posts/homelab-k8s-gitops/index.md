@@ -383,4 +383,4 @@ spec:
 
 이번 글에서는 홈랩 쿠버네티스 클러스터에 ArgoCD를 설치하고 App of Apps 패턴을 적용하여 GitOps 기반의 인프라 관리 환경을 구축했다. 이제 모든 클러스터 구성을 Git 저장소에서 선언적으로 관리할 수 있으며, 변경 사항은 자동으로 클러스터에 반영된다. 이 GitOps 기반 체계는 이후 시리즈에서 다룰 스토리지, 네트워크, 모니터링 등 다양한 구성요소를 설치하고 관리하는 기반이 된다.
 
-[다음 글: 홈랩 쿠버네티스 #3 - Longhorn으로 분산 스토리지 구축하기](/posts/homelab-k8s-storage/)
+[다음 글: 미니PC Kubernetes #3: Longhorn 스토리지](/posts/homelab-k8s-storage/)
