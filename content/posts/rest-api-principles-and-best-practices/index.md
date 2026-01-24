@@ -1,8 +1,8 @@
 ---
-title: "REST API 완벽 가이드: 원칙부터 실전 설계까지"
+title: "REST API 설계 원칙과 모범 사례"
 date: 2024-07-20T16:23:17+09:00
-tags: ["REST", "API", "웹 개발", "아키텍처", "HTTP"]
-description: "REST API 설계의 핵심 원칙과 모범 사례를 포괄적으로 다루며, Roy Fielding의 REST 아키텍처 스타일, 6가지 제약 조건, Richardson 성숙도 모델, HTTP 메서드 활용, 리소스 중심 URL 설계, 버전 관리 전략, 에러 처리, 페이지네이션, HATEOAS, 보안 고려사항까지 실무에 적용 가능한 REST API 설계 가이드를 제공한다."
+tags: ["REST", "API", "설계"]
+description: "REST API 설계 원칙과 모범 사례를 다룬다."
 draft: false
 ---
 

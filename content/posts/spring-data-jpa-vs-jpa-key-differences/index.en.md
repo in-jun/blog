@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Spring Data JPA vs JPA Differences"
+title: "Spring Data JPA vs JPA Key Differences"
 date: 2024-06-07T04:14:51+09:00
-tags: ["spring", "jpa", "hibernate", "orm"]
-description: "JPA is a Java ORM standard born from Hibernate in 2006, while Spring Data JPA removes boilerplate with the Repository pattern. Query methods and @Query handle simple queries, and QueryDSL enables type-safe complex dynamic queries"
+tags: ["Spring", "JPA", "ORM"]
+description: "Differences between JPA and Spring Data JPA."
 draft: false
 ---
 

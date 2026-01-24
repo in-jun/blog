@@ -1,8 +1,8 @@
 ---
-title: "Spring Boot Development Guide: Layered Architecture and Best Practices"
+title: "Spring Boot Development Best Practices"
 date: 2024-05-25T22:56:18+09:00
-tags: ["spring", "spring-boot", "java", "architecture"]
-description: "Spring Boot applications follow Controller-Service-Repository 3-layer architecture, clearly separating responsibilities of each layer to improve testability and maintainability. Covers best practices for Entity, DTO, exception handling, and transaction management"
+tags: ["Spring", "Java", "Best Practices"]
+description: "Recommended patterns and structure for Spring Boot applications."
 draft: false
 ---
 

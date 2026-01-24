@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #5 - DDNS와 포트포워딩으로 외부에서 접속하기"
+title: "미니PC Kubernetes #5: 외부 접근 설정"
 date: 2025-02-26T14:07:36+09:00
 draft: false
-description: "홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 Cloudflare DNS 설정, 커스텀 DDNS Worker 구현, 라우터 포트포워딩 구성 방법을 다룬다."
-tags: ["kubernetes", "homelab", "traefik", "cloudflare", "ddns", "gitops", "port-forwarding"]
-series: ["홈랩 쿠버네티스"]
+description: "DDNS와 포트 포워딩을 사용한 쿠버네티스 클러스터 외부 접근 설정을 설명한다."
+tags: ["Kubernetes", "네트워크", "DDNS"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

@@ -1,8 +1,8 @@
 ---
-title: "Complete Docker Installation Guide: From Setup to Running Your First Container on Ubuntu"
+title: "Installing Docker and Running Your First Container"
 date: 2025-02-17T22:37:02+09:00
-tags: ["Docker", "Installation", "Container", "Ubuntu", "Linux", "DevOps"]
-description: "A comprehensive hands-on guide covering the complete process of installing and configuring Docker on Ubuntu Linux, running your first container, essential commands, network and volume configuration, and troubleshooting methods"
+tags: ["Docker", "Container", "Linux"]
+description: "Installing Docker on Ubuntu and running your first container."
 draft: false
 ---
 

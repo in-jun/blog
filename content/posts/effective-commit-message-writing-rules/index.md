@@ -1,8 +1,8 @@
 ---
 title: "효과적인 커밋 메시지 작성 규칙"
 date: 2024-07-12T08:48:08+09:00
-tags: ["git", "commit", "conventional-commits", "version-control"]
-description: "커밋 메시지 작성 규칙은 2009년 Tim Pope의 가이드라인에서 시작되어 2017년 Conventional Commits 표준으로 발전했으며, 제목 50자 제한, 명령형 사용, 타입 지정, 본문에서 무엇과 왜 설명하기가 핵심이다"
+tags: ["Git", "버전관리"]
+description: "Conventional Commits 표준에 따른 효과적인 커밋 메시지 작성 방법을 다룬다."
 draft: false
 ---
 

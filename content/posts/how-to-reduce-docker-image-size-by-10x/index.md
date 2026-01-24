@@ -1,8 +1,8 @@
 ---
-title: "Docker 이미지 크기를 10배 줄이는 방법: 실전 최적화 가이드"
+title: "Docker 이미지 크기 최적화"
 date: 2025-02-17T22:39:45+09:00
-tags: ["Docker", "최적화", "이미지", "컨테이너", "멀티스테이지", "DevOps"]
-description: "Docker 이미지 크기 증가의 원인 분석, 멀티 스테이지 빌드, Alpine Linux, distroless 이미지, 레이어 최적화, 언어별 최적화 기법까지 Docker 이미지를 10배 이상 줄이는 실전 최적화 전략을 체계적으로 설명하는 완벽 가이드"
+tags: ["Docker", "컨테이너", "최적화"]
+description: "멀티 스테이지 빌드와 레이어 캐싱을 통한 Docker 이미지 최적화 방법을 설명한다."
 draft: false
 ---
 

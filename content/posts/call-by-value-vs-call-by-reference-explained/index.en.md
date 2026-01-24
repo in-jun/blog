@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Call by Value vs Call by Reference: Everything About Function Parameter Passing"
+title: "Call by Value vs Call by Reference"
 date: 2024-05-16T22:14:17+09:00
-tags: ["Programming", "Computer Science", "C", "C++", "Java", "Python"]
-description: "A systematic guide covering Call by Value and Call by Reference concepts and history, memory operation principles, language-specific implementations in C/C++/Java/Python, Call by Sharing concept, performance comparison, and practical usage guide for function parameter passing mechanisms"
+tags: ["Programming", "Computer Science"]
+description: "Differences between call by value and call by reference parameter passing."
 draft: false
 ---
 

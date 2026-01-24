@@ -1,8 +1,8 @@
 ---
-title: "Vim 완벽 가이드: 역사부터 실전 활용까지"
+title: "Vim 텍스트 에디터"
 date: 2024-07-06T20:17:05+09:00
-tags: ["Vim", "Editor", "Linux", "CLI", "Productivity"]
-description: "Vim의 역사와 모달 에디팅 철학을 이해하고, Normal/Insert/Visual/Command 모드별 상세 명령어, 검색과 치환 기법, 플러그인 생태계, vimrc 설정 방법, 실전 팁까지 포괄적으로 다루는 완벽 가이드"
+tags: ["Vim", "Linux", "에디터"]
+description: "Vim 에디터의 기본 사용법과 주요 명령어를 설명한다."
 draft: false
 ---
 

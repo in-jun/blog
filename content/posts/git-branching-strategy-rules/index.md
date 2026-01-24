@@ -1,9 +1,9 @@
 ---
-title: "Git 브랜치 전략: Git Flow와 GitHub Flow 비교"
+title: "Git 브랜치 전략 Git Flow와 GitHub Flow"
 date: 2024-07-10T08:01:40+09:00
-description: "Git 브랜치 전략은 2010년 Vincent Driessen의 Git Flow에서 시작되어 GitHub Flow(2011), GitLab Flow(2014)로 발전했으며, 프로젝트 규모와 릴리스 주기에 따라 적절한 전략을 선택해야 한다"
+description: "Git Flow와 GitHub Flow의 차이와 선택 기준을 설명한다."
 draft: false
-tags: ["git", "branching", "git-flow", "github-flow", "devops"]
+tags: ["Git", "버전관리", "DevOps"]
 ---
 
 ## 브랜치 전략의 역사와 배경

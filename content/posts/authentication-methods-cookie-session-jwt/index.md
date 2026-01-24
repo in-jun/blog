@@ -1,8 +1,8 @@
 ---
-title: "웹 인증 완벽 가이드: Cookie, Session, JWT부터 RTR까지"
+title: "웹 인증 Cookie, Session, JWT"
 date: 2024-06-02T14:18:40+09:00
-tags: ["인증", "JWT", "Session", "Cookie", "OAuth", "보안"]
-description: "웹 인증의 핵심 개념인 Cookie, Session, JWT의 동작 원리와 차이점을 상세히 비교하고, Refresh Token과 RTR(Refresh Token Rotation) 전략을 통한 보안 강화 방법을 실무 관점에서 설명한다"
+tags: ["인증", "보안", "JWT"]
+description: "Cookie, Session, JWT 기반 웹 인증 방식과 Refresh Token 전략을 설명한다."
 draft: false
 ---
 

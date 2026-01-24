@@ -1,8 +1,8 @@
 ---
-title: "PR(Pull Request) 리뷰 완벽 가이드"
+title: "Pull Request 리뷰 모범 사례"
 date: 2024-07-31T22:06:49+09:00
-tags: ["git", "pull-request", "code-review", "best-practices", "collaboration"]
-description: "코드 리뷰의 역사부터 PR 리뷰의 목적과 가치, 효과적인 리뷰 체크리스트, blocking/suggestion/nit 등 코멘트 레벨 구분, 좋은 피드백 작성법, 그리고 건강한 리뷰 문화 구축까지 포괄적으로 다룬다."
+tags: ["Git", "코드리뷰", "협업"]
+description: "효과적인 Pull Request 작성과 코드 리뷰 방법을 설명한다."
 draft: false
 ---
 

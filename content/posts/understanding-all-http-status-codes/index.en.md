@@ -1,9 +1,9 @@
 ---
-title: "The Complete Guide to HTTP Status Codes: Understanding All Codes from 1xx to 5xx"
+title: "Understanding HTTP Status Codes"
 date: 2024-06-05T09:38:59+09:00
-tags: ["HTTP", "Status Code", "REST API", "Web Development", "Network"]
+tags: ["HTTP", "Protocol", "Web"]
 draft: false
-description: "A comprehensive guide to HTTP status codes covering their history to RESTful API design, all codes from 1xx informational responses to 5xx server errors with practical examples, including unusual codes like 418 I'm a teapot and browser behavior patterns."
+description: "HTTP status code categories and meanings."
 ---
 
 HTTP status codes are standardized three-digit numeric response codes that a server returns to indicate the result of processing a client's request. These codes play a crucial role in all HTTP-based communications including web browsers, API clients, and search engines, clearly conveying whether requests succeeded, require redirection, or encountered client or server-side errors. In RESTful API design, selecting appropriate status codes is a key factor that significantly impacts API intuitiveness and developer experience.

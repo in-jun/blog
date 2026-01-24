@@ -1,8 +1,8 @@
 ---
-title: "Spring Boot 개발 가이드: 계층형 아키텍처와 베스트 프랙티스"
+title: "Spring Boot 개발 모범 사례"
 date: 2024-05-25T22:56:18+09:00
-tags: ["spring", "spring-boot", "java", "architecture"]
-description: "Spring Boot 애플리케이션은 Controller-Service-Repository의 3계층 아키텍처를 따르며, 각 계층의 책임을 명확히 분리하여 테스트 용이성과 유지보수성을 높인다. Entity, DTO, 예외 처리, 트랜잭션 관리의 베스트 프랙티스를 다룬다"
+tags: ["Spring", "Java", "개발방법론"]
+description: "Spring Boot 애플리케이션 개발 시 권장되는 패턴과 구조를 설명한다."
 draft: false
 ---
 

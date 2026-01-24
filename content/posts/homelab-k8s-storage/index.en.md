@@ -1,10 +1,10 @@
 ---
-title: "Homelab Kubernetes #3 - Distributed Storage with Longhorn"
+title: "Mini PC Kubernetes #3: Longhorn Storage"
 date: 2025-02-25T08:05:41+09:00
 draft: false
-description: "This guide explains why persistent storage is needed in a homelab Kubernetes environment and how to install and configure the Longhorn distributed storage system using GitOps methodology."
-tags: ["kubernetes", "homelab", "longhorn", "storage", "gitops", "argocd", "persistent-volume"]
-series: ["Homelab Kubernetes"]
+description: "Configuring storage and installing Longhorn for Kubernetes."
+tags: ["Kubernetes", "Storage", "Longhorn"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

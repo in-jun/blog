@@ -1,8 +1,8 @@
 ---
-title: "Complete Docker Guide: From Container Technology History to Core Concepts"
+title: "Docker Container Technology"
 date: 2025-02-17T22:33:27+09:00
-tags: ["Docker", "Container", "Virtualization", "Infrastructure", "DevOps", "Cloud"]
-description: "A comprehensive guide covering Docker's origins and history, differences between containers and virtual machines, core components, operating principles, and real-world use cases for container technology"
+tags: ["Docker", "Container", "Virtualization"]
+description: "Docker container concepts and differences from virtual machines."
 draft: false
 ---
 

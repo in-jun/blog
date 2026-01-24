@@ -1,8 +1,8 @@
 ---
-title: "Docker 설치 완벽 가이드: 우분투에서 첫 컨테이너 실행까지"
+title: "Docker 설치와 첫 컨테이너 실행"
 date: 2025-02-17T22:37:02+09:00
-tags: ["Docker", "설치", "컨테이너", "우분투", "Linux", "DevOps"]
-description: "우분투 리눅스에서 Docker를 설치하고 설정하는 전체 과정과 첫 컨테이너 실행, 기본 명령어, 네트워크 및 볼륨 구성, 문제 해결 방법까지 체계적으로 설명하는 실습 가이드"
+tags: ["Docker", "컨테이너", "Linux"]
+description: "우분투에서 Docker를 설치하고 컨테이너를 실행하는 방법을 설명한다."
 draft: false
 ---
 

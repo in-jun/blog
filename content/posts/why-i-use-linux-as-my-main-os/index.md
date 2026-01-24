@@ -1,8 +1,8 @@
 ---
-title: "개발자가 리눅스를 주 운영체제로 선택하는 이유: 완벽 가이드"
+title: "개발자를 위한 리눅스 운영체제"
 date: 2024-05-16T13:16:11+09:00
-tags: ["Linux", "Ubuntu", "Operating System", "Development", "DevOps"]
-description: "리눅스의 역사와 철학부터 주요 배포판 비교, 개발 환경 구축, Windows와 macOS와의 비교까지 개발자가 리눅스를 선택해야 하는 이유를 상세히 다룬다"
+tags: ["Linux", "운영체제", "개발환경"]
+description: "개발 환경으로서의 리눅스의 장점을 설명한다."
 draft: false
 ---
 

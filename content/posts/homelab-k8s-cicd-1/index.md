@@ -1,19 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #7 - 내부 개발자 플랫폼(IDP) 구축하기 (1)"
+title: "미니PC Kubernetes #7: IDP 구축 (1)"
 date: 2025-02-28T04:32:32+09:00
 draft: false
-description: "홈랩 쿠버네티스 클러스터에 Harbor 컨테이너 레지스트리와 Argo Events, Argo Workflows를 설치하여 CI/CD 파이프라인의 기반을 구축하는 방법을 다룬다."
-tags:
-    [
-        "kubernetes",
-        "homelab",
-        "ci/cd",
-        "harbor",
-        "argo-events",
-        "argo-workflows",
-        "gitops",
-    ]
-series: ["홈랩 쿠버네티스"]
+description: "쿠버네티스 환경에서 CI/CD 파이프라인을 구축하는 방법을 설명한다."
+tags: ["Kubernetes", "CI/CD", "DevOps"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

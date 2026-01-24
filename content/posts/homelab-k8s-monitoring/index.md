@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #9 - Prometheus와 Grafana로 모니터링하기"
+title: "미니PC Kubernetes #9: Prometheus 모니터링"
 date: 2025-02-28T08:46:48+09:00
 draft: false
-description: "홈랩 쿠버네티스 클러스터에 Kube-Prometheus-Stack과 Loki-Stack을 설치하여 메트릭 수집, 시각화, 로그 집계를 위한 통합 모니터링 시스템을 구축하는 방법을 다룬다."
-tags: ["kubernetes", "homelab", "monitoring", "prometheus", "grafana", "loki", "gitops"]
-series: ["홈랩 쿠버네티스"]
+description: "Prometheus와 Grafana를 사용한 쿠버네티스 모니터링 구성을 설명한다."
+tags: ["Kubernetes", "모니터링", "Prometheus"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

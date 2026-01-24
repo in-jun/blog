@@ -1,8 +1,8 @@
 ---
-title: "Deleting Branches After Merge: Why and How"
+title: "How to Delete Merged Git Branches"
 date: 2024-07-11T22:27:22+09:00
-tags: ["git", "version control", "collaboration", "branch management"]
-description: "A comprehensive guide covering the entire Git branch lifecycle from creation to deletion, methods to safely verify and delete merged branches, automation scripts, GitHub/GitLab auto-delete settings, and recovery procedures for accidentally deleted branches."
+tags: ["Git", "Version Control", "Collaboration"]
+description: "Safely deleting merged branches in Git."
 draft: false
 ---
 

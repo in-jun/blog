@@ -1,8 +1,8 @@
 ---
-title: "What is ORM (Object-Relational Mapping)?"
+title: "Object-Relational Mapping ORM"
 date: 2024-05-15T16:40:07+09:00
-tags: ["orm", "jpa", "hibernate", "database"]
-description: "ORM is a technology that solves paradigm mismatch between objects and relational databases, evolving from TopLink in the 1990s to JPA standard in 2006. It provides automatic mapping and persistence management but requires attention to performance issues like N+1 problem"
+tags: ["ORM", "Database", "JPA"]
+description: "Object-relational mapping concepts and ORM framework principles."
 draft: false
 ---
 

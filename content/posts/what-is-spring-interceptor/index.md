@@ -1,8 +1,8 @@
 ---
-title: "스프링 인터셉터란 무엇인가"
+title: "Spring Interceptor"
 date: 2024-06-04T17:14:49+09:00
-tags: ["spring", "interceptor", "java"]
-description: "스프링 인터셉터는 Spring Framework 2.0(2006년)에서 도입된 컨트롤러 호출 전후 공통 기능 처리 메커니즘으로, preHandle, postHandle, afterCompletion 메서드를 통해 인증, 로깅, 실행 시간 측정 등의 횡단 관심사를 처리한다"
+tags: ["Spring", "Java", "인터셉터"]
+description: "Spring Interceptor의 역할과 Filter와의 차이를 설명한다."
 draft: false
 ---
 

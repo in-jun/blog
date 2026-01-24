@@ -1,20 +1,20 @@
 ---
-title: "What is the MVC Pattern?"
+title: "MVC Pattern"
 date: 2024-06-05T15:22:37+09:00
-tags: ["mvc", "design pattern", "spring", "architecture"]
-description: "A comprehensive guide to the MVC pattern from its 1979 origins to Spring MVC architecture, pros and cons, and comparisons with MVP/MVVM"
+tags: ["Design Pattern", "Architecture", "Spring"]
+description: "Model-View-Controller pattern and Spring MVC implementation."
 draft: false
 ---
 
-## The Birth of the MVC Pattern
+## The Birth of the MVC Pattern and Historical Context
 
-The MVC pattern was first conceived in 1979 by Norwegian computer scientist Trygve Reenskaug while working on the Smalltalk project at Xerox PARC (Palo Alto Research Center). It emerged from his efforts to design graphical user interface (GUI) software that would enable users to effectively control and visualize complex data.
+The MVC pattern was first conceived in 1979 by Norwegian computer scientist Trygve Reenskaug while working on the Smalltalk-76 project at Xerox PARC (Palo Alto Research Center). This was part of a revolutionary effort to advance graphical user interfaces during the dawn of personal computing. Xerox PARC pioneered many modern computing concepts, including Ethernet, laser printers, and object-oriented programming. Reenskaug was exploring ways for users to effectively control and visualize complex data structures when he conceived the idea of separating data (Model), presentation (View), and control (Controller).
 
-Initially known by various names, the pattern was formalized as Model-View-Controller on December 10, 1979, following extensive discussions with Adele Goldberg. For over 40 years since then, it has established itself as a foundational pattern in software architecture.
+Initially known by various names including "Thing-Model-View-Editor," the pattern was finalized as Model-View-Controller on December 10, 1979, following intensive discussions with Adele Goldberg, a key member of the Smalltalk team. This name was chosen as it most clearly expressed the role of each component. For over 40 years since, it has established itself as a foundational pattern across nearly all software domains including web development, desktop applications, and mobile apps. It has profoundly influenced the design philosophy of major web frameworks such as Ruby on Rails (2004), Spring Framework (2002), Django (2005), and ASP.NET MVC (2009).
 
-## Core Concepts of the MVC Pattern
+## Core Concepts and Design Principles of the MVC Pattern
 
-The MVC pattern is an architectural pattern that separates an application into three distinct roles: Model, View, and Controller. Each component maintains independent responsibilities. By separating the user interface from business logic, it increases code reusability and facilitates maintenance. This separation allows multiple developers to work on different layers independently, maximizing collaboration efficiency.
+The MVC pattern is an architectural pattern that separates an application into three clearly distinct roles: Model, View, and Controller. Each component is designed to have independent responsibility following the Single Responsibility Principle. This is a representative implementation of Separation of Concerns, a core principle in software engineering. By thoroughly separating the user interface from business logic, it increases code reusability, minimizes the impact of changes, and facilitates maintenance. Since each layer has clear boundaries, multiple developers including frontend developers, backend developers, and database designers can work on their respective layers independently, maximizing collaboration efficiency in large teams.
 
 ### Model
 

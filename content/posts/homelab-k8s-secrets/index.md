@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #6 - HashiCorp Vault로 시크릿 관리하기"
+title: "미니PC Kubernetes #6: Vault 시크릿 관리"
 date: 2025-02-26T16:20:14+09:00
 draft: false
-description: "홈랩 쿠버네티스 클러스터에 HashiCorp Vault를 설치하고 Vault Secrets Operator와 ArgoCD Vault Plugin을 통해 GitOps 방식으로 안전한 시크릿 관리 시스템을 구축하는 방법을 다룬다."
-tags: ["kubernetes", "homelab", "vault", "secrets", "gitops", "security"]
-series: ["홈랩 쿠버네티스"]
+description: "HashiCorp Vault를 사용한 쿠버네티스 시크릿 관리 방법을 다룬다."
+tags: ["Kubernetes", "보안", "Vault"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

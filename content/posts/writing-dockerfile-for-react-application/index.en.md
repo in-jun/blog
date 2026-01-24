@@ -1,8 +1,8 @@
 ---
-title: "React Application Dockerfile Complete Guide: From Build to Deployment"
+title: "Writing Dockerfile for React Applications"
 date: 2025-02-17T21:56:12+09:00
-tags: ["React", "Docker", "Optimization", "Deployment", "Container", "nginx", "DevOps"]
-description: "A complete guide to creating production-ready React container images, covering Dockerfile writing methods, multi-stage builds, layer caching optimization, environment variable management, nginx configuration, and security hardening"
+tags: ["React", "Docker", "DevOps"]
+description: "Writing and optimizing Dockerfiles for React applications."
 draft: false
 ---
 

@@ -1,10 +1,10 @@
 ---
-title: "Homelab Kubernetes #1 - Building a K8s Cluster with 5 Mini PCs"
+title: "Mini PC Kubernetes #1: Cluster Setup"
 date: 2025-02-24T07:26:52+09:00
 draft: false
-description: "A step-by-step guide to building a Kubernetes cluster using Dell OptiPlex Micro units, covering hardware selection, OS installation, network configuration, and Kubernetes with MetalLB load balancer setup."
-tags: ["kubernetes", "homelab", "dell", "optiplex", "k8s", "metalLB", "calico"]
-series: ["Homelab Kubernetes"]
+description: "Building a Kubernetes cluster on Mini PC environment."
+tags: ["Kubernetes", "Mini PC", "Infrastructure"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

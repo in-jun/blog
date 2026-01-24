@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #2 - ArgoCD로 GitOps 환경 구축하기"
+title: "미니PC Kubernetes #2: ArgoCD GitOps"
 date: 2025-02-25T03:06:44+09:00
 draft: false
-description: "홈랩 쿠버네티스 클러스터에 ArgoCD를 설치하고 App of Apps 패턴을 적용하여 GitOps 기반의 선언적 인프라 관리 환경을 구축하는 방법을 다룬다."
-tags: ["kubernetes", "homelab", "gitops", "argocd", "helm"]
-series: ["홈랩 쿠버네티스"]
+description: "ArgoCD를 사용한 GitOps 기반 쿠버네티스 배포를 다룬다."
+tags: ["Kubernetes", "GitOps", "ArgoCD"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

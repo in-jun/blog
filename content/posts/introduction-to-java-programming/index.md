@@ -1,8 +1,8 @@
 ---
-title: "Java 완벽 가이드: 역사부터 핵심 문법까지"
+title: "Java 프로그래밍 입문"
 date: 2024-05-16T08:30:54+09:00
-tags: ["Java", "Programming", "OOP", "JVM"]
-description: "Java의 탄생 배경과 발전 역사, Write Once Run Anywhere 철학, JVM 동작 원리, 객체지향 프로그래밍의 4대 원칙, 클래스와 인터페이스, 제네릭과 컬렉션 프레임워크까지 Java 프로그래밍의 핵심을 체계적으로 정리"
+tags: ["Java", "프로그래밍", "OOP"]
+description: "Java 언어의 기본 문법과 객체지향 프로그래밍 개념을 설명한다."
 draft: false
 ---
 

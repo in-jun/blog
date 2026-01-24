@@ -1,8 +1,8 @@
 ---
 title: "Adjusting Git Commit Timestamps"
 date: 2024-05-25T23:31:13+09:00
-tags: ["git", "commit", "timestamp", "version-control"]
-description: "Git commits have two timestamps, AuthorDate and CommitDate, and you can specify new commit times with --date option, modify last commit with --amend, and adjust past commits with interactive rebase"
+tags: ["Git", "Version Control"]
+description: "Methods for modifying AuthorDate and CommitDate in Git commits."
 draft: false
 ---
 

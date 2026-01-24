@@ -1,8 +1,8 @@
 ---
-title: "The Complete Guide to Dijkstra's Algorithm"
+title: "Dijkstra's Shortest Path Algorithm"
 date: 2024-06-17T16:52:43+09:00
-tags: ["Dijkstra", "algorithm", "shortest-path", "graph", "priority-queue", "greedy-algorithm"]
-description: "A comprehensive guide covering the history of Dijkstra's algorithm invented at an Amsterdam cafe in 20 minutes in 1956, its greedy algorithm-based working principles, O(E log V) implementation using priority queues, negative weight constraints and solutions, and real-world applications including OSPF routing and GPS navigation."
+tags: ["Algorithm", "Graph", "Shortest Path"]
+description: "Shortest path algorithm using priority queues and greedy approach."
 draft: false
 ---
 

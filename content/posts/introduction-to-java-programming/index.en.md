@@ -1,8 +1,8 @@
 ---
-title: "Complete Java Guide: From History to Core Syntax"
+title: "Introduction to Java Programming"
 date: 2024-05-16T08:30:54+09:00
-tags: ["Java", "Programming", "OOP", "JVM"]
-description: "A systematic guide covering Java's origins and development history, Write Once Run Anywhere philosophy, JVM operation principles, four pillars of object-oriented programming, classes and interfaces, generics, and collection framework"
+tags: ["Java", "Programming", "OOP"]
+description: "Java fundamentals and object-oriented programming concepts."
 draft: false
 ---
 

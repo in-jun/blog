@@ -1,8 +1,8 @@
 ---
 title: "Temporarily Saving Changes with Git Stash"
 date: 2024-07-26T14:39:46+09:00
-tags: ["git", "stash", "version-control"]
-description: "Git stash is a stack-based temporary storage feature introduced in Git 1.5.3 (2007) that saves uncommitted changes for later restoration, covering the differences between pop and apply, conflict resolution, and untracked file handling"
+tags: ["Git", "Version Control"]
+description: "Temporarily saving changes with Git stash."
 draft: false
 ---
 

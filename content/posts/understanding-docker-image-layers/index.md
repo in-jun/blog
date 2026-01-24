@@ -1,8 +1,8 @@
 ---
-title: "Docker 이미지 레이어 완벽 가이드: 구조, 원리, 최적화 전략"
+title: "Docker 이미지 레이어 구조"
 date: 2025-02-17T15:25:00+09:00
-tags: ["Docker", "레이어", "이미지", "최적화", "컨테이너", "DevOps"]
-description: "Docker 이미지 레이어의 개념과 역사, Union File System의 동작 원리, Copy-on-Write 메커니즘, 레이어 캐싱 전략, 멀티 스테이지 빌드, 이미지 최적화 기법까지 Docker 이미지 레이어의 모든 것을 체계적으로 설명하는 완벽 가이드"
+tags: ["Docker", "컨테이너", "아키텍처"]
+description: "Docker 이미지의 레이어 구조와 최적화 방법을 다룬다."
 draft: false
 ---
 

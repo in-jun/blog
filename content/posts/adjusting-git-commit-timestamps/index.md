@@ -1,8 +1,8 @@
 ---
-title: "Git 커밋 시간 조정하기"
+title: "Git 커밋 타임스탬프 조정"
 date: 2024-05-25T23:31:13+09:00
-tags: ["git", "commit", "timestamp", "version-control"]
-description: "Git 커밋은 AuthorDate와 CommitDate 두 가지 타임스탬프를 가지며, --date 옵션으로 새 커밋 시간 지정, --amend로 마지막 커밋 수정, interactive rebase로 과거 커밋 조정이 가능하다"
+tags: ["Git", "버전관리"]
+description: "Git 커밋의 AuthorDate와 CommitDate를 수정하는 방법을 다룬다."
 draft: false
 ---
 

@@ -1,8 +1,8 @@
 ---
-title: "How to Reduce Docker Image Size by 10x: Practical Optimization Guide"
+title: "Optimizing Docker Image Size"
 date: 2025-02-17T22:39:45+09:00
-tags: ["Docker", "Optimization", "Image", "Container", "Multistage", "DevOps"]
-description: "A complete guide to reducing Docker image size by 10x or more, covering analysis of image size increase causes, multi-stage builds, Alpine Linux, distroless images, layer optimization, and language-specific optimization techniques"
+tags: ["Docker", "Container", "Optimization"]
+description: "Reducing Docker image size with multi-stage builds and layer caching."
 draft: false
 ---
 

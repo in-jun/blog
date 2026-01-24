@@ -1,8 +1,8 @@
 ---
-title: "ORM(Object-Relational Mapping)이란?"
+title: "ORM 객체 관계 매핑"
 date: 2024-05-15T16:40:07+09:00
-tags: ["orm", "jpa", "hibernate", "database"]
-description: "ORM은 객체와 관계형 데이터베이스 간의 패러다임 불일치를 해결하는 기술로, 1990년대 TopLink에서 시작해 2006년 JPA 표준으로 발전했다. 자동 매핑과 영속성 관리를 제공하지만, N+1 문제와 같은 성능 이슈에 주의해야 한다"
+tags: ["ORM", "데이터베이스", "JPA"]
+description: "객체-관계 매핑 개념과 ORM 프레임워크의 동작 원리를 설명한다."
 draft: false
 ---
 

@@ -1,8 +1,8 @@
 ---
-title: "Lazy Loading VS Eager Loading"
+title: "JPA Lazy Loading vs Eager Loading Performance"
 date: 2024-06-08T01:45:34+09:00
-tags: ["jpa", "java", "hibernate", "performance"]
-description: "Lazy Loading uses proxies to fetch associated entities at actual usage time, while Eager Loading joins immediately. N+1 problems are solved with fetch join, @EntityGraph, and @BatchSize. LAZY default setting is recommended in production"
+tags: ["JPA", "ORM", "Performance"]
+description: "Performance comparison of lazy and eager loading in JPA."
 draft: false
 ---
 

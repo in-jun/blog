@@ -1,8 +1,8 @@
 ---
-title: "소켓(Socket) 완벽 가이드: TCP/UDP부터 WebSocket까지"
+title: "네트워크 소켓"
 date: 2024-06-08T21:22:40+09:00
-tags: ["네트워크", "소켓", "TCP", "UDP", "WebSocket"]
-description: "Berkeley Sockets의 역사부터 TCP/UDP 소켓의 동작 원리, 소켓 프로그래밍의 핵심 함수, 클라이언트-서버 아키텍처, 그리고 WebSocket과의 관계까지 네트워크 소켓의 모든 것을 다룬다"
+tags: ["네트워크", "소켓", "프로그래밍"]
+description: "네트워크 소켓의 개념과 TCP/UDP 소켓 프로그래밍을 설명한다."
 draft: false
 ---
 

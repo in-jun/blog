@@ -1,10 +1,10 @@
 ---
-title: "Homelab Kubernetes #2 - Setting Up GitOps with ArgoCD"
+title: "Mini PC Kubernetes #2: ArgoCD GitOps"
 date: 2025-02-25T03:06:44+09:00
 draft: false
-description: "This guide covers installing ArgoCD on a homelab Kubernetes cluster and applying the App of Apps pattern to build a GitOps-based declarative infrastructure management environment."
-tags: ["kubernetes", "homelab", "gitops", "argocd", "helm"]
-series: ["Homelab Kubernetes"]
+description: "GitOps-based Kubernetes deployment with ArgoCD."
+tags: ["Kubernetes", "GitOps", "ArgoCD"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

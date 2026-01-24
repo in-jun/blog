@@ -1,8 +1,8 @@
 ---
-title: "Lazy Loading VS Eager Loading"
+title: "JPA Lazy Loading과 Eager Loading 성능 비교"
 date: 2024-06-08T01:45:34+09:00
-tags: ["jpa", "java", "hibernate", "performance"]
-description: "Lazy Loading은 프록시 기반 지연 로딩으로 연관 엔티티를 실제 사용 시점에 조회하고, Eager Loading은 즉시 조인하여 함께 로딩한다. N+1 문제는 fetch join, @EntityGraph, @BatchSize로 해결하며, 실무에서는 LAZY 기본 설정을 권장한다"
+tags: ["JPA", "ORM", "성능"]
+description: "JPA의 지연 로딩과 즉시 로딩의 차이와 성능 영향을 설명한다."
 draft: false
 ---
 

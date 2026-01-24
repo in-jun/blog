@@ -1,9 +1,9 @@
 ---
-title: "What is an ERD (Entity Relationship Diagram)"
+title: "ERD Entity Relationship Diagram"
 date: 2024-05-25T16:02:12+09:00
 draft: false
-tags: ["ERD", "Database"]
-description: "A comprehensive guide covering ERD history and evolution since Peter Chen's 1976 MIT publication, core concepts of entities/attributes/relationships, Chen/IE(Crow's Foot)/IDEF1X/UML notation comparison, detailed explanation of cardinality and optionality, differences between strong and weak entities, normalization and ERD design best practices, and dbdiagram/Draw.io/Lucidchart/ERDPlus tool comparison"
+tags: ["ERD", "Database", "Modeling"]
+description: "ERD components and creation methods."
 ---
 
 ## History and Origins of ERD

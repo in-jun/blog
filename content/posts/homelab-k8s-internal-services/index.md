@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #4 - Traefik 인그레스와 내부/외부 서비스 분리"
+title: "미니PC Kubernetes #4: 내부 서비스 구성"
 date: 2025-02-25T11:37:43+09:00
 draft: false
-description: "홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고, 내부와 외부 서비스를 분리하여 ArgoCD, Longhorn 등 관리 인터페이스를 안전하게 접근할 수 있도록 구성하는 방법을 다룬다."
-tags: ["kubernetes", "homelab", "traefik", "ingress", "gitops", "argocd", "metallb"]
-series: ["홈랩 쿠버네티스"]
+description: "쿠버네티스 클러스터 내부 서비스 구성 방법을 다룬다."
+tags: ["Kubernetes", "네트워크", "서비스"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

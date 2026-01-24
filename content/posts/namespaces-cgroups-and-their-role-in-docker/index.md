@@ -1,8 +1,8 @@
 ---
-title: "Linux 컨테이너의 핵심 기술: Namespace와 Cgroups 완벽 가이드"
+title: "Docker의 Namespace와 Cgroup"
 date: 2024-06-05T21:59:22+09:00
-tags: ["Linux", "Docker", "컨테이너", "Namespace", "Cgroups"]
-description: "Linux 커널의 Namespace와 Cgroups가 어떻게 컨테이너 격리와 리소스 관리를 구현하는지 상세히 설명하고, Docker와의 관계 및 보안 고려사항까지 다룬다"
+tags: ["Docker", "Linux", "컨테이너"]
+description: "Docker 컨테이너 격리를 위한 Linux Namespace와 Cgroup을 설명한다."
 draft: false
 ---
 

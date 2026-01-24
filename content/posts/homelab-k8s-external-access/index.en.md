@@ -1,10 +1,10 @@
 ---
-title: "Homelab Kubernetes #5 - External Access with DDNS and Port Forwarding"
+title: "Mini PC Kubernetes #5: External Access"
 date: 2025-02-26T14:07:36+09:00
 draft: false
-description: "This guide covers configuring Cloudflare DNS settings, implementing a custom DDNS Worker, and setting up router port forwarding to enable external internet access to services running in a homelab Kubernetes cluster."
-tags: ["kubernetes", "homelab", "traefik", "cloudflare", "ddns", "gitops", "port-forwarding"]
-series: ["Homelab Kubernetes"]
+description: "Setting up external access with DDNS and port forwarding."
+tags: ["Kubernetes", "Network", "DDNS"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

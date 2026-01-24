@@ -1,8 +1,8 @@
 ---
-title: "Git Stash로 변경 사항 임시 저장하기"
+title: "Git Stash로 변경사항 임시 저장하기"
 date: 2024-07-26T14:39:46+09:00
-tags: ["git", "stash", "version-control"]
-description: "Git stash는 2007년 Git 1.5.3에서 도입된 스택 기반 임시 저장 기능으로, 커밋하지 않은 변경 사항을 저장하고 나중에 복원할 수 있으며, pop과 apply의 차이점, 충돌 해결, untracked 파일 처리를 다룬다"
+tags: ["Git", "버전관리"]
+description: "Git Stash를 사용한 임시 변경사항 저장 방법을 설명한다."
 draft: false
 ---
 

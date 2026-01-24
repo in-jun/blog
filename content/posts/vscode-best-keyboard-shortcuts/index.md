@@ -1,8 +1,8 @@
 ---
-title: "VS Code 단축키 완벽 가이드: 생산성을 높이는 필수 단축키"
+title: "VS Code 키보드 단축키"
 date: 2024-06-21T00:18:52+09:00
-tags: ["VS Code", "Shortcuts", "Editor", "Productivity", "IDE"]
-description: "VS Code의 핵심 단축키를 체계적으로 정리하고, 편집, 검색, 멀티 커서, 디버깅, 터미널 등 카테고리별로 필수 단축키와 활용법을 설명한다"
+tags: ["VS Code", "생산성", "에디터"]
+description: "VS Code의 생산성을 높이는 필수 키보드 단축키를 다룬다."
 draft: false
 ---
 

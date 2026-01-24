@@ -1,8 +1,8 @@
 ---
-title: "OAuth 2.0 완벽 가이드: 인가 코드 플로우부터 보안 고려사항까지"
+title: "OAuth 2.0 프론트엔드와 백엔드 역할"
 date: 2024-08-03T11:21:01+09:00
-tags: ["OAuth", "인증", "보안", "API", "소셜 로그인"]
-description: "OAuth 2.0의 핵심 개념과 Authorization Code Flow의 동작 원리를 상세히 설명하고, 프론트엔드와 백엔드의 역할 분담 및 보안 모범 사례를 다룬다"
+tags: ["OAuth", "인증", "보안"]
+description: "OAuth 2.0 프로토콜과 프론트엔드/백엔드 역할을 설명한다."
 draft: false
 ---
 

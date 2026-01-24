@@ -1,8 +1,8 @@
 ---
-title: "What is CI/CD?"
+title: "CI/CD Continuous Integration and Deployment"
 date: 2024-06-10T17:14:26+09:00
-tags: ["CI", "CD", "continuous integration", "continuous deployment", "DevOps", "automation"]
-description: "A comprehensive guide covering CI/CD history from Extreme Programming origins, build automation, test automation, the difference between Continuous Delivery and Deployment, tool comparisons including Jenkins and GitHub Actions, and pipeline best practices."
+tags: ["CI/CD", "DevOps", "Automation"]
+description: "Continuous integration and deployment concepts and implementation."
 draft: false
 ---
 

@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to OAuth 2.0: From Authorization Code Flow to Security Best Practices"
+title: "OAuth 2.0 Frontend and Backend Roles"
 date: 2024-08-03T11:21:01+09:00
-tags: ["OAuth", "Authentication", "Security", "API", "Social Login"]
-description: "A comprehensive explanation of OAuth 2.0 core concepts and Authorization Code Flow mechanics, covering frontend and backend role distribution and security best practices"
+tags: ["OAuth", "Authentication", "Security"]
+description: "OAuth 2.0 protocol and frontend/backend roles."
 draft: false
 ---
 

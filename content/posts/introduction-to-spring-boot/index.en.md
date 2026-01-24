@@ -1,8 +1,8 @@
 ---
-title: "Getting to Know Spring Boot"
+title: "Getting Started with Spring Boot"
 date: 2024-05-16T22:14:17+09:00
-tags: ["spring", "spring-boot", "java", "backend"]
-description: "Spring Boot, released by Pivotal in 2014, replaces Spring Framework's complex XML configuration with auto-configuration and provides embedded servers for rapid development of standalone applications"
+tags: ["Spring", "Java", "Framework"]
+description: "Spring Boot fundamentals and project setup."
 draft: false
 ---
 

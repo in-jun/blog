@@ -1,8 +1,8 @@
 ---
-title: "Helm 완벽 가이드: Kubernetes 패키지 관리의 모든 것"
+title: "Kubernetes에서 Helm 사용하기"
 date: 2024-07-28T23:22:52+09:00
-tags: ["Kubernetes", "Helm", "DevOps", "Cloud Native", "Package Management"]
-description: "Helm의 핵심 개념과 동작 원리를 이해하고, 차트 구조, 템플릿 작성, 릴리스 관리, CI/CD 통합까지 Kubernetes 애플리케이션 패키징과 배포의 전체 과정을 다룬다"
+tags: ["Kubernetes", "Helm", "패키지관리"]
+description: "Helm을 사용한 쿠버네티스 애플리케이션 배포 방법을 설명한다."
 draft: false
 ---
 

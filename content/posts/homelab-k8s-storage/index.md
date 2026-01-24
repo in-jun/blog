@@ -1,10 +1,10 @@
 ---
-title: "홈랩 쿠버네티스 #3 - Longhorn으로 분산 스토리지 구축하기"
+title: "미니PC Kubernetes #3: Longhorn 스토리지"
 date: 2025-02-25T08:05:41+09:00
 draft: false
-description: "홈랩 쿠버네티스 환경에서 영구 스토리지가 필요한 이유와 Longhorn 분산 스토리지 시스템을 GitOps 방식으로 설치하고 구성하는 방법을 다룬다."
-tags: ["kubernetes", "homelab", "longhorn", "storage", "gitops", "argocd", "persistent-volume"]
-series: ["홈랩 쿠버네티스"]
+description: "쿠버네티스 클러스터의 스토리지 구성과 Longhorn 설치 방법을 설명한다."
+tags: ["Kubernetes", "스토리지", "Longhorn"]
+series: ["미니PC Kubernetes"]
 ---
 
 ## 개요

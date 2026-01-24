@@ -1,8 +1,8 @@
 ---
-title: "Docker Compose Complete Guide: Everything About Multi-Container Development Environment Setup"
+title: "Multi-Container Development with Docker Compose"
 date: 2025-02-17T22:49:32+09:00
-tags: ["Docker Compose", "Development Environment", "Infrastructure", "DevOps", "Container", "Microservices"]
-description: "A complete guide to multi-container application management covering Docker Compose concepts and history, YAML file structure, practical development environment examples, network and volume management, environment-specific configuration separation, and troubleshooting methods"
+tags: ["Docker", "Container", "DevOps"]
+description: "Multi-container development environment configuration with Docker Compose."
 draft: false
 ---
 

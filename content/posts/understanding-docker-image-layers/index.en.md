@@ -1,8 +1,8 @@
 ---
-title: "Docker Image Layers Complete Guide: Structure, Principles, and Optimization Strategies"
+title: "Understanding Docker Image Layers"
 date: 2025-02-17T15:25:00+09:00
-tags: ["Docker", "Layers", "Images", "Optimization", "Container", "DevOps"]
-description: "A complete guide to Docker image layers covering concepts and history, Union File System operation principles, Copy-on-Write mechanism, layer caching strategies, multi-stage builds, and image optimization techniques"
+tags: ["Docker", "Container", "Architecture"]
+description: "Docker image layer structure and optimization techniques."
 draft: false
 ---
 

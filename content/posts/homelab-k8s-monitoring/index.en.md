@@ -1,10 +1,10 @@
 ---
-title: "Homelab Kubernetes #9 - Monitoring with Prometheus and Grafana"
+title: "Mini PC Kubernetes #9: Prometheus Monitoring"
 date: 2025-02-28T08:46:48+09:00
 draft: false
-description: "This guide covers installing Kube-Prometheus-Stack and Loki-Stack in a homelab Kubernetes cluster to build an integrated monitoring system for metric collection, visualization, and log aggregation."
-tags: ["kubernetes", "homelab", "monitoring", "prometheus", "grafana", "loki", "gitops"]
-series: ["Homelab Kubernetes"]
+description: "Monitoring Kubernetes with Prometheus and Grafana."
+tags: ["Kubernetes", "Monitoring", "Prometheus"]
+series: ["Mini PC Kubernetes"]
 ---
 
 ## Overview

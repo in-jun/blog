@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to First-Level and Second-Level Cache"
+title: "JPA First-Level and Second-Level Cache"
 date: 2024-06-08T03:39:05+09:00
-tags: ["jpa", "hibernate", "orm", "cache"]
-description: "The first-level cache is a mandatory transaction-scoped cache operating in the persistence context, while the second-level cache is an optional cache shared across the entire application. Choose from providers like EhCache, Infinispan, Hazelcast and concurrency strategies like READ_ONLY, READ_WRITE"
+tags: ["JPA", "ORM", "Cache"]
+description: "Differences between JPA first-level and second-level caching."
 draft: false
 ---
 

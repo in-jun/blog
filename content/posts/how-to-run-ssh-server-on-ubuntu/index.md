@@ -1,8 +1,8 @@
 ---
-title: "Ubuntu SSH 서버 완벽 가이드: 설치부터 보안 설정까지"
+title: "우분투 OpenSSH 서버 실행"
 date: 2024-08-14T15:16:40+09:00
-tags: ["Ubuntu", "SSH", "Linux", "Networking", "Security"]
-description: "Ubuntu에서 SSH 서버를 설치하고 설정하는 전체 과정을 다루며, SSH 프로토콜의 역사와 동작 원리부터 공개키 인증, 방화벽 설정, 보안 강화까지 단계별로 설명한다"
+tags: ["Linux", "Ubuntu", "SSH"]
+description: "우분투에서 OpenSSH 서버를 설치하고 구성하는 방법을 다룬다."
 draft: false
 ---
 

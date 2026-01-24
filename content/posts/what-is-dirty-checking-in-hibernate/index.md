@@ -1,8 +1,8 @@
 ---
-title: "Dirty Checking 완벽 가이드"
+title: "JPA Dirty Checking 변경 감지"
 date: 2024-06-08T02:47:28+09:00
-tags: ["jpa", "hibernate", "orm", "java"]
-description: "Dirty Checking은 Hibernate가 개발한 변경 감지 메커니즘으로, 영속성 컨텍스트가 스냅샷을 저장하고 flush 시점에 비교하여 UPDATE 쿼리를 자동 생성한다. @DynamicUpdate로 변경 필드만 업데이트하고, 대량 처리 시 배치 설정과 벌크 연산으로 최적화한다"
+tags: ["JPA", "ORM", "Java"]
+description: "JPA의 변경 감지 메커니즘인 Dirty Checking을 설명한다."
 draft: false
 ---
 

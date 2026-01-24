@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Setting Static IP on Ubuntu 24.04 LTS: Netplan, nmcli, nmtui"
+title: "Setting Static IP on Ubuntu 24.04 LTS"
 date: 2024-08-10T11:26:57+09:00
-tags: ["Ubuntu", "Linux", "Networking", "Static IP", "Netplan"]
-description: "A detailed explanation of three methods to set a static IP on Ubuntu 24.04 LTS: Netplan, nmcli, and nmtui, covering characteristics of each method and troubleshooting tips"
+tags: ["Ubuntu", "Network", "Linux"]
+description: "Configuring static IP addresses on Ubuntu 24.04 LTS."
 draft: false
 ---
 

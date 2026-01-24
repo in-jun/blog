@@ -1,8 +1,8 @@
 ---
-title: "Complete Guide to Persistence Context"
+title: "Understanding JPA Persistence Context"
 date: 2024-06-08T03:12:19+09:00
-tags: ["jpa", "hibernate", "orm", "java"]
-description: "The persistence context is a core JPA concept providing first-level cache, identity guarantee, write-behind, and dirty checking features. It operates within transaction scope, while the OSIV pattern maintains persistence until the view but risks connection pool exhaustion"
+tags: ["JPA", "ORM", "Java"]
+description: "JPA persistence context role and first-level cache operation."
 draft: false
 ---
 

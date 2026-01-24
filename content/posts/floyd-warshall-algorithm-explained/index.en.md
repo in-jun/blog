@@ -1,8 +1,8 @@
 ---
-title: "The Complete Guide to the Floyd-Warshall Algorithm"
+title: "Floyd-Warshall Algorithm"
 date: 2024-06-17T19:29:50+09:00
-tags: ["Floyd-Warshall", "algorithm", "shortest-path", "graph", "dynamic-programming"]
-description: "A comprehensive guide covering the history of the Floyd-Warshall algorithm independently published by Robert Floyd and Stephen Warshall in 1962, its dynamic programming-based recurrence relation and triple loop operation, O(V³) time complexity analysis, negative weight handling and negative cycle detection methods, and real-world applications including network diameter calculation and transitive closure."
+tags: ["Algorithm", "Graph", "Shortest Path"]
+description: "All-pairs shortest path algorithm using dynamic programming."
 draft: false
 ---
 
