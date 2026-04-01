@@ -25,9 +25,9 @@ Initially, the following approaches were attempted:
 
 2. **NFS (Network File System)**: Configuring a separate NAS device as an NFS server for shared storage across all nodes allowed pods to access the same data regardless of which node they ran on. However, the NFS server became a single point of failure, making all storage inaccessible when the server failed. Stability issues with NFS file locking in Kubernetes environments were also experienced.
 
-3. **Rook-Ceph**: Deploying the Kubernetes-native distributed storage solution Ceph through the Rook operator provides powerful features and high reliability. However, it requires a minimum of 3 OSD (Object Storage Daemon) nodes and has significant memory and CPU overhead, creating resource burden in a homelab environment built with Dell OptiPlex Micro units.
+3. **Rook-Ceph**: Deploying the Kubernetes-native distributed storage solution Ceph through the Rook operator provides powerful features and high reliability. However, it requires a minimum of 3 OSD (Object Storage Daemon) nodes and has significant memory and CPU overhead, which places a heavy resource burden on a homelab environment built with Dell OptiPlex Micro units.
 
-After several trials and errors, Longhorn was chosen. Longhorn is simple to install, has low resource requirements, yet provides enterprise-grade features like distributed replication, snapshots, and backup, making it the most suitable distributed storage system for homelab scale.
+After several rounds of trial and error, Longhorn was chosen. Longhorn is simple to install, has low resource requirements, and still provides enterprise-grade features like distributed replication, snapshots, and backup, making it the most suitable distributed storage system for a homelab environment.
 
 ## Problems Solved by Longhorn
 

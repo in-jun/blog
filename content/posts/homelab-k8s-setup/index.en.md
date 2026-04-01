@@ -2,7 +2,7 @@
 title: "Mini PC Kubernetes #1: Cluster Setup"
 date: 2025-02-24T07:26:52+09:00
 draft: false
-description: "Building a Kubernetes cluster on Mini PC environment."
+description: "Building a Kubernetes cluster in a Mini PC environment."
 tags: ["Kubernetes", "Mini PC", "Infrastructure"]
 series: ["Mini PC Kubernetes"]
 ---
@@ -21,13 +21,13 @@ The hardware setup uses five Dell OptiPlex Micro units as cluster nodes, with a 
 
 ## OS Installation
 
-First, an operating system must be installed on each node. Windows 10, which was originally installed on the Dell OptiPlex Micro units, is removed and replaced with Ubuntu 24.04 LTS Server version. Ubuntu Server was chosen because it has no GUI, resulting in lower system resource usage and optimization for server environments like Kubernetes. The LTS (Long Term Support) version provides security updates and technical support for 5 years until 2029, making it suitable for stable server operations.
+First, an operating system must be installed on each node. Windows 10, which was originally installed on the Dell OptiPlex Micro units, is removed and replaced with Ubuntu Server 24.04 LTS. Ubuntu Server was chosen because it has no GUI, which reduces system resource usage and makes it well suited for server environments like Kubernetes. The LTS (Long Term Support) version provides security updates and technical support for 5 years, through 2029, making it suitable for stable server operations.
 
 For installation, download the Ubuntu ISO file, create a bootable USB using a tool like Rufus or balenaEtcher, and then select USB boot in the BIOS to begin the installation.
 
 ![Installation initial screen](image-1.png)
 
-After booting, select "Try or Install Ubuntu" to proceed. Basic setup screens for language selection, keyboard layout, and network configuration will appear. Following the defaults leads to the server configuration screen shown below.
+After booting, select "Try or Install Ubuntu" to proceed. Basic setup screens for language selection, keyboard layout, and network configuration will appear. If you follow the default options, you will reach the server configuration screen shown below.
 
 ![SSH setup screen](image-2.png)
 
@@ -232,7 +232,7 @@ One controller pod and a speaker pod on each node should be displayed in Running
 
 In this series, MetalLB is used in Layer 2 mode. In this mode, the MetalLB speaker implements load balancer functionality by using ARP (IPv4) or NDP (IPv6) protocols to respond to the assigned virtual IP with its own MAC address.
 
-For example, when MetalLB assigns the virtual IP 192.168.0.200 to a service, when another device on the same network sends an ARP request asking for the MAC address of 192.168.0.200, the MetalLB speaker responds with the MAC address of the node hosting that service, ensuring traffic is delivered to the correct node.
+For example, if MetalLB assigns the virtual IP 192.168.0.200 to a service and another device on the same network sends an ARP request for the MAC address of 192.168.0.200, the MetalLB speaker responds with the MAC address of the node hosting that service, ensuring that traffic is delivered to the correct node.
 
 To learn more about ARP and NDP protocols, refer to the following posts:
 

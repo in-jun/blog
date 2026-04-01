@@ -17,7 +17,7 @@ In the [previous post](/posts/homelab-k8s-external-access/), we configured DDNS 
 
 Secret management was the biggest challenge while building the homelab environment using GitOps methodology. Several limitations became clear when using default Kubernetes Secrets.
 
-First, there is the GitOps integration issue. Secrets cannot be stored directly in Git repositories, and even base64 encoding is vulnerable since original values can be restored through simple decoding. Tools like Sealed Secrets and SOPS were also reviewed, but a comprehensive secret management solution beyond simple encryption was needed.
+First, there is the GitOps integration issue. Secrets cannot be stored directly in Git repositories, and base64 encoding is not secure because the original values can be restored with simple decoding. Tools like Sealed Secrets and SOPS were also reviewed, but a more comprehensive secret management solution was needed beyond simple encryption.
 
 Second, there is the secret rotation problem. External API tokens and certificates require periodic renewal, but manual handling is inefficient and prone to errors. Automated secret rotation management was necessary.
 
@@ -68,7 +68,7 @@ vault:
         enabled: true
 ```
 
-High availability (HA) configuration was considered but deemed wasteful of resources in the homelab environment, so it was simplified with the approach of upgrading later if needed.
+High availability (HA) configuration was considered, but it was judged to be an unnecessary use of resources in this homelab environment. The setup was therefore kept simple, with the option to upgrade later if needed.
 
 ### 3. Ingress Configuration
 
@@ -165,7 +165,7 @@ Threshold       3
 
 > **Shamir's Secret Sharing Algorithm**
 >
-> Vault uses Shamir's Secret Sharing algorithm to split the master key into multiple pieces. In enterprise environments, these 5 keys are distributed to different administrators so that Vault can only be opened with the agreement of at least 3 people, implementing the four-eyes principle. Although managed by one person in the homelab, this provides experience with enterprise security principles.
+> Vault uses Shamir's Secret Sharing algorithm to split the master key into multiple pieces. In enterprise environments, these five keys are distributed to different administrators so that Vault can only be opened with the agreement of at least three people, implementing the four-eyes principle. In a homelab, one person usually manages everything, but the same setup still provides experience with enterprise security principles.
 
 ## Accessing the Vault Web UI
 
@@ -183,7 +183,7 @@ Dashboard displayed after login:
 
 ![Vault Dashboard](image-2.png)
 
-The UI is intuitively organized, allowing efficient execution of complex policy settings and secret management tasks.
+The UI is organized intuitively, making complex policy configuration and secret management tasks easier to handle.
 
 ## Basic Vault Configuration
 

@@ -9,7 +9,7 @@ series: ["미니PC Kubernetes"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-cicd-2/)에서는 Helm 차트 기반 프로젝트 템플릿과 ArgoCD ApplicationSet을 활용하여 내부 개발자 플랫폼(IDP)을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터를 모니터링하기 위해 Prometheus와 Grafana를 설치하여 메트릭을 수집하고 시각화하며, Loki를 설치하여 로그를 중앙에서 수집하고 분석할 수 있는 통합 모니터링 환경을 구성하는 방법을 알아본다.
+[이전 글](/posts/homelab-k8s-cicd-2/)에서는 Helm 차트 기반 프로젝트 템플릿과 ArgoCD ApplicationSet을 활용해 내부 개발자 플랫폼(IDP)을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터를 모니터링하기 위해 Prometheus와 Grafana로 메트릭을 수집하고 시각화하는 방법, 그리고 Loki로 로그를 중앙에서 수집하고 분석하는 방법을 다룬다. 이를 통해 통합 모니터링 환경을 구성한다.
 
 ![Grafana](image.png)
 

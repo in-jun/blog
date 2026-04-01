@@ -47,7 +47,7 @@ Adopting the GitOps approach provides the following advantages:
 
 ![ArgoCD Logo](image-1.png)
 
-ArgoCD uses a Pull-based deployment model. Unlike the Push model where external CI systems directly access clusters for deployment, ArgoCD inside the cluster continuously polls Git repositories to detect and apply changes. This Pull model has advantages including higher security by not exposing cluster credentials externally, and easier deployment to clusters behind network firewalls.
+ArgoCD uses a pull-based deployment model. Unlike the push model, where external CI systems directly access clusters for deployment, ArgoCD runs inside the cluster and continuously polls Git repositories to detect and apply changes. This model offers higher security by avoiding external exposure of cluster credentials and makes it easier to deploy to clusters behind network firewalls.
 
 ### Core Components of ArgoCD
 
@@ -64,7 +64,7 @@ ArgoCD consists of several components, each performing the following roles:
 There are two core concepts to understand when using ArgoCD:
 
 - **Application**: The basic unit of ArgoCD that defines a group of Kubernetes resources. It connects a source (Git repository path) with a destination (Kubernetes cluster and namespace) to specify which manifests to deploy where.
-- **Project**: A policy container that logically groups multiple Applications and restricts access permissions, allowed source repositories, and deployable clusters and namespaces. Used for resource isolation and security in multi-tenant environments.
+- **Project**: A policy container that logically groups multiple Applications and restricts access permissions, allowed source repositories, and deployable clusters and namespaces. It is used for resource isolation and security in multi-tenant environments.
 
 ## Installing ArgoCD
 

@@ -20,7 +20,7 @@ Building a complete CI/CD pipeline in a homelab environment requires the followi
 - **Container Registry**: A central repository for storing and distributing built container images, enabling self-management of images without depending on public registries like Docker Hub.
 - **Event Processing System**: Responsible for detecting various events such as code changes in Git repositories and webhook receipts, and triggering subsequent tasks in response.
 - **Workflow Engine**: An engine for defining and executing actual CI/CD tasks such as code building, test execution, and container image creation.
-- **GitOps Deployment System**: A system that automatically synchronizes the desired state defined in Git repositories to the cluster. ArgoCD, installed in a previous series post, handles this role.
+- **GitOps Deployment System**: A system that automatically synchronizes the desired state defined in Git repositories to the cluster. ArgoCD, which was installed in an earlier post in this series, handles this role.
 
 In this post, we implement the container registry, event processing system, and workflow engine using Harbor, Argo Events, and Argo Workflows respectively. In the next post, we integrate these with ArgoCD to complete a full CI/CD pipeline.
 

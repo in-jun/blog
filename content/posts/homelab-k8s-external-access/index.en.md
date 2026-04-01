@@ -24,7 +24,7 @@ This design provides service-level separation that reduces the risk of accidenta
 
 ## Configuring External Access
 
-Three main steps are required to enable external internet access to Kubernetes services:
+Three main steps are required to enable internet access to Kubernetes services from outside the home network:
 
 1. **Domain DNS Configuration**: Configure DNS records for the domain in Cloudflare.
 2. **Dynamic IP Management (DDNS)**: Automatically update DNS records whenever the dynamic IP of home internet changes.
@@ -279,7 +279,7 @@ With port forwarding complete, configure IngressRoutes for externally accessible
 
 ## Verifying Let's Encrypt Certificate Issuance
 
-Once external access is available, Traefik's Let's Encrypt integration verifies domain ownership through HTTP-01 challenge and automatically issues SSL/TLS certificates. Certificate issuance status can be checked with the following command:
+Once external access is available, Traefik's Let's Encrypt integration verifies domain ownership through the HTTP-01 challenge and automatically issues SSL/TLS certificates. Certificate issuance status can be checked with the following command:
 
 ```bash
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
@@ -380,7 +380,7 @@ If internal management services are not accessible from outside and only the tes
 
 ## Conclusion
 
-This post covered configuring DDNS and port forwarding to enable external internet access to homelab Kubernetes cluster services. By separating internal and external load balancers and setting port forwarding targets only to the external IP, exposure of management interfaces to the outside can be prevented.
+This post covered configuring DDNS and port forwarding to enable internet access to services running in the homelab Kubernetes cluster. By separating internal and external load balancers and setting port forwarding targets only to the external IP, you can prevent management interfaces from being exposed to the outside.
 
 The next post covers installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
 

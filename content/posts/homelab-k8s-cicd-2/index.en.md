@@ -417,7 +417,7 @@ The key components of this WorkflowTemplate are:
 
 ## CD Pipeline Templates
 
-When the CI pipeline updates the project configuration file, ArgoCD detects the changes and performs deployment with the new image.
+When the CI pipeline updates the project configuration file, ArgoCD detects the changes and deploys the new image.
 
 ### Deployment Template
 
