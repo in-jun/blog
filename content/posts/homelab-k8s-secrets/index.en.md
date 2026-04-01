@@ -31,7 +31,7 @@ HashiCorp Vault provides secret encryption, access control, and automatic renewa
 
 ### 1. Preparing Directories for GitOps Configuration
 
-Since all resources in the homelab environment are managed through GitOps, Vault installation follows the same approach. First, create the necessary directory structure:
+Since I was managing the rest of the homelab through GitOps, Vault followed the same pattern. I started by creating the following directory structure:
 
 ```bash
 mkdir -p k8s-resources/apps/vault/templates
@@ -40,7 +40,7 @@ cd k8s-resources/apps/vault
 
 ### 2. Helm Chart Configuration
 
-Create the `Chart.yaml` file as follows:
+The `Chart.yaml` file looked like this:
 
 ```yaml
 apiVersion: v2
@@ -57,7 +57,7 @@ dependencies:
 
 This configuration defines fetching and installing the Vault v0.27.0 chart from the official HashiCorp Helm repository.
 
-Add Vault settings to the `values.yaml` file:
+I added the following Vault settings in `values.yaml`:
 
 ```yaml
 vault:
@@ -72,7 +72,7 @@ High availability (HA) configuration was considered, but it was judged to be an 
 
 ### 3. Ingress Configuration
 
-Configure an ingress route to access the Vault UI, utilizing the Traefik ingress controller configured previously.
+For the Vault UI, I reused the Traefik ingress controller from the previous post and kept access internal-only.
 
 `templates/ingressroute.yaml` file:
 
@@ -104,7 +104,7 @@ git commit -m "Add Vault Helm chart configuration"
 git push origin main
 ```
 
-ArgoCD detects changes in the Git repository and automatically deploys to the cluster.
+After that commit, ArgoCD picked up the change and deployed Vault to the cluster.
 
 ## Vault Initialization and Unsealing
 
@@ -112,7 +112,7 @@ After Vault installation, two important steps are required: initialization and u
 
 ### 1. Perform Initialization
 
-Access the Vault pod to perform initialization:
+I initialized Vault manually by entering the pod and running:
 
 ```bash
 kubectl -n vault exec -it vault-0 -- /bin/sh
@@ -136,7 +136,7 @@ Initial Root Token: hvs.6xu4j8TSoFBJ3EFNpW791e0I
 
 ### 2. Perform Unsealing
 
-After initialization, the unsealing process is required. In the default configuration, use 3 of the 5 keys to unseal Vault:
+After initialization, I unsealed Vault using 3 of the 5 keys, which is the default threshold:
 
 ```bash
 vault operator unseal wO14Gu9jIfGtae33/8U3l9mFv9QERnQS/IMoA1jJZ0vF
@@ -169,7 +169,7 @@ Threshold       3
 
 ## Accessing the Vault Web UI
 
-Once Vault is active, it can be managed through the web UI. Add the following entry to the local computer's hosts file:
+Once Vault was active, I also accessed it through the web UI. On my local machine, I added the following hosts entry:
 
 ```
 192.168.0.200 vault.injunweb.com
@@ -187,11 +187,11 @@ The UI is organized intuitively, making complex policy configuration and secret 
 
 ## Basic Vault Configuration
 
-Once Vault installation and initialization are complete, proceed with basic configuration for Kubernetes integration.
+Once installation and initialization were done, I moved on to the Kubernetes integration setup.
 
 ### 1. Kubernetes Authentication Setup
 
-Using Kubernetes authentication allows pods to authenticate to Vault with their service account tokens. Access the Vault pod and execute the following commands:
+I enabled Kubernetes authentication so Pods could authenticate to Vault with service account tokens. The actual setup inside the Vault pod looked like this:
 
 ```bash
 vault login hvs.6xu4j8TSoFBJ3EFNpW791e0I
@@ -209,7 +209,7 @@ This configuration enables Vault to verify the validity of Kubernetes service ac
 
 ### 2. Enable KV Secret Engine
 
-The Key-Value (KV) engine is the most basic secret storage method. Enable the version 2 engine:
+For secret storage, I enabled the KV v2 engine first:
 
 ```bash
 vault secrets enable -path=secret kv-v2
@@ -219,7 +219,7 @@ KV version 2 provides useful features like secret versioning, soft deletion, and
 
 ### 3. Create Policy and Role
 
-Policies are the core of access control in Vault. Create a sample policy for application use:
+Access control in Vault starts with policies, so I created a simple application policy like this:
 
 ```bash
 cat <<EOF > app-policy.hcl
@@ -237,7 +237,7 @@ vault policy write app-policy app-policy.hcl
 
 This policy grants read permission for all secrets under the `secret/data/app/*` path and permission to query metadata.
 
-Then create a role for Kubernetes authentication:
+Then I created the matching Kubernetes auth role:
 
 ```bash
 vault write auth/kubernetes/role/app \
@@ -251,7 +251,7 @@ This configuration means that when the `app` service account in the `default` na
 
 ### 4. Create Sample Secret
 
-Create a sample secret for testing:
+For testing, I stored a sample secret:
 
 ```bash
 vault kv put secret/app/config \
@@ -450,7 +450,7 @@ If the result changes to `newpassword`, automatic renewal is working correctly.
 
 ## Installing ArgoCD Vault Plugin
 
-The second approach is to configure the ArgoCD Vault Plugin. This plugin integrates deeply with GitOps workflows by storing only secret references in the Git repository and replacing them with actual values when ArgoCD deploys.
+The second approach I tried was the ArgoCD Vault Plugin. That kept only secret references in Git and let ArgoCD resolve the real values from Vault during deployment.
 
 ### 1. Modify ArgoCD Helm Chart Values File
 
@@ -681,7 +681,7 @@ When creating an application in ArgoCD, selecting "argocd-vault-plugin-helm" as 
 
 ## Conclusion
 
-This post covered installing HashiCorp Vault in a homelab Kubernetes cluster and building a secure secret management system. Vault Secrets Operator can synchronize secrets to Kubernetes Secrets without changing existing application code, and ArgoCD Vault Plugin can maintain GitOps workflow without storing sensitive information in Git repositories.
+This post covered how I introduced HashiCorp Vault into the homelab Kubernetes cluster and tested two ways of integrating secrets with the rest of the stack. Vault Secrets Operator felt convenient for existing applications, while ArgoCD Vault Plugin fit better when I wanted to keep Git clean and stay closer to the GitOps model.
 
 The next post covers installing Harbor, Argo Events, and Argo Workflows to build the foundation for a CI/CD pipeline.
 

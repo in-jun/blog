@@ -31,7 +31,7 @@ When operating a homelab Kubernetes cluster, you need to periodically check node
 
 ## Installing Kube-Prometheus-Stack
 
-Since installing and configuring Prometheus and Grafana individually is complex, we use Kube-Prometheus-Stack, a Helm chart that allows installing and managing both tools at once. As with previous posts, we install using the GitOps approach.
+Installing and wiring Prometheus and Grafana separately felt heavier than I wanted, so I used Kube-Prometheus-Stack instead. As with the earlier posts, I kept the deployment in the same GitOps flow.
 
 ### 1. Creating Directory and File Structure
 
@@ -42,7 +42,7 @@ cd k8s-resource/apps/kube-prometheus-stack
 
 ### 2. Creating Chart.yaml
 
-Create the `Chart.yaml` file as follows:
+The `Chart.yaml` file looked like this:
 
 ```yaml
 apiVersion: v2
@@ -61,7 +61,7 @@ This configuration defines using version 68.1.0 of the kube-prometheus-stack cha
 
 ### 3. Creating values.yaml
 
-Create the `values.yaml` file as follows:
+The `values.yaml` file I used looked like this:
 
 ```yaml
 kube-prometheus-stack:
@@ -157,7 +157,7 @@ The key characteristics of this configuration are as follows:
 
 ### 4. Configuring Ingress
 
-Create the `templates/ingressroute.yaml` file to configure access through Traefik:
+For access through Traefik, I used the following `templates/ingressroute.yaml`:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -186,7 +186,7 @@ This IngressRoute uses the `intweb` and `intwebsec` entry points to make it acce
 
 ### 5. Committing Changes and Deploying
 
-Add and commit the created files to the Git repository:
+Once those files were ready, I committed them to the Git repository:
 
 ```bash
 git add .
@@ -215,7 +215,7 @@ prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   0  
 
 ## Installing Loki-Stack
 
-Now we install Loki-Stack for log collection and analysis. Loki is a horizontally scalable log aggregation system that uses label-based indexing similar to Prometheus to collect and store logs.
+After the metrics side was working, I added Loki-Stack for log collection and analysis. Loki fit nicely here because its label-based model felt close to Prometheus.
 
 ### 1. Creating Directory and File Structure
 
@@ -226,7 +226,7 @@ cd k8s-resource/apps/loki-stack
 
 ### 2. Creating Chart.yaml
 
-Create the `Chart.yaml` file as follows:
+The `Chart.yaml` file for Loki looked like this:
 
 ```yaml
 apiVersion: v2
@@ -243,7 +243,7 @@ dependencies:
 
 ### 3. Creating values.yaml
 
-Create the `values.yaml` file as follows:
+The `values.yaml` I used for Loki looked like this:
 
 ```yaml
 loki-stack:
@@ -299,7 +299,7 @@ The key characteristics of this configuration are as follows:
 
 ### 4. Committing Changes and Deploying
 
-Add and commit the created files to the Git repository:
+I committed the Loki configuration in the same way:
 
 ```bash
 git add .
@@ -322,7 +322,7 @@ loki-stack-promtail-yyyyy       1/1     Running   0          2m
 
 ## Accessing the Monitoring System
 
-Modify the local computer's hosts file to enable access to Grafana and Prometheus:
+On my local machine, I updated the hosts file so I could reach Grafana and Prometheus directly:
 
 ```
 192.168.0.200 prometheus.injunweb.com grafana.injunweb.com
@@ -335,7 +335,7 @@ You can now access the following URLs in your web browser:
 
 ## Using Grafana Dashboards
 
-Kube-Prometheus-Stack provides several useful dashboards for cluster monitoring by default. When you access Grafana, click the "Dashboards" icon in the left menu and check the list of pre-configured dashboards in the "Browse" section.
+One thing I liked immediately was that Kube-Prometheus-Stack already shipped with several useful dashboards. In Grafana, I mostly browsed the preconfigured dashboards from the left-side "Dashboards" menu.
 
 In particular, the "Kubernetes / Compute Resources" related dashboards in the "General" folder are very useful for understanding cluster CPU, memory, and network usage at the namespace, pod, and container level. The "Node Exporter" related dashboards allow checking detailed hardware-level metrics for each node such as disk I/O, network traffic, and system load, which helps with infrastructure monitoring.
 
@@ -345,7 +345,7 @@ You can centrally explore all container logs in the cluster using the Loki data 
 
 ### Basic Log Queries
 
-After navigating to the "Explore" menu in Grafana and selecting "Loki" as the data source, you can start querying logs. Here are some useful query examples:
+For logs, I mostly used Grafana's "Explore" view with the Loki data source. These were the query patterns I found most useful:
 
 **Viewing logs for a specific namespace:**
 
@@ -375,6 +375,6 @@ Through Loki, you can centrally manage logs distributed across multiple pods and
 
 ## Conclusion
 
-This post covered installing Kube-Prometheus-Stack and Loki-Stack in a homelab Kubernetes cluster to build an integrated monitoring system for metric collection, visualization, and log aggregation.
+This post covered how I added Kube-Prometheus-Stack and Loki-Stack to the homelab Kubernetes cluster so I could see both metrics and logs in one place.
 
 This concludes the homelab Kubernetes series. We have now completed a full homelab Kubernetes environment, covering everything from the basic cluster setup to an ArgoCD GitOps environment, Longhorn distributed storage, the Traefik ingress controller, Vault secret management, a CI/CD pipeline, and a monitoring system built with Prometheus, Grafana, and Loki. With this infrastructure as a foundation, you can test and develop various projects in a production-like Kubernetes environment without the cost burden of cloud services.

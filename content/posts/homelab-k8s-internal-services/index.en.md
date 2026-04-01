@@ -23,7 +23,7 @@ There are several methods for exposing Kubernetes services externally in a homel
 
 3. **Ingress**: A method that defines rules for routing HTTP/HTTPS traffic to services. It provides various features such as URL path and hostname-based routing, SSL/TLS termination, and authentication, allowing multiple services to be exposed through a single IP.
 
-Using an ingress controller allows routing multiple services based on hostnames or paths with just a single IP address and standard ports (80, 443), making it the most suitable method for homelab environments.
+In my homelab, an ingress controller ended up being the best fit because it let me route multiple services with a single IP and the standard 80/443 ports.
 
 ### Why Traefik Was Chosen
 
@@ -57,7 +57,7 @@ This design implements separation at the service level. Even if a management int
 
 ### 1. Configuring MetalLB IP Address Pools
 
-Before deploying Traefik, IP address pools must first be configured in MetalLB for internal/external service separation. The following configuration files are created in the [GitHub repository](https://github.com/injunweb/k8s-resources).
+Before deploying Traefik, I first carved out IP pools in MetalLB for internal and external separation. I stored the following files in the [GitHub repository](https://github.com/injunweb/k8s-resources).
 
 `apps/traefik/templates/ipaddresspool.yaml` file:
 
@@ -108,7 +108,7 @@ dependencies:
 
 This file defines fetching and installing the v33.2.1 chart from the official Traefik Helm chart repository.
 
-The `apps/traefik/values.yaml` file contains detailed Traefik settings. The key configurations are examined below.
+The `apps/traefik/values.yaml` file contains the settings I actually used for Traefik. The important parts are below.
 
 #### Internal/External Entrypoint Configuration
 
@@ -226,7 +226,7 @@ This configuration sets up a persistent volume for storing Let's Encrypt certifi
 
 ### 3. Deploying with GitOps
 
-Committing and pushing the configuration files to the Git repository triggers ArgoCD to automatically detect changes and deploy to the cluster:
+After committing and pushing these files, ArgoCD picked them up and deployed Traefik to the cluster:
 
 ```bash
 git add apps/traefik
@@ -234,7 +234,7 @@ git commit -m "Add Traefik ingress controller with internal/external separation"
 git push origin main
 ```
 
-Verify that deployment is complete:
+Once that finished, I checked the deployment status with:
 
 ```bash
 kubectl get pods -n traefik
@@ -261,7 +261,7 @@ traefik-internal   LoadBalancer   10.43.xxx.xxx   192.168.0.200   80:xxxxx/TCP,4
 
 ## Configuring Internal Service Access
 
-Now that Traefik is installed, IngressRoutes are configured to access internal management interfaces like ArgoCD, Longhorn, and Traefik dashboard. These routes use internal entrypoints (`intweb`, `intwebsec`) to be accessible only from the internal network.
+With Traefik in place, I added IngressRoutes for internal management interfaces like ArgoCD, Longhorn, and the Traefik dashboard. These routes use only the internal entrypoints (`intweb`, `intwebsec`).
 
 ### 1. Configuring Internal Service Routing
 
@@ -324,7 +324,7 @@ ingressRoute:
 
 This configuration enables access to Traefik's internal API service (`api@internal`) through the `traefik.injunweb.com/dashboard` path to use the dashboard.
 
-Add the created manifest files to the Git repository:
+I then added those manifests to the Git repository:
 
 ```bash
 git add apps/argocd/templates/ingressroute.yaml
@@ -335,7 +335,7 @@ git push origin main
 
 ### 2. Local Hosts File Configuration
 
-Modify the local computer's hosts file to access internal services by domain name.
+On my workstation, I also updated the hosts file so I could reach those services by domain name.
 
 **Linux/macOS**:
 
@@ -359,7 +359,7 @@ This configuration resolves the domain names to the internal load balancer IP (1
 
 ## Testing Access
 
-With all configurations complete, test whether each service is accessible from the internal network.
+Once everything was wired up, I checked that each service was actually reachable from inside the network.
 
 Access the following URLs in a web browser and verify that each service displays properly:
 
@@ -371,7 +371,7 @@ If all services are properly accessible, the internal service configuration is c
 
 ## Conclusion
 
-This post covered installing the Traefik ingress controller on a homelab Kubernetes cluster and configuring secure access to management interfaces by separating internal and external services. By utilizing MetalLB's IP address pools to separate internal and external load balancers, exposure of management interfaces to the outside can be prevented.
+This post covered how I installed Traefik in the homelab Kubernetes cluster and separated internal and external services. Splitting the load balancers with MetalLB IP pools made the management interfaces much easier to keep off the public side.
 
 The next post covers configuring DDNS and port forwarding to make homelab services accessible from the external internet using the external load balancer.
 

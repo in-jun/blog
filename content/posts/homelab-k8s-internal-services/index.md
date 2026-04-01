@@ -23,7 +23,7 @@ series: ["미니PC Kubernetes"]
 
 3. **Ingress**: HTTP/HTTPS 트래픽을 서비스로 라우팅하는 규칙을 정의하는 방식으로, URL 경로와 호스트 이름 기반 라우팅, SSL/TLS 종료, 인증 등 다양한 기능을 제공하여 하나의 IP로 여러 서비스를 노출할 수 있다.
 
-인그레스 컨트롤러를 사용하면 단일 IP 주소와 표준 포트(80, 443)만으로 다수의 서비스를 호스트 이름이나 경로 기반으로 라우팅할 수 있어 홈랩 환경에서 가장 적합한 방법이다.
+내 홈랩에서는 단일 IP와 표준 포트(80, 443)만으로 여러 서비스를 다룰 수 있는 Ingress 방식이 가장 잘 맞았다.
 
 ### Traefik을 선택한 이유
 
@@ -57,7 +57,7 @@ series: ["미니PC Kubernetes"]
 
 ### 1. MetalLB IP 주소 풀 구성
 
-Traefik을 배포하기 전에 먼저 내부/외부 서비스 분리를 위한 IP 주소 풀을 MetalLB에 구성해야 하며, [GitHub 저장소](https://github.com/injunweb/k8s-resources)에 다음 설정 파일들을 생성한다.
+Traefik을 올리기 전에 먼저 내부/외부 분리를 위한 IP 주소 풀을 MetalLB에 잡아두었다. 이 설정은 [GitHub 저장소](https://github.com/injunweb/k8s-resources)에 아래 파일들로 정리했다.
 
 `apps/traefik/templates/ipaddresspool.yaml` 파일:
 
@@ -108,7 +108,7 @@ dependencies:
 
 이 파일은 Traefik 공식 Helm 차트 저장소에서 v33.2.1 버전 차트를 가져와 설치하도록 정의한다.
 
-`apps/traefik/values.yaml` 파일에는 Traefik의 상세 설정이 포함되며, 주요 설정을 살펴본다.
+`apps/traefik/values.yaml`에는 내가 실제로 사용한 Traefik 설정을 담았다. 핵심은 아래와 같다.
 
 #### 내부/외부 엔트리포인트 설정
 
@@ -226,7 +226,7 @@ podSecurityContext:
 
 ### 3. GitOps로 배포하기
 
-설정 파일을 Git 저장소에 커밋하고 푸시하면 ArgoCD가 자동으로 변경사항을 감지하여 클러스터에 배포한다:
+설정 파일을 Git 저장소에 커밋하고 푸시하자 ArgoCD가 변경을 감지해 클러스터에 배포했다:
 
 ```bash
 git add apps/traefik
@@ -234,7 +234,7 @@ git commit -m "Add Traefik ingress controller with internal/external separation"
 git push origin main
 ```
 
-배포가 완료되었는지 확인한다:
+배포 후에는 아래 명령으로 상태를 확인했다:
 
 ```bash
 kubectl get pods -n traefik
@@ -261,7 +261,7 @@ traefik-internal   LoadBalancer   10.43.xxx.xxx   192.168.0.200   80:xxxxx/TCP,4
 
 ## 내부 서비스 접근 구성
 
-Traefik이 설치되었으니 이제 ArgoCD, Longhorn, Traefik 대시보드 같은 내부 관리 인터페이스에 접근할 수 있도록 IngressRoute를 구성한다. 이 라우트들은 내부 엔트리포인트(`intweb`, `intwebsec`)를 사용하여 내부 네트워크에서만 접근 가능하도록 설정한다.
+Traefik이 올라온 뒤에는 ArgoCD, Longhorn, Traefik 대시보드 같은 내부 관리 인터페이스를 내부망에서만 열기 위해 IngressRoute를 추가했다. 이 라우트들은 `intweb`, `intwebsec` 엔트리포인트만 사용하도록 묶어두었다.
 
 ### 1. 내부 서비스 라우팅 구성
 
@@ -324,7 +324,7 @@ ingressRoute:
 
 이 설정은 `traefik.injunweb.com/dashboard` 경로를 통해 Traefik 내부 API 서비스(`api@internal`)에 접근하여 대시보드를 사용할 수 있도록 한다.
 
-생성한 매니페스트 파일들을 Git 저장소에 추가한다:
+매니페스트를 만든 뒤에는 Git 저장소에 추가해 반영했다:
 
 ```bash
 git add apps/argocd/templates/ingressroute.yaml
@@ -335,7 +335,7 @@ git push origin main
 
 ### 2. 로컬 호스트 파일 설정
 
-내부 서비스에 도메인 이름으로 접근하기 위해 로컬 컴퓨터의 호스트 파일을 수정한다.
+내 로컬 머신에서는 도메인으로 바로 붙기 위해 hosts 파일도 같이 수정했다.
 
 **Linux/macOS**:
 
@@ -359,7 +359,7 @@ C:\Windows\System32\drivers\etc\hosts
 
 ## 접근 테스트
 
-모든 구성이 완료되었으니 내부 네트워크에서 각 서비스에 접근이 가능한지 테스트한다.
+설정을 마친 뒤에는 내부 네트워크에서 실제 접근이 되는지 확인했다.
 
 웹 브라우저에서 다음 URL로 접속하여 각 서비스가 정상적으로 표시되는지 확인한다:
 
@@ -371,7 +371,7 @@ C:\Windows\System32\drivers\etc\hosts
 
 ## 마치며
 
-이번 글에서는 홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고, 내부와 외부 서비스를 분리하여 관리 인터페이스를 안전하게 접근할 수 있도록 구성하는 방법을 살펴보았다. MetalLB의 IP 주소 풀을 활용하여 내부용과 외부용 로드밸런서를 분리함으로써 관리 인터페이스가 외부에 노출되는 것을 방지할 수 있다.
+이번 글에서는 내 홈랩 쿠버네티스 클러스터에 Traefik을 올리고, 내부 서비스와 외부 서비스를 분리한 방식을 정리했다. MetalLB IP 풀을 나눠서 내부용과 외부용 로드밸런서를 분리해두니 관리 인터페이스를 외부에 드러내지 않고도 운영하기 편했다.
 
 다음 글에서는 외부용 로드밸런서를 활용하여 홈랩 서비스를 외부 인터넷에서 접근할 수 있도록 DDNS와 포트 포워딩을 구성하는 방법을 알아본다.
 

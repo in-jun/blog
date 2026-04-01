@@ -34,14 +34,14 @@ The reason for choosing Harbor is to build a completely self-hosted CI/CD enviro
 
 ### Harbor Helm Chart Configuration
 
-As with previous posts, we install Harbor using the GitOps approach. Create the directory and files for Harbor installation in the Git repository:
+As with the previous posts, I installed Harbor through the GitOps flow. I started by adding the Harbor directory and files to the repository:
 
 ```bash
 mkdir -p k8s-resource/apps/harbor/templates
 cd k8s-resource/apps/harbor
 ```
 
-Create the `Chart.yaml` file:
+The `Chart.yaml` file looked like this:
 
 ```yaml
 apiVersion: v2
@@ -56,7 +56,7 @@ dependencies:
       repository: "https://helm.goharbor.io"
 ```
 
-Create the `values.yaml` file to define Harbor configuration:
+I used the following `values.yaml` for Harbor:
 
 ```yaml
 harbor:
@@ -90,7 +90,7 @@ The key points of this configuration are:
 
 ### Traefik IngressRoute Configuration
 
-Create an IngressRoute for accessing the Harbor UI and API as the `templates/ingressroute.yaml` file:
+For Harbor UI and API access, I created the following `templates/ingressroute.yaml`:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -125,7 +125,7 @@ spec:
 
 This IngressRoute defines two routing rules: the default path routes to the Harbor web portal, and API-related paths (`/api/`, `/service/`, `/v2/`, `/chartrepo/`, `/c/`) route to the Harbor core service. It uses the `intweb` and `intwebsec` entry points to allow access only from the internal network.
 
-Create middleware for large container image uploads as the `templates/middleware.yaml` file:
+I also added a buffering middleware in `templates/middleware.yaml` for larger image uploads:
 
 ```yaml
 apiVersion: traefik.io/v1alpha1
@@ -144,7 +144,7 @@ This middleware sets the request body size limit to approximately 1GB, allowing 
 
 ### Deploying Harbor
 
-Commit and push the changes:
+Once those files were ready, I committed and pushed them:
 
 ```bash
 git add .
@@ -152,7 +152,7 @@ git commit -m "Add Harbor configuration"
 git push
 ```
 
-ArgoCD detects the changes and automatically deploys Harbor. Check the deployment status:
+After that, ArgoCD deployed Harbor automatically and I checked the status with:
 
 ```bash
 kubectl get pods -n harbor
@@ -162,7 +162,7 @@ When all Pods are in `Running` status, Harbor has been successfully deployed.
 
 ### Accessing and Testing Harbor
 
-Add the following entry to your local computer's hosts file:
+On my local machine, I added the following hosts entry:
 
 ```
 192.168.0.200 harbor.injunweb.com
@@ -193,7 +193,7 @@ The Argo Events architecture consists of three core components:
 
 ### Argo Events Helm Chart Configuration
 
-Create the directory and files for Argo Events installation in the Git repository:
+I added Argo Events to the same GitOps repository in the following structure:
 
 ```bash
 mkdir -p k8s-resource/apps/argo-events/templates
@@ -223,7 +223,7 @@ The `values.yaml` file uses default settings, so create it empty:
 
 ### Deploying Argo Events
 
-Commit and push the changes:
+Then I committed and pushed those changes:
 
 ```bash
 git add .
@@ -252,7 +252,7 @@ The main features of Argo Workflows include:
 
 ### Argo Workflows Helm Chart Configuration
 
-Create the directory and files for Argo Workflows installation in the Git repository:
+Argo Workflows followed the same pattern in the repository:
 
 ```bash
 mkdir -p k8s-resource/apps/argo-workflows/templates
@@ -320,7 +320,7 @@ Check the deployment status:
 kubectl get pods -n argo-workflows
 ```
 
-Add the following entry to your local computer's hosts file and access `https://argo-workflows.injunweb.com` in a web browser to verify the Argo Workflows UI:
+On my workstation, I added the following hosts entry and used it to verify the Argo Workflows UI:
 
 ```
 192.168.0.200 argo-workflows.injunweb.com
@@ -328,7 +328,7 @@ Add the following entry to your local computer's hosts file and access `https://
 
 ## EventBus and EventSource Configuration
 
-For Argo Events to function, you need to create an EventBus and configure an EventSource to receive events.
+To make Argo Events actually useful, I still needed an EventBus and an EventSource.
 
 ### Creating EventBus
 
@@ -401,7 +401,7 @@ kubectl get eventsource -n argo-events
 
 ## Component Integration Testing
 
-Perform simple tests to verify the installed components are functioning correctly.
+After the installs, I ran a few simple checks to make sure the pieces were alive.
 
 ### Harbor Image Push Test
 
@@ -443,7 +443,7 @@ You can check the workflow execution results in the Argo Workflows UI.
 
 ## Next Steps
 
-The three components installed in this post (Harbor, Argo Events, Argo Workflows) form the foundation of a CI/CD pipeline, but the following additional configurations are needed to complete a working pipeline:
+The three components installed in this post formed the base of the CI/CD pipeline I wanted, but there was still more to wire together before it behaved like a full pipeline:
 
 - **Sensor Configuration**: Create Sensors that filter events received from EventSource and trigger Argo Workflows.
 - **Workflow Templates**: Write reusable workflow templates that perform tasks such as application building, container image creation, and Harbor push.

@@ -19,7 +19,7 @@ In the [previous post](/posts/homelab-k8s-cicd-1/), we installed Harbor containe
 >
 > An Internal Developer Platform is a system that provides developers with an abstracted self-service interface to deploy and operate applications without directly configuring infrastructure and deployment pipelines. As a core deliverable of platform engineering, it aims to improve developer experience and reduce operational burden through standardized deployment processes.
 
-Traditional CI/CD pipelines require individual configuration for each project, while an Internal Developer Platform uses template-based abstraction to automatically provision all infrastructure including CI/CD pipelines, databases, and network settings when developers write a simple configuration file. The platform built in this post operates with the following flow:
+Traditional CI/CD pipelines usually needed to be rebuilt for every project. What I wanted instead was a template-driven internal platform that could provision most of the surrounding infrastructure from a small configuration file. The version I built in this post worked roughly like this:
 
 1. **A developer pushes code to a Git repository.**
 2. **A GitHub webhook sends an event to Argo Events' EventSource.**
@@ -30,7 +30,7 @@ Traditional CI/CD pipelines require individual configuration for each project, w
 
 ## Project Template Design
 
-We design a Helm chart-based project template that can be reused across multiple projects. Using this template, a project with a complete CI/CD pipeline can be deployed with just a simple YAML configuration file.
+I designed a Helm chart-based project template that I could reuse across multiple projects. The idea was to reduce a new project to a small YAML file while the surrounding CI/CD wiring stayed shared.
 
 ### Project Template Requirements
 
@@ -43,7 +43,7 @@ The features that the template should provide for efficiently managing multiple 
 
 ### Git Repository Structure
 
-The Git repository for project management is designed with the following structure:
+I organized the project management repository with the following structure:
 
 ```
 projects-gitops/
@@ -79,7 +79,7 @@ In this structure, the `chart/` directory contains the Helm chart shared by all 
 >
 > ApplicationSet is an ArgoCD feature that uses templates and generators to automatically create and manage multiple Applications. It can dynamically create Applications based on file lists in Git repositories, directory structures, cluster lists, and more, enabling efficient management of large-scale multi-project environments.
 
-Create the `applicationset.yaml` file as follows:
+The `applicationset.yaml` file looked like this:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -128,7 +128,7 @@ This ApplicationSet uses a Git file generator to find all files matching the `pr
 
 ## Project Configuration File Structure
 
-Each project is defined with a YAML file in the following structure:
+Each project in this setup is described with a YAML file in the following shape:
 
 ```yaml
 applications:
@@ -177,7 +177,7 @@ The key fields in this configuration file are:
 
 ## CI Pipeline Templates
 
-The CI pipeline is implemented with a combination of Argo Events and Argo Workflows, defined as Helm chart templates for reuse across all projects.
+For the CI side, I used Argo Events and Argo Workflows together and kept the pipeline pieces as reusable Helm templates.
 
 ### EventBus Template
 
@@ -417,7 +417,7 @@ The key components of this WorkflowTemplate are:
 
 ## CD Pipeline Templates
 
-When the CI pipeline updates the project configuration file, ArgoCD detects the changes and deploys the new image.
+When the CI pipeline updates the project configuration file, ArgoCD picks up the change and rolls out the new image.
 
 ### Deployment Template
 
@@ -598,7 +598,7 @@ This template supports four database types: MySQL, PostgreSQL, Redis, and MongoD
 
 ## GitHub Actions Configuration Update Workflow
 
-A GitHub Actions workflow called by the CI pipeline to update project configuration files:
+To update the project configuration files, I used the following GitHub Actions workflow from the CI pipeline:
 
 ```yaml
 name: Configuration API
@@ -655,7 +655,7 @@ This workflow receives `repository_dispatch` events and uses the `yq` tool to pa
 
 ## Project Creation and Usage
 
-The process for creating a new project with a complete CI/CD pipeline is as follows:
+In practice, adding a new project to this platform looked like this:
 
 ### Creating a Project Configuration File
 
@@ -683,7 +683,7 @@ databases:
 
 ### Storing Secrets in Vault
 
-Store the secrets required for the project in Vault:
+I stored the project-specific secrets in Vault first:
 
 ```bash
 vault kv put injunweb/myproject-github-access username=myuser token=ghp_xxxxx
@@ -693,7 +693,7 @@ vault kv put injunweb/myproject-api-secret API_KEY=my-api-key
 
 ### Verifying Deployment
 
-When you commit and push the project configuration file, ArgoCD automatically creates the resources:
+After committing and pushing the project configuration file, ArgoCD created the related resources automatically:
 
 ```bash
 kubectl get ns myproject
@@ -705,7 +705,7 @@ When you push code to the GitHub repository, the CI pipeline is triggered and bu
 
 ## Conclusion
 
-This post covered building your own Internal Developer Platform (IDP) using Helm chart-based project templates and ArgoCD ApplicationSet in a homelab Kubernetes cluster. With this platform, developers can write a simple YAML configuration file to automatically provision all infrastructure including CI/CD pipelines, databases, and network settings, allowing them to focus on development without repetitive infrastructure setup work when adding new projects.
+This post covered how I built a small Internal Developer Platform (IDP) on top of the homelab Kubernetes cluster using Helm templates and ArgoCD ApplicationSet. The biggest payoff was not having to rebuild the same CI/CD and infrastructure plumbing every time I wanted to stand up a new project.
 
 The next post covers installing Prometheus, Grafana, and Loki to build a monitoring system that collects and visualizes cluster metrics and logs.
 

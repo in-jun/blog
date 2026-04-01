@@ -24,7 +24,7 @@ series: ["미니PC Kubernetes"]
 
 ## 외부 접근 설정
 
-외부 인터넷에서 쿠버네티스 서비스에 접근하기 위해 세 가지 주요 단계가 필요하다:
+내 홈랩에서 외부 접근을 열어둔 방식은 크게 세 단계였다:
 
 1. **도메인 DNS 설정**: Cloudflare에서 도메인의 DNS 레코드를 구성한다.
 2. **동적 IP 관리(DDNS)**: 가정용 인터넷의 동적 IP가 변경될 때마다 DNS 레코드를 자동으로 업데이트한다.
@@ -36,7 +36,7 @@ series: ["미니PC Kubernetes"]
 >
 > Cloudflare는 2009년에 설립된 웹 인프라 및 보안 회사로, 전 세계에 분산된 CDN(Content Delivery Network), DDoS 방어, DNS 서비스, WAF(Web Application Firewall) 등을 제공하며, 무료 플랜에서도 강력한 보안 기능과 DNS 관리 기능을 사용할 수 있어 홈랩 환경에서 널리 사용된다.
 
-Cloudflare 대시보드에서 도메인의 DNS 레코드를 다음과 같이 구성한다:
+Cloudflare에서는 도메인 DNS 레코드를 아래처럼 잡아두었다:
 
 - **A 레코드**: `injunweb.com` → 공인 IP 주소
 - **A 레코드**: `*.injunweb.com` → 공인 IP 주소 (와일드카드 서브도메인)
@@ -65,7 +65,7 @@ SSL/TLS 설정은 "Full" 또는 "Full (Strict)" 모드로 설정하여 Cloudflar
 >
 > Cloudflare Workers는 Cloudflare의 글로벌 엣지 네트워크에서 JavaScript 코드를 실행할 수 있는 서버리스 플랫폼으로, 2017년에 출시되었으며 요청마다 코드가 실행되어 API 엔드포인트, 리다이렉트, 인증 등 다양한 용도로 사용할 수 있고 무료 플랜에서 하루 10만 건의 요청을 처리할 수 있다.
 
-Cloudflare Worker를 생성하는 단계는 다음과 같다:
+Cloudflare Worker는 아래 순서로 만들었다:
 
 1. [Cloudflare 대시보드](https://dash.cloudflare.com)에 로그인한다.
 2. 좌측 메뉴에서 "Workers & Pages"를 선택한다.
@@ -226,7 +226,7 @@ Cloudflare 대시보드에서 도메인을 선택하고 "Overview" 페이지 오
 
 **DNS 레코드 ID 찾기**:
 
-터미널에서 다음 명령을 실행하여 도메인의 DNS 레코드 목록과 각 레코드의 ID를 조회한다:
+DNS 레코드 ID는 아래 명령으로 직접 조회해 채워 넣었다:
 
 ```bash
 curl -X GET "https://api.cloudflare.com/client/v4/zones/{Zone-ID}/dns_records" \
@@ -255,7 +255,7 @@ URL 형식에서 `[USERNAME]`, `[PASSWORD]`, `[DOMAIN]`은 플레이스홀더로
 
 ### 3. 라우터 포트포워딩 설정
 
-외부 인터넷에서 들어오는 HTTP(80)와 HTTPS(443) 트래픽이 홈 네트워크를 통과하여 쿠버네티스 클러스터의 Traefik에 도달할 수 있도록 라우터에서 포트포워딩을 설정한다.
+라우터에서는 외부에서 들어오는 HTTP(80), HTTPS(443) 트래픽이 Traefik까지 들어오도록 포트포워딩을 잡았다.
 
 1. 웹 브라우저에서 라우터 관리 페이지에 접속한다(일반적으로 `http://192.168.0.1` 또는 `http://192.168.1.1`).
 2. 라우터 관리자 계정으로 로그인한다.
@@ -275,11 +275,11 @@ URL 형식에서 `[USERNAME]`, `[PASSWORD]`, `[DOMAIN]`은 플레이스홀더로
 
 ## 외부 서비스 라우팅 구성
 
-포트포워딩이 완료되었으니 이제 외부에서 접근 가능한 서비스에 대한 IngressRoute를 구성한다. 외부용 엔트리포인트인 `web`과 `websecure`를 사용하여 트래픽이 외부용 로드밸런서(192.168.0.201)를 통해 들어오도록 설정한다.
+포트포워딩을 마친 뒤에는 외부 공개용 서비스가 `web`, `websecure` 엔트리포인트를 통해 192.168.0.201으로 들어오도록 라우팅을 맞췄다.
 
 ## Let's Encrypt 인증서 발급 확인
 
-외부 접근이 가능해지면 Traefik의 Let's Encrypt 통합 기능이 HTTP-01 챌린지를 통해 도메인 소유권을 확인하고 SSL/TLS 인증서를 자동으로 발급한다. 인증서 발급 상태는 다음 명령으로 확인할 수 있다:
+외부 접근이 열린 뒤에는 Traefik의 Let's Encrypt 통합이 HTTP-01 챌린지로 도메인 소유권을 확인하고 인증서를 발급했다. 나는 아래 명령으로 발급 상태를 확인했다:
 
 ```bash
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
@@ -289,7 +289,7 @@ kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=
 
 ## 테스트 애플리케이션 배포
 
-구성이 제대로 작동하는지 확인하기 위해 간단한 테스트 애플리케이션을 배포한다:
+설정이 제대로 맞는지 보기 위해 간단한 테스트 애플리케이션도 하나 올렸다:
 
 ```yaml
 apiVersion: apps/v1
@@ -348,7 +348,7 @@ spec:
 2. **Service**: 배포된 파드에 클러스터 내부에서 접근할 수 있는 ClusterIP 서비스를 생성한다.
 3. **IngressRoute**: `hello.injunweb.com` 호스트에 대한 요청을 외부 엔트리포인트(`web`, `websecure`)를 통해 hello-world 서비스로 라우팅한다.
 
-다음 명령으로 애플리케이션을 배포한다:
+배포는 아래 명령으로 진행했다:
 
 ```bash
 kubectl apply -f hello-world.yaml
@@ -356,7 +356,7 @@ kubectl apply -f hello-world.yaml
 
 ## 접근 테스트
 
-모든 구성이 완료되었으니 내부 및 외부 네트워크에서 접근이 가능한지 테스트한다.
+모든 구성이 끝난 뒤에는 내부망과 외부망에서 각각 접근 결과를 확인했다.
 
 ### 내부 네트워크 테스트
 
@@ -380,7 +380,7 @@ kubectl apply -f hello-world.yaml
 
 ## 마치며
 
-이번 글에서는 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 DDNS와 포트포워딩을 구성하는 방법을 살펴보았다. 내부용과 외부용 로드밸런서를 분리하고 포트포워딩 대상을 외부용 IP로만 설정함으로써 관리 인터페이스가 외부에 노출되는 것을 방지할 수 있다.
+이번 글에서는 내 홈랩 쿠버네티스 클러스터를 외부에서 접근 가능하게 만들기 위해 DDNS와 포트포워딩을 어떻게 구성했는지 정리했다. 내부용과 외부용 로드밸런서를 분리하고, 포트포워딩 대상을 외부용 IP로만 제한한 것이 핵심이었다.
 
 다음 글에서는 HashiCorp Vault를 설치하여 비밀번호, API 키 같은 민감한 정보를 안전하게 관리하는 방법을 알아본다.
 

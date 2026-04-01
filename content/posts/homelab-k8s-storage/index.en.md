@@ -59,7 +59,7 @@ Key features of Longhorn include:
 
 ## Longhorn Installation Requirements
 
-Before installing Longhorn, verify that all nodes meet the following requirements:
+Before installing Longhorn, I checked that all nodes met the following requirements:
 
 1. **Supported OS**: Supports most Linux distributions including Ubuntu 18.04+, Debian 10+, CentOS 7+, RHEL 7+.
 2. **Container Runtime**: Docker or containerd must be installed.
@@ -68,7 +68,7 @@ Before installing Longhorn, verify that all nodes meet the following requirement
 
 ### Prerequisites
 
-SSH into all nodes and install the required packages:
+As a prerequisite, I SSHed into every node and installed the required packages:
 
 ```bash
 sudo apt-get update
@@ -79,7 +79,7 @@ sudo systemctl start iscsid
 
 The commands above update the package list, install the iSCSI initiator (open-iscsi) and NFS client (nfs-common), then enable the iSCSI daemon to start automatically at system boot and start it immediately.
 
-Verify that the iSCSI service is running properly on each node:
+After that, I checked that the iSCSI service was actually running on each node:
 
 ```bash
 sudo systemctl status iscsid
@@ -99,7 +99,7 @@ In this series, all Kubernetes resources are managed using GitOps methodology. L
 
 ### 1. Add Longhorn Helm Chart Configuration to Git Repository
 
-First, clone the repository locally and create the directory structure for Longhorn configuration:
+I added the Longhorn setup to my GitOps repository, starting with the following local directory structure:
 
 ```bash
 git clone https://github.com/injunweb/k8s-resource.git
@@ -108,7 +108,7 @@ mkdir -p apps/longhorn-system
 cd apps/longhorn-system
 ```
 
-Create the `Chart.yaml` file to define the Helm chart's metadata and dependencies:
+The `Chart.yaml` file looked like this:
 
 ```yaml
 apiVersion: v2
@@ -125,7 +125,7 @@ dependencies:
 
 This configuration defines fetching and installing the v1.4.0 chart from the official Longhorn Helm repository (`https://charts.longhorn.io`).
 
-Create the `values.yaml` file to define Longhorn's detailed settings:
+I used the following `values.yaml` for Longhorn:
 
 ```yaml
 longhorn:
@@ -145,7 +145,7 @@ The meaning of each configuration item is as follows:
 - **replicaAutoBalance**: When set to `best-effort`, replicas are automatically redistributed across nodes when nodes are added or removed, maintaining balanced storage usage.
 - **preUpgradeChecker.jobEnabled**: Disables the pre-upgrade check Job for Longhorn upgrades. In ArgoCD environments, this Job can cause synchronization issues, so it should be set to `false`.
 
-Commit and push the changes to Git:
+Once those files were in place, I committed and pushed them:
 
 ```bash
 git add .
@@ -166,7 +166,7 @@ The automatic deployment process of ApplicationSet is as follows:
 3. **Namespace Creation**: A namespace with the same name as the application, `longhorn-system`, is created in the cluster.
 4. **Helm Chart Deployment**: ArgoCD parses the Helm chart in that directory, resolves dependencies, and deploys resources to the cluster.
 
-Verify the application created by ApplicationSet:
+After the push, I checked that ApplicationSet had created the application:
 
 ```bash
 kubectl get applications -n argocd
@@ -183,7 +183,7 @@ The newly created `longhorn-system` application's details and deployed resources
 
 ### 3. Verify Longhorn Deployment Status
 
-Verify that all Longhorn components have been successfully deployed:
+Once ArgoCD synced, I checked that the Longhorn components were actually up:
 
 ```bash
 kubectl -n longhorn-system get pods
@@ -210,7 +210,7 @@ longhorn-manager-xxxxx                              1/1     Running   0         
 longhorn-ui-xxxxx                                   1/1     Running   0          5m
 ```
 
-Verify that Longhorn is registered as the default StorageClass:
+I also checked that Longhorn had become the default StorageClass:
 
 ```bash
 kubectl get storageclass
@@ -223,7 +223,7 @@ longhorn (default)   driver.longhorn.io   Delete          Immediate           tr
 
 ## Accessing the Longhorn Web UI
 
-Longhorn provides a web UI for visually managing volumes, nodes, and backup status. It can be accessed locally through port forwarding:
+To inspect it more easily, I also opened the Longhorn web UI through port forwarding:
 
 ```bash
 kubectl port-forward -n longhorn-system svc/longhorn-frontend 8080:80
@@ -237,7 +237,7 @@ From the dashboard, you can view and manage the overall cluster storage capacity
 
 ## Testing
 
-To verify that Longhorn is working properly, create a test PVC (PersistentVolumeClaim) and pod to confirm that volumes are properly provisioned and mounted.
+To make sure Longhorn was doing more than just showing green pods, I created a test PVC and Pod and checked that provisioning and mounting worked end to end.
 
 ```yaml
 apiVersion: v1
@@ -274,7 +274,7 @@ This manifest defines two resources:
 1. **PersistentVolumeClaim**: Requests a 1GB read/write volume using the `longhorn` StorageClass.
 2. **Pod**: Runs an nginx container and mounts the requested PVC at the `/data` path.
 
-Apply the manifest and verify that the volume is properly mounted:
+I applied the manifest and checked the claim status with:
 
 ```bash
 kubectl apply -f test.yaml
@@ -288,7 +288,7 @@ NAME                STATUS   VOLUME                                     CAPACITY
 longhorn-test-pvc   Bound    pvc-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx   1Gi        RWO            longhorn       30s
 ```
 
-Verify that the volume is mounted inside the pod:
+Then I checked inside the Pod that the volume was really mounted:
 
 ```bash
 kubectl exec -it volume-test -- df -h /data
@@ -301,7 +301,7 @@ Filesystem                Size      Used Available Use% Mounted on
 /dev/longhorn/pvc-xxx     976.0M    2.5M    907.4M   0% /data
 ```
 
-Once testing is complete, delete the created resources:
+After the validation, I cleaned up the test resources:
 
 ```bash
 kubectl delete -f test.yaml
@@ -309,7 +309,7 @@ kubectl delete -f test.yaml
 
 ## Conclusion
 
-This post covered installing and configuring the Longhorn distributed storage system in a homelab Kubernetes cluster. Longhorn overcomes the limitations of local storage and NFS while being lighter than Rook-Ceph, making it a suitable storage solution for homelab environments. It provides enterprise-grade features including data protection through distributed replication, snapshot and backup functionality, and an intuitive web UI.
+This post covered how I added Longhorn distributed storage to the homelab Kubernetes cluster. In my environment, it struck a good balance between capability and operational weight: much more practical than local storage or NFS, but still lighter than Rook-Ceph.
 
 The next post covers installing the Traefik ingress controller and configuring access to internal services.
 

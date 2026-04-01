@@ -24,7 +24,7 @@ This design provides service-level separation that reduces the risk of accidenta
 
 ## Configuring External Access
 
-Three main steps are required to enable internet access to Kubernetes services from outside the home network:
+In my homelab, opening services to the outside world came down to three main steps:
 
 1. **Domain DNS Configuration**: Configure DNS records for the domain in Cloudflare.
 2. **Dynamic IP Management (DDNS)**: Automatically update DNS records whenever the dynamic IP of home internet changes.
@@ -36,7 +36,7 @@ Three main steps are required to enable internet access to Kubernetes services f
 >
 > Cloudflare is a web infrastructure and security company founded in 2009 that provides a globally distributed CDN (Content Delivery Network), DDoS protection, DNS services, and a WAF (Web Application Firewall). Its free plan offers strong security features and DNS management capabilities, making it widely used in homelab environments.
 
-Configure the domain's DNS records in the Cloudflare dashboard as follows:
+In the Cloudflare dashboard, I set the DNS records like this:
 
 - **A Record**: `injunweb.com` → Public IP address
 - **A Record**: `*.injunweb.com` → Public IP address (wildcard subdomain)
@@ -65,7 +65,7 @@ Since the domain was already managed with Cloudflare, the decision was made to d
 >
 > Cloudflare Workers is a serverless platform that allows JavaScript code to run on Cloudflare's global edge network. Launched in 2017, code executes on each request and can be used for various purposes including API endpoints, redirects, and authentication. The free plan allows processing up to 100,000 requests per day.
 
-The steps to create a Cloudflare Worker are as follows:
+I created the Cloudflare Worker in roughly this order:
 
 1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com).
 2. Select "Workers & Pages" from the left menu.
@@ -226,7 +226,7 @@ Select the domain in the Cloudflare dashboard and find "Zone ID" in the right si
 
 **Find DNS Record IDs**:
 
-Run the following command in the terminal to query the list of DNS records and each record's ID for the domain:
+I fetched the DNS record IDs with the following command:
 
 ```bash
 curl -X GET "https://api.cloudflare.com/client/v4/zones/{Zone-ID}/dns_records" \
@@ -255,7 +255,7 @@ Since the router's request does not include the IP address as a query parameter,
 
 ### 3. Router Port Forwarding Configuration
 
-Configure port forwarding on the router so that HTTP (80) and HTTPS (443) traffic from the external internet can pass through the home network and reach Traefik in the Kubernetes cluster.
+On the router side, I configured port forwarding so that external HTTP (80) and HTTPS (443) traffic would reach Traefik in the cluster.
 
 1. Access the router management page in a web browser (typically `http://192.168.0.1` or `http://192.168.1.1`).
 2. Log in with the router administrator account.
@@ -275,11 +275,11 @@ The important point is to set the Internal Server IP to **192.168.0.201** (exter
 
 ## Configuring External Service Routing
 
-With port forwarding complete, configure IngressRoutes for externally accessible services. Use the external entrypoints `web` and `websecure` so that traffic enters through the external load balancer (192.168.0.201).
+Once port forwarding was in place, I used the external entrypoints `web` and `websecure` so public traffic would enter through the external load balancer (192.168.0.201).
 
 ## Verifying Let's Encrypt Certificate Issuance
 
-Once external access is available, Traefik's Let's Encrypt integration verifies domain ownership through the HTTP-01 challenge and automatically issues SSL/TLS certificates. Certificate issuance status can be checked with the following command:
+After external access started working, Traefik's Let's Encrypt integration handled the HTTP-01 challenge and issued certificates automatically. I checked the issuance status with:
 
 ```bash
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
@@ -289,7 +289,7 @@ This command accesses the Traefik pod to query the contents of the `acme.json` f
 
 ## Deploying a Test Application
 
-Deploy a simple test application to verify the configuration is working properly:
+To validate the whole setup, I deployed a very simple test application:
 
 ```yaml
 apiVersion: apps/v1
@@ -348,7 +348,7 @@ This manifest defines three resources:
 2. **Service**: Creates a ClusterIP service to access the deployed pods from within the cluster.
 3. **IngressRoute**: Routes requests for the `hello.injunweb.com` host to the hello-world service through external entrypoints (`web`, `websecure`).
 
-Deploy the application with the following command:
+I applied it with:
 
 ```bash
 kubectl apply -f hello-world.yaml
@@ -356,7 +356,7 @@ kubectl apply -f hello-world.yaml
 
 ## Access Testing
 
-With all configuration complete, test whether access is available from both internal and external networks.
+After that, I tested the results from both inside and outside the home network.
 
 ### Internal Network Test
 
@@ -380,7 +380,7 @@ If internal management services are not accessible from outside and only the tes
 
 ## Conclusion
 
-This post covered configuring DDNS and port forwarding to enable internet access to services running in the homelab Kubernetes cluster. By separating internal and external load balancers and setting port forwarding targets only to the external IP, you can prevent management interfaces from being exposed to the outside.
+This post covered how I set up DDNS and port forwarding to expose services from the homelab Kubernetes cluster. The key design choice was keeping internal and external load balancers separate and forwarding traffic only to the external IP.
 
 The next post covers installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
 

@@ -21,35 +21,35 @@ The hardware setup uses five Dell OptiPlex Micro units as cluster nodes, with a 
 
 ## OS Installation
 
-First, an operating system must be installed on each node. Windows 10, which was originally installed on the Dell OptiPlex Micro units, is removed and replaced with Ubuntu Server 24.04 LTS. Ubuntu Server was chosen because it has no GUI, which reduces system resource usage and makes it well suited for server environments like Kubernetes. The LTS (Long Term Support) version provides security updates and technical support for 5 years, through 2029, making it suitable for stable server operations.
+I started by removing Windows 10 from each Dell OptiPlex Micro node and installing Ubuntu Server 24.04 LTS instead. I chose Ubuntu Server because the lack of a GUI keeps resource usage low and fits a Kubernetes environment better. The LTS release was also easier to live with for a long-running setup because it is supported through 2029.
 
-For installation, download the Ubuntu ISO file, create a bootable USB using a tool like Rufus or balenaEtcher, and then select USB boot in the BIOS to begin the installation.
+For the installation itself, I downloaded the Ubuntu ISO, created a bootable USB with Rufus or balenaEtcher, and selected USB boot in the BIOS on each node.
 
 ![Installation initial screen](image-1.png)
 
-After booting, select "Try or Install Ubuntu" to proceed. Basic setup screens for language selection, keyboard layout, and network configuration will appear. If you follow the default options, you will reach the server configuration screen shown below.
+After booting, I selected "Try or Install Ubuntu" and mostly followed the default options through the language, keyboard, and network screens until I reached the server configuration screen shown below.
 
 ![SSH setup screen](image-2.png)
 
-On this screen, the "Install OpenSSH server" option must be selected. This is an essential configuration for remotely accessing and managing the server over the network without a monitor and keyboard. In a headless server environment, SSH becomes the only means of access, so it is important to enable it at installation time.
+On this screen, I enabled the "Install OpenSSH server" option. Since this homelab runs headless most of the time, SSH was effectively the main way I planned to access and manage the nodes.
 
 ![Additional package setup screen](image-3.png)
 
-On the additional package installation screen, pre-configured packages like Docker or PostgreSQL are offered. However, since these will be installed separately in the Kubernetes environment, proceed without selecting anything here. Necessary packages can be installed directly after installation is complete.
+On the additional package screen, I left everything unselected. Packages like Docker or PostgreSQL were going to be handled separately inside the Kubernetes setup anyway, so preinstalling them here did not help much.
 
 ![Installation complete screen](image-4.png)
 
-When the installation is complete, the screen shown above appears. Select "Reboot Now" to restart the system, then repeat the same process on all nodes to finish the operating system installation.
+When the installation finished, I selected "Reboot Now" and repeated the same process across all nodes.
 
 ## Network Configuration
 
-Once the operating system installation is complete, the network must be configured. In a Kubernetes cluster, inter-node communication is critical, making it essential to use static IPs instead of dynamic IPs assigned via DHCP.
+Once the operating system was installed, I moved on to the network. In this cluster, stable inter-node communication mattered enough that I chose static IPs instead of leaving everything on DHCP.
 
 ![Network diagram](image-5.png)
 
 The diagram above shows the configured network architecture, with one master node and four worker nodes connected through a switch and communicating with the external network through a router. Each node is assigned a static IP in the 192.168.0.x range.
 
-For static IP configuration, refer to the [Ubuntu 24.04 LTS Static IP Configuration](/posts/ubuntu-2404-lts-set-static-ip/) post. IPs assigned via DHCP can change when the router reboots or the DHCP lease time expires, potentially compromising cluster stability. Using static IPs makes Kubernetes service discovery and load balancing configuration much simpler.
+I covered the actual static IP setup in the [Ubuntu 24.04 LTS Static IP Configuration](/posts/ubuntu-2404-lts-set-static-ip/) post. In practice, using static IPs made the cluster much easier to manage because addresses would not shift when the router rebooted or DHCP leases changed.
 
 ## Kubernetes Installation
 
@@ -61,7 +61,7 @@ With Ubuntu installation and network configuration complete, Kubernetes installa
 > - **kubeadm**: A tool for bootstrapping Kubernetes clusters, responsible for cluster initialization and node joining.
 > - **kubectl**: A CLI tool for interacting with the Kubernetes cluster, used for all management tasks.
 
-Execute the following commands on all nodes (both master and worker nodes).
+I ran the following commands on every node, both master and worker.
 
 ```bash
 # Update system packages
@@ -125,7 +125,7 @@ sudo systemctl restart containerd
 sudo kubeadm config images pull
 ```
 
-The script above performs the following tasks:
+That script handled the following tasks:
 
 1. **System package update**: Updates apt repositories to the latest state and installs essential dependency packages.
 2. **containerd installation**: Installs containerd from the official Docker repository. Starting with Kubernetes 1.24, using containerd directly instead of Docker is recommended.
@@ -134,7 +134,7 @@ The script above performs the following tasks:
 5. **Kernel module and network configuration**: Loads the overlay and br_netfilter modules and enables IP forwarding to allow network communication between pods.
 6. **containerd configuration optimization**: Enables SystemdCgroup so that kubelet and containerd use the same cgroup driver.
 
-Once all required packages are installed on all nodes, initialize the Kubernetes cluster by executing the following command on the master node only.
+After the common packages were installed everywhere, I initialized the cluster on the master node with the following command.
 
 ```bash
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
@@ -162,9 +162,9 @@ Then you can join any number of worker nodes by running the following on each as
 kubeadm join <your-master-ip>:6443 --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
-The `kubeadm join` command shown at the end of the output is used to add worker nodes to the cluster. This token expires after 24 hours, so note it down or generate a new one later with the `kubeadm token create --print-join-command` command.
+The `kubeadm join` command shown at the end of the output is what I later used to attach the worker nodes. Since the token expires after 24 hours, I saved it right away.
 
-Execute the following commands to configure the kubeconfig file so kubectl can be used on the master node.
+Right after initialization, I also configured `kubeconfig` so I could use `kubectl` from the master node without `sudo`.
 
 ```bash
 mkdir -p $HOME/.kube
@@ -182,7 +182,7 @@ The Kubernetes cluster has been initialized, but pod communication between nodes
 >
 > Calico is one of the most widely used CNI plugins in Kubernetes environments. Developed by Tigera and released as open source, it provides high-performance network routing using BGP (Border Gateway Protocol) and powerful network policy features that allow fine-grained control of inter-pod traffic.
 
-Execute the following command on the master node to install Calico.
+For the CNI, I chose Calico and installed it from the master node with the following command.
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
@@ -190,13 +190,13 @@ kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/
 
 This command installs all essential Calico components (calico-node, calico-kube-controllers, etc.) in the kube-system namespace. After installation, calico-node pods run on each node to handle inter-node network communication.
 
-Now execute the previously saved `kubeadm join` command on all worker nodes to join them to the cluster.
+Once Calico was in place, I ran the saved `kubeadm join` command on each worker node.
 
 ```bash
 sudo kubeadm join <master-ip>:6443 --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
-Verify that all nodes have successfully joined the cluster with the following command on the master node.
+After that, I checked from the master node that all workers had joined properly.
 
 ```bash
 kubectl get nodes
@@ -212,7 +212,7 @@ One way to expose services externally in Kubernetes is to use the LoadBalancer t
 >
 > MetalLB is a load balancer implementation for bare-metal Kubernetes clusters. Development was started by Google's David Anderson in 2017 and is currently managed as a CNCF sandbox project. It supports Layer 2 mode and BGP mode, enabling LoadBalancer type services to be used in the same way as cloud environments.
 
-Install MetalLB with the following command.
+For bare-metal load balancing, I installed MetalLB with the following command.
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
@@ -220,7 +220,7 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/confi
 
 This command installs MetalLB's controller and speaker components in the metallb-system namespace. The controller manages IP address allocation, and the speaker runs on each node to handle network responses for assigned IPs.
 
-Verify that the installation is complete with the following command.
+When the install finished, I checked the pods with the following command.
 
 ```bash
 kubectl get pods -n metallb-system
@@ -234,7 +234,7 @@ In this series, MetalLB is used in Layer 2 mode. In this mode, the MetalLB speak
 
 For example, if MetalLB assigns the virtual IP 192.168.0.200 to a service and another device on the same network sends an ARP request for the MAC address of 192.168.0.200, the MetalLB speaker responds with the MAC address of the node hosting that service, ensuring that traffic is delivered to the correct node.
 
-To learn more about ARP and NDP protocols, refer to the following posts:
+I covered ARP and NDP in more detail in the following posts:
 
 - [Complete Understanding of How ARP Protocol Works](/posts/how-arp-protocol-works/)
 - [Understanding IPv6 NDP (Neighbor Discovery Protocol)](/posts/understanding-ipv6-ndp/)
