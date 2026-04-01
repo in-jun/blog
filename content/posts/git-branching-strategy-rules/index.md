@@ -1,5 +1,5 @@
 ---
-title: "Git 브랜치 전략: Git Flow, GitHub Flow, GitLab Flow"
+title: "Git 브랜치 전략, Git Flow와 GitHub Flow 그리고 GitLab Flow"
 date: 2024-07-10T08:01:40+09:00
 description: "Git Flow, GitHub Flow, GitLab Flow의 차이와 선택 기준을 설명한다."
 draft: false
