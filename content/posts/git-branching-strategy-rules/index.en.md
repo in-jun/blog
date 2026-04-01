@@ -1,7 +1,7 @@
 ---
-title: "Git Branching Strategies Git Flow and GitHub Flow"
+title: "Git Branching Strategies: Git Flow, GitHub Flow, and GitLab Flow"
 date: 2024-07-10T08:01:40+09:00
-description: "Comparing Git Flow and GitHub Flow branching models."
+description: "Comparing Git Flow, GitHub Flow, and GitLab Flow branching models."
 draft: false
 tags: ["Git", "Version Control", "DevOps"]
 ---

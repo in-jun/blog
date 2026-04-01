@@ -109,15 +109,15 @@ Although a and b values were swapped inside the function, x and y in the main fu
 | Improved code predictability | Difficulty handling multiple return values |
 | Easier debugging | Requires additional handling when original modification needed |
 
-## Call by Reference
+## Reference Passing Concepts
 
-> **What is Call by Reference?**
+> **What is Reference Passing?**
 >
-> Call by Reference passes the memory address (reference) of the actual parameter to the formal parameter during function calls. The function can directly access and modify the original variable through the parameter. This method is memory efficient but carries the risk of original modification.
+> Reference passing is a general concept in which a function can access and modify the original variable instead of working on a copied value. Depending on the language, this may be implemented as true Call by Reference or simulated through pointers or addresses.
 
-### Memory Operation Principle
+### Core Idea
 
-In Call by Reference, the memory address of the actual parameter is passed during the function call. The formal parameter acts as an alias pointing to the original variable, referencing the same memory location.
+In reference-style passing, the function receives a way to reach the original variable rather than a separate copy. As a result, changes made inside the function can affect the caller's data.
 
 ```
 Memory state before call:
@@ -141,7 +141,7 @@ After swap(&a, &b) call:
 
 ### Simulating Reference Passing with Pointers in C
 
-C does not support pure Call by Reference, but reference passing can be simulated using pointers. This approach is also called "Call by Address" or "Simulated Call by Reference."
+C does not support true Call by Reference at the language level. Instead, it passes values by default and uses pointers when you need a function to modify the caller's original data. This approach is also called "Call by Address" or "Simulated Call by Reference."
 
 ```c
 #include <stdio.h>
