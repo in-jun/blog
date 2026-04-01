@@ -13,7 +13,7 @@ series: ["미니PC Kubernetes"]
 
 ![클러스터](image.png)
 
-하드웨어 구성으로는 Dell OptiPlex Micro 다섯 대로 노드를 구성하고 TP-Link 라우터와 스위치로 네트워크를 구성했으며, Dell OptiPlex Micro는 전력 소모가 적은 미니 PC로 중고 시장에서 저렴하게 구할 수 있는 장점이 있고, 구매한 모델은 9세대 i5 CPU와 16GB 메모리, 256GB SSD로 구성되어 있어 쿠버네티스 워크로드를 충분히 처리할 수 있는 사양을 갖추고 있다.
+하드웨어는 Dell OptiPlex Micro 다섯 대를 클러스터 노드로 사용하고, TP-Link 라우터와 스위치로 네트워크를 구성했다. Dell OptiPlex Micro는 전력 소모가 적은 미니 PC라 중고 시장에서 비교적 저렴하게 구할 수 있다. 사용한 모델은 9세대 i5 CPU, 16GB 메모리, 256GB SSD를 갖추고 있어 쿠버네티스 워크로드를 처리하기에 충분한 사양이다.
 
 > **홈랩(Homelab)이란?**
 >
@@ -23,11 +23,11 @@ series: ["미니PC Kubernetes"]
 
 먼저 각 노드에 운영체제를 설치해야 하며, Dell OptiPlex Micro에 원래 설치되어 있던 Windows 10을 제거하고 Ubuntu 24.04 LTS Server 버전을 설치한다. 서버용 Ubuntu를 선택한 이유는 GUI가 없어 시스템 리소스 사용량이 적고 쿠버네티스와 같은 서버 환경에 최적화되어 있기 때문이며, LTS(Long Term Support) 버전은 2029년까지 5년간 보안 업데이트와 기술 지원이 제공되어 안정적인 서버 운영에 적합하다.
 
-설치를 위해 Ubuntu ISO 파일을 다운로드했고 Rufus나 balenaEtcher와 같은 도구를 사용하여 부팅 가능한 USB를 만들었으며, BIOS에서 USB 부팅을 선택하여 설치를 진행했다.
+설치를 위해 Ubuntu ISO 파일을 다운로드하고 Rufus나 balenaEtcher 같은 도구를 사용해 부팅 가능한 USB를 만든 뒤, BIOS에서 USB 부팅을 선택해 설치를 진행한다.
 
 ![설치 초기화면](image-1.png)
 
-부팅 후 "Try or Install Ubuntu"를 선택하고 설치를 진행했으며 언어 선택, 키보드 레이아웃, 네트워크 설정 등 기본 설정 화면이 나타났고, 기본값을 따라가다 보면 아래와 같은 서버 설정 화면이 나타난다.
+부팅 후 "Try or Install Ubuntu"를 선택하면 언어 선택, 키보드 레이아웃, 네트워크 설정 등 기본 설정 화면이 나타난다. 기본값을 따라가면 아래와 같은 서버 설정 화면으로 넘어간다.
 
 ![SSH 설정 화면](image-2.png)
 
@@ -39,7 +39,7 @@ series: ["미니PC Kubernetes"]
 
 ![설치 완료 화면](image-4.png)
 
-설치가 완료되면 위와 같은 화면이 나타났으며, "Reboot Now"를 선택하여 시스템을 재부팅했다. 이 과정을 모든 노드에서 동일하게 반복하여 운영체제 설치를 완료했다.
+설치가 완료되면 위와 같은 화면이 나타난다. 여기서 "Reboot Now"를 선택해 시스템을 재부팅하고, 이 과정을 모든 노드에서 동일하게 반복하면 운영체제 설치가 완료된다.
 
 ## 네트워크 설정
 

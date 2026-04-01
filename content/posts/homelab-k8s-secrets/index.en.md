@@ -9,7 +9,7 @@ series: ["Mini PC Kubernetes"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-external-access/), we configured DDNS and port forwarding to enable external internet access to homelab Kubernetes cluster services. This post covers how to install and configure HashiCorp Vault to securely manage sensitive information like passwords, API keys, and certificates in the Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-external-access/), we configured DDNS and port forwarding to enable external internet access to services running in the homelab Kubernetes cluster. This post covers how to install and configure HashiCorp Vault to securely manage sensitive information like passwords, API keys, and certificates in the Kubernetes cluster.
 
 ![Vault Logo](image.png)
 

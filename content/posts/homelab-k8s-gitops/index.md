@@ -151,7 +151,7 @@ argocd-repo-server-6dddb4b65d-gx9vh                1/1     Running   0          
 argocd-server-54f988d66b-l69zc                     1/1     Running   0          5m
 ```
 
-모든 Pod가 `Running` 상태이고 `READY` 열이 정상이면 ArgoCD가 성공적으로 설치된 것이다.
+모든 Pod가 `Running` 상태이고 `READY` 열이 `1/1`로 표시되면 ArgoCD가 성공적으로 설치된 것이다.
 
 ### 초기 관리자 비밀번호 확인
 

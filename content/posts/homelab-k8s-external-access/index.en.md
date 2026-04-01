@@ -34,7 +34,7 @@ Three main steps are required to enable external internet access to Kubernetes s
 
 > **What is Cloudflare?**
 >
-> Cloudflare is a web infrastructure and security company founded in 2009 that provides CDN (Content Delivery Network) distributed across the globe, DDoS protection, DNS services, and WAF (Web Application Firewall). Its free plan offers powerful security features and DNS management capabilities, making it widely used in homelab environments.
+> Cloudflare is a web infrastructure and security company founded in 2009 that provides a globally distributed CDN (Content Delivery Network), DDoS protection, DNS services, and a WAF (Web Application Firewall). Its free plan offers strong security features and DNS management capabilities, making it widely used in homelab environments.
 
 Configure the domain's DNS records in the Cloudflare dashboard as follows:
 

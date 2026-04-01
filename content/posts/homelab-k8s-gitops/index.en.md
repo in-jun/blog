@@ -123,7 +123,7 @@ Install ArgoCD:
 helm upgrade --install argocd argo/argo-cd --namespace argocd
 ```
 
-The `upgrade --install` option is an idempotent command that upgrades if ArgoCD is already installed, or installs new if not, making it safe to run repeatedly. When installation is complete, the following message is displayed:
+The `upgrade --install` option is idempotent: it upgrades ArgoCD if it is already installed, and installs it if it is not. That makes the command safe to run repeatedly. When the installation is complete, the following message is displayed:
 
 ```
 Release "argocd" does not exist. Installing it now.
@@ -151,7 +151,7 @@ argocd-repo-server-6dddb4b65d-gx9vh                1/1     Running   0          
 argocd-server-54f988d66b-l69zc                     1/1     Running   0          5m
 ```
 
-If all Pods are in `Running` status and the `READY` column shows normal, ArgoCD has been successfully installed.
+If all Pods are in `Running` status and the `READY` column shows `1/1`, ArgoCD has been successfully installed.
 
 ### Retrieving the Initial Admin Password
 

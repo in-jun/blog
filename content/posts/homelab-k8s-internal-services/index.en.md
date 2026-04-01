@@ -27,7 +27,7 @@ Using an ingress controller allows routing multiple services based on hostnames 
 
 ### Why Traefik Was Chosen
 
-Initially, the Nginx Ingress Controller, the most widely used in the Kubernetes ecosystem, was installed. However, it required separately installing cert-manager for automatic Let's Encrypt certificate issuance and configuring a ClusterIssuer. Several configuration errors were experienced, particularly with custom headers and middleware configuration.
+Initially, I installed the Nginx Ingress Controller, which is the most widely used option in the Kubernetes ecosystem. However, it required installing cert-manager separately for automatic Let's Encrypt certificate issuance and configuring a ClusterIssuer. I also ran into several configuration issues, particularly with custom headers and middleware.
 
 > **What is Traefik?**
 >
