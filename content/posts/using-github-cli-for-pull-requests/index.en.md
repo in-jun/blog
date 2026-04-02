@@ -6,7 +6,7 @@ description: "Creating and managing pull requests using GitHub CLI."
 draft: false
 ---
 
-GitHub CLI (gh) is the official command-line interface tool released by GitHub in September 2020. It allows you to use core GitHub features directly from the terminal, enabling tasks that were previously performed through web browsers, such as creating Pull Requests, managing issues, and managing repositories, with a single command. Since developers often write code and manage versions in the terminal, using GitHub CLI allows maintaining a consistent workflow without context switching and can significantly improve productivity by automating repetitive tasks.
+GitHub CLI (`gh`) is the official command-line interface tool released by GitHub in September 2020. It lets you use core GitHub features directly from the terminal, including creating pull requests, managing issues, and working with repositories. Since developers often write code and manage versions in the terminal, GitHub CLI helps maintain a more consistent workflow and can improve productivity by reducing context switching and automating repetitive tasks.
 
 ## Introduction to GitHub CLI
 
@@ -14,7 +14,7 @@ GitHub CLI (gh) is the official command-line interface tool released by GitHub i
 >
 > GitHub's official command-line tool that enables using core GitHub features such as Pull Requests, Issues, Repositories, and GitHub Actions from the terminal. It wraps the REST API and GraphQL API to provide an intuitive command interface.
 
-GitHub CLI was developed to replace the existing `hub` command. Since it is directly developed and maintained by GitHub, new GitHub features are quickly supported upon release. Written in Go language, it can run as a single binary on various platforms and is developed as open source, receiving community contributions.
+GitHub CLI was developed to replace the older `hub` command. Because it is developed and maintained directly by GitHub, new GitHub features are often supported quickly after release. It is written in Go, runs as a single binary across multiple platforms, and is developed as open source with community contributions.
 
 ### Key Benefits
 
@@ -125,7 +125,7 @@ github.com
 
 ### Additional Authentication Options
 
-If you use multiple GitHub accounts or need to authenticate with GitHub Enterprise Server, you can perform additional authentication.
+If you use multiple GitHub accounts or need to authenticate with GitHub Enterprise Server, you can add another authentication setup.
 
 ```bash
 # GitHub Enterprise Server authentication
@@ -140,11 +140,11 @@ gh auth login --with-token < token.txt
 
 ## Pull Request Creation Workflow
 
-Before creating a PR, you need to properly prepare your local repository. Let's look at the entire workflow from branch creation to push and PR creation in order.
+Before creating a PR, you should prepare your local repository properly. The usual flow goes from creating a branch to pushing it and then opening the PR.
 
 ### Preparing Local Repository
 
-**1. Navigate to the working repository and sync to latest state**
+**1. Move to the repository and sync with the latest state**
 
 ```bash
 cd path/to/your/repository
@@ -154,7 +154,7 @@ git pull origin main  # or your default branch name
 
 **2. Create and switch to a new branch**
 
-Name the branch to clearly indicate the work content, following your team's branch naming conventions.
+Name the branch so it clearly reflects the work, following your team's branch naming conventions.
 
 ```bash
 git checkout -b feature/user-authentication
@@ -192,7 +192,7 @@ Running this command displays an interactive prompt where you can sequentially e
 
 **Non-Interactive Mode (using command-line options)**
 
-Suitable for scripts and automation, providing all information as command-line options.
+This mode is useful for scripts and automation because all information can be passed as command-line options.
 
 ```bash
 gh pr create \
@@ -300,7 +300,7 @@ gh pr view 123 --json title,body,state,reviews
 
 ### Checking Out PRs
 
-You can checkout another person's PR locally to test or review. This feature is very useful when you want to run code locally during code review.
+You can check out another person's PR locally to test or review it. This is especially useful when you want to run the code yourself during review.
 
 ```bash
 # Checkout by PR number
