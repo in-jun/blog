@@ -6,7 +6,7 @@ draft: false
 description: "HTTP status code categories and meanings."
 ---
 
-HTTP status codes are standardized three-digit numeric response codes that a server returns to indicate the result of processing a client's request. These codes play a crucial role in all HTTP-based communications including web browsers, API clients, and search engines, clearly conveying whether requests succeeded, require redirection, or encountered client or server-side errors. In RESTful API design, selecting appropriate status codes is a key factor that significantly impacts API intuitiveness and developer experience.
+HTTP status codes are standardized three-digit response codes that a server returns to indicate the result of processing a client's request. These codes play a crucial role in all HTTP-based communication, including web browsers, API clients, and search engines, by showing whether a request succeeds, requires redirection, or results in a client-side or server-side error. In RESTful API design, choosing the right status codes has a major impact on API clarity and developer experience.
 
 > **What is an HTTP Status Code?**
 >
@@ -18,7 +18,7 @@ HTTP status codes have evolved alongside the web, progressing from simple early 
 
 ### The HTTP/0.9 Era (1991)
 
-HTTP version 0.9, the first HTTP version developed by Tim Berners-Lee at CERN, had no concept of status codes at all. It only supported the GET method and simply returned HTML documents or closed the connection, providing no way to express error handling or response status. HTTP during this period was merely a protocol for transferring hypertext documents, lacking the metadata and header information that are essential in modern web.
+HTTP version 0.9, the first HTTP version developed by Tim Berners-Lee at CERN, had no concept of status codes at all. It only supported the GET method and simply returned HTML documents or closed the connection, leaving no way to express response status or error handling. At that stage, HTTP was little more than a protocol for transferring hypertext documents and lacked the metadata and header information that are essential to the modern web.
 
 ### The Emergence of HTTP/1.0 (1996, RFC 1945)
 
@@ -26,7 +26,7 @@ HTTP/1.0 was the first version to introduce status codes. It defined 16 basic st
 
 ### The Expansion of HTTP/1.1 (1999, RFC 2616)
 
-HTTP/1.1 significantly expanded status codes to over 40, enabling more granular status representation. It introduced capabilities like 100 Continue for pre-validation of large requests, 206 Partial Content for range request support, 409 Conflict for resource collision detection, and 410 Gone for permanent deletion indication, handling various scenarios needed in practice. The 1xx category for informational responses was officially added, and persistent connections (Keep-Alive) and pipelining were introduced, greatly improving performance. The Host header became mandatory, enabling multiple domains to be hosted on a single IP address.
+HTTP/1.1 significantly expanded status codes to more than 40, allowing more granular response handling. It introduced capabilities like 100 Continue for pre-validating large requests, 206 Partial Content for range requests, 409 Conflict for resource collisions, and 410 Gone for permanent deletion. These additions covered scenarios that commonly appear in real-world use. The 1xx category for informational responses was also officially added, and persistent connections (Keep-Alive) and pipelining greatly improved performance. The Host header became mandatory as well, enabling multiple domains to be hosted on a single IP address.
 
 ### Establishment of Modern Standards (2014, RFC 7231)
 
@@ -55,7 +55,7 @@ HTTP/2 (2015, RFC 7540) and HTTP/3 (2022, RFC 9114) greatly improved transport l
 
 ### How 100 Continue Works
 
-When uploading large files, if the client sends a request with the `Expect: 100-continue` header, the server first examines only the request headers to determine if it can process the request. If processable, it sends a 100 Continue response so the client can transmit the body. Otherwise, it immediately returns a 4xx or 5xx error, preventing unnecessary large data transmission.
+When uploading large files, if the client sends a request with the `Expect: 100-continue` header, the server first examines only the request headers to determine whether it can process the request. If it can, it sends a 100 Continue response so the client can transmit the body. Otherwise, it immediately returns a 4xx or 5xx error, avoiding unnecessary large data transfers.
 
 ```http
 POST /upload HTTP/1.1
@@ -73,7 +73,7 @@ HTTP/1.1 100 Continue
 
 ### Performance Optimization with 103 Early Hints
 
-103 Early Hints allows browsers to download important resources like CSS, JavaScript, and fonts in advance while the server generates the final response (database queries, template rendering, etc.). This can improve page loading speed by 20-30% and works more effectively with HTTP/2 and above.
+103 Early Hints allows browsers to download important resources like CSS, JavaScript, and fonts in advance while the server prepares the final response, whether that involves database queries, template rendering, or both. This can improve page load speed by 20-30% and is especially effective over HTTP/2 and later.
 
 ```http
 HTTP/1.1 103 Early Hints
@@ -94,7 +94,7 @@ Content-Type: text/html
 
 > **Importance of 2xx Response Selection**
 >
-> Using only 200 OK for all success responses is a bad API design practice. Selecting appropriate codes for each situation—201 Created (resource creation), 204 No Content (no body), 202 Accepted (async processing)—ensures clients can correctly interpret responses.
+> Using only 200 OK for all success responses is poor API design. Choosing the right code for each case, such as 201 Created for resource creation, 204 No Content when no body is needed, or 202 Accepted for asynchronous processing, helps clients interpret responses correctly.
 
 ### Key 2xx Status Codes
 
@@ -153,7 +153,7 @@ HTTP/1.1 204 No Content
 
 ### Async Processing Pattern with 202 Accepted
 
-202 Accepted is used when a request has been accepted but processing is not complete. It's suitable for long-running asynchronous jobs like email sending, large file processing, or external system integration.
+202 Accepted is used when a request has been accepted but processing is not yet complete. It works well for long-running asynchronous jobs such as sending emails, processing large files, or integrating with external systems.
 
 ```http
 POST /api/reports/generate HTTP/1.1
@@ -187,11 +187,11 @@ Content-Type: application/json
 
 ## 3xx (Redirection): Redirection Responses
 
-3xx status codes indicate that the client needs to take additional action to complete the request. They are primarily used for URL changes, cache validation, and resource movement, guiding users to the correct location or improving network efficiency.
+3xx status codes indicate that the client needs to take additional action to complete the request. They are primarily used for URL changes, cache validation, and moved resources, guiding clients to the correct location or improving network efficiency.
 
 > **Types of Redirection**
 >
-> Redirections are broadly divided into permanent redirects (301, 308) and temporary redirects (302, 303, 307). Permanent redirects cause search engines to index the new URL and transfer SEO scores, while temporary redirects maintain the original URL.
+> Redirections are broadly divided into permanent redirects (301, 308) and temporary redirects (302, 303, 307). Permanent redirects cause search engines to index the new URL and pass ranking signals to it, while temporary redirects preserve the original URL.
 
 ### Redirection Code Comparison
 
@@ -223,7 +223,7 @@ Location: /api/v2/users
 
 ### 302 vs 303 vs 307: Choosing Temporary Redirections
 
-**302 Found** is the oldest temporary redirection code and widely used, but its method conversion behavior was unclear. **303 See Other** (always converts to GET) and **307 Temporary Redirect** (preserves method) were added in HTTP/1.1. For new APIs, using 303 or 307 according to purpose is recommended.
+**302 Found** is the oldest temporary redirection code and is still widely used, but clients did not handle method changes consistently. **303 See Other** (always converts to GET) and **307 Temporary Redirect** (preserves method) were added in HTTP/1.1. For new APIs, it is usually better to choose 303 or 307 based on the intended behavior.
 
 ```http
 # 303: Move to result page after POST (converts to GET)

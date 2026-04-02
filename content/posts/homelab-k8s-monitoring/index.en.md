@@ -9,13 +9,13 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-idp-2/), I pulled together the overall IDP structure using Helm chart-based project templates and ArgoCD ApplicationSet. This post explains how to install Prometheus and Grafana to collect and visualize metrics, and how to install Loki to collect and analyze logs centrally. Together, these tools provide an integrated monitoring environment for the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-idp-2/), I pulled together the overall IDP structure using Helm chart-based project templates and ArgoCD ApplicationSet. This post covers how I added Prometheus and Grafana for metrics, and Loki for centralized log collection and analysis. Together, they form the monitoring stack for the homelab Kubernetes cluster.
 
 ![Grafana](image.png)
 
 ## The Need for Monitoring
 
-When operating a homelab Kubernetes cluster, you need to periodically check node and pod status, resource usage like CPU and memory, whether applications are operating normally, and log data for identifying causes when problems occur. To visually monitor this information, the following tools are used.
+When operating a homelab Kubernetes cluster, I need to keep an eye on node and pod status, resource usage such as CPU and memory, whether applications are behaving normally, and the logs that help explain failures. For that, I used the following tools.
 
 > **What is Prometheus?**
 >
@@ -31,7 +31,7 @@ When operating a homelab Kubernetes cluster, you need to periodically check node
 
 ## Installing Kube-Prometheus-Stack
 
-Installing and wiring Prometheus and Grafana separately felt heavier than I wanted, so I used Kube-Prometheus-Stack instead. As with the earlier posts, I kept the deployment in the same GitOps flow.
+Installing and wiring Prometheus and Grafana separately felt like more setup than I wanted, so I used Kube-Prometheus-Stack instead. As with the earlier posts, I kept the deployment in the same GitOps flow.
 
 ### 1. Creating Directory and File Structure
 
@@ -57,7 +57,7 @@ dependencies:
       repository: "https://prometheus-community.github.io/helm-charts"
 ```
 
-This configuration defines using version 68.1.0 of the kube-prometheus-stack chart provided by the Prometheus Community. This chart includes all components needed for monitoring including Prometheus, Grafana, Alertmanager, Node Exporter, and Kube State Metrics.
+This configuration uses version 68.1.0 of the `kube-prometheus-stack` chart provided by the Prometheus Community. The chart includes the main monitoring components I needed, including Prometheus, Grafana, Alertmanager, Node Exporter, and Kube State Metrics.
 
 ### 3. Creating values.yaml
 
@@ -148,7 +148,7 @@ kube-prometheus-stack:
         enabled: false
 ```
 
-The key characteristics of this configuration are as follows:
+The main points of this configuration are:
 
 - **Alertmanager**: Disabled to conserve resources since an alerting system is not essential in a homelab environment.
 - **Grafana**: Configured to allow anonymous access so dashboards can be viewed without login, and pre-adds the Loki data source to enable log querying.
@@ -182,7 +182,7 @@ spec:
                 port: 80
 ```
 
-This IngressRoute uses the `intweb` and `intwebsec` entry points to make it accessible only from the internal network. `prometheus.injunweb.com` routes to the Prometheus server, and `grafana.injunweb.com` routes to Grafana.
+This IngressRoute uses the `intweb` and `intwebsec` entry points so it is reachable only from the internal network. `prometheus.injunweb.com` routes to the Prometheus server, and `grafana.injunweb.com` routes to Grafana.
 
 ### 5. Committing Changes and Deploying
 
@@ -194,13 +194,13 @@ git commit -m "Add kube-prometheus-stack configuration"
 git push
 ```
 
-ArgoCD detects the changes and automatically deploys Kube-Prometheus-Stack. You can check the installation status with the following command:
+After I pushed the changes, ArgoCD deployed Kube-Prometheus-Stack automatically. I checked the installation status with the following command:
 
 ```bash
 kubectl get pods -n kube-prometheus-stack
 ```
 
-When successfully installed, results similar to the following are displayed:
+When the installation succeeds, the output looks similar to this:
 
 ```
 NAME                                                       READY   STATUS    RESTARTS   AGE
@@ -215,7 +215,7 @@ prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   0  
 
 ## Installing Loki-Stack
 
-After the metrics side was working, I added Loki-Stack for log collection and analysis. Loki fit nicely here because its label-based model felt close to Prometheus.
+After the metrics side was working, I added Loki-Stack for log collection and analysis. Loki fit nicely here because its label-based model is conceptually close to Prometheus.
 
 ### 1. Creating Directory and File Structure
 
