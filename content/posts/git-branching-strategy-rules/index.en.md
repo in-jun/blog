@@ -12,7 +12,7 @@ The systematization of Git branching strategies began on January 5, 2010, when D
 
 The background for why branching strategies became important lies in the increasing complexity of software development. The need to maintain stable releases while multiple developers work simultaneously, the situation of having to handle emergency bug fixes alongside new feature development, and the spread of Continuous Integration/Continuous Deployment (CI/CD) established systematic branch management as an essential element.
 
-## Git Flow: Systematic Release Management
+## Git Flow Systematic Release Management
 
 ### Background and Design Philosophy
 
@@ -92,7 +92,7 @@ The advantages of Git Flow include clear release management where version histor
 
 Disadvantages include high complexity due to many branches and a steep learning curve, time spent on conflict resolution due to frequent merging, unsuitability for Continuous Deployment (CD) environments, and the fact that Vincent Driessen himself noted in 2020 that "GitHub Flow may be more suitable for web apps."
 
-## GitHub Flow: Simplicity and Continuous Deployment
+## GitHub Flow Simplicity and Continuous Deployment
 
 ### Background
 
@@ -135,7 +135,7 @@ Advantages include that there are only two types of branches (main and feature) 
 
 Disadvantages include difficulty maintaining multiple versions simultaneously, insufficiency for projects requiring release management, and the necessity of strong automated testing for main to always remain in a deployable state.
 
-## GitLab Flow: Environment-Based Branching Strategy
+## GitLab Flow Environment-Based Branching Strategy
 
 ### Background
 
