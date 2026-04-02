@@ -1,5 +1,5 @@
 ---
-title: "Homelab Build Log #8: Building IDP (2)"
+title: "Homelab Build Log #8 Building an IDP Part 2"
 date: 2025-02-28T07:47:18+09:00
 draft: false
 description: "Building an internal developer platform on Kubernetes."
@@ -13,13 +13,13 @@ In the [previous post](/posts/homelab-k8s-idp-1/), I set up Harbor container reg
 
 ![Internal Developer Platform Architecture](image.png)
 
-## What is an Internal Developer Platform
+## What Is an Internal Developer Platform?
 
 > **What is an Internal Developer Platform (IDP)?**
 >
 > An Internal Developer Platform is a system that provides developers with an abstracted self-service interface to deploy and operate applications without directly configuring infrastructure and deployment pipelines. As a core deliverable of platform engineering, it aims to improve developer experience and reduce operational burden through standardized deployment processes.
 
-Traditional CI/CD pipelines usually needed to be rebuilt for every project. What I wanted instead was a template-driven internal platform that could provision most of the surrounding infrastructure from a small configuration file. The version I built in this post worked roughly like this:
+Traditional CI/CD pipelines usually had to be set up separately for each project. What I wanted instead was a template-driven internal platform that could provision most of the surrounding infrastructure from a small configuration file. The version I built in this post worked roughly like this:
 
 1. **A developer pushes code to a Git repository.**
 2. **A GitHub webhook sends an event to Argo Events' EventSource.**
@@ -34,7 +34,7 @@ I designed a Helm chart-based project template that I could reuse across multipl
 
 ### Project Template Requirements
 
-The features that the template should provide for efficiently managing multiple projects in a homelab environment are as follows:
+For this homelab setup, I wanted the template to provide the following features:
 
 - **Automated CI/CD Pipeline**: Automatically builds and deploys when code changes in a GitHub repository.
 - **Declarative Resource Management**: Define applications, databases, and network settings in YAML files.
@@ -124,7 +124,7 @@ spec:
                     - CreateNamespace=true
 ```
 
-This ApplicationSet uses a Git file generator to find all files matching the `projects/*.yaml` pattern and automatically creates an ArgoCD Application for each file. The filename with the `.yaml` extension removed is used as the project name and namespace, and secrets stored in Vault are safely injected through the ArgoCD Vault Plugin.
+This ApplicationSet uses a Git generator with the `projects/*.yaml` files pattern and automatically creates an ArgoCD Application for each file. The filename, minus the `.yaml` extension, becomes the project name and namespace. Secrets stored in Vault are then injected through the ArgoCD Vault Plugin.
 
 ## Project Configuration File Structure
 
@@ -169,7 +169,7 @@ databases:
       size: 1Gi
 ```
 
-The key fields in this configuration file are:
+Some of the more important fields in this configuration file are:
 
 - **applications[].git.hash**: The Git commit hash that the CI pipeline will build and deploy. It is initially empty and automatically updated when a build succeeds. Deployments are only created when this value exists.
 - **applications[].domains**: A list of domains for accessing the application. A Traefik IngressRoute is created for each domain.
@@ -242,7 +242,7 @@ spec:
 {{- end }}
 ```
 
-This template creates an EventSource for each application defined in the project configuration, detecting push events from GitHub repositories. The `webhook.url` is the externally accessible webhook endpoint where GitHub sends events.
+This template creates an EventSource for each application defined in the project configuration and listens for push events from GitHub repositories. The `webhook.url` value is the externally accessible endpoint that GitHub sends events to.
 
 ### Sensor Template
 
@@ -302,7 +302,7 @@ This Sensor filters only push events to specific branches (e.g., main, develop) 
 
 ### WorkflowTemplate
 
-A WorkflowTemplate that defines build and configuration update tasks:
+A WorkflowTemplate that defines the build step and the project config update step:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -522,7 +522,7 @@ spec:
 {{- end }}
 ```
 
-This template creates a Traefik IngressRoute for each domain defined in the project configuration, using the `web` and `websecure` entry points to handle both HTTP and HTTPS requests.
+This template creates a Traefik IngressRoute for each domain defined in the project configuration. It uses the `web` and `websecure` entry points to handle HTTP and HTTPS traffic.
 
 ### Database StatefulSet Template
 
@@ -594,7 +594,7 @@ spec:
 {{- end }}
 ```
 
-This template supports four database types: MySQL, PostgreSQL, Redis, and MongoDB, and automatically configures the appropriate environment variables and volume mount paths for each type.
+This template supports four database types: MySQL, PostgreSQL, Redis, and MongoDB. It also sets the environment variables and volume mount paths needed for each one.
 
 ## GitHub Actions Configuration Update Workflow
 
@@ -651,7 +651,7 @@ jobs:
                   git push
 ```
 
-This workflow receives `repository_dispatch` events and uses the `yq` tool to parse and modify project configuration files. When the CI pipeline build succeeds, this workflow is triggered to update the `git.hash` field to the new commit hash, and ArgoCD detects this change and performs deployment with the new image.
+This workflow receives `repository_dispatch` events and uses `yq` to update project configuration files. When a CI build succeeds, it updates the `git.hash` field to the new commit hash. ArgoCD then detects the change and deploys the new image.
 
 ## Project Creation and Usage
 
@@ -659,7 +659,7 @@ In practice, adding a new project to this platform looked like this:
 
 ### Creating a Project Configuration File
 
-Create the `projects/myproject.yaml` file:
+The `projects/myproject.yaml` file in this setup looked like this:
 
 ```yaml
 applications:
@@ -701,7 +701,7 @@ kubectl get eventbus,eventsource,sensor -n myproject
 kubectl get statefulset -n myproject
 ```
 
-When you push code to the GitHub repository, the CI pipeline is triggered and build and deployment are performed automatically.
+When code is pushed to the GitHub repository, the CI pipeline runs automatically, followed by the build and deployment flow.
 
 ## Conclusion
 
