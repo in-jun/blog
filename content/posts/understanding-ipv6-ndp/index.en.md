@@ -2,17 +2,17 @@
 title: "Understanding IPv6 Neighbor Discovery Protocol"
 date: 2025-02-24T01:01:25+09:00
 draft: false
-description: "IPv6 Neighbor Discovery Protocol operation."
+description: "How IPv6 Neighbor Discovery Protocol works."
 tags: ["Network", "IPv6", "Protocol"]
 ---
 
 ## What is NDP
 
-NDP (Neighbor Discovery Protocol) is a core protocol for IPv6 networks officially standardized in 2007 through the IETF's RFC 4861 document. It integrates the functions of several IPv4 protocols such as ARP (Address Resolution Protocol), ICMP Router Discovery, and ICMP Redirect into one, enabling more efficient and secure network management. Operating on the basis of ICMPv6 (Internet Control Message Protocol version 6), it performs various functions including neighbor node discovery, router discovery, automatic address configuration, duplicate address detection, and path optimization.
+NDP (Neighbor Discovery Protocol) is a core IPv6 protocol standardized in RFC 4861. It combines the roles of several IPv4-era mechanisms such as ARP (Address Resolution Protocol), ICMP Router Discovery, and ICMP Redirect into one protocol, which makes IPv6 network management more consistent and efficient. Built on ICMPv6 (Internet Control Message Protocol version 6), it handles functions such as neighbor discovery, router discovery, automatic address configuration, duplicate address detection, and path optimization.
 
 In IPv4 environments, multiple protocols operated independently for different functions (ARP, DHCP, ICMP, etc.), making network management complex. However, in IPv6, NDP integrates these functions to simplify the protocol stack and enhance security. In particular, using multicast-based communication significantly improves network efficiency compared to IPv4's broadcast method. This contributes to reducing unnecessary traffic and saving power consumption in large-scale network environments.
 
-## Background of NDP Emergence and Differences from IPv4
+## Why NDP Was Introduced and How It Differs from IPv4
 
 In IPv4 networks, separate protocols were needed for each function such as address resolution (ARP), router discovery (ICMP Router Discovery), address allocation (DHCP), and path redirection (ICMP Redirect). This increased network complexity and created security vulnerabilities. ARP in particular was vulnerable to spoofing attacks due to its lack of authentication mechanisms.
 
@@ -35,7 +35,7 @@ When designing IPv6, the IETF introduced NDP to address these issues and incorpo
 
 ![NDP Message Types and Functions](ndp-messages.png)
 
-NDP performs the following core functions in IPv6 networks, which are essential elements for normal network communication.
+NDP performs the following core functions in IPv6 networks.
 
 ### 1. Router Discovery
 
@@ -64,7 +64,7 @@ Replaces IPv4's ARP to convert IPv6 addresses to Link-Layer addresses (MAC addre
 **Solicited-Node Multicast**:
 - Format: `FF02::1:FF00:0000` + last 24 bits of IPv6 address
 - Example: `2001:db8::1234` → `FF02::1:FF00:1234`
-- Advantage: Only nodes with that address process it, so no CPU usage by other nodes
+- Advantage: Only nodes with that address process it, which reduces unnecessary processing on other nodes.
 
 ### 4. Duplicate Address Detection (DAD)
 
@@ -79,7 +79,7 @@ A mandatory process where hosts verify whether an address is already in use on t
 
 ### 5. Neighbor Unreachability Detection (NUD)
 
-Periodically verifies whether cached neighbor nodes are still reachable to respond quickly to network topology changes. Managed through Neighbor Cache state machine. Removes unreachable nodes from cache to prevent unnecessary packet transmission.
+This function periodically checks whether cached neighbor nodes are still reachable so the network can respond quickly to topology changes. It is managed through the Neighbor Cache state machine and removes unreachable nodes from the cache to avoid unnecessary packet transmission.
 
 **Neighbor Cache States**:
 - **INCOMPLETE**: Waiting for NA after sending NS
@@ -90,7 +90,7 @@ Periodically verifies whether cached neighbor nodes are still reachable to respo
 
 ### 6. Path Optimization (Redirect)
 
-Function where router informs host of a more efficient next hop. Improves network performance by reducing unnecessary router hops. Redirect messages can only be sent by routers, and hosts receive them to update their routing tables.
+This is the mechanism through which a router informs a host of a more efficient next hop. It improves performance by reducing unnecessary router hops. Redirect messages can only be sent by routers, and hosts use them to update their routing tables.
 
 **Usage Scenarios**:
 - Destination is on the same link (direct communication possible)
@@ -177,7 +177,7 @@ Options:
 
 ### Neighbor Advertisement (NA) - Type 136
 
-Response to Neighbor Solicitation or notification of Link-Layer address change.
+This message is used either as a response to a Neighbor Solicitation or to notify other nodes of a Link-Layer address change.
 
 **Packet Structure**:
 ```
@@ -202,7 +202,7 @@ Options:
 
 ### Redirect - Type 137
 
-Message from router to host about better next hop. Used for path optimization.
+This message lets a router inform a host about a better next hop. It is used for path optimization.
 
 **Packet Structure**:
 ```

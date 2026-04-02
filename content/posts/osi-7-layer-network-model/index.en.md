@@ -28,7 +28,7 @@ The following diagram illustrates how data is transmitted from sender to receive
 
 ## Layer 7 - Application Layer
 
-The Application layer is the topmost layer of the OSI model and the closest to the user. It is where applications that actually use network services operate. When users access network resources through web browsers, email clients, or file transfer programs, the protocols of this layer are at work. This layer provides user interfaces and defines methods for accessing network resources. Protocols such as HTTP, FTP, SMTP, DNS, SSH, and SNMP operate at this layer. Application layer protocols are designed to meet the requirements of specific applications, each having unique message formats and communication rules.
+The Application layer is the topmost layer of the OSI model and the closest to the user. It is where applications that use network services operate. When users access network resources through web browsers, email clients, or file transfer programs, the protocols of this layer are at work. This layer provides user interfaces and defines methods for accessing network resources. Protocols such as HTTP, FTP, SMTP, DNS, SSH, and SNMP operate at this layer. Application layer protocols are designed to meet the requirements of specific applications, each having unique message formats and communication rules.
 
 The primary function of the Application layer is to provide network application services that users directly interact with, including file transfer, email, remote access, directory services, and network management. Typical examples include web browsers communicating with web servers using the HTTP protocol, email clients sending and receiving mail using SMTP and IMAP, and network administrators monitoring network equipment through SNMP. Protocols operating at this layer are designed and optimized for their specific use cases.
 
@@ -109,7 +109,7 @@ IP (Internet Protocol), the core protocol of the Network layer, currently exists
 
 ## Layer 2 - Data Link Layer
 
-The Data Link layer organizes bit streams transmitted through the Physical layer into meaningful data units called frames and handles reliable data transmission between adjacent nodes. While the Network layer uses logical addresses (IP), this layer uses physical addresses (MAC addresses) to identify devices within the same network segment and provides error detection and flow control functions. Switches and bridges are representative devices operating at this layer. Switches learn MAC address tables to forward frames only to specific ports, separating collision domains and improving network efficiency.
+The Data Link layer organizes bit streams transmitted through the Physical layer into frames and handles reliable data transmission between adjacent nodes. While the Network layer uses logical addresses (IP), this layer uses physical addresses (MAC addresses) to identify devices within the same network segment and provides error detection and flow control functions. Switches and bridges are representative devices operating at this layer. Switches learn MAC address tables to forward frames only to specific ports, separating collision domains and improving network efficiency.
 
 The Data Link layer is divided by IEEE into two sublayers: LLC (Logical Link Control, IEEE 802.2) and MAC (Media Access Control). The LLC sublayer handles the interface with the Network layer, performs flow control and error control, and allows multiple network protocols to share the same physical medium. The MAC sublayer defines methods for accessing the physical layer, handles physical addressing, and has various standards defined according to media type, such as IEEE 802.3 (Ethernet) and IEEE 802.11 (Wi-Fi).
 
@@ -128,7 +128,7 @@ The Data Link layer is divided by IEEE into two sublayers: LLC (Logical Link Con
 
 ## Layer 1 - Physical Layer
 
-The Physical layer is the lowest layer of the OSI model, responsible for converting actual data into electrical signals (copper wire), optical signals (fiber optic), or electromagnetic waves (wireless) and transmitting them through physical media. This layer does not understand the meaning or structure of data and focuses only on converting bits (0s and 1s) into physical signals. It defines hardware characteristics such as cables, connectors, voltage levels, signal timing, data transmission rates, and pin arrangements. This standardization enables equipment from different manufacturers to connect physically and communicate.
+The Physical layer is the lowest layer of the OSI model, responsible for converting bits into electrical signals (copper wire), optical signals (fiber optic), or electromagnetic waves (wireless) and transmitting them through physical media. This layer does not understand the meaning or structure of data and focuses only on converting bits (0s and 1s) into physical signals. It defines hardware characteristics such as cables, connectors, voltage levels, signal timing, data transmission rates, and pin arrangements. This standardization enables equipment from different manufacturers to connect physically and communicate.
 
 Elements defined by the Physical layer include electrical characteristics (voltage levels, signal duration, impedance), mechanical characteristics (connector shapes, number of pins, pin arrangements), functional characteristics (function definitions of each pin), and procedural characteristics (bit transmission procedures, synchronization methods). Standardizing these four characteristics enables various manufacturers' network equipment to physically interconnect.
 
@@ -165,7 +165,7 @@ The OSI model remains important in practice because it allows network problems t
 
 ## Practical Use of OSI Model
 
-The OSI model shines brightest in network troubleshooting. Systematic layer-by-layer approach enables quick identification of complex network problem causes.
+The OSI model is especially useful in network troubleshooting. A systematic layer-by-layer approach makes it easier to identify the cause of complex network problems.
 
 **Layer-by-Layer Troubleshooting Checklist:**
 
@@ -177,4 +177,4 @@ The OSI model shines brightest in network troubleshooting. Systematic layer-by-l
 
 ## Conclusion
 
-This post covered the OSI 7-layer model in detail, from its historical background to the role of each layer, key protocols, comparison with the TCP/IP model, the data encapsulation process, and practical applications. While the OSI model is not directly used in actual internet implementations, it has remained a fundamental framework for systematically understanding network concepts and diagnosing problems for 40 years since its publication in 1984. It has established itself as essential knowledge that network engineers and developers must understand.
+This post covered the OSI 7-layer model in detail, from its historical background to the role of each layer, key protocols, comparison with the TCP/IP model, the data encapsulation process, and practical applications. While the OSI model is not directly used in actual internet implementations, it has remained a fundamental framework for understanding network concepts and diagnosing problems since its publication in 1984. It remains essential background knowledge for network engineers and developers.
