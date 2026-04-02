@@ -40,7 +40,7 @@ The **main branch** contains only production-deployed code with version tags (v1
 
 ### Workflow
 
-![git-flow](image-1.png)
+<img src="image-1.svg" alt="git-flow" style="width: 100%; max-width: 500px; filter: grayscale(1) saturate(0.15) contrast(0.95);" />
 
 A typical Git Flow workflow proceeds as follows.
 
@@ -108,7 +108,7 @@ The core principles of GitHub Flow can be summarized in three points.
 
 ### Workflow
 
-![github-flow](image-2.png)
+<img src="image-2.svg" alt="github-flow" style="width: 100%; max-width: 460px; filter: grayscale(1) saturate(0.15) contrast(0.95);" />
 
 ```bash
 # 1. Create feature branch from main
@@ -143,11 +143,15 @@ GitLab Flow was proposed in 2014 by GitLab as a balance point between Git Flow's
 
 ### Branch Structure
 
-GitLab Flow has two variants.
+GitLab Flow is better understood as a main-centered family of workflows rather than one fixed structure, and two variants are commonly introduced.
 
 The **environment branch approach** has code flowing in the order main (development) to staging (testing) to production (deployment), with automatic deployment to each environment when merged to its branch.
 
 The **release branch approach** maintains version-specific release branches (release/1.0, release/2.0), suitable for libraries or packages that need to support multiple versions simultaneously.
+
+<img src="image-3.svg" alt="gitlab-flow" style="width: 100%; max-width: 500px; filter: grayscale(1) saturate(0.15) contrast(0.95);" />
+
+The diagram above is closest to the environment-branch variant described in GitLab's own docs. It simplifies the idea of continuing feature work and main-branch integration while promoting release candidates through downstream environment branches such as test and production.
 
 ```bash
 # Environment branch approach example
