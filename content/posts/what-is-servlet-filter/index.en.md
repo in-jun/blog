@@ -6,9 +6,9 @@ description: "Servlet filter operation and usage."
 draft: false
 ---
 
-## Concept and History of Servlet Filter
+## Servlet Filter Basics and History
 
-Servlet Filter is a Java component first introduced in the Servlet 2.3 specification released in 2001. It intercepts HTTP requests before servlets process them and responses before they are sent to clients, enabling preprocessing and postprocessing operations. The introduction of this feature enabled developers to implement cross-cutting concerns such as authentication, logging, character encoding, and data compression in a reusable manner, separate from business logic. Filters are based on the Chain of Responsibility design pattern, allowing multiple filters to be connected in a chain and executed sequentially.
+A servlet filter is a Java component first introduced in the Servlet 2.3 specification released in 2001. It intercepts HTTP requests before servlets process them and responses before they are sent to clients, enabling preprocessing and postprocessing operations. This made it easier to implement cross-cutting concerns such as authentication, logging, character encoding, and data compression in a reusable way, separate from business logic. Filters are based on the Chain of Responsibility design pattern, allowing multiple filters to be connected in a chain and executed sequentially.
 
 > **Servlet**
 >
@@ -16,13 +16,13 @@ Servlet Filter is a Java component first introduced in the Servlet 2.3 specifica
 
 ## Primary Use Cases for Filters
 
-Servlet filters are utilized in various situations where requests or responses need to be modified or specific processing needs to be performed. Representative use cases include user authentication and authorization verification, request and response logging, data encryption and decryption, HTTP header manipulation, image format conversion, data compression and decompression, and custom exception handling. By implementing these functionalities as filters, common features can be applied without duplicating code across individual servlets or controllers.
+Servlet filters are used when requests or responses need to be modified, or when shared processing should happen before or after request handling. Representative use cases include authentication and authorization checks, request and response logging, data encryption and decryption, HTTP header manipulation, image format conversion, data compression and decompression, and custom exception handling. By implementing these concerns as filters, common features can be applied without duplicating code across individual servlets or controllers.
 
 ## Filter Implementation Methods
 
 ### GenericFilterBean
 
-`GenericFilterBean` is an abstract class provided by Spring Framework that implements the `javax.servlet.Filter` interface. It integrates with Spring's environment configuration, automatically setting Spring Bean properties during filter initialization. Developers override the `doFilter` method to implement logic that executes for each request.
+`GenericFilterBean` is an abstract class provided by Spring Framework that implements the `javax.servlet.Filter` interface. It integrates with Spring's configuration model and can apply bean properties during filter initialization. Developers override the `doFilter` method to implement logic that runs for each request.
 
 ```java
 public class CustomFilter extends GenericFilterBean {
@@ -38,7 +38,7 @@ public class CustomFilter extends GenericFilterBean {
 
 ### OncePerRequestFilter
 
-`OncePerRequestFilter` is a class that extends `GenericFilterBean` and guarantees execution exactly once per HTTP request. Even when the same request passes through the filter chain multiple times due to internal forwards or includes in the servlet container, this filter ensures the logic executes only on the initial pass. This makes it suitable for tasks that should be performed only once per request, such as authentication filters or logging filters.
+`OncePerRequestFilter` is a class that extends `GenericFilterBean` and guarantees execution exactly once per HTTP request. Even when the same request passes through the filter chain multiple times because of internal forwards or includes in the servlet container, this filter ensures the logic runs only on the initial pass. This makes it suitable for tasks that should be performed only once per request, such as authentication filters or logging filters.
 
 ```java
 public class CustomFilter extends OncePerRequestFilter {
@@ -54,7 +54,7 @@ public class CustomFilter extends OncePerRequestFilter {
 
 ## Filter Chain and Execution Order
 
-When a request arrives, the servlet container executes registered filters sequentially according to the filter chain. After passing through all filters, it invokes the target servlet, and upon completion of servlet processing, each filter's postprocessing logic executes in reverse order. This structure is an implementation of the Chain of Responsibility pattern, allowing each filter to independently perform its role while passing control to the next filter or servlet.
+When a request arrives, the servlet container executes registered filters sequentially according to the filter chain. After passing through all filters, it invokes the target servlet. Once servlet processing finishes, each filter's postprocessing logic runs in reverse order. This structure is an implementation of the Chain of Responsibility pattern, allowing each filter to perform its role independently while passing control to the next filter or servlet.
 
 Filter execution order can be specified using the `@Order` annotation or the `setOrder` method of `FilterRegistrationBean`. Lower numbers indicate higher priority and earlier execution.
 
@@ -72,7 +72,7 @@ public class FirstFilter extends OncePerRequestFilter {
 
 ## Filter Registration Methods
 
-In Spring Boot, filters can be registered in two ways: automatic registration using the `@Component` annotation, or programmatic registration through `FilterRegistrationBean`. Using `FilterRegistrationBean` enables fine-grained control, such as applying filters only to specific URL patterns or explicitly specifying execution order.
+In Spring Boot, filters can be registered in two ways: by using the `@Component` annotation for automatic registration, or by using `FilterRegistrationBean` for programmatic registration. `FilterRegistrationBean` provides finer control, such as applying filters only to specific URL patterns or explicitly setting execution order.
 
 ```java
 @Configuration
@@ -91,7 +91,7 @@ public class FilterConfig {
 
 ## Filter vs Spring Interceptor Comparison
 
-Servlet Filters and Spring Interceptors both intercept requests for processing, but they have fundamental differences in the layer and timing of execution. Filters operate at the servlet container level (Tomcat, Jetty, etc.) and execute before reaching the DispatcherServlet. In contrast, Interceptors execute within Spring MVC's DispatcherServlet before and after calling the Handler (controller), providing easier access to the Spring Context and enabling exception handling through @ExceptionHandler.
+Servlet Filters and Spring Interceptors both intercept requests for processing, but they differ in where they run and when they execute. Filters operate at the servlet container level (Tomcat, Jetty, etc.) and run before the request reaches the DispatcherServlet. In contrast, interceptors run within Spring MVC after the DispatcherServlet has identified the handler and before or after controller execution. That gives them easier access to the Spring context and controller-level information.
 
 | Characteristic | Servlet Filter | Spring Interceptor |
 |----------------|---------------|-------------------|
@@ -139,7 +139,7 @@ Client Response
 
 ### CORS Filter
 
-This filter configures Cross-Origin Resource Sharing (CORS), allowing API calls from different domains by bypassing the browser's Same-Origin Policy. It handles preflight requests using the OPTIONS method.
+This filter configures Cross-Origin Resource Sharing (CORS), allowing API calls from different domains under controlled rules instead of being blocked by the browser's Same-Origin Policy. It handles preflight requests using the OPTIONS method.
 
 ```java
 @Component
@@ -190,8 +190,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 ## Precautions When Implementing Filters
 
-Several important considerations must be taken into account when implementing filters. First, filter order significantly affects behavior, so it should be explicitly managed using the @Order annotation or setOrder method. Second, omitting the `filterChain.doFilter(request, response)` call prevents requests from being forwarded to the next filter or servlet. Third, exceptions occurring in filters cannot be handled by Spring's @ControllerAdvice, requiring direct try-catch handling within the filter. Fourth, since filters execute for all requests, heavy operations that could impact performance should be avoided, and filtering through URL patterns or conditional statements should be used to execute only when necessary.
+When implementing filters, keep the following points in mind. First, filter order significantly affects behavior, so it should be managed explicitly using the `@Order` annotation or the `setOrder` method. Second, omitting the `filterChain.doFilter(request, response)` call prevents requests from being forwarded to the next filter or servlet. Third, exceptions raised in filters cannot be handled by Spring's `@ControllerAdvice`, so direct try-catch handling is often required inside the filter. Fourth, since filters execute for all requests, heavy operations that could impact performance should be avoided, and URL patterns or conditional checks should be used to run them only when necessary.
 
 ## Conclusion
 
-Since its introduction in the Servlet 2.3 specification in 2001, Servlet Filter has established itself as a core mechanism for handling cross-cutting concerns in Java web applications. Operating at the servlet container level, it can apply common functionality such as authentication, logging, encoding, and CORS configuration to all HTTP requests. The Chain of Responsibility pattern enables flexible request processing pipelines by combining multiple filters. Understanding the differences between Servlet Filters and Spring Interceptors and selecting the appropriate technology for each situation is key to effective web application development.
+Since its introduction in the Servlet 2.3 specification in 2001, the servlet filter has remained a core mechanism for handling cross-cutting concerns in Java web applications. Operating at the servlet container level, it can apply common functionality such as authentication, logging, encoding, and CORS configuration to all HTTP requests. The Chain of Responsibility pattern enables flexible request-processing pipelines by combining multiple filters. Understanding the differences between servlet filters and Spring interceptors helps when choosing the right tool for a given web application concern.
