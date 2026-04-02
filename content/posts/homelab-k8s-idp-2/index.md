@@ -1,49 +1,49 @@
 ---
-title: "Mini PC Kubernetes #8: Building IDP (2)"
+title: "홈랩 구축기 #8: IDP 구축 (2)"
 date: 2025-02-28T07:47:18+09:00
 draft: false
-description: "Building an internal developer platform on Kubernetes."
-tags: ["Kubernetes", "DevOps", "Platform"]
-series: ["Mini PC Kubernetes"]
+description: "쿠버네티스 기반 내부 개발자 플랫폼 구축 방법을 다룬다."
+tags: ["Kubernetes", "DevOps", "플랫폼"]
+series: ["홈랩 구축기"]
 ---
 
-## Overview
+## 개요
 
-In the [previous post](/posts/homelab-k8s-cicd-1/), we installed Harbor container registry, Argo Events, and Argo Workflows as the foundation for a CI/CD pipeline. This post covers integrating these components with ArgoCD and designing Helm chart-based project templates to build an Internal Developer Platform (IDP) that enables deployment of projects with complete CI/CD pipelines from a single YAML file.
+[이전 글](/posts/homelab-k8s-idp-1/)에서는 IDP의 기반이 되는 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치했다. 이번 글에서는 이 구성 요소들을 ArgoCD와 통합하고 Helm 차트 기반의 프로젝트 템플릿을 설계하여 YAML 파일 하나로 프로젝트를 배포할 수 있는 내부 개발 플랫폼(Internal Developer Platform, IDP) 구조를 정리한다.
 
-![Internal Developer Platform Architecture](image.png)
+![내부 개발 플랫폼 아키텍처](image.png)
 
-## What is an Internal Developer Platform
+## 내부 개발 플랫폼이란
 
-> **What is an Internal Developer Platform (IDP)?**
+> **내부 개발 플랫폼(IDP)이란?**
 >
-> An Internal Developer Platform is a system that provides developers with an abstracted self-service interface to deploy and operate applications without directly configuring infrastructure and deployment pipelines. As a core deliverable of platform engineering, it aims to improve developer experience and reduce operational burden through standardized deployment processes.
+> 내부 개발 플랫폼(Internal Developer Platform)은 개발자가 인프라와 배포 파이프라인을 직접 구성하지 않고도 애플리케이션을 배포하고 운영할 수 있도록 추상화된 셀프서비스 인터페이스를 제공하는 시스템이다. 플랫폼 엔지니어링의 핵심 결과물로, 개발자 경험을 향상시키고 표준화된 배포 프로세스를 통해 운영 부담을 줄이는 것을 목표로 한다.
 
-Traditional CI/CD pipelines usually needed to be rebuilt for every project. What I wanted instead was a template-driven internal platform that could provision most of the surrounding infrastructure from a small configuration file. The version I built in this post worked roughly like this:
+전통적인 CI/CD 파이프라인은 프로젝트마다 따로 손이 많이 갔지만, 내가 만들고 싶었던 내부 개발 플랫폼은 템플릿 기반으로 이 반복 작업을 줄이는 쪽이었다. 이 글에서 정리한 내 플랫폼은 대략 다음 흐름으로 동작했다:
 
-1. **A developer pushes code to a Git repository.**
-2. **A GitHub webhook sends an event to Argo Events' EventSource.**
-3. **Argo Events' Sensor filters the event and triggers an Argo Workflow.**
-4. **Argo Workflows builds the code and pushes the container image to Harbor.**
-5. **When the workflow completes, it calls the GitHub API to update the project configuration file.**
-6. **ArgoCD detects the changed configuration file and deploys the application with the new image.**
+1. **개발자가 코드를 Git 저장소에 푸시한다.**
+2. **GitHub 웹훅이 Argo Events의 EventSource로 이벤트를 전송한다.**
+3. **Argo Events의 Sensor가 이벤트를 필터링하고 Argo Workflows를 트리거한다.**
+4. **Argo Workflows가 코드를 빌드하고 컨테이너 이미지를 Harbor에 푸시한다.**
+5. **워크플로우가 완료되면 GitHub API를 호출하여 프로젝트 설정 파일을 업데이트한다.**
+6. **ArgoCD가 변경된 설정 파일을 감지하고 새 이미지로 애플리케이션을 배포한다.**
 
-## Project Template Design
+## 프로젝트 템플릿 설계
 
-I designed a Helm chart-based project template that I could reuse across multiple projects. The idea was to reduce a new project to a small YAML file while the surrounding CI/CD wiring stayed shared.
+여러 프로젝트에서 재사용할 수 있도록 Helm 차트 기반 프로젝트 템플릿을 만들었다. 목표는 간단한 YAML 설정 파일만으로도 CI/CD 파이프라인이 붙은 프로젝트를 배포할 수 있게 하는 것이었다.
 
-### Project Template Requirements
+### 프로젝트 템플릿 요구사항
 
-The features that the template should provide for efficiently managing multiple projects in a homelab environment are as follows:
+홈랩 환경에서 효율적으로 여러 프로젝트를 관리하기 위해 템플릿이 제공해야 하는 기능은 다음과 같다:
 
-- **Automated CI/CD Pipeline**: Automatically builds and deploys when code changes in a GitHub repository.
-- **Declarative Resource Management**: Define applications, databases, and network settings in YAML files.
-- **Secrets Management Integration**: Safely manage passwords, API keys, and other secrets through Vault integration.
-- **Multi-Application Support**: Manage multiple applications and databases within a single project.
+- **자동화된 CI/CD 파이프라인**: GitHub 저장소의 코드 변경 시 자동으로 빌드하고 배포한다.
+- **선언적 리소스 관리**: 애플리케이션, 데이터베이스, 네트워크 설정을 YAML 파일로 정의한다.
+- **시크릿 관리 통합**: Vault와 연동하여 비밀번호, API 키 등을 안전하게 관리한다.
+- **멀티 애플리케이션 지원**: 하나의 프로젝트 내에서 여러 애플리케이션과 데이터베이스를 관리한다.
 
-### Git Repository Structure
+### Git 저장소 구조
 
-I organized the project management repository with the following structure:
+프로젝트 관리는 아래와 같은 Git 저장소 구조로 정리했다:
 
 ```
 projects-gitops/
@@ -71,15 +71,15 @@ projects-gitops/
     └── ...
 ```
 
-In this structure, the `chart/` directory contains the Helm chart shared by all projects, and the `projects/` directory contains the configuration files for each project. To deploy a new project, simply add a YAML file to the `projects/` directory.
+이 구조에서 `chart/` 디렉토리는 모든 프로젝트에서 공유하는 Helm 차트를 포함하고, `projects/` 디렉토리는 각 프로젝트의 설정 파일을 포함한다. 새 프로젝트를 배포하려면 `projects/` 디렉토리에 YAML 파일을 추가하기만 하면 된다.
 
-## ApplicationSet Configuration
+## ApplicationSet 구성
 
-> **What is ApplicationSet?**
+> **ApplicationSet이란?**
 >
-> ApplicationSet is an ArgoCD feature that uses templates and generators to automatically create and manage multiple Applications. It can dynamically create Applications based on file lists in Git repositories, directory structures, cluster lists, and more, enabling efficient management of large-scale multi-project environments.
+> ApplicationSet은 ArgoCD의 기능으로, 템플릿과 생성기(Generator)를 사용하여 여러 Application을 자동으로 생성하고 관리하는 컨트롤러이다. Git 저장소의 파일 목록, 디렉토리 구조, 클러스터 목록 등을 기반으로 동적으로 Application을 생성할 수 있어 대규모 멀티 프로젝트 환경을 효율적으로 관리할 수 있다.
 
-The `applicationset.yaml` file looked like this:
+`applicationset.yaml`은 아래처럼 구성했다:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -124,11 +124,11 @@ spec:
                     - CreateNamespace=true
 ```
 
-This ApplicationSet uses a Git file generator to find all files matching the `projects/*.yaml` pattern and automatically creates an ArgoCD Application for each file. The filename with the `.yaml` extension removed is used as the project name and namespace, and secrets stored in Vault are safely injected through the ArgoCD Vault Plugin.
+이 ApplicationSet은 Git 파일 생성기를 사용하여 `projects/*.yaml` 패턴에 맞는 모든 파일을 찾고, 각 파일에 대해 ArgoCD Application을 자동으로 생성한다. 파일 이름에서 `.yaml` 확장자를 제거한 값이 프로젝트 이름과 네임스페이스로 사용되며, ArgoCD Vault Plugin을 통해 Vault에 저장된 시크릿을 안전하게 주입한다.
 
-## Project Configuration File Structure
+## 프로젝트 설정 파일 구조
 
-Each project in this setup is described with a YAML file in the following shape:
+각 프로젝트는 아래와 같은 YAML 구조를 사용했다:
 
 ```yaml
 applications:
@@ -169,19 +169,19 @@ databases:
       size: 1Gi
 ```
 
-The key fields in this configuration file are:
+이 설정 파일의 핵심 필드는 다음과 같다:
 
-- **applications[].git.hash**: The Git commit hash that the CI pipeline will build and deploy. It is initially empty and automatically updated when a build succeeds. Deployments are only created when this value exists.
-- **applications[].domains**: A list of domains for accessing the application. A Traefik IngressRoute is created for each domain.
-- **databases[]**: A list of databases to use in the project, supporting MySQL, PostgreSQL, Redis, and MongoDB.
+- **applications[].git.hash**: CI 파이프라인이 빌드하고 배포할 Git 커밋 해시로, 초기에는 비어 있고 빌드가 성공하면 자동으로 업데이트된다. 이 값이 있을 때만 Deployment가 생성된다.
+- **applications[].domains**: 애플리케이션에 접근할 도메인 목록으로, 각 도메인에 대해 Traefik IngressRoute가 생성된다.
+- **databases[]**: 프로젝트에서 사용할 데이터베이스 목록으로, MySQL, PostgreSQL, Redis, MongoDB를 지원한다.
 
-## CI Pipeline Templates
+## CI 파이프라인 템플릿
 
-For the CI side, I used Argo Events and Argo Workflows together and kept the pipeline pieces as reusable Helm templates.
+CI 파이프라인은 Argo Events와 Argo Workflows 조합으로 구현했고, Helm 차트 템플릿으로 빼서 프로젝트마다 재사용했다.
 
-### EventBus Template
+### EventBus 템플릿
 
-A template that creates an independent event bus for each project:
+각 프로젝트에 독립적인 이벤트 버스를 생성하는 템플릿이다:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -197,11 +197,11 @@ spec:
             antiAffinity: false
 ```
 
-This EventBus is configured with 3 NATS replicas for high availability and establishes an independent event transport layer for each project.
+이 EventBus는 3개의 NATS 복제본으로 구성되어 고가용성을 제공하며, 프로젝트별로 독립된 이벤트 전송 계층을 구성한다.
 
-### EventSource Template
+### EventSource 템플릿
 
-An EventSource template that receives GitHub webhooks:
+GitHub 웹훅을 수신하는 EventSource 템플릿이다:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -242,11 +242,11 @@ spec:
 {{- end }}
 ```
 
-This template creates an EventSource for each application defined in the project configuration, detecting push events from GitHub repositories. The `webhook.url` is the externally accessible webhook endpoint where GitHub sends events.
+이 템플릿은 프로젝트 설정에 정의된 각 애플리케이션에 대해 EventSource를 생성하며, GitHub 저장소의 push 이벤트를 감지한다. `webhook.url`은 외부에서 접근 가능한 웹훅 엔드포인트이고, GitHub가 이 URL로 이벤트를 전송한다.
 
-### Sensor Template
+### Sensor 템플릿
 
-A Sensor template that filters events and triggers workflows:
+이벤트를 필터링하고 워크플로우를 트리거하는 Sensor 템플릿이다:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -298,11 +298,11 @@ spec:
 {{- end }}
 ```
 
-This Sensor filters only push events to specific branches (e.g., main, develop) in the `filters.data` section, and when matching events occur, it creates a Workflow by referencing the WorkflowTemplate. The `body.after` value (the commit hash after the push) is passed as a workflow parameter.
+이 Sensor는 `filters.data` 섹션에서 특정 브랜치(예: main, develop)로의 push 이벤트만 필터링하고, 조건에 맞는 이벤트가 발생하면 WorkflowTemplate을 참조하여 Workflow를 생성한다. `body.after` 값(push 이후의 커밋 해시)을 워크플로우 파라미터로 전달한다.
 
 ### WorkflowTemplate
 
-A WorkflowTemplate that defines build and configuration update tasks:
+빌드와 설정 업데이트 작업을 정의하는 WorkflowTemplate이다:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -409,19 +409,19 @@ spec:
 {{- end }}
 ```
 
-The key components of this WorkflowTemplate are:
+이 WorkflowTemplate의 핵심 구성 요소는 다음과 같다:
 
-- **DAG Template**: Defines two tasks, `build` and `update-config`, as a DAG with dependencies so that the configuration update only runs after a successful build.
-- **Kaniko**: A tool for building images inside containers without a Docker daemon, allowing safe image building without privilege escalation. Caching is enabled to reduce build times.
-- **GitHub API Call**: When the build succeeds, it triggers a repository_dispatch event to update the `git.hash` value in the project configuration file.
+- **DAG 템플릿**: `build`와 `update-config` 두 개의 태스크를 DAG로 정의하여 빌드가 성공한 후에만 설정 업데이트가 실행되도록 의존성을 설정한다.
+- **Kaniko**: Docker 데몬 없이 컨테이너 내부에서 이미지를 빌드하는 도구로, 권한 상승 없이 안전하게 이미지를 빌드할 수 있다. 캐싱 기능을 활성화하여 빌드 시간을 단축한다.
+- **GitHub API 호출**: 빌드가 성공하면 repository_dispatch 이벤트를 발생시켜 프로젝트 설정 파일의 `git.hash` 값을 업데이트한다.
 
-## CD Pipeline Templates
+## CD 파이프라인 템플릿
 
-When the CI pipeline updates the project configuration file, ArgoCD picks up the change and rolls out the new image.
+CI 파이프라인이 프로젝트 설정 파일을 업데이트하면, 그다음 배포는 ArgoCD가 감지해서 이어받는 구조였다.
 
-### Deployment Template
+### Deployment 템플릿
 
-A Deployment template for application deployment:
+애플리케이션 배포를 위한 Deployment 템플릿이다:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -485,17 +485,17 @@ spec:
 {{- end }}
 ```
 
-The key point of this template is the `{{- if $app.git.hash }}` condition, which ensures that the Deployment is only created when the `git.hash` value is set. This guarantees that deployment only occurs after the CI pipeline has completed successfully.
+이 템플릿의 핵심 사항은 `{{- if $app.git.hash }}` 조건으로, `git.hash` 값이 설정되어 있을 때만 Deployment가 생성된다. 이를 통해 CI 파이프라인이 성공적으로 완료된 후에만 배포가 이루어지도록 보장한다.
 
-The main features of the Deployment template are:
+Deployment 템플릿의 주요 특징은 다음과 같다:
 
-- **Rolling Update**: The `maxSurge: 1`, `maxUnavailable: 0` settings implement zero-downtime deployment.
-- **Pod Anti-Affinity**: Distributes Pods of the same application across different nodes to improve availability.
-- **Graceful Shutdown**: The `preStop` hook and 120-second termination grace period allow existing connections to complete normally.
+- **롤링 업데이트**: `maxSurge: 1`, `maxUnavailable: 0` 설정으로 무중단 배포를 구현한다.
+- **Pod 안티어피니티**: 동일한 애플리케이션의 Pod가 서로 다른 노드에 분산되도록 하여 가용성을 높인다.
+- **정상 종료**: `preStop` 훅과 120초의 종료 유예 기간을 설정하여 기존 연결이 정상적으로 완료될 수 있도록 한다.
 
-### IngressRoute Template
+### IngressRoute 템플릿
 
-An IngressRoute template that provides external access to applications:
+애플리케이션에 외부 접근을 제공하는 IngressRoute 템플릿이다:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -522,11 +522,11 @@ spec:
 {{- end }}
 ```
 
-This template creates a Traefik IngressRoute for each domain defined in the project configuration, using the `web` and `websecure` entry points to handle both HTTP and HTTPS requests.
+이 템플릿은 프로젝트 설정에 정의된 각 도메인에 대해 Traefik IngressRoute를 생성하며, `web`과 `websecure` 엔트리 포인트를 사용하여 HTTP와 HTTPS 요청을 모두 처리한다.
 
-### Database StatefulSet Template
+### Database StatefulSet 템플릿
 
-A StatefulSet template for database deployment:
+데이터베이스 배포를 위한 StatefulSet 템플릿이다:
 
 ```yaml
 {{- range $db := .Values.databases }}
@@ -594,11 +594,11 @@ spec:
 {{- end }}
 ```
 
-This template supports four database types: MySQL, PostgreSQL, Redis, and MongoDB, and automatically configures the appropriate environment variables and volume mount paths for each type.
+이 템플릿은 MySQL, PostgreSQL, Redis, MongoDB 네 가지 데이터베이스 유형을 지원하며, 각 유형에 맞는 환경 변수와 볼륨 마운트 경로를 자동으로 설정한다.
 
-## GitHub Actions Configuration Update Workflow
+## GitHub Actions 설정 업데이트 워크플로우
 
-To update the project configuration files, I used the following GitHub Actions workflow from the CI pipeline:
+프로젝트 설정 파일 업데이트는 CI 파이프라인에서 호출하는 GitHub Actions 워크플로우로 처리했다:
 
 ```yaml
 name: Configuration API
@@ -651,15 +651,15 @@ jobs:
                   git push
 ```
 
-This workflow receives `repository_dispatch` events and uses the `yq` tool to parse and modify project configuration files. When the CI pipeline build succeeds, this workflow is triggered to update the `git.hash` field to the new commit hash, and ArgoCD detects this change and performs deployment with the new image.
+이 워크플로우는 `repository_dispatch` 이벤트를 수신하여 `yq` 도구로 프로젝트 설정 파일을 파싱하고 수정한다. CI 파이프라인의 빌드가 성공하면 이 워크플로우가 트리거되어 `git.hash` 필드를 새 커밋 해시로 업데이트하고, ArgoCD가 이 변경을 감지하여 새 이미지로 배포를 수행한다.
 
-## Project Creation and Usage
+## 프로젝트 생성 및 사용
 
-In practice, adding a new project to this platform looked like this:
+실제로는 새 프로젝트를 추가할 때 아래와 같은 흐름으로 사용했다:
 
-### Creating a Project Configuration File
+### 프로젝트 설정 파일 생성
 
-Create the `projects/myproject.yaml` file:
+`projects/myproject.yaml` 파일을 생성한다:
 
 ```yaml
 applications:
@@ -681,9 +681,9 @@ databases:
       size: 2Gi
 ```
 
-### Storing Secrets in Vault
+### Vault에 시크릿 저장
 
-I stored the project-specific secrets in Vault first:
+프로젝트에 필요한 시크릿은 Vault에 먼저 넣어두었다:
 
 ```bash
 vault kv put injunweb/myproject-github-access username=myuser token=ghp_xxxxx
@@ -691,9 +691,9 @@ vault kv put injunweb/myproject-mysql-secret password=mysecretpassword
 vault kv put injunweb/myproject-api-secret API_KEY=my-api-key
 ```
 
-### Verifying Deployment
+### 배포 확인
 
-After committing and pushing the project configuration file, ArgoCD created the related resources automatically:
+프로젝트 설정 파일을 커밋하고 푸시하면 ArgoCD가 관련 리소스를 자동으로 만들었다:
 
 ```bash
 kubectl get ns myproject
@@ -701,12 +701,12 @@ kubectl get eventbus,eventsource,sensor -n myproject
 kubectl get statefulset -n myproject
 ```
 
-When you push code to the GitHub repository, the CI pipeline is triggered and build and deployment are performed automatically.
+GitHub 저장소에 코드를 푸시하면 CI 파이프라인이 트리거되어 빌드와 배포가 자동으로 수행된다.
 
-## Conclusion
+## 마치며
 
-This post covered how I built a small Internal Developer Platform (IDP) on top of the homelab Kubernetes cluster using Helm templates and ArgoCD ApplicationSet. The biggest payoff was not having to rebuild the same CI/CD and infrastructure plumbing every time I wanted to stand up a new project.
+이번 글에서는 홈랩 쿠버네티스 클러스터 위에 내가 만든 내부 개발 플랫폼(IDP) 구조를 정리했다. Helm 차트 템플릿과 ArgoCD ApplicationSet을 조합해두니, 새 프로젝트를 추가할 때마다 인프라를 처음부터 반복 구성하지 않아도 된다는 점이 가장 컸다.
 
-The next post covers installing Prometheus, Grafana, and Loki to build a monitoring system that collects and visualizes cluster metrics and logs.
+다음 글에서는 Prometheus, Grafana, Loki를 설치해 클러스터의 메트릭과 로그를 수집하고 시각화하는 모니터링 구성을 정리한다.
 
-[Next Post: Mini PC Kubernetes #9: Prometheus Monitoring](/posts/homelab-k8s-monitoring/)
+[다음 글: 홈랩 구축기 #9: Prometheus 모니터링](/posts/homelab-k8s-monitoring/)

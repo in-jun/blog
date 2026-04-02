@@ -1,10 +1,10 @@
 ---
-title: "Mini PC Kubernetes #4: Internal Services"
+title: "Homelab Build Log #4: Internal Services"
 date: 2025-02-25T11:37:43+09:00
 draft: false
 description: "Configuring internal services in Kubernetes cluster."
 tags: ["Kubernetes", "Network", "Service"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
@@ -375,4 +375,4 @@ This post covered how I installed Traefik in the homelab Kubernetes cluster and 
 
 The next post covers configuring DDNS and port forwarding to make homelab services accessible from the external internet using the external load balancer.
 
-[Next Post: Mini PC Kubernetes #5: External Access](/posts/homelab-k8s-external-access/)
+[Next Post: Homelab Build Log #5: External Access](/posts/homelab-k8s-external-access/)

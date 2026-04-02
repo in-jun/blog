@@ -1,10 +1,10 @@
 ---
-title: "Mini PC Kubernetes #3: Longhorn Storage"
+title: "Homelab Build Log #3: Longhorn Storage"
 date: 2025-02-25T08:05:41+09:00
 draft: false
 description: "Configuring storage and installing Longhorn for Kubernetes."
 tags: ["Kubernetes", "Storage", "Longhorn"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
@@ -313,4 +313,4 @@ This post covered how I added Longhorn distributed storage to the homelab Kubern
 
 The next post covers installing the Traefik ingress controller and configuring access to internal services.
 
-[Next Post: Mini PC Kubernetes #4: Internal Services](/posts/homelab-k8s-internal-services/)
+[Next Post: Homelab Build Log #4: Internal Services](/posts/homelab-k8s-internal-services/)

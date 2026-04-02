@@ -1,15 +1,17 @@
 ---
-title: "Mini PC Kubernetes #1: Cluster Setup"
+title: "Homelab Build Log #1: Mini PC Kubernetes Cluster Setup"
 date: 2025-02-24T07:26:52+09:00
 draft: false
-description: "Building a Kubernetes cluster in a Mini PC environment."
+description: "The starting point of this homelab build log: building a Mini PC-based Kubernetes cluster."
 tags: ["Kubernetes", "Mini PC", "Infrastructure"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
 
-This series covers the process of building a Kubernetes cluster in a homelab environment and configuring a complete CI/CD pipeline for side projects and testing purposes. It demonstrates how to set up an environment where you can experiment with and learn various cloud-native technologies such as container orchestration, networking, storage, monitoring, and GitOps by running Kubernetes at home without the burden of cloud service costs.
+This series is a place to record the parts of my homelab that feel worth writing down. Rather than treating it as a step-by-step guide, I want it to focus more on what I built and why I chose to put it together that way.
+
+This first post is the starting point, covering the hardware I used and the initial setup process for a Mini PC-based Kubernetes cluster.
 
 ![Cluster](image.png)
 
@@ -245,4 +247,4 @@ This post covered building a Kubernetes cluster consisting of 5 nodes using Dell
 
 The next post covers installing ArgoCD to manage Kubernetes resources using the GitOps approach.
 
-[Next Post: Mini PC Kubernetes #2: ArgoCD GitOps](/posts/homelab-k8s-gitops/)
+[Next Post: Homelab Build Log #2: ArgoCD GitOps](/posts/homelab-k8s-gitops/)

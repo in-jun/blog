@@ -1,10 +1,10 @@
 ---
-title: "미니PC Kubernetes #3: Longhorn 스토리지"
+title: "홈랩 구축기 #3: Longhorn 스토리지"
 date: 2025-02-25T08:05:41+09:00
 draft: false
 description: "쿠버네티스 클러스터의 스토리지 구성과 Longhorn 설치 방법을 설명한다."
 tags: ["Kubernetes", "스토리지", "Longhorn"]
-series: ["미니PC Kubernetes"]
+series: ["홈랩 구축기"]
 ---
 
 ## 개요
@@ -313,4 +313,4 @@ kubectl delete -f test.yaml
 
 다음 글에서는 Traefik 인그레스 컨트롤러를 설치하고 내부 서비스에 접근할 수 있도록 구성하는 방법을 알아본다.
 
-[다음 글: 미니PC Kubernetes #4: 내부 서비스 구성](/posts/homelab-k8s-internal-services/)
+[다음 글: 홈랩 구축기 #4: 내부 서비스 구성](/posts/homelab-k8s-internal-services/)

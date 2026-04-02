@@ -1,10 +1,10 @@
 ---
-title: "미니PC Kubernetes #5: 외부 접근 설정"
+title: "홈랩 구축기 #5: 외부 접근 설정"
 date: 2025-02-26T14:07:36+09:00
 draft: false
 description: "DDNS와 포트 포워딩을 사용한 쿠버네티스 클러스터 외부 접근 설정을 설명한다."
 tags: ["Kubernetes", "네트워크", "DDNS"]
-series: ["미니PC Kubernetes"]
+series: ["홈랩 구축기"]
 ---
 
 ## 개요
@@ -384,4 +384,4 @@ kubectl apply -f hello-world.yaml
 
 다음 글에서는 HashiCorp Vault를 설치하여 비밀번호, API 키 같은 민감한 정보를 안전하게 관리하는 방법을 알아본다.
 
-[다음 글: 미니PC Kubernetes #6: Vault 시크릿 관리](/posts/homelab-k8s-secrets/)
+[다음 글: 홈랩 구축기 #6: Vault 시크릿 관리](/posts/homelab-k8s-secrets/)

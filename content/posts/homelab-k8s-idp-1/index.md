@@ -1,28 +1,28 @@
 ---
-title: "미니PC Kubernetes #7: IDP 구축 (1)"
+title: "홈랩 구축기 #7: IDP 구축 기반 구성"
 date: 2025-02-28T04:32:32+09:00
 draft: false
-description: "쿠버네티스 환경에서 CI/CD 파이프라인을 구축하는 방법을 설명한다."
+description: "내부 개발 플랫폼 구축을 위한 Harbor, Argo Events, Argo Workflows 기반 구성을 정리한다."
 tags: ["Kubernetes", "CI/CD", "DevOps"]
-series: ["미니PC Kubernetes"]
+series: ["홈랩 구축기"]
 ---
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-secrets/)에서는 HashiCorp Vault를 설치하여 안전한 시크릿 관리 시스템을 구축했다. 이번 글에서는 CI/CD 파이프라인을 구성하기 위해 필요한 세 가지 핵심 컴포넌트인 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 구성을 완료하는 방법을 다룬다.
+[이전 글](/posts/homelab-k8s-secrets/)에서는 HashiCorp Vault를 설치하여 안전한 시크릿 관리 시스템을 구축했다. 이번 글에서는 내부 개발 플랫폼(IDP)을 만들기 전에 먼저 필요한 기반 구성 요소로 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 구성을 정리한다.
 
-![CI/CD](image.png)
+![IDP 기반 구성](image.png)
 
-## CI/CD 시스템 구성 요소
+## IDP 기반 구성 요소
 
-홈랩 환경에서 완전한 CI/CD 파이프라인을 구축하기 위해서는 다음과 같은 핵심 구성 요소가 필요하다:
+내가 구상한 IDP에서는 먼저 다음과 같은 기반 구성 요소가 필요했다:
 
 - **컨테이너 레지스트리**: 빌드된 컨테이너 이미지를 저장하고 배포하는 중앙 저장소로, Docker Hub와 같은 퍼블릭 레지스트리에 의존하지 않고 자체적으로 이미지를 관리할 수 있게 한다.
 - **이벤트 처리 시스템**: Git 저장소의 코드 변경, 웹훅 수신 등 다양한 이벤트를 감지하고 이에 반응하여 후속 작업을 트리거하는 역할을 담당한다.
 - **워크플로우 엔진**: 코드 빌드, 테스트 실행, 컨테이너 이미지 생성 등 실제 CI/CD 작업을 정의하고 실행하는 엔진이다.
 - **GitOps 배포 시스템**: Git 저장소에 정의된 원하는 상태를 클러스터에 자동으로 동기화하는 시스템으로, 이전 시리즈에서 설치한 ArgoCD가 이 역할을 담당한다.
 
-이번 글에서는 컨테이너 레지스트리, 이벤트 처리 시스템, 워크플로우 엔진을 각각 Harbor, Argo Events, Argo Workflows로 구현하고, 다음 글에서 이들을 ArgoCD와 통합하여 완전한 CI/CD 파이프라인을 완성한다.
+이번 글에서는 컨테이너 레지스트리, 이벤트 처리 시스템, 워크플로우 엔진을 각각 Harbor, Argo Events, Argo Workflows로 구성한다. 다음 글에서는 이 기반 위에 ArgoCD와 템플릿 구조를 얹어 IDP 형태로 정리한다.
 
 ## Harbor 설치
 
@@ -30,7 +30,7 @@ series: ["미니PC Kubernetes"]
 >
 > Harbor는 CNCF(Cloud Native Computing Foundation)의 졸업 프로젝트로, VMware에서 시작하여 2018년 CNCF에 기증된 오픈소스 컨테이너 레지스트리이다. Docker Hub와 같은 기본적인 이미지 저장 기능 외에도 RBAC(역할 기반 접근 제어), 취약점 스캐닝, 이미지 서명, 복제 정책 등 엔터프라이즈급 기능을 제공하며, 프라이빗 환경에서 컨테이너 이미지를 안전하게 관리하기 위한 완전한 솔루션을 제공한다.
 
-Harbor를 선택한 이유는 퍼블릭 레지스트리에 의존하지 않고 완전히 자체 호스팅된 CI/CD 환경을 구축하기 위해서이며, Harbor가 제공하는 취약점 스캐닝과 접근 제어 기능은 홈랩 환경에서도 보안을 강화하는 데 유용하다.
+Harbor를 선택한 이유는 퍼블릭 레지스트리에 의존하지 않고 내부 개발 플랫폼의 이미지 저장소를 직접 운영하고 싶었기 때문이다. Harbor가 제공하는 취약점 스캐닝과 접근 제어 기능도 홈랩 환경에서 보안을 챙기기에 괜찮았다.
 
 ### Harbor Helm 차트 구성
 
@@ -443,7 +443,7 @@ Argo Workflows UI에서 워크플로우 실행 결과를 확인할 수 있다.
 
 ## 다음 단계
 
-이번 글에서 올린 세 가지 구성 요소(Harbor, Argo Events, Argo Workflows)만으로도 기반은 갖춰졌지만, 실제 파이프라인으로 굴리려면 다음 작업이 더 남아 있었다:
+이번 글에서 올린 세 가지 구성 요소(Harbor, Argo Events, Argo Workflows)만으로도 IDP의 기반은 갖춰졌지만, 실제로 개발자가 바로 쓸 수 있는 형태로 만들려면 다음 작업이 더 남아 있었다:
 
 - **Sensor 구성**: EventSource에서 수신한 이벤트를 필터링하고 Argo Workflows를 트리거하는 Sensor를 생성해야 한다.
 - **워크플로우 템플릿**: 애플리케이션 빌드, 컨테이너 이미지 생성, Harbor 푸시 등의 작업을 수행하는 재사용 가능한 워크플로우 템플릿을 작성해야 한다.
@@ -451,8 +451,8 @@ Argo Workflows UI에서 워크플로우 실행 결과를 확인할 수 있다.
 
 ## 마치며
 
-이번 글에서는 홈랩 쿠버네티스 클러스터에 CI/CD 파이프라인의 핵심 구성 요소인 Harbor 컨테이너 레지스트리, Argo Events 이벤트 처리 시스템, Argo Workflows 워크플로우 엔진을 설치하고 기본 구성을 완료하는 방법을 살펴보았다.
+이번 글에서는 홈랩 쿠버네티스 클러스터에서 IDP의 기반이 되는 Harbor 컨테이너 레지스트리, Argo Events 이벤트 처리 시스템, Argo Workflows 워크플로우 엔진을 설치하고 기본 구성을 정리했다.
 
-다음 글에서는 이 구성 요소들을 Sensor와 워크플로우 템플릿으로 연결하고 ArgoCD와 통합하여 완전한 CI/CD 파이프라인을 구축하는 방법을 알아본다.
+다음 글에서는 이 구성 요소들을 Sensor와 워크플로우 템플릿으로 연결하고 ArgoCD와 통합해 실제 IDP 형태로 정리한다.
 
-[다음 글: 미니PC Kubernetes #8: IDP 구축 (2)](/posts/homelab-k8s-cicd-2/)
+[다음 글: 홈랩 구축기 #8: IDP 구축 (2)](/posts/homelab-k8s-idp-2/)

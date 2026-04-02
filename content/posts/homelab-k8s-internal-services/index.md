@@ -1,10 +1,10 @@
 ---
-title: "미니PC Kubernetes #4: 내부 서비스 구성"
+title: "홈랩 구축기 #4: 내부 서비스 구성"
 date: 2025-02-25T11:37:43+09:00
 draft: false
 description: "쿠버네티스 클러스터 내부 서비스 구성 방법을 다룬다."
 tags: ["Kubernetes", "네트워크", "서비스"]
-series: ["미니PC Kubernetes"]
+series: ["홈랩 구축기"]
 ---
 
 ## 개요
@@ -375,4 +375,4 @@ C:\Windows\System32\drivers\etc\hosts
 
 다음 글에서는 외부용 로드밸런서를 활용하여 홈랩 서비스를 외부 인터넷에서 접근할 수 있도록 DDNS와 포트 포워딩을 구성하는 방법을 알아본다.
 
-[다음 글: 미니PC Kubernetes #5: 외부 접근 설정](/posts/homelab-k8s-external-access/)
+[다음 글: 홈랩 구축기 #5: 외부 접근 설정](/posts/homelab-k8s-external-access/)

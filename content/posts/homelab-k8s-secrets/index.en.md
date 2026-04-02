@@ -1,10 +1,10 @@
 ---
-title: "Mini PC Kubernetes #6: Vault Secrets Management"
+title: "Homelab Build Log #6: Vault Secrets Management"
 date: 2025-02-26T16:20:14+09:00
 draft: false
 description: "Managing Kubernetes secrets with HashiCorp Vault."
 tags: ["Kubernetes", "Security", "Vault"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
@@ -683,6 +683,6 @@ When creating an application in ArgoCD, selecting "argocd-vault-plugin-helm" as 
 
 This post covered how I introduced HashiCorp Vault into the homelab Kubernetes cluster and tested two ways of integrating secrets with the rest of the stack. Vault Secrets Operator felt convenient for existing applications, while ArgoCD Vault Plugin fit better when I wanted to keep Git clean and stay closer to the GitOps model.
 
-The next post covers installing Harbor, Argo Events, and Argo Workflows to build the foundation for a CI/CD pipeline.
+The next post covers installing Harbor, Argo Events, and Argo Workflows as the foundation of the IDP.
 
-[Next Post: Mini PC Kubernetes #7: Building IDP (1)](/posts/homelab-k8s-cicd-1/)
+[Next Post: Homelab Build Log #7: IDP Foundations](/posts/homelab-k8s-idp-1/)

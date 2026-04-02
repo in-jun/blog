@@ -1,10 +1,10 @@
 ---
-title: "Mini PC Kubernetes #5: External Access"
+title: "Homelab Build Log #5: External Access"
 date: 2025-02-26T14:07:36+09:00
 draft: false
 description: "Setting up external access with DDNS and port forwarding."
 tags: ["Kubernetes", "Network", "DDNS"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
@@ -384,4 +384,4 @@ This post covered how I set up DDNS and port forwarding to expose services from 
 
 The next post covers installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
 
-[Next Post: Mini PC Kubernetes #6: Vault Secrets Management](/posts/homelab-k8s-secrets/)
+[Next Post: Homelab Build Log #6: Vault Secrets Management](/posts/homelab-k8s-secrets/)

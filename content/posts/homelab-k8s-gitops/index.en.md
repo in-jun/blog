@@ -1,10 +1,10 @@
 ---
-title: "Mini PC Kubernetes #2: ArgoCD GitOps"
+title: "Homelab Build Log #2: ArgoCD GitOps"
 date: 2025-02-25T03:06:44+09:00
 draft: false
 description: "GitOps-based Kubernetes deployment with ArgoCD."
 tags: ["Kubernetes", "GitOps", "ArgoCD"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
@@ -383,4 +383,4 @@ From that point on, adding a new folder under `apps/` in the `k8s-resource` repo
 
 In this post, I installed ArgoCD on my homelab Kubernetes cluster and used the App of Apps pattern to shape the GitOps workflow I wanted. From this point on, most of the cluster configuration lived in Git, and later pieces like storage, networking, and monitoring were all added on top of this structure.
 
-[Next Post: Mini PC Kubernetes #3: Longhorn Storage](/posts/homelab-k8s-storage/)
+[Next Post: Homelab Build Log #3: Longhorn Storage](/posts/homelab-k8s-storage/)

@@ -1,10 +1,10 @@
 ---
-title: "미니PC Kubernetes #2: ArgoCD GitOps"
+title: "홈랩 구축기 #2: ArgoCD GitOps"
 date: 2025-02-25T03:06:44+09:00
 draft: false
 description: "ArgoCD를 사용한 GitOps 기반 쿠버네티스 배포를 다룬다."
 tags: ["Kubernetes", "GitOps", "ArgoCD"]
-series: ["미니PC Kubernetes"]
+series: ["홈랩 구축기"]
 ---
 
 ## 개요
@@ -383,4 +383,4 @@ spec:
 
 이번 글에서는 내 홈랩 쿠버네티스 클러스터에 ArgoCD를 올리고 App of Apps 패턴을 적용해 GitOps 기반의 인프라 관리 구조를 만들었다. 이 시점부터 클러스터 구성은 Git 저장소 중심으로 관리하게 되었고, 이후 글에서 다루는 스토리지, 네트워크, 모니터링도 모두 이 구조 위에 쌓아갔다.
 
-[다음 글: 미니PC Kubernetes #3: Longhorn 스토리지](/posts/homelab-k8s-storage/)
+[다음 글: 홈랩 구축기 #3: Longhorn 스토리지](/posts/homelab-k8s-storage/)

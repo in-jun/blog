@@ -1,15 +1,15 @@
 ---
-title: "Mini PC Kubernetes #9: Prometheus Monitoring"
+title: "Homelab Build Log #9: Prometheus Monitoring"
 date: 2025-02-28T08:46:48+09:00
 draft: false
 description: "Monitoring Kubernetes with Prometheus and Grafana."
 tags: ["Kubernetes", "Monitoring", "Prometheus"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-cicd-2/), we built an Internal Developer Platform (IDP) using Helm chart-based project templates and ArgoCD ApplicationSet. This post explains how to install Prometheus and Grafana to collect and visualize metrics, and how to install Loki to collect and analyze logs centrally. Together, these tools provide an integrated monitoring environment for the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-idp-2/), I pulled together the overall IDP structure using Helm chart-based project templates and ArgoCD ApplicationSet. This post explains how to install Prometheus and Grafana to collect and visualize metrics, and how to install Loki to collect and analyze logs centrally. Together, these tools provide an integrated monitoring environment for the homelab Kubernetes cluster.
 
 ![Grafana](image.png)
 

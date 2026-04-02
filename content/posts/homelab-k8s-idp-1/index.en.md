@@ -1,28 +1,28 @@
 ---
-title: "Mini PC Kubernetes #7: Building IDP (1)"
+title: "Homelab Build Log #7: IDP Foundations"
 date: 2025-02-28T04:32:32+09:00
 draft: false
-description: "Building CI/CD pipelines for Kubernetes deployments."
+description: "Setting up Harbor, Argo Events, and Argo Workflows as the foundation for an internal developer platform."
 tags: ["Kubernetes", "CI/CD", "DevOps"]
-series: ["Mini PC Kubernetes"]
+series: ["Homelab Build Log"]
 ---
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-secrets/), we installed HashiCorp Vault to build a secure secrets management system. This post covers installing and configuring three core components needed to build a CI/CD pipeline: Harbor container registry, Argo Events, and Argo Workflows.
+In the [previous post](/posts/homelab-k8s-secrets/), we installed HashiCorp Vault to build a secure secrets management system. This post covers the foundational pieces I set up before the internal developer platform itself: Harbor container registry, Argo Events, and Argo Workflows.
 
-![CI/CD](image.png)
+![IDP foundations](image.png)
 
-## CI/CD System Components
+## Foundation Components for the IDP
 
-Building a complete CI/CD pipeline in a homelab environment requires the following core components:
+For the IDP I had in mind, I first needed the following core components:
 
 - **Container Registry**: A central repository for storing and distributing built container images, enabling self-management of images without depending on public registries like Docker Hub.
 - **Event Processing System**: Responsible for detecting various events such as code changes in Git repositories and webhook receipts, and triggering subsequent tasks in response.
 - **Workflow Engine**: An engine for defining and executing actual CI/CD tasks such as code building, test execution, and container image creation.
 - **GitOps Deployment System**: A system that automatically synchronizes the desired state defined in Git repositories to the cluster. ArgoCD, which was installed in an earlier post in this series, handles this role.
 
-In this post, we implement the container registry, event processing system, and workflow engine using Harbor, Argo Events, and Argo Workflows respectively. In the next post, we integrate these with ArgoCD to complete a full CI/CD pipeline.
+In this post, I set up the container registry, event processing system, and workflow engine using Harbor, Argo Events, and Argo Workflows. In the next post, I connect these pieces to ArgoCD and the project template structure so they start to behave like an actual IDP.
 
 ## Installing Harbor
 
@@ -30,7 +30,7 @@ In this post, we implement the container registry, event processing system, and 
 >
 > Harbor is a graduated project of the CNCF (Cloud Native Computing Foundation). It is an open-source container registry that started at VMware and was donated to CNCF in 2018. Beyond basic image storage functionality like Docker Hub, it provides enterprise-grade features including RBAC (Role-Based Access Control), vulnerability scanning, image signing, and replication policies, offering a complete solution for securely managing container images in private environments.
 
-The reason for choosing Harbor is to build a completely self-hosted CI/CD environment without depending on public registries. Harbor's vulnerability scanning and access control features are useful for enhancing security even in homelab environments.
+I chose Harbor because I wanted to run the image registry for the platform myself instead of depending on a public registry. Its vulnerability scanning and access control features also fit well with the kind of homelab environment I was trying to build.
 
 ### Harbor Helm Chart Configuration
 
@@ -443,7 +443,7 @@ You can check the workflow execution results in the Argo Workflows UI.
 
 ## Next Steps
 
-The three components installed in this post formed the base of the CI/CD pipeline I wanted, but there was still more to wire together before it behaved like a full pipeline:
+The three components installed in this post formed the base of the IDP, but there was still more to wire together before it became something a developer could actually use comfortably:
 
 - **Sensor Configuration**: Create Sensors that filter events received from EventSource and trigger Argo Workflows.
 - **Workflow Templates**: Write reusable workflow templates that perform tasks such as application building, container image creation, and Harbor push.
@@ -451,8 +451,8 @@ The three components installed in this post formed the base of the CI/CD pipelin
 
 ## Conclusion
 
-This post covered installing and completing basic configuration of Harbor container registry, Argo Events event processing system, and Argo Workflows workflow engine, the core components of a CI/CD pipeline, on a homelab Kubernetes cluster.
+This post covered setting up Harbor container registry, Argo Events, and Argo Workflows as the foundation of the IDP in the homelab Kubernetes cluster.
 
-The next post covers connecting these components with Sensors and workflow templates and integrating them with ArgoCD to build a complete CI/CD pipeline.
+The next post covers connecting these components with Sensors and workflow templates, then integrating them with ArgoCD so the overall structure starts to look like a usable IDP.
 
-[Next Post: Mini PC Kubernetes #8: Building IDP (2)](/posts/homelab-k8s-cicd-2/)
+[Next Post: Homelab Build Log #8: Building IDP (2)](/posts/homelab-k8s-idp-2/)

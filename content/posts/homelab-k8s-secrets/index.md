@@ -1,10 +1,10 @@
 ---
-title: "미니PC Kubernetes #6: Vault 시크릿 관리"
+title: "홈랩 구축기 #6: Vault 시크릿 관리"
 date: 2025-02-26T16:20:14+09:00
 draft: false
 description: "HashiCorp Vault를 사용한 쿠버네티스 시크릿 관리 방법을 다룬다."
 tags: ["Kubernetes", "보안", "Vault"]
-series: ["미니PC Kubernetes"]
+series: ["홈랩 구축기"]
 ---
 
 ## 개요
@@ -683,6 +683,6 @@ ArgoCD에서 애플리케이션을 생성할 때 "argocd-vault-plugin-helm"을 C
 
 이번 글에서는 내 홈랩 쿠버네티스 클러스터에 HashiCorp Vault를 올리고, 두 가지 방식으로 시크릿을 연결해본 과정을 정리했다. Vault Secrets Operator는 기존 애플리케이션 코드를 거의 건드리지 않고 붙이기 좋았고, ArgoCD Vault Plugin은 GitOps 흐름을 유지하면서 Git에 민감한 값을 남기지 않는다는 점이 인상적이었다.
 
-다음 글에서는 Harbor, Argo Events, Argo Workflows를 설치하여 CI/CD 파이프라인의 기반을 구축하는 방법을 알아본다.
+다음 글에서는 Harbor, Argo Events, Argo Workflows를 설치하여 IDP의 기반 구성을 정리한다.
 
-[다음 글: 미니PC Kubernetes #7: IDP 구축 (1)](/posts/homelab-k8s-cicd-1/)
+[다음 글: 홈랩 구축기 #7: IDP 구축 기반 구성](/posts/homelab-k8s-idp-1/)
