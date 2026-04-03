@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-internal-services/), we installed the Traefik ingress controller and configured secure access to management interfaces by separating internal and external services. This post covers how to configure DDNS and port forwarding to enable external internet access to services running in the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-build-log-4-internal-services/), we installed the Traefik ingress controller and configured secure access to management interfaces by separating internal and external services. This post covers how to configure DDNS and port forwarding to enable external internet access to services running in the homelab Kubernetes cluster.
 
 ## Network Architecture Summary
 
@@ -384,4 +384,4 @@ This post covered how I set up DDNS and port forwarding to expose services from 
 
 The next post will cover installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
 
-[Next Post: Homelab Build Log #6: Vault Secrets Management](/posts/homelab-k8s-secrets/)
+[Next Post: Homelab Build Log #6: Vault Secrets Management](/posts/homelab-build-log-6-vault-secrets-management/)

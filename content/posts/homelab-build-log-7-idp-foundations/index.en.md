@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-secrets/), we installed HashiCorp Vault to build a secure secrets management system. This post covers the foundational pieces I set up before the internal developer platform itself: Harbor container registry, Argo Events, and Argo Workflows.
+In the [previous post](/posts/homelab-build-log-6-vault-secrets-management/), we installed HashiCorp Vault to build a secure secrets management system. This post covers the foundational pieces I set up before the internal developer platform itself: Harbor container registry, Argo Events, and Argo Workflows.
 
 ![IDP foundations](image.png)
 
@@ -455,4 +455,4 @@ This post covered setting up Harbor container registry, Argo Events, and Argo Wo
 
 The next post covers connecting these components with Sensors and workflow templates, then integrating them with ArgoCD so the overall structure starts to look like a usable IDP.
 
-[Next Post: Homelab Build Log #8: Building IDP (2)](/posts/homelab-k8s-idp-2/)
+[Next Post: Homelab Build Log #8: Building IDP (2)](/posts/homelab-build-log-8-building-an-idp-part-2/)

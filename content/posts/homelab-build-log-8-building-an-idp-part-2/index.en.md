@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-idp-1/), I set up Harbor container registry, Argo Events, and Argo Workflows as the foundation of the IDP. This post covers integrating those components with ArgoCD and designing Helm chart-based project templates to turn them into an Internal Developer Platform (IDP) that can deploy projects from a single YAML file.
+In the [previous post](/posts/homelab-build-log-7-idp-foundations/), I set up Harbor container registry, Argo Events, and Argo Workflows as the foundation of the IDP. This post covers integrating those components with ArgoCD and designing Helm chart-based project templates to turn them into an Internal Developer Platform (IDP) that can deploy projects from a single YAML file.
 
 ![Internal Developer Platform Architecture](image.png)
 
@@ -709,4 +709,4 @@ This post covered how I built a small Internal Developer Platform (IDP) on top o
 
 The next post covers installing Prometheus, Grafana, and Loki to build a monitoring setup that collects and visualizes cluster metrics and logs.
 
-[Next Post: Homelab Build Log #9: Prometheus Monitoring](/posts/homelab-k8s-monitoring/)
+[Next Post: Homelab Build Log #9: Prometheus Monitoring](/posts/homelab-build-log-9-prometheus-monitoring/)

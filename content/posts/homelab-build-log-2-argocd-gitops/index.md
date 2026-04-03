@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-setup/)에서는 Dell OptiPlex Micro를 활용하여 홈랩 쿠버네티스 클러스터를 구성하고 기본 설정을 완료했다. 이번 글에서는 클러스터의 모든 구성요소를 Git 저장소에서 선언적으로 관리하기 위해 GitOps 도구인 ArgoCD를 설치하고 App of Apps 패턴을 적용하여 확장 가능한 인프라 관리 체계를 구축하는 방법을 다룬다.
+[이전 글](/posts/homelab-build-log-1-mini-pc-kubernetes-cluster-setup/)에서는 Dell OptiPlex Micro를 활용하여 홈랩 쿠버네티스 클러스터를 구성하고 기본 설정을 완료했다. 이번 글에서는 클러스터의 모든 구성요소를 Git 저장소에서 선언적으로 관리하기 위해 GitOps 도구인 ArgoCD를 설치하고 App of Apps 패턴을 적용하여 확장 가능한 인프라 관리 체계를 구축하는 방법을 다룬다.
 
 ![GitOps 개념도](image.png)
 
@@ -383,4 +383,4 @@ spec:
 
 이번 글에서는 내 홈랩 쿠버네티스 클러스터에 ArgoCD를 올리고 App of Apps 패턴을 적용해 GitOps 기반의 인프라 관리 구조를 만들었다. 이 시점부터 클러스터 구성은 Git 저장소 중심으로 관리하게 되었고, 이후 글에서 다루는 스토리지, 네트워크, 모니터링도 모두 이 구조를 기반으로 구성했다.
 
-[다음 글: 홈랩 구축기 #3: Longhorn 스토리지](/posts/homelab-k8s-storage/)
+[다음 글: 홈랩 구축기 #3: Longhorn 스토리지](/posts/homelab-build-log-3-longhorn-storage/)

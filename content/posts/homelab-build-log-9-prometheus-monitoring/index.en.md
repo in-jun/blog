@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-idp-2/), I pulled together the overall IDP structure using Helm chart-based project templates and ArgoCD ApplicationSet. This post covers how I added Prometheus and Grafana for metrics, plus Loki for centralized log collection and analysis. Together, they form the monitoring stack for the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-build-log-8-building-an-idp-part-2/), I pulled together the overall IDP structure using Helm chart-based project templates and ArgoCD ApplicationSet. This post covers how I added Prometheus and Grafana for metrics, plus Loki for centralized log collection and analysis. Together, they form the monitoring stack for the homelab Kubernetes cluster.
 
 ![Grafana](image.png)
 

@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-external-access/), we configured DDNS and port forwarding to enable external internet access to services running in the homelab Kubernetes cluster. This post covers how to install and configure HashiCorp Vault to securely manage sensitive information like passwords, API keys, and certificates in the Kubernetes cluster.
+In the [previous post](/posts/homelab-build-log-5-external-access/), we configured DDNS and port forwarding to enable external internet access to services running in the homelab Kubernetes cluster. This post covers how to install and configure HashiCorp Vault to securely manage sensitive information like passwords, API keys, and certificates in the Kubernetes cluster.
 
 ![Vault Logo](image.png)
 
@@ -685,4 +685,4 @@ This post covered how I introduced HashiCorp Vault into the homelab Kubernetes c
 
 The next post covers installing Harbor, Argo Events, and Argo Workflows as the foundation of the IDP.
 
-[Next Post: Homelab Build Log #7: IDP Foundations](/posts/homelab-k8s-idp-1/)
+[Next Post: Homelab Build Log #7: IDP Foundations](/posts/homelab-build-log-7-idp-foundations/)

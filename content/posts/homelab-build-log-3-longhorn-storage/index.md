@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-gitops/)에서는 ArgoCD를 설치해 GitOps 환경을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터에 Longhorn 분산 스토리지를 설치하고 구성한 과정을 정리한다. 영구 스토리지가 필요한 이유와 여러 스토리지 솔루션을 검토하며 얻은 판단 기준도 함께 공유한다.
+[이전 글](/posts/homelab-build-log-2-argocd-gitops/)에서는 ArgoCD를 설치해 GitOps 환경을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터에 Longhorn 분산 스토리지를 설치하고 구성한 과정을 정리한다. 영구 스토리지가 필요한 이유와 여러 스토리지 솔루션을 검토하며 얻은 판단 기준도 함께 공유한다.
 
 ![Longhorn 로고](image.png)
 
@@ -313,4 +313,4 @@ kubectl delete -f test.yaml
 
 다음 글에서는 Traefik 인그레스 컨트롤러를 설치하고 내부 서비스에 접근할 수 있도록 구성하는 방법을 알아본다.
 
-[다음 글: 홈랩 구축기 #4: 내부 서비스 구성](/posts/homelab-k8s-internal-services/)
+[다음 글: 홈랩 구축기 #4: 내부 서비스 구성](/posts/homelab-build-log-4-internal-services/)

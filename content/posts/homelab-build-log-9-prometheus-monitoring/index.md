@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-idp-2/)에서는 Helm 차트 기반 프로젝트 템플릿과 ArgoCD ApplicationSet을 활용해 내부 개발자 플랫폼(IDP) 구조를 정리했다. 이번 글에서는 홈랩 쿠버네티스 클러스터를 모니터링하기 위해 Prometheus와 Grafana로 메트릭을 수집하고 시각화하는 방법, Loki로 로그를 중앙에서 수집하고 분석하는 방법을 정리한다.
+[이전 글](/posts/homelab-build-log-8-building-an-idp-part-2/)에서는 Helm 차트 기반 프로젝트 템플릿과 ArgoCD ApplicationSet을 활용해 내부 개발자 플랫폼(IDP) 구조를 정리했다. 이번 글에서는 홈랩 쿠버네티스 클러스터를 모니터링하기 위해 Prometheus와 Grafana로 메트릭을 수집하고 시각화하는 방법, Loki로 로그를 중앙에서 수집하고 분석하는 방법을 정리한다.
 
 ![Grafana](image.png)
 

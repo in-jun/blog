@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-internal-services/)에서는 Traefik 인그레스 컨트롤러를 설치하고 내부와 외부 서비스를 분리하여 관리 인터페이스에 안전하게 접근할 수 있도록 구성했다. 이번 글에서는 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 DDNS와 포트포워딩을 구성하는 방법을 알아본다.
+[이전 글](/posts/homelab-build-log-4-internal-services/)에서는 Traefik 인그레스 컨트롤러를 설치하고 내부와 외부 서비스를 분리하여 관리 인터페이스에 안전하게 접근할 수 있도록 구성했다. 이번 글에서는 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 DDNS와 포트포워딩을 구성하는 방법을 알아본다.
 
 ## 네트워크 아키텍처 요약
 
@@ -386,4 +386,4 @@ kubectl apply -f hello-world.yaml
 
 다음 글에서는 HashiCorp Vault를 설치하여 비밀번호, API 키 같은 민감한 정보를 안전하게 관리하는 방법을 알아본다.
 
-[다음 글: 홈랩 구축기 #6: Vault 시크릿 관리](/posts/homelab-k8s-secrets/)
+[다음 글: 홈랩 구축기 #6: Vault 시크릿 관리](/posts/homelab-build-log-6-vault-secrets-management/)

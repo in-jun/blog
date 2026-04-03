@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-gitops/), I set up a GitOps environment by installing ArgoCD. This post covers how I installed and configured the Longhorn distributed storage system in my homelab Kubernetes cluster, along with what I learned from comparing storage options and why persistent storage turned out to be necessary.
+In the [previous post](/posts/homelab-build-log-2-argocd-gitops/), I set up a GitOps environment by installing ArgoCD. This post covers how I installed and configured the Longhorn distributed storage system in my homelab Kubernetes cluster, along with what I learned from comparing storage options and why persistent storage turned out to be necessary.
 
 ![Longhorn Logo](image.png)
 
@@ -313,4 +313,4 @@ This post covered how I added Longhorn distributed storage to the homelab Kubern
 
 The next post covers installing the Traefik ingress controller and configuring access to internal services.
 
-[Next Post: Homelab Build Log #4: Internal Services](/posts/homelab-k8s-internal-services/)
+[Next Post: Homelab Build Log #4: Internal Services](/posts/homelab-build-log-4-internal-services/)

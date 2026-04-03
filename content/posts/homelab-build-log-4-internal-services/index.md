@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-storage/)에서는 Longhorn 분산 스토리지 시스템을 설치하여 파드가 재시작되거나 다른 노드로 이동해도 데이터가 유지되는 영구 스토리지 환경을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고, 내부 네트워크에서 관리 인터페이스에 안전하게 접근할 수 있도록 구성하는 방법을 알아본다.
+[이전 글](/posts/homelab-build-log-3-longhorn-storage/)에서는 Longhorn 분산 스토리지 시스템을 설치하여 파드가 재시작되거나 다른 노드로 이동해도 데이터가 유지되는 영구 스토리지 환경을 구축했다. 이번 글에서는 홈랩 쿠버네티스 클러스터에 Traefik 인그레스 컨트롤러를 설치하고, 내부 네트워크에서 관리 인터페이스에 안전하게 접근할 수 있도록 구성하는 방법을 알아본다.
 
 ![Traefik Logo](image.png)
 
@@ -375,4 +375,4 @@ C:\Windows\System32\drivers\etc\hosts
 
 다음 글에서는 외부용 로드밸런서를 활용하여 홈랩 서비스를 외부 인터넷에서 접근할 수 있도록 DDNS와 포트 포워딩을 구성하는 방법을 알아본다.
 
-[다음 글: 홈랩 구축기 #5: 외부 접근 설정](/posts/homelab-k8s-external-access/)
+[다음 글: 홈랩 구축기 #5: 외부 접근 설정](/posts/homelab-build-log-5-external-access/)

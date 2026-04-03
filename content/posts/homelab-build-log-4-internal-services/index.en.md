@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-storage/), we installed the Longhorn distributed storage system to build a persistent storage environment where data is retained even when pods restart or move to different nodes. This post covers installing the Traefik ingress controller on a homelab Kubernetes cluster and configuring secure access to management interfaces from the internal network.
+In the [previous post](/posts/homelab-build-log-3-longhorn-storage/), we installed the Longhorn distributed storage system to build a persistent storage environment where data is retained even when pods restart or move to different nodes. This post covers installing the Traefik ingress controller on a homelab Kubernetes cluster and configuring secure access to management interfaces from the internal network.
 
 ![Traefik Logo](image.png)
 
@@ -373,4 +373,4 @@ This post covered how I installed Traefik in the homelab Kubernetes cluster and 
 
 The next post covers configuring DDNS and port forwarding to make homelab services accessible from the external internet using the external load balancer.
 
-[Next Post: Homelab Build Log #5: External Access](/posts/homelab-k8s-external-access/)
+[Next Post: Homelab Build Log #5: External Access](/posts/homelab-build-log-5-external-access/)

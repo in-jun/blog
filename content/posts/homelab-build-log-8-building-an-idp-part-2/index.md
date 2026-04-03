@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-idp-1/)에서는 IDP의 기반이 되는 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치했다. 이번 글에서는 이 구성 요소들을 ArgoCD와 통합하고 Helm 차트 기반의 프로젝트 템플릿을 설계하여 YAML 파일 하나로 프로젝트를 배포할 수 있는 내부 개발 플랫폼(Internal Developer Platform, IDP) 구조를 정리한다.
+[이전 글](/posts/homelab-build-log-7-idp-foundations/)에서는 IDP의 기반이 되는 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치했다. 이번 글에서는 이 구성 요소들을 ArgoCD와 통합하고 Helm 차트 기반의 프로젝트 템플릿을 설계하여 YAML 파일 하나로 프로젝트를 배포할 수 있는 내부 개발 플랫폼(Internal Developer Platform, IDP) 구조를 정리한다.
 
 ![내부 개발 플랫폼 아키텍처](image.png)
 
@@ -709,4 +709,4 @@ GitHub 저장소에 코드를 푸시하면 CI 파이프라인이 트리거되어
 
 다음 글에서는 Prometheus, Grafana, Loki를 설치해 클러스터의 메트릭과 로그를 수집하고 시각화하는 모니터링 구성을 정리한다.
 
-[다음 글: 홈랩 구축기 #9: Prometheus 모니터링](/posts/homelab-k8s-monitoring/)
+[다음 글: 홈랩 구축기 #9: Prometheus 모니터링](/posts/homelab-build-log-9-prometheus-monitoring/)

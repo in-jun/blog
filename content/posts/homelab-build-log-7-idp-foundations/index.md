@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-secrets/)에서는 HashiCorp Vault를 설치하여 안전한 시크릿 관리 시스템을 구축했다. 이번 글에서는 내부 개발 플랫폼(IDP)을 만들기 전에 먼저 필요한 기반 구성 요소로 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 구성을 정리한다.
+[이전 글](/posts/homelab-build-log-6-vault-secrets-management/)에서는 HashiCorp Vault를 설치하여 안전한 시크릿 관리 시스템을 구축했다. 이번 글에서는 내부 개발 플랫폼(IDP)을 만들기 전에 먼저 필요한 기반 구성 요소로 Harbor 컨테이너 레지스트리, Argo Events, Argo Workflows를 설치하고 기본 구성을 정리한다.
 
 ![IDP 기반 구성](image.png)
 
@@ -455,4 +455,4 @@ Argo Workflows UI에서 워크플로우 실행 결과를 확인할 수 있다.
 
 다음 글에서는 이 구성 요소들을 Sensor와 워크플로우 템플릿으로 연결하고 ArgoCD와 통합해 실제 IDP 형태로 정리한다.
 
-[다음 글: 홈랩 구축기 #8: IDP 구축 (2)](/posts/homelab-k8s-idp-2/)
+[다음 글: 홈랩 구축기 #8: IDP 구축 (2)](/posts/homelab-build-log-8-building-an-idp-part-2/)

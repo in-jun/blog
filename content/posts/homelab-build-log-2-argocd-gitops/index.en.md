@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-setup/), we set up a homelab Kubernetes cluster using Dell OptiPlex Micro machines and completed the basic configuration. This post covers installing ArgoCD, a GitOps tool for declaratively managing all cluster components from a Git repository, and applying the App of Apps pattern to build a scalable infrastructure management system.
+In the [previous post](/posts/homelab-build-log-1-mini-pc-kubernetes-cluster-setup/), we set up a homelab Kubernetes cluster using Dell OptiPlex Micro machines and completed the basic configuration. This post covers installing ArgoCD, a GitOps tool for declaratively managing all cluster components from a Git repository, and applying the App of Apps pattern to build a scalable infrastructure management system.
 
 ![GitOps Concept Diagram](image.png)
 
@@ -383,4 +383,4 @@ From that point on, adding a new folder under `apps/` in the `k8s-resource` repo
 
 In this post, I installed ArgoCD on my homelab Kubernetes cluster and used the App of Apps pattern to put the GitOps workflow in place. From this point on, most of the cluster configuration lived in Git, and later pieces like storage, networking, and monitoring were all added on top of this structure.
 
-[Next Post: Homelab Build Log #3: Longhorn Storage](/posts/homelab-k8s-storage/)
+[Next Post: Homelab Build Log #3: Longhorn Storage](/posts/homelab-build-log-3-longhorn-storage/)

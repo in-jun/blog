@@ -9,7 +9,7 @@ series: ["홈랩 구축기"]
 
 ## 개요
 
-[이전 글](/posts/homelab-k8s-external-access/)에서는 DDNS와 포트포워딩을 구성하여 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 했다. 이번 글에서는 쿠버네티스 클러스터에서 비밀번호, API 키, 인증서 같은 민감한 정보를 안전하게 관리하기 위해 HashiCorp Vault를 설치하고 구성하는 방법을 알아본다.
+[이전 글](/posts/homelab-build-log-5-external-access/)에서는 DDNS와 포트포워딩을 구성하여 홈랩 쿠버네티스 클러스터의 서비스를 외부 인터넷에서 접근할 수 있도록 했다. 이번 글에서는 쿠버네티스 클러스터에서 비밀번호, API 키, 인증서 같은 민감한 정보를 안전하게 관리하기 위해 HashiCorp Vault를 설치하고 구성하는 방법을 알아본다.
 
 ![Vault Logo](image.png)
 
@@ -685,4 +685,4 @@ ArgoCD에서 애플리케이션을 생성할 때 "argocd-vault-plugin-helm"을 C
 
 다음 글에서는 Harbor, Argo Events, Argo Workflows를 설치하여 IDP의 기반 구성을 정리한다.
 
-[다음 글: 홈랩 구축기 #7: IDP 구축 기반 구성](/posts/homelab-k8s-idp-1/)
+[다음 글: 홈랩 구축기 #7: IDP 구축 기반 구성](/posts/homelab-build-log-7-idp-foundations/)

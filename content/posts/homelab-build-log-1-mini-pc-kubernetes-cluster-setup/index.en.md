@@ -51,7 +51,7 @@ Once the operating system was installed, I moved on to the network. In this clus
 
 The diagram above shows the configured network architecture, with one master node and four worker nodes connected through a switch and communicating with the external network through a router. Each node is assigned a static IP in the 192.168.0.x range.
 
-I covered the actual static IP setup in the [Ubuntu 24.04 LTS Static IP Configuration](/posts/ubuntu-2404-lts-set-static-ip/) post. In practice, using static IPs made the cluster much easier to manage because addresses would not shift when the router rebooted or DHCP leases changed.
+I covered the actual static IP setup in the [Ubuntu 24.04 LTS Static IP Configuration](/posts/setting-static-ip-on-ubuntu-24-04-lts/) post. In practice, using static IPs made the cluster much easier to manage because addresses would not shift when the router rebooted or DHCP leases changed.
 
 ## Kubernetes Installation
 
@@ -239,7 +239,7 @@ For example, if MetalLB assigns the virtual IP 192.168.0.200 to a service, anoth
 I covered ARP and NDP in more detail in the following posts:
 
 - [Complete Understanding of How ARP Protocol Works](/posts/how-arp-protocol-works/)
-- [Understanding IPv6 NDP (Neighbor Discovery Protocol)](/posts/understanding-ipv6-ndp/)
+- [Understanding IPv6 NDP (Neighbor Discovery Protocol)](/posts/understanding-ipv6-neighbor-discovery-protocol/)
 
 ## Conclusion
 
@@ -247,4 +247,4 @@ This post covered building a Kubernetes cluster consisting of 5 nodes using Dell
 
 The next post covers installing ArgoCD to manage Kubernetes resources using the GitOps approach.
 
-[Next Post: Homelab Build Log #2: ArgoCD GitOps](/posts/homelab-k8s-gitops/)
+[Next Post: Homelab Build Log #2: ArgoCD GitOps](/posts/homelab-build-log-2-argocd-gitops/)
