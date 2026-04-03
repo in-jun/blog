@@ -1,5 +1,5 @@
 ---
-title: "CI/CD 지속적 통합과 지속적 제공 배포"
+title: "CI/CD 지속적 통합 Continuous Delivery와 Continuous Deployment"
 date: 2024-06-10T17:14:26+09:00
 tags: ["CI/CD", "DevOps", "자동화"]
 description: "지속적 통합과 지속적 배포의 개념과 구현 방법을 다룬다."
