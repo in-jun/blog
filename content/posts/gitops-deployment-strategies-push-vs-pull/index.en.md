@@ -1,5 +1,5 @@
 ---
-title: "GitOps Deployment Strategies: Push vs. Pull"
+title: "GitOps Deployment Strategies Push vs. Pull"
 date: 2025-02-14T03:52:02+09:00
 tags: ["GitOps", "Kubernetes", "DevOps"]
 description: "Comparing push and pull deployment strategies in GitOps."

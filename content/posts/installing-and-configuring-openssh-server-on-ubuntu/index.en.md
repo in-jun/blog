@@ -1,5 +1,5 @@
 ---
-title: "Running OpenSSH Server on Ubuntu"
+title: "Installing and Configuring OpenSSH Server on Ubuntu"
 date: 2024-08-14T15:16:40+09:00
 tags: ["Linux", "Ubuntu", "SSH"]
 description: "Installing and configuring OpenSSH server on Ubuntu."

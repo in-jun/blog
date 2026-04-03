@@ -1,5 +1,5 @@
 ---
-title: "Vim 텍스트 에디터"
+title: "Vim 텍스트 에디터 튜토리얼"
 date: 2024-07-06T20:17:05+09:00
 tags: ["Vim", "Linux", "에디터"]
 description: "Vim 에디터의 기본 사용법과 주요 명령어를 설명한다."

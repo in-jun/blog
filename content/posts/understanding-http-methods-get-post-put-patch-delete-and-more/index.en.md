@@ -1,5 +1,5 @@
 ---
-title: "HTTP Methods: GET, POST, PUT, and DELETE Explained"
+title: "Understanding HTTP Methods GET, POST, PUT, PATCH, DELETE, and More"
 date: 2024-05-25T14:05:29+09:00
 tags: ["HTTP", "API", "Protocol"]
 draft: false

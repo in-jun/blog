@@ -1,5 +1,5 @@
 ---
-title: "Dirty Checking in JPA"
+title: "JPA Dirty Checking"
 date: 2024-06-08T02:47:28+09:00
 tags: ["JPA", "ORM", "Java"]
 description: "Change detection mechanism in JPA."

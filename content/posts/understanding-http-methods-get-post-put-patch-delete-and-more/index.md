@@ -1,5 +1,5 @@
 ---
-title: "HTTP 메서드 완전 정리: GET, POST, PUT, PATCH, DELETE 등"
+title: "HTTP 메서드 이해하기 GET, POST, PUT, PATCH, DELETE 등"
 date: 2024-05-25T14:05:29+09:00
 tags: ["HTTP", "API", "프로토콜"]
 draft: false

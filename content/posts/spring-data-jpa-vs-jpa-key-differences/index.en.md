@@ -1,5 +1,5 @@
 ---
-title: "Spring Data JPA vs. JPA: Key Differences"
+title: "Spring Data JPA vs. JPA Key Differences"
 date: 2024-06-07T04:14:51+09:00
 tags: ["Spring", "JPA", "ORM"]
 description: "Key differences between JPA and Spring Data JPA."

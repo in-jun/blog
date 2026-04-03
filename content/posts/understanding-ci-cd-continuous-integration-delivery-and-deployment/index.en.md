@@ -1,5 +1,5 @@
 ---
-title: "Understanding CI/CD: Continuous Integration and Delivery/Deployment"
+title: "Understanding CI/CD Continuous Integration, Delivery, and Deployment"
 date: 2024-06-10T17:14:26+09:00
 tags: ["CI/CD", "DevOps", "Automation"]
 description: "An overview of continuous integration and continuous delivery/deployment, including key concepts, tools, and implementation practices."
