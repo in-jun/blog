@@ -6,7 +6,7 @@ description: "Setting up single-node Kubernetes cluster on Ubuntu 24.04."
 draft: false
 ---
 
-Kubernetes is a container orchestration platform that Google open-sourced in 2014. It is now managed by CNCF (Cloud Native Computing Foundation) and has become the de facto standard for automating the deployment, scaling, and management of containerized applications. Production environments configure multi-node clusters for high availability, but single-node clusters are sufficient for development, testing, and learning purposes. This guide covers the entire process of building a single-node Kubernetes cluster using kubeadm on Ubuntu 24.04 LTS.
+Kubernetes is a container orchestration platform that Google open-sourced in 2014. It is now managed by CNCF (Cloud Native Computing Foundation) and has become the de facto standard for automating the deployment, scaling, and management of containerized applications. Production environments typically use multi-node clusters for high availability, but a single-node cluster is enough for development, testing, and learning. This guide walks through the full process of building a single-node Kubernetes cluster with kubeadm on Ubuntu 24.04 LTS.
 
 ## Kubernetes Architecture Overview
 
@@ -14,7 +14,7 @@ Kubernetes is a container orchestration platform that Google open-sourced in 201
 >
 > A Kubernetes cluster consists of a Control Plane and Worker Nodes. The control plane manages the cluster state, while worker nodes run actual container workloads.
 
-The Kubernetes control plane consists of components including the API server (kube-apiserver), scheduler (kube-scheduler), controller manager (kube-controller-manager), and etcd. On worker nodes, kubelet communicates with the container runtime to create and manage Pods. In a single-node cluster, one node performs both control plane and worker node roles, enabling resource-efficient learning and development environment configuration.
+The Kubernetes control plane consists of components including the API server (kube-apiserver), scheduler (kube-scheduler), controller manager (kube-controller-manager), and etcd. On worker nodes, kubelet communicates with the container runtime to create and manage Pods. In a single-node cluster, one node handles both control plane and worker roles, making it a resource-efficient setup for learning and development.
 
 ### Main Components
 
@@ -29,7 +29,7 @@ The Kubernetes control plane consists of components including the API server (ku
 
 ## Prerequisites
 
-Building a single-node Kubernetes cluster requires at least 2 CPU cores, 2GB RAM, and 20GB storage. An Ubuntu 24.04 LTS environment with root or sudo privileges and internet connectivity is needed. The same procedure applies whether building on virtual machines, cloud instances, or physical servers.
+Building a single-node Kubernetes cluster requires at least 2 CPU cores, 2GB RAM, and 20GB storage. You also need an Ubuntu 24.04 LTS environment, root or sudo privileges, and internet connectivity. The same procedure applies whether you build it on a virtual machine, cloud instance, or physical server.
 
 ### System Requirements
 
@@ -44,7 +44,7 @@ Building a single-node Kubernetes cluster requires at least 2 CPU cores, 2GB RAM
 
 ### Step 1: System Update and Essential Package Installation
 
-Update the system to the latest state and install packages required for HTTPS repository access.
+Bring the system up to date and install the packages required for HTTPS repository access.
 
 ```bash
 sudo apt-get update && sudo apt-get upgrade -y
@@ -149,11 +149,11 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-### Step 6: CNI Network Plugin Installation
+### Step 6: Install a CNI Network Plugin
 
 > **What is CNI (Container Network Interface)?**
 >
-> CNI is a standard interface for container network configuration. Plugins that implement Pod-to-Pod communication, service discovery, and network policies in Kubernetes implement this interface.
+> CNI is a standard interface for container network configuration. In Kubernetes, plugins for Pod-to-Pod communication, service discovery, and network policies are built around this interface.
 
 Various CNI plugins exist including Calico, Flannel, and Weave Net. Here we use Calico for its excellent network policy support and performance.
 
@@ -161,7 +161,7 @@ Various CNI plugins exist including Calico, Flannel, and Weave Net. Here we use 
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
 ```
 
-### Step 7: Complete Single-Node Setup
+### Step 7: Remove the Control Plane Taint
 
 By default, Kubernetes does not schedule general workloads on control plane nodes for security reasons. To run Pods on a single-node cluster, this restriction (taint) must be removed.
 
@@ -217,8 +217,8 @@ kubectl get services
 | **ImagePullBackOff** | Image download failure | Check network, verify image name |
 | **CrashLoopBackOff** | Container start failure | Check Pod logs: `kubectl logs <pod>` |
 
-If cluster reset is needed, initialize with `sudo kubeadm reset` and start over. In this case, contents of `/etc/cni/net.d/` directory and `$HOME/.kube/` directory should also be deleted for a clean reinstall.
+If you need to reset the cluster, run `sudo kubeadm reset` and start over. In that case, you should also delete the contents of the `/etc/cni/net.d/` and `$HOME/.kube/` directories for a clean reinstall.
 
 ## Conclusion
 
-This guide covered the process of building a single-node Kubernetes cluster using kubeadm on Ubuntu 24.04 LTS. Single-node clusters are suitable for Kubernetes learning, development environment configuration, and testing purposes. For production environments, a multi-node cluster with at least 3 control plane nodes and separate worker nodes is recommended for high availability.
+This guide covered the process of building a single-node Kubernetes cluster using kubeadm on Ubuntu 24.04 LTS. Single-node clusters are useful for learning Kubernetes, setting up development environments, and testing. For production environments, a multi-node cluster with at least 3 control plane nodes and separate worker nodes is recommended for high availability.

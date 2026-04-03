@@ -6,7 +6,7 @@ description: "Shortest path algorithm using priority queues and greedy approach.
 draft: false
 ---
 
-Dijkstra's algorithm is the quintessential algorithm for finding the shortest paths from a starting vertex to all other vertices in a weighted graph, invented by Dutch computer scientist Edsger Wybe Dijkstra in 1956 and still serving as a core component in numerous fields including network routing, GPS navigation, and game AI. The algorithm uses a greedy algorithm approach to make optimal choices at each step, and achieves an efficient time complexity of O(E log V) through priority queue implementation, making it practical for large-scale graphs.
+Dijkstra's algorithm is a fundamental method for finding the shortest paths from a starting vertex to all other vertices in a weighted graph. Invented by Dutch computer scientist Edsger Wybe Dijkstra in 1956, it remains a core tool in fields such as network routing, GPS navigation, and game AI. The algorithm uses a greedy approach to make the best choice at each step, and with a priority queue it runs in O(E log V), making it practical for large-scale graphs.
 
 ## History of Dijkstra's Algorithm
 
@@ -14,29 +14,29 @@ Dijkstra's algorithm is the quintessential algorithm for finding the shortest pa
 >
 > An algorithm that finds the shortest paths from a single starting vertex to all other vertices in a weighted graph, with the constraint that all edge weights must be non-negative.
 
-Dijkstra's algorithm was born in Amsterdam, Netherlands in 1956, when 26-year-old Edsger W. Dijkstra reportedly conceived the algorithm in approximately 20 minutes while taking a break at an Amsterdam cafe with his fiancée. At the time, Dijkstra was working as a programmer for the ARMAC, an early computer at the Mathematical Centre (Mathematisch Centrum), and while searching for a problem that non-expert audiences could understand for a demonstration of the new computer, he chose the problem of finding the shortest route between two cities.
+Dijkstra's algorithm was born in Amsterdam, Netherlands, in 1956, when 26-year-old Edsger W. Dijkstra reportedly conceived it in about 20 minutes while taking a break at an Amsterdam cafe with his fiancée. At the time, Dijkstra was working with the ARMAC, an early computer at the Mathematical Centre (Mathematisch Centrum). While looking for a problem that non-expert audiences could easily understand in a demonstration of the new machine, he chose the task of finding the shortest route between two cities.
 
-Interestingly, Dijkstra later revealed in an interview that he designed this algorithm entirely in his head without using pen and paper, explaining that "one of the advantages of not using pen and paper is that you are almost forced to avoid unnecessary complexity." The algorithm was published in 1959 in the journal Numerische Mathematik under the title "A Note on Two Problems in Connexion with Graphs," and although this paper was only 3 pages long, it is regarded as one of the most influential papers in computer science history.
+Interestingly, Dijkstra later revealed in an interview that he designed this algorithm entirely in his head without writing anything down, explaining that "one of the advantages of not using pen and paper is that you are almost forced to avoid unnecessary complexity." The algorithm was published in 1959 in the journal Numerische Mathematik under the title "A Note on Two Problems in Connexion with Graphs," and although the paper was only 3 pages long, it is regarded as one of the most influential papers in computer science history.
 
-Dijkstra went on to make pioneering contributions in various areas of computer science including structured programming, the THE operating system, and the semaphore concept. He received the Turing Award in 1972 for "fundamental contributions to programming languages" and continued to make tremendous contributions to the advancement of computer science until his passing in 2002.
+Dijkstra went on to make pioneering contributions in various areas of computer science, including structured programming, the THE operating system, and the semaphore concept. He received the Turing Award in 1972 for "fundamental contributions to programming languages" and continued to shape the field until his passing in 2002.
 
 ## How the Algorithm Works
 
-Dijkstra's algorithm uses a greedy algorithm approach, repeatedly selecting the vertex with the shortest distance from the starting vertex among currently discovered vertices and updating the paths to other vertices through this selected vertex.
+Dijkstra's algorithm uses a greedy approach, repeatedly selecting the currently discovered vertex with the shortest distance from the starting vertex and updating the paths to other vertices through it.
 
 ### Core Principle: Optimal Substructure
 
-The correctness of Dijkstra's algorithm is based on the optimal substructure property of the shortest path problem, which states that "if the shortest path from A to C passes through B, then the sub-path from A to B must also be the shortest path from A to B." Additionally, under the premise that all edge weights are non-negative, it is mathematically proven that once a vertex's shortest distance is finalized, it never changes. This property justifies the algorithm's greedy approach.
+The correctness of Dijkstra's algorithm is based on the optimal substructure property of the shortest path problem, which states that "if the shortest path from A to C passes through B, then the sub-path from A to B must also be the shortest path from A to B." Additionally, assuming all edge weights are non-negative, it is mathematically proven that once a vertex's shortest distance is finalized, it never changes. This property justifies the algorithm's greedy approach.
 
 ### Algorithm Execution Steps
 
 **Step 1: Initialization**
 
-Create an array to store the distance from the starting vertex to each vertex and initialize all values to infinity (INF), set only the starting vertex's distance to 0, and insert the starting vertex into the priority queue as a (distance 0, starting vertex) pair.
+Create an array to store the distance from the starting vertex to each vertex and initialize all values to infinity (INF). Then set only the starting vertex's distance to 0 and insert the starting vertex into the priority queue as a (distance 0, starting vertex) pair.
 
 **Step 2: Select Minimum Distance Vertex**
 
-Extract the vertex with the shortest distance from the priority queue. If this vertex has already been processed (the distance extracted from the queue is greater than the currently recorded distance), ignore it and select the next vertex.
+Extract the vertex with the shortest distance from the priority queue. If the distance taken from the queue is greater than the currently recorded distance, this entry is outdated, so ignore it and move on to the next vertex.
 
 **Step 3: Update Adjacent Vertex Distances (Relaxation)**
 
@@ -68,7 +68,7 @@ The efficiency of Dijkstra's algorithm largely depends on whether a priority que
 
 ### Min Heap-Based Priority Queue
 
-A priority queue is internally implemented as a Min Heap data structure, which is a complete binary tree where parent nodes always have smaller values than their child nodes. Since the smallest value is always at the root of the heap, checking the minimum value is possible in O(1), while insertion (push) and minimum value extraction (pop) operations are performed in O(log V), which is the height of the tree.
+A priority queue is internally implemented as a Min Heap data structure, which is a complete binary tree where parent nodes always have smaller values than their child nodes. Since the smallest value is always at the root of the heap, peeking at the minimum element is possible in O(1), while insertion (push) and minimum value extraction (pop) operations are performed in O(log V), which is the height of the tree.
 
 ### Time Complexity Analysis
 
@@ -162,7 +162,7 @@ Dijkstra's algorithm has an important constraint that all edge weights must be n
 
 ### Why It Fails with Negative Weights
 
-The core assumption of Dijkstra's algorithm is that "once a vertex's shortest distance is finalized, it never changes." When negative weights exist, a path through an already finalized vertex might later be discovered to be shorter, breaking this assumption.
+The core assumption of Dijkstra's algorithm is that "once a vertex's shortest distance is finalized, it never changes." When negative weights exist, a later path through an already finalized vertex can turn out to be shorter, breaking this assumption.
 
 **Counterexample**
 
@@ -190,7 +190,7 @@ For graphs with negative weights, the Bellman-Ford algorithm must be used. This 
 
 ## Real-World Applications
 
-Dijkstra's algorithm has not only theoretical value but is also widely used in the real world. It is a core technology behind many services we use daily.
+Dijkstra's algorithm appears directly in many systems people use every day. It is a core technology behind services ranging from routing infrastructure to map navigation.
 
 ### Network Routing Protocol (OSPF)
 
@@ -230,4 +230,4 @@ Besides Dijkstra's, several other algorithms solve the shortest path problem, ea
 
 ## Conclusion
 
-Dijkstra's algorithm was conceived by Edsger W. Dijkstra in just 20 minutes at an Amsterdam cafe in 1956. It efficiently finds the shortest paths from a starting vertex to all other vertices in a weighted graph using a greedy algorithm approach. Using a priority queue (Min Heap) achieves a time complexity of O(E log V), making it particularly efficient for sparse graphs. While it has the constraint that all edge weights must be non-negative, requiring the Bellman-Ford algorithm for negative weights, most real-world applications involve only non-negative weights, making Dijkstra's algorithm well-suited. It is used as a core component in numerous fields of modern computing including the OSPF routing protocol, GPS navigation, game AI pathfinding, and social network analysis, and is regarded as one of the most influential algorithms in computer science history.
+Dijkstra's algorithm was conceived by Edsger W. Dijkstra in just 20 minutes at an Amsterdam cafe in 1956. It efficiently finds the shortest paths from a starting vertex to all other vertices in a weighted graph using a greedy approach. With a priority queue (Min Heap), it achieves a time complexity of O(E log V), making it especially effective for sparse graphs. Its main limitation is that all edge weights must be non-negative. When negative weights are present, the Bellman-Ford algorithm is required instead. Because most real-world applications use non-negative weights, Dijkstra's algorithm remains a practical and widely used choice. It serves as a core component in many areas of modern computing, including the OSPF routing protocol, GPS navigation, game AI pathfinding, and social network analysis, and it is widely regarded as one of the most influential algorithms in computer science history.

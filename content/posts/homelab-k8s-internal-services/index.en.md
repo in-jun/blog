@@ -33,7 +33,7 @@ Initially, I installed the Nginx Ingress Controller, which is the most widely us
 >
 > Traefik is a cloud-native reverse proxy and load balancer that Containous (now Traefik Labs) began developing in 2015. It is optimized for microservices environments and Kubernetes, with built-in support for dynamic configuration changes and Let's Encrypt integration, making it widely used in container orchestration environments.
 
-Eventually, a more integrated solution was sought. Traefik was chosen because it provided all necessary features in a single package, with the following advantages:
+Eventually, I wanted a more integrated solution, so I chose Traefik because it provided all the features I needed in a single package:
 
 - **Configuration Simplicity**: The Let's Encrypt ACME protocol is built-in by default, enabling automatic certificate issuance and renewal without a separate cert-manager.
 - **Dashboard Functionality**: A built-in web dashboard allows visual monitoring of current routing status, service status, and middleware configuration.
@@ -43,7 +43,7 @@ Eventually, a more integrated solution was sought. Traefik was chosen because it
 
 ## Separating Internal and External Services
 
-Security is a critical consideration in homelab environments. If cluster management interfaces like ArgoCD, Longhorn dashboard, and Traefik dashboard are exposed to the external internet, they become directly exposed to security threats. To prevent this, a strategy of separating internal management services and external public services with different IP addresses is used.
+Security was one of my main concerns in the homelab. If I exposed cluster management interfaces like ArgoCD, the Longhorn dashboard, and the Traefik dashboard to the internet, I would be putting those tools directly in front of public traffic. To reduce that risk, I separated internal management services and external public services by assigning them different IP addresses.
 
 ![Network Separation](image-1.png)
 
@@ -57,7 +57,7 @@ This design implements separation at the service level. Even if a management int
 
 ### 1. Configuring MetalLB IP Address Pools
 
-Before deploying Traefik, I first carved out IP pools in MetalLB for internal and external separation. I stored the following files in the [GitHub repository](https://github.com/injunweb/k8s-resources).
+Before deploying Traefik, I first carved out IP pools in MetalLB for internal and external separation. I committed the following files to the [GitHub repository](https://github.com/injunweb/k8s-resources).
 
 `apps/traefik/templates/ipaddresspool.yaml` file:
 
@@ -106,7 +106,7 @@ dependencies:
       repository: "https://traefik.github.io/charts"
 ```
 
-This file defines fetching and installing the v33.2.1 chart from the official Traefik Helm chart repository.
+This file declares a dependency on v33.2.1 of the official Traefik Helm chart, so Helm fetches and installs it from the upstream repository.
 
 The `apps/traefik/values.yaml` file contains the settings I actually used for Traefik. The important parts are below.
 
@@ -164,7 +164,7 @@ certificatesResolvers:
             storage: /data/acme.json
 ```
 
-This configuration sets up automatic SSL/TLS certificate issuance and renewal using the Let's Encrypt ACME protocol. The HTTP-01 challenge method uses HTTP requests entering through the `web` entrypoint to prove control over the domain. Certificate issuance will work properly after external access configuration is completed, which will be covered in the next post.
+This configuration sets up automatic SSL/TLS certificate issuance and renewal using the Let's Encrypt ACME protocol. The HTTP-01 challenge method uses HTTP requests entering through the `web` entrypoint to prove control over the domain. Certificate issuance started working once I finished the external access configuration, which I cover in the next post.
 
 #### Internal/External Service Separation
 
@@ -188,8 +188,6 @@ This configuration creates two separate LoadBalancer services:
 
 1. **Default Service (traefik)**: Assigned IP address 192.168.0.201 to handle traffic for externally accessible public services.
 2. **Internal Service (traefik-internal)**: Assigned IP address 192.168.0.200 to handle traffic for management interfaces accessible only from the internal network.
-
-The `metallb.universe.tf/loadBalancerIPs` annotation instructs MetalLB to assign specific IP addresses to the respective services.
 
 #### Persistent Volume Configuration for Certificate Storage
 
@@ -222,7 +220,7 @@ podSecurityContext:
     runAsUser: 65532
 ```
 
-This configuration sets up a persistent volume for storing Let's Encrypt certificates using the Longhorn storage class. The init container sets appropriate permissions (600) and ownership on the ACME certificate file, allowing Traefik to securely store and manage certificates. Certificates are retained even when pods restart or move to different nodes.
+This configuration sets up a persistent volume for storing Let's Encrypt certificates using the Longhorn storage class. The init container sets appropriate permissions (600) and ownership on the ACME certificate file so Traefik can store and manage certificates safely, even when pods restart or move to different nodes.
 
 ### 3. Deploying with GitOps
 
@@ -261,7 +259,7 @@ traefik-internal   LoadBalancer   10.43.xxx.xxx   192.168.0.200   80:xxxxx/TCP,4
 
 ## Configuring Internal Service Access
 
-With Traefik in place, I added IngressRoutes for internal management interfaces like ArgoCD, Longhorn, and the Traefik dashboard. These routes use only the internal entrypoints (`intweb`, `intwebsec`).
+With Traefik in place, I added IngressRoutes for ArgoCD, Longhorn, and the Traefik dashboard. These routes use only the internal entrypoints (`intweb`, `intwebsec`).
 
 ### 1. Configuring Internal Service Routing
 
@@ -322,7 +320,7 @@ ingressRoute:
         entryPoints: ["intweb", "intwebsec"]
 ```
 
-This configuration enables access to Traefik's internal API service (`api@internal`) through the `traefik.injunweb.com/dashboard` path to use the dashboard.
+This configuration exposes Traefik's internal API service (`api@internal`) through the `traefik.injunweb.com/dashboard` path.
 
 I then added those manifests to the Git repository:
 
@@ -335,7 +333,7 @@ git push origin main
 
 ### 2. Local Hosts File Configuration
 
-On my workstation, I also updated the hosts file so I could reach those services by domain name.
+On my workstation, I also added those hostnames to the hosts file so I could reach the services by domain name.
 
 **Linux/macOS**:
 
@@ -349,19 +347,19 @@ sudo vim /etc/hosts
 C:\Windows\System32\drivers\etc\hosts
 ```
 
-Add the following line to the hosts file:
+I added the following line to the hosts file:
 
 ```
 192.168.0.200 traefik.injunweb.com argocd.injunweb.com longhorn.injunweb.com
 ```
 
-This configuration resolves the domain names to the internal load balancer IP (192.168.0.200), allowing direct access to internal services without going through a DNS server.
+This maps the domain names to the internal load balancer IP (192.168.0.200), which let me reach the internal services directly without relying on DNS.
 
 ## Testing Access
 
 Once everything was wired up, I checked that each service was actually reachable from inside the network.
 
-Access the following URLs in a web browser and verify that each service displays properly:
+I opened the following URLs in a web browser to verify that each service loaded properly:
 
 - `http://traefik.injunweb.com/dashboard/` - Traefik dashboard
 - `http://argocd.injunweb.com` - ArgoCD UI

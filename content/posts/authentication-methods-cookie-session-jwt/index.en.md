@@ -6,7 +6,7 @@ description: "Cookie, Session, and JWT-based web authentication with refresh tok
 draft: false
 ---
 
-Web Authentication is a core mechanism designed to solve the user identification problem arising from the stateless nature of the HTTP protocol. Since Lou Montulli of Netscape Communications invented cookies in 1994, authentication has evolved from session-based to token-based approaches. Modern web applications widely use hybrid methods combining JWT and Refresh Tokens to satisfy both security and scalability requirements.
+Web authentication solves a basic problem created by HTTP's stateless nature: how a server can recognize the same user across multiple requests. Since Lou Montulli of Netscape Communications invented cookies in 1994, authentication has evolved from session-based approaches to token-based ones. Modern web applications widely use hybrid methods that combine JWT and Refresh Tokens to meet both security and scalability requirements.
 
 ## Understanding Authentication and Authorization
 
@@ -41,13 +41,13 @@ These characteristics led to the development of various authentication mechanism
 
 > **What is a Cookie?**
 >
-> A cookie is a technology invented by Lou Montulli of Netscape in 1994 to implement web shopping carts. It is a small text data file of up to 4KB that the server sends to and stores on the client (browser). Cookies are automatically sent along with subsequent requests to the same server, enabling the maintenance of state information as a core web technology.
+> A cookie is a technology invented by Lou Montulli of Netscape in 1994 to implement web shopping carts. It is a small text data file of up to 4KB that the server sends to the browser, which then stores it on the client. Cookies are automatically sent along with subsequent requests to the same server, enabling the maintenance of state information as a core web technology.
 
 ### How Cookies Work
 
 ![Cookie Authentication Flow](cookie-flow.png)
 
-The cookie-based authentication flow begins when a user submits login information, after which the server verifies the credentials and generates a Set-Cookie header to send to the client, causing the browser to store this cookie locally. On subsequent requests, the browser automatically includes the stored cookie in request headers, allowing the server to identify the user.
+In cookie-based authentication, the flow starts when a user submits login information and the server verifies the credentials. The server then sends a `Set-Cookie` header, which causes the browser to store the cookie locally. On subsequent requests, the browser automatically includes the stored cookie in the request headers, allowing the server to identify the user.
 
 ### Key Cookie Attributes
 
@@ -67,7 +67,7 @@ Using cookies alone for authentication is not recommended in modern web developm
 
 ![Session Authentication Flow](session-flow.png)
 
-Session-based authentication operates by having the server create a unique session after verifying user credentials, storing user information (such as user ID, username, and roles) in server-side storage, and sending only the session ID to the client via a cookie. When subsequent requests arrive, the server looks up the session ID in its storage to retrieve the associated user information. The session can be configured with a timeout period, after which the user must re-authenticate. Upon logout, the server invalidates the session, making the session ID unusable.
+In session-based authentication, the server creates a unique session after verifying the user's credentials. It stores user information such as the user ID, username, and roles in server-side storage, then sends only the session ID to the client through a cookie. When subsequent requests arrive, the server looks up the session ID in its storage to retrieve the associated user information. The session can be configured with a timeout period, after which the user must re-authenticate. Upon logout, the server invalidates the session, making the session ID unusable.
 
 ### Session Storage Options
 
@@ -115,7 +115,7 @@ The **Header** contains metadata about the token, including the signing algorith
 
 ![JWT Authentication Flow](jwt-flow.png)
 
-JWT authentication begins when a user logs in and the server validates credentials, then generates a JWT containing user claims signed with a secret key. The client stores this token and includes it in the Authorization header (as a Bearer token) with each subsequent request. The server validates the token by verifying the signature and checking expiration, then extracts user information from the payload without any database lookup. This stateless nature allows any server instance to validate the token independently.
+With JWT authentication, the server validates the user's credentials at login and generates a signed token containing user claims. The client stores this token and includes it in the Authorization header (as a Bearer token) with each subsequent request. The server validates the token by verifying the signature and checking expiration, then extracts user information from the payload without any database lookup. This stateless nature allows any server instance to validate the token independently.
 
 ### Advantages and Disadvantages of JWT
 
@@ -135,7 +135,7 @@ Essential security practices for JWT include using a sufficiently long secret ke
 
 > **What is a Refresh Token?**
 >
-> A Refresh Token is a long-lived token introduced to solve the user experience degradation caused by the short expiration time of Access Tokens. It allows users to obtain a new Access Token without logging in again when the Access Token expires. Officially defined in the OAuth 2.0 specification (RFC 6749), it is used as a core component of hybrid authentication that combines the security of sessions with the scalability of JWT.
+> A Refresh Token is a long-lived token introduced to reduce the user friction caused by short-lived Access Tokens. It allows users to obtain a new Access Token without logging in again when the Access Token expires. Officially defined in the OAuth 2.0 specification (RFC 6749), it is used as a core component of hybrid authentication that combines the security of sessions with the scalability of JWT.
 
 ### Comparison of Access Token and Refresh Token
 
@@ -152,7 +152,7 @@ Essential security practices for JWT include using a sufficiently long secret ke
 
 ![Refresh Token Flow](refresh-token-flow.png)
 
-The Refresh Token flow begins at login when the server issues both an Access Token (short-lived) and a Refresh Token (long-lived). The Access Token is used for API requests, while the Refresh Token is stored securely, typically in an HttpOnly cookie. When the Access Token expires and an API request returns a 401 error, the client sends the Refresh Token to a dedicated refresh endpoint. The server validates the Refresh Token against its stored records, and if valid, issues a new Access Token. Upon logout, the server deletes the stored Refresh Token, preventing further token refresh.
+The Refresh Token flow starts at login, when the server issues both an Access Token (short-lived) and a Refresh Token (long-lived). The Access Token is used for API requests, while the Refresh Token is stored securely, typically in an HttpOnly cookie. When the Access Token expires and an API request returns a 401 error, the client sends the Refresh Token to a dedicated refresh endpoint. The server validates the Refresh Token against its stored records and, if valid, issues a new Access Token. Upon logout, the server deletes the stored Refresh Token, preventing further token refresh.
 
 ### Refresh Token Storage and Security
 
@@ -185,7 +185,7 @@ The key security feature of RTR is token reuse detection. Each Refresh Token is 
 
 ### RTR Implementation Considerations
 
-When implementing RTR, several factors require attention. Network failure handling should include a retry allowance period when the token refresh response fails to reach the client. A grace period of a few seconds may be granted for the previous token to handle race conditions. Tokens issued from the same login session should be managed as a token family. Comprehensive audit logging should record all token issuance, refresh, and invalidation events for security monitoring.
+When implementing RTR, several factors require attention. Network failure handling should include a short retry window when the token refresh response fails to reach the client. A grace period of a few seconds may be granted for the previous token to handle race conditions. Tokens issued from the same login session should be managed as a token family. Comprehensive audit logging should record all token issuance, refresh, and invalidation events for security monitoring.
 
 ## Comprehensive Comparison of Authentication Methods
 
@@ -227,6 +227,6 @@ The recommended approach stores Access Tokens in memory (JavaScript variables) w
 
 ## Conclusion
 
-Web authentication methods have evolved from Cookies and Sessions to JWT, Refresh Tokens, and RTR, each with its own advantages and disadvantages. Cookies provide the foundation for client-side state maintenance, Sessions strengthen server-side security, and JWT provides stateless authentication and scalability in microservice environments. Refresh Tokens and RTR complement JWT's security vulnerabilities, enabling implementation of the hybrid authentication approach most recommended in practice.
+Web authentication methods have evolved from Cookies and Sessions to JWT, Refresh Tokens, and RTR, each with its own advantages and disadvantages. Cookies provide the foundation for client-side state maintenance, Sessions strengthen server-side security, and JWT provides stateless authentication and scalability in microservice environments. Refresh Tokens and RTR address JWT's security limitations, enabling the hybrid authentication approach most commonly recommended in practice.
 
 When selecting an authentication method, consider the service characteristics, security requirements, scalability needs, and development complexity comprehensively. Regardless of the method chosen, security best practices such as HTTPS usage, appropriate token expiration times, secure storage, and audit logging should be applied.

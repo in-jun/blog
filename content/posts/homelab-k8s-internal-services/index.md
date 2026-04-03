@@ -33,7 +33,7 @@ series: ["홈랩 구축기"]
 >
 > Traefik은 Containous(현재 Traefik Labs)에서 2015년에 개발을 시작한 클라우드 네이티브 리버스 프록시 및 로드밸런서로, 마이크로서비스 환경과 쿠버네티스에 최적화되어 있으며 동적 설정 변경과 Let's Encrypt 통합을 기본으로 지원하여 컨테이너 오케스트레이션 환경에서 널리 사용된다.
 
-결국 더 통합된 솔루션을 찾게 되었고, Traefik은 필요한 모든 기능이 단일 패키지로 제공되어 선택하게 되었으며 다음과 같은 장점이 있었다:
+결국 더 통합된 솔루션이 필요했고, Traefik은 필요한 기능을 단일 패키지로 제공해 선택하게 되었다. 선택 이유는 다음과 같았다:
 
 - **설정의 단순함**: Let's Encrypt ACME 프로토콜이 기본으로 내장되어 있어 별도의 cert-manager 없이 인증서 자동 발급과 갱신이 가능하다.
 - **대시보드 기능**: 현재 라우팅 상태, 서비스 상태, 미들웨어 구성 등을 시각적으로 확인할 수 있는 웹 대시보드가 내장되어 있다.
@@ -164,7 +164,7 @@ certificatesResolvers:
             storage: /data/acme.json
 ```
 
-이 설정은 Let's Encrypt ACME 프로토콜을 사용하여 SSL/TLS 인증서를 자동으로 발급하고 갱신하도록 구성하며, HTTP-01 챌린지 방식은 도메인에 대한 제어권을 증명하기 위해 `web` 엔트리포인트로 들어오는 HTTP 요청을 사용한다. 인증서 발급은 다음 글에서 다룰 외부 접근 설정이 완료된 이후에 정상적으로 동작한다.
+이 설정은 Let's Encrypt ACME 프로토콜을 사용하여 SSL/TLS 인증서를 자동으로 발급하고 갱신하도록 구성한다. HTTP-01 챌린지 방식은 도메인에 대한 제어권을 증명하기 위해 `web` 엔트리포인트로 들어오는 HTTP 요청을 사용한다. 인증서 발급은 다음 글에서 다룰 외부 접근 설정이 완료된 이후에 정상적으로 진행된다.
 
 #### 내부/외부 서비스 분리
 
@@ -222,7 +222,7 @@ podSecurityContext:
     runAsUser: 65532
 ```
 
-이 설정은 Let's Encrypt 인증서를 저장하기 위한 영구 볼륨을 Longhorn 스토리지 클래스를 사용하여 구성하며, 초기화 컨테이너(initContainer)가 ACME 인증서 파일에 적절한 권한(600)과 소유권을 설정하여 Traefik이 인증서를 안전하게 저장하고 관리할 수 있도록 한다. 파드가 재시작되거나 다른 노드로 이동해도 인증서가 유지된다.
+이 설정은 Let's Encrypt 인증서를 저장하기 위한 영구 볼륨을 Longhorn 스토리지 클래스로 구성한다. 초기화 컨테이너(initContainer)는 ACME 파일에 적절한 권한(600)과 소유권을 설정해 Traefik이 인증서를 안전하게 저장하고 관리할 수 있도록 한다. 파드가 재시작되거나 다른 노드로 이동해도 인증서는 유지된다.
 
 ### 3. GitOps로 배포하기
 
@@ -247,7 +247,7 @@ NAME                       READY   STATUS    RESTARTS   AGE
 traefik-5d7b9b4f6c-xtz89   1/1     Running   0          5m
 ```
 
-두 개의 LoadBalancer 서비스가 생성되었는지 확인한다:
+두 개의 LoadBalancer 서비스가 생성되었는지도 확인했다:
 
 ```bash
 kubectl get svc -n traefik
@@ -335,7 +335,7 @@ git push origin main
 
 ### 2. 로컬 호스트 파일 설정
 
-내 로컬 머신에서는 도메인으로 바로 붙기 위해 hosts 파일도 같이 수정했다.
+내 로컬 머신에서는 도메인으로 바로 접근하기 위해 hosts 파일도 함께 수정했다.
 
 **Linux/macOS**:
 
@@ -361,7 +361,7 @@ C:\Windows\System32\drivers\etc\hosts
 
 설정을 마친 뒤에는 내부 네트워크에서 실제 접근이 되는지 확인했다.
 
-웹 브라우저에서 다음 URL로 접속하여 각 서비스가 정상적으로 표시되는지 확인한다:
+웹 브라우저에서 다음 URL로 접속해 각 서비스가 정상적으로 표시되는지 확인했다:
 
 - `http://traefik.injunweb.com/dashboard/` - Traefik 대시보드
 - `http://argocd.injunweb.com` - ArgoCD UI

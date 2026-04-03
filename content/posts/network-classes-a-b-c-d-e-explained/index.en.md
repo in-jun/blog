@@ -8,9 +8,9 @@ draft: false
 
 ## What is Classful Addressing
 
-Classful Addressing is an IP address allocation method officially introduced in 1981 through the IETF's RFC 791 document alongside the IPv4 protocol. It was designed to efficiently distribute address space and minimize routing tables in the early Internet network. The system divides network sizes into 5 classes (A, B, C, D, E) based on the bit pattern of the first octet (8 bits) of the IP address, providing different sizes of network address space for each class.
+Classful Addressing is an IP address allocation method officially introduced in 1981 through the IETF's RFC 791 document alongside the IPv4 protocol. It was designed to efficiently distribute address space and keep routing tables small on the early Internet. The system divides addresses into 5 classes (A, B, C, D, E) based on the bit pattern of the first octet (8 bits) of the IP address, providing different sizes of network address space for each class.
 
-This system was designed in the early 1980s when the Internet was still small-scale, enabling clear distinctions between large organizations, medium enterprises, and small networks for address allocation. Each class had fixed lengths for network and host portions, allowing routers to immediately determine network boundaries by examining only the first byte of an IP address. However, as the Internet grew rapidly in the 1990s, the problem of inefficient address space usage became severe, leading to its replacement by CIDR (Classless Inter-Domain Routing) starting in 1993.
+This system was designed in the early 1980s when the Internet was still small, making it easy to distinguish between large, medium-sized, and small networks for address allocation. Each class had fixed lengths for the network and host portions, allowing routers to determine network boundaries immediately by examining only the first byte of an IP address. However, as the Internet grew rapidly in the 1990s, inefficient use of address space became a serious problem, leading to its replacement by CIDR (Classless Inter-Domain Routing) starting in 1993.
 
 ## Basic Structure of IP Addresses
 
@@ -43,7 +43,7 @@ Note that 0.x.x.x and 127.x.x.x are reserved for special purposes. 0.0.0.0 repre
 
 ![Class Structure Comparison](class-structure.png)
 
-Class A provides the largest network address space. In the early Internet, it was allocated only to a very small number of large organizations and government agencies such as MIT, IBM, HP, AT&T, Apple, the U.S. Department of Defense (DoD), and Ford Motor Company. It uses only the first 8 bits as the network portion and all remaining 24 bits as the host portion, allowing accommodation of over 16 million hosts within a single network.
+Class A provides the largest network address space. In the early Internet, it was allocated only to a very small number of large organizations and government agencies such as MIT, IBM, HP, AT&T, Apple, the U.S. Department of Defense (DoD), and Ford Motor Company. It uses only the first 8 bits as the network portion and all remaining 24 bits as the host portion, allowing more than 16 million hosts within a single network.
 
 **Technical Characteristics**:
 - **First octet**: 1 ~ 126 (0xxxxxxx bit pattern)
@@ -106,7 +106,7 @@ Usable host range: 172.16.0.1 ~ 172.16.255.254
 
 ## Class C
 
-Class C was designed for small networks and was primarily allocated to small businesses, branch offices, and small organizations. It uses the first 24 bits as the network portion and only the last 8 bits as the host portion, accommodating only 254 hosts in a single network. However, the total number of networks exceeds 2 million, designed to provide address space to many small organizations.
+Class C was designed for small networks and was primarily allocated to small businesses, branch offices, and small organizations. It uses the first 24 bits as the network portion and only the last 8 bits as the host portion, accommodating only 254 hosts in a single network. However, the total number of available networks exceeds 2 million, which made it possible to provide address space to many small organizations.
 
 **Technical Characteristics**:
 - **First octet**: 192 ~ 223 (110xxxxx bit pattern)
@@ -163,7 +163,7 @@ Class D is an address space reserved for multicast communication. It is used whe
 
 ### Class E (Experimental/Reserved)
 
-Class E is address space reserved by IETF for experimental purposes and future use. It is not used in typical network environments, and most routers and operating systems are configured to filter or reject addresses in this range.
+Class E is an address space reserved by the IETF for experimental purposes and future use. It is not used in typical network environments, and most routers and operating systems are configured to filter or reject addresses in this range.
 
 **Technical Characteristics**:
 - **First octet**: 240 ~ 255 (1111xxxx bit pattern)
@@ -172,11 +172,11 @@ Class E is address space reserved by IETF for experimental purposes and future u
 - **Special address**: 255.255.255.255 is used as a limited broadcast address
 
 **Special Purpose of 255.255.255.255**:
-As a limited broadcast address, it is transmitted only to the local network segment and does not cross routers. DHCP clients use 255.255.255.255 as the destination address to find DHCP servers when they have not yet been assigned an IP address, transmitting DHCP Discover messages to all hosts on the same physical network.
+As a limited broadcast address, packets sent to it stay within the local network segment and do not cross routers. DHCP clients use 255.255.255.255 as the destination address to find DHCP servers when they have not yet been assigned an IP address, sending DHCP Discover messages to all hosts on the same physical network.
 
 ## Private Network Addresses (RFC 1918)
 
-Private IP address ranges officially defined through RFC 1918 in 1996 are address spaces reserved for free use in internal networks not directly connected to the Internet. They are non-routable on Internet routers and can communicate with the external Internet by being converted to public IP addresses through NAT (Network Address Translation).
+Private IP address ranges officially defined through RFC 1918 in 1996 are address spaces reserved for use within internal networks not directly connected to the Internet. They are non-routable on Internet routers and can communicate with the external Internet by being converted to public IP addresses through NAT (Network Address Translation).
 
 **Private Address Ranges by Class**:
 - **Class A**: 10.0.0.0 ~ 10.255.255.255 (10.0.0.0/8)
@@ -223,7 +223,7 @@ The classful addressing system was effective in the early 1980s small-scale Inte
 
 **Emergence and Advantages of CIDR**:
 
-CIDR, introduced in 1993 through IETF RFCs 1517, 1518, and 1519, eliminated the class concept and enabled network size adjustment in 1-bit units using Variable Length Subnet Masking (VLSM). This enabled efficient use of address space and greatly reduced routing table size through route aggregation. Currently, almost all Internet routing operates on a CIDR basis, but the concept of network classes still holds important meaning as a foundation for understanding the IP address system.
+CIDR, introduced in 1993 through IETF RFCs 1517, 1518, and 1519, eliminated the class concept and enabled network size adjustment in 1-bit units using Variable Length Subnet Masking (VLSM). This enabled efficient use of address space and greatly reduced routing table size through route aggregation. Currently, almost all Internet routing operates on a CIDR basis, but the concept of network classes still remains important as a foundation for understanding the IP address system.
 
 ## Modern Significance of Classful System
 
@@ -237,4 +237,4 @@ Although the classful addressing system was replaced by CIDR in 1993, it remains
 
 ## Conclusion
 
-The network class A, B, C, D, E system was an early IP address allocation method introduced in 1981 alongside IPv4. It aimed for efficient address distribution and routing by dividing address space into 5 classes according to network size. However, with the explosive growth of the Internet in the 1990s, problems of address space waste and routing table bloat became severe, leading to its replacement by CIDR in 1993. Although modern networks do not directly use class concepts, many concepts remain, including the distinction between network and host portions, private IP address ranges (RFC 1918), and multicast addresses (Class D). It plays an essential role in network learning as foundational knowledge for understanding IP address systems and subnetting.
+The network class A, B, C, D, E system was an early IP address allocation method introduced in 1981 alongside IPv4. It aimed to support efficient address distribution and routing by dividing address space into 5 classes according to network size. However, with the explosive growth of the Internet in the 1990s, address space waste and routing table bloat became serious problems, leading to its replacement by CIDR in 1993. Although modern networks no longer use class concepts directly, the underlying ideas remain important, including the distinction between network and host portions, private IP address ranges (RFC 1918), and multicast addresses (Class D). For that reason, the classful system still serves as foundational knowledge for understanding IP addressing and subnetting.

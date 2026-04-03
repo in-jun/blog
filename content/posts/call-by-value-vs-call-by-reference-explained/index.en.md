@@ -6,7 +6,7 @@ description: "Differences between call by value and call by reference parameter 
 draft: false
 ---
 
-Parameter passing mechanisms determine how arguments are passed when calling functions in programming languages. This core concept has been studied since the early programming language design era of the 1960s and continues to directly impact code behavior and performance in modern programming. Call by Value and Call by Reference are the two most fundamental passing methods. Understanding the advantages and disadvantages of each method enables writing more efficient and safer code.
+Parameter passing determines what a function receives when you call it. The choice affects program behavior, safety, and performance across languages. Call by Value and Call by Reference are the two most familiar models, and understanding how they differ helps you write code that is both safer and more efficient.
 
 ## Overview of Function Parameter Passing
 
@@ -16,7 +16,7 @@ Parameter passing mechanisms determine how arguments are passed when calling fun
 
 ### Historical Background
 
-The concept of parameter passing mechanisms evolved alongside programming language design in the 1960s. ALGOL 60 was one of the first languages to support both Call by Value and Call by Name. Most subsequent programming languages designed their parameter passing mechanisms based on these concepts.
+Parameter passing mechanisms evolved alongside programming language design in the 1960s. ALGOL 60 was one of the first languages to support both Call by Value and Call by Name. Many later languages built their parameter passing rules on top of these ideas.
 
 | Year | Language/Concept | Parameter Passing Method |
 |------|------------------|--------------------------|
@@ -109,15 +109,15 @@ Although a and b values were swapped inside the function, x and y in the main fu
 | Improved code predictability | Difficulty handling multiple return values |
 | Easier debugging | Requires additional handling when original modification needed |
 
-## Reference Passing Concepts
+## Call by Reference
 
-> **What is Reference Passing?**
+> **What is Call by Reference?**
 >
-> Reference passing is a general concept in which a function can access and modify the original variable instead of working on a copied value. Depending on the language, this may be implemented as true Call by Reference or simulated through pointers or addresses.
+> Call by Reference lets a function work with the caller's original variable instead of a copied value. In some languages this is supported directly, while in others it is simulated with pointers or addresses.
 
 ### Core Idea
 
-In reference-style passing, the function receives a way to reach the original variable rather than a separate copy. As a result, changes made inside the function can affect the caller's data.
+In Call by Reference and similar approaches, the function receives a way to reach the original variable rather than a separate copy. As a result, changes made inside the function can affect the caller's data.
 
 ```
 Memory state before call:
@@ -387,7 +387,7 @@ void process_safely(const LargeData &data) {
 
 ### Swap Function Implementation Comparison
 
-Examples of swap function implementations in various languages and methods demonstrate the differences in parameter passing.
+Comparing swap implementations across languages is a simple way to see how parameter passing differs in practice.
 
 **C (using pointers):**
 
@@ -421,7 +421,7 @@ x, y = swap(x, y)
 
 ### Array/Collection Handling
 
-When passing arrays or collections to functions, most languages pass references, so the original can be modified. Care must be taken.
+When passing arrays or collections to functions, behavior depends on the language and the object model. In many cases, a function can still mutate the original data, so it is worth being explicit about whether you want to share or copy it.
 
 ```python
 # Passing a list copy in Python
@@ -438,7 +438,7 @@ print(f"Modified: {modified}")  # [1, 2, 3, 4]
 
 ### Callback Functions and Closures
 
-When modifying external variables in callback functions, both parameter passing methods and closure characteristics must be considered.
+When a callback updates variables from an outer scope, parameter passing is only part of the story. Closure behavior also affects what state is shared and how updates are observed.
 
 ```javascript
 function createCounter() {
@@ -456,7 +456,7 @@ console.log(counter.getCount());  // 1
 
 ## Conclusion
 
-Parameter passing mechanisms are fundamental to programming yet require accurate understanding due to subtle differences across languages. Call by Value is a safe method that copies values to protect originals and prevent side effects. Call by Reference passes memory addresses to enable efficient data processing and original modification.
+Parameter passing is a basic programming concept, but the details vary enough across languages that it is easy to get wrong. Call by Value is generally safer because it works on copies and avoids side effects. Call by Reference works with the original data, which can be more efficient and more flexible when modification is required.
 
 C simulates reference passing through pointers. C++ provides language-level support through references. Java and Python use a Call by Sharing approach that passes the value of object references. Understanding the characteristics of each method and applying them appropriately enables writing more efficient and safer code.
 

@@ -168,7 +168,7 @@ On my local machine, I added the following hosts entry:
 192.168.0.200 harbor.injunweb.com
 ```
 
-Access `https://harbor.injunweb.com` in a web browser and log in with the `admin` account and the password stored in Vault. After logging in, create a new project and test image pushing from the Docker CLI:
+I accessed `https://harbor.injunweb.com` in a web browser and logged in with the `admin` account using the password stored in Vault. After logging in, I created a new project and tested image pushing from the Docker CLI:
 
 ```bash
 docker login harbor.injunweb.com -u admin -p <password>
@@ -215,7 +215,7 @@ dependencies:
       repository: "https://argoproj.github.io/argo-helm"
 ```
 
-The `values.yaml` file uses default settings, so create it empty:
+The `values.yaml` file uses the default settings, so I left it empty:
 
 ```yaml
 # Using default configuration
@@ -282,7 +282,7 @@ argo-workflows:
         authMode: "server"
 ```
 
-`authMode: server` is a setting that uses the Argo Workflows server's own authentication, allowing simple access in a homelab environment.
+`authMode: server` tells Argo Workflows to use the server's own authentication, which makes access simpler in a homelab environment.
 
 Create an IngressRoute for accessing the Argo Workflows UI as the `templates/ingressroute.yaml` file:
 
@@ -320,7 +320,7 @@ Check the deployment status:
 kubectl get pods -n argo-workflows
 ```
 
-On my workstation, I added the following hosts entry and used it to verify the Argo Workflows UI:
+On my workstation, I added the following hosts entry and then verified the Argo Workflows UI at that hostname:
 
 ```
 192.168.0.200 argo-workflows.injunweb.com
@@ -347,7 +347,7 @@ spec:
             auth: none
 ```
 
-This EventBus creates 3 NATS replicas to ensure high availability. Named `default`, EventSources and Sensors automatically use this EventBus without explicitly specifying it.
+This EventBus creates 3 NATS replicas to ensure high availability. Because it is named `default`, EventSources and Sensors automatically use it without explicitly specifying an EventBus.
 
 ### Creating GitHub EventSource
 
@@ -443,7 +443,7 @@ You can check the workflow execution results in the Argo Workflows UI.
 
 ## Next Steps
 
-The three components installed in this post formed the base of the IDP, but there was still more to wire together before it became something a developer could actually use comfortably:
+The three components installed in this post formed the base of the IDP, but there was still more to wire together before it became something developers could use easily:
 
 - **Sensor Configuration**: Create Sensors that filter events received from EventSource and trigger Argo Workflows.
 - **Workflow Templates**: Write reusable workflow templates that perform tasks such as application building, container image creation, and Harbor push.

@@ -6,7 +6,7 @@ description: "Shortest path algorithm for graphs with negative edge weights."
 draft: false
 ---
 
-The Bellman-Ford algorithm is an algorithm that finds the shortest paths from a single source vertex to all other vertices in a weighted graph. Independently discovered by Richard Bellman and Lester Ford Jr. in the 1950s, it has powerful characteristics that distinguish it from Dijkstra's algorithm: it can handle edges with negative weights and detect whether negative cycles exist in the graph. Using a dynamic programming approach with O(VE) time complexity, it is used as a core component in various real-world applications including network routing protocols, arbitrage detection in financial markets, and minimum cost flow problems.
+The Bellman-Ford algorithm finds the shortest paths from a single source vertex to all other vertices in a weighted graph. Independently discovered by Richard Bellman and Lester Ford Jr. in the 1950s, it stands out from Dijkstra's algorithm because it can handle negative edge weights and detect negative cycles in the graph. It uses a dynamic programming approach with O(VE) time complexity and serves as a core component in real-world applications such as network routing protocols, arbitrage detection in financial markets, and minimum cost flow problems.
 
 ## History of the Bellman-Ford Algorithm
 
@@ -16,11 +16,11 @@ The Bellman-Ford algorithm is an algorithm that finds the shortest paths from a 
 
 The Bellman-Ford algorithm was first proposed in 1956 by American mathematician Lester Randolph Ford Jr. in his research on the maximum flow problem. In 1958, Richard Ernest Bellman independently published the same algorithm in his research on dynamic programming. The algorithm was named after both researchers. Richard Bellman, as the founder of dynamic programming, proposed the "Bellman equation" and systematized the methodology for solving optimization problems by dividing them into smaller subproblems. The Bellman-Ford algorithm is regarded as a representative example of applying these dynamic programming principles to graph shortest path problems.
 
-Interestingly, Edward F. Moore described essentially the same algorithm in research published in 1957, so some literature refers to this algorithm as the "Bellman-Ford-Moore algorithm." This algorithm has had a profound impact on network flow theory and routing protocol development. It became the theoretical foundation for RIP (Routing Information Protocol), which was widely used as the early routing system of the Internet in the 1980s. Due to its characteristic of handling negative weights, it is also practically utilized in arbitrage detection in financial markets, currency exchange optimization, and various Operations Research problems.
+Interestingly, Edward F. Moore described essentially the same algorithm in research published in 1957, so some literature refers to it as the "Bellman-Ford-Moore algorithm." The algorithm has had a profound impact on network flow theory and routing protocol development. It became the theoretical foundation for RIP (Routing Information Protocol), which was widely used in early Internet routing in the 1980s. Because it can handle negative weights, it is also used in financial arbitrage detection, currency exchange optimization, and various operations research problems.
 
 ## How the Algorithm Works
 
-The core of the Bellman-Ford algorithm is repeating the edge relaxation operation V-1 times for all edges in the graph, utilizing the optimal substructure and overlapping subproblems properties of dynamic programming in this process.
+At its core, the Bellman-Ford algorithm repeats the edge relaxation operation V-1 times over all edges in the graph, relying on the dynamic programming properties of optimal substructure and overlapping subproblems.
 
 ### The Concept of Edge Relaxation
 
@@ -32,9 +32,9 @@ Edge relaxation is an operation that updates the distance when the path to v via
 
 ### Mathematical Basis for V-1 Iterations
 
-A simple path (one that does not contain cycles) in a graph can contain at most V-1 edges, because a path from the starting vertex to another vertex can pass through at most V-1 vertices when it does not visit the same vertex more than once. If a path contains V or more edges, by the pigeonhole principle, it must visit the same vertex more than once, forming a cycle. In general cycles (not negative cycles), there exists a shorter path with the cycle removed, so it cannot be the shortest path.
+A simple path, meaning one with no cycles, can contain at most V-1 edges. If a path contains V or more edges, the pigeonhole principle implies that some vertex must be visited more than once, which creates a cycle. For ordinary cycles, removing the cycle produces a shorter path, so such a path cannot be the shortest path.
 
-Therefore, in the first iteration, the shortest distances of vertices reachable with at most 1 edge from the starting vertex are correctly calculated. In the second iteration, the shortest distances of vertices reachable with at most 2 edges are calculated. After the i-th iteration, the shortest paths using at most i edges are determined. This is the core principle of dynamic programming: a bottom-up approach that progressively solves larger problems (shortest paths using more edges) using the solutions of smaller subproblems (shortest paths using fewer edges).
+Therefore, in the first iteration, the algorithm correctly computes the shortest distances to vertices reachable in at most one edge from the starting vertex. In the second iteration, it computes the shortest distances to vertices reachable in at most two edges. After the i-th iteration, the shortest paths that use at most i edges are determined. This reflects the core idea of dynamic programming: a bottom-up approach that solves larger problems using the solutions to smaller subproblems.
 
 ### Algorithm Execution Steps
 
@@ -222,11 +222,11 @@ The Bellman-Ford algorithm is essential in areas requiring negative weight handl
 
 ### Network Routing Protocol (RIP)
 
-RIP (Routing Information Protocol) is a distance vector routing protocol standardized as RFC 1058 in 1988, based on the Bellman-Ford algorithm. Each router periodically (typically every 30 seconds) exchanges its routing table with neighboring routers, and based on this information, runs a distributed version of the Bellman-Ford algorithm (Distributed Bellman-Ford) to calculate the shortest paths to all destinations in the network. RIP was widely used in the early routing systems of the Internet and is still utilized in small-scale networks today due to its simplicity.
+RIP (Routing Information Protocol) is a distance vector routing protocol standardized as RFC 1058 in 1988 and based on the Bellman-Ford algorithm. Each router periodically, typically every 30 seconds, exchanges its routing table with neighboring routers and then uses that information to run a distributed form of Bellman-Ford that calculates the shortest paths to all destinations in the network. RIP was widely used in early Internet routing and is still used in small-scale networks today because of its simplicity.
 
 ### Arbitrage Detection
 
-When modeling exchange rates between multiple currencies in financial markets as a graph, transforming exchange rate r to -log(r) converts the multiplication of the exchange process to addition. For example, if the product of exchange rates in the USD → EUR → JPY → USD exchange path is greater than 1, an arbitrage opportunity exists. After log transformation, this is expressed as a negative cycle. By detecting negative cycles with the Bellman-Ford algorithm, risk-free profit opportunities can be found. This is a technique actually used in high-frequency trading (HFT) systems.
+When modeling exchange rates between multiple currencies in financial markets as a graph, transforming an exchange rate r to -log(r) converts multiplication across exchanges into addition. For example, if the product of exchange rates along the USD → EUR → JPY → USD path is greater than 1, an arbitrage opportunity exists. After the log transformation, this appears as a negative cycle. By detecting negative cycles with the Bellman-Ford algorithm, such risk-free profit opportunities can be identified. This technique is used in high-frequency trading (HFT) systems.
 
 ### Minimum Cost Maximum Flow Problem
 
@@ -261,4 +261,4 @@ SPFA is an optimized variant of the Bellman-Ford algorithm, proposed by Duan Fan
 
 ## Conclusion
 
-The Bellman-Ford algorithm was independently discovered by Richard Bellman and Lester Ford Jr. in the 1950s and is a representative example of applying dynamic programming principles to graph shortest path problems. While generally slower than Dijkstra's algorithm with O(VE) time complexity, it has powerful characteristics: it can correctly handle edges with negative weights and detect the presence of negative cycles in graphs. It plays a core role in various real-world applications including RIP routing protocol, arbitrage detection in financial markets, minimum cost flow problems, and systems of difference constraints. In certain problem domains, it is an irreplaceable and essential algorithm.
+The Bellman-Ford algorithm was independently discovered by Richard Bellman and Lester Ford Jr. in the 1950s and is a representative example of applying dynamic programming principles to graph shortest path problems. While it is generally slower than Dijkstra's algorithm because of its O(VE) time complexity, it has two important strengths: it can correctly handle negative edge weights and detect negative cycles in graphs. It plays a core role in applications such as the RIP routing protocol, arbitrage detection in financial markets, minimum cost flow problems, and systems of difference constraints. In problem domains that require those capabilities, it remains an essential algorithm.

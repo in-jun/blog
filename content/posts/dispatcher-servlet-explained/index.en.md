@@ -1,14 +1,14 @@
 ---
-title: "Spring MVC Dispatcher Servlet"
+title: "Spring MVC DispatcherServlet"
 date: 2024-06-05T08:14:35+09:00
 tags: ["Spring", "Java", "MVC"]
 description: "Front controller pattern implementation in Spring MVC."
 draft: false
 ---
 
-## What is the Dispatcher Servlet?
+## What Is DispatcherServlet?
 
-The Dispatcher Servlet is the core component of Spring MVC that implements the Front Controller pattern. It receives all HTTP requests from clients at a single entry point, delegates them to the appropriate controllers, and renders the results returned by controllers into views for responses. Only one Dispatcher Servlet exists in a web application. It handles all requests centrally, enabling efficient management of common logic and allowing developers to focus on business logic.
+DispatcherServlet is the core component of Spring MVC that implements the Front Controller pattern. It receives HTTP requests at a single entry point, delegates them to the appropriate controllers, and renders the results into views for the response. This centralizes common logic and lets developers focus on business logic.
 
 ## History and Evolution of DispatcherServlet
 
@@ -24,7 +24,7 @@ DispatcherServlet goes through the following seven-stage processing flow from re
 
 ### Stage 1: Receiving HTTP Request
 
-When a client sends an HTTP request, the servlet container (Tomcat, Jetty, etc.) receives it and calls the `doService()` method of DispatcherServlet. At this point, request information (URL, HTTP method, headers, parameters) is passed in the `HttpServletRequest` object. DispatcherServlet performs preparation work to process this request.
+When a client sends an HTTP request, the servlet container (Tomcat, Jetty, etc.) receives it and calls the `doService()` method of DispatcherServlet. At this point, request information such as the URL, HTTP method, headers, and parameters is passed in the `HttpServletRequest` object. DispatcherServlet then prepares for further processing.
 
 ### Stage 2: Finding Handler via HandlerMapping
 
@@ -66,7 +66,7 @@ ViewResolver converts logical view names into actual view objects. `InternalReso
 
 ### HandlerExceptionResolver
 
-HandlerExceptionResolver is a strategy interface that handles exceptions occurring during handler execution. `ExceptionHandlerExceptionResolver` processes `@ExceptionHandler` annotations, `ResponseStatusExceptionResolver` processes `@ResponseStatus` annotations, and `DefaultHandlerExceptionResolver` converts Spring MVC's standard exceptions to HTTP status codes. Through this, consistent exception handling and custom error pages can be provided.
+HandlerExceptionResolver is a strategy interface that handles exceptions occurring during handler execution. `ExceptionHandlerExceptionResolver` processes `@ExceptionHandler` annotations, `ResponseStatusExceptionResolver` processes `@ResponseStatus` annotations, and `DefaultHandlerExceptionResolver` converts Spring MVC's standard exceptions to HTTP status codes. This enables consistent exception handling and custom error pages.
 
 ### MultipartResolver
 
@@ -74,15 +74,15 @@ MultipartResolver is a component that handles file upload requests (multipart/fo
 
 ### LocaleResolver
 
-LocaleResolver is a strategy interface that determines the client's locale (language and region information). `AcceptHeaderLocaleResolver` determines locale based on the HTTP Accept-Language header, `SessionLocaleResolver` uses locale stored in the session, and `CookieLocaleResolver` uses locale stored in cookies. Through this, internationalization (i18n) is supported to provide content in various languages.
+LocaleResolver is a strategy interface that determines the client's locale (language and region information). `AcceptHeaderLocaleResolver` determines locale based on the HTTP Accept-Language header, `SessionLocaleResolver` uses locale stored in the session, and `CookieLocaleResolver` uses locale stored in cookies. This supports internationalization (i18n) so content can be provided in multiple languages.
 
 ### ThemeResolver
 
 ThemeResolver provides functionality to dynamically switch web application themes (visual elements like CSS and images). `FixedThemeResolver` uses a fixed theme, `SessionThemeResolver` stores theme information in the session, and `CookieThemeResolver` stores theme information in cookies. Flexible UI customization is possible, such as users selecting preferred themes or administrators changing the entire theme.
 
-## Differences in Operation with @RestController
+## How @RestController Changes the Flow
 
-`@Controller` follows the traditional MVC pattern by returning ModelAndView and rendering HTML pages through ViewResolver. However, `@RestController` is an annotation combining `@Controller` and `@ResponseBody`, where the return value of methods is delivered directly to the HTTP response body rather than being a view name. At this time, `HttpMessageConverter` serializes Java objects into formats like JSON or XML. The most commonly used `MappingJackson2HttpMessageConverter` uses the Jackson library to convert objects to JSON, and `GsonHttpMessageConverter` uses the Gson library. The appropriate converter is automatically selected based on `Accept` and `Content-Type` headers, operating in a way optimized for RESTful API development.
+`@Controller` follows the traditional MVC pattern by returning ModelAndView and rendering HTML pages through ViewResolver. `@RestController`, however, combines `@Controller` and `@ResponseBody`, so method return values go directly to the HTTP response body instead of being treated as view names. In this case, `HttpMessageConverter` serializes Java objects into formats like JSON or XML. The most commonly used `MappingJackson2HttpMessageConverter` uses the Jackson library to convert objects to JSON, and `GsonHttpMessageConverter` uses the Gson library. The appropriate converter is automatically selected based on `Accept` and `Content-Type` headers, making this flow well suited to RESTful API development.
 
 ## DispatcherServlet Initialization Process
 
@@ -108,7 +108,7 @@ Several strategies can be used to optimize DispatcherServlet performance. Static
 
 ### Configuring the Dispatcher Servlet
 
-When using Spring Boot, the Dispatcher Servlet is automatically configured by default. However, you can also manually configure it if necessary. You can configure the Dispatcher Servlet by registering it as a bean in a `@Configuration` class.
+When using Spring Boot, DispatcherServlet is set up automatically. If needed, you can still register it manually as a bean in a `@Configuration` class.
 
 ```java
 @Configuration
@@ -126,4 +126,4 @@ By configuring it this way, you can set it to throw an exception when no handler
 
 ## Conclusion
 
-DispatcherServlet is a core component of Spring MVC that implements the Front Controller pattern to centrally handle all HTTP requests, providing a flexible and extensible architecture through strategy interfaces like HandlerMapping, HandlerAdapter, and ViewResolver. Since its emergence in 2004, it has continuously evolved through Servlet 3.0 support, Java configuration, and Spring Boot's auto-configuration. It supports both traditional MVC and RESTful API development through @Controller and @RestController, provides functionality like interceptors, exception handling, file uploads, and internationalization through various components and configuration options, and abstracts the complexity of the web layer to enable powerful web application development while allowing developers to focus on business logic.
+DispatcherServlet is the core of Spring MVC and the main entry point for handling web requests through the Front Controller pattern. Since its introduction in 2004, it has evolved alongside the Servlet API, Java-based configuration, and Spring Boot auto-configuration. By coordinating components such as HandlerMapping, HandlerAdapter, ViewResolver, and HttpMessageConverter, it supports both traditional MVC rendering and REST API development while hiding much of the web layer's underlying complexity.

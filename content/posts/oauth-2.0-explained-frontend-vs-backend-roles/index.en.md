@@ -91,7 +91,7 @@ PKCE uses a dynamically generated secret to link the authorization request to th
 
 ### Frontend Responsibilities
 
-The frontend is responsible for redirecting users to the Authorization Server's authorization page, generating and storing a state value for CSRF prevention, and, when using PKCE, generating and securely storing the `code_verifier`. After authorization is complete, it extracts the authorization code from the callback URL and passes it to the backend, while also verifying the state value to confirm response integrity. The frontend also needs to store any access tokens or session information received from the backend in an appropriate way.
+The frontend is responsible for redirecting users to the Authorization Server's authorization page, generating and storing a state value for CSRF prevention, and, when using PKCE, generating and securely storing the `code_verifier`. After authorization is complete, it extracts the authorization code from the callback URL and passes it to the backend, while also verifying the state value to confirm response integrity. If the backend returns access tokens or session information, the frontend must handle that data in an appropriate way.
 
 ### Backend Responsibilities
 
@@ -101,7 +101,7 @@ The backend handles the most security-sensitive operations in the OAuth flow, se
 
 ### Essential Security Measures
 
-Several security measures should always be followed when implementing OAuth 2.0. All communication must occur over HTTPS; using HTTP allows tokens and authorization codes to be intercepted on the network. The state parameter must be a cryptographically secure random value, stored in the session and verified on callback to prevent CSRF attacks. The redirect_uri must exactly match the pre-registered value, and wildcards should not be allowed to prevent open redirect vulnerabilities.
+OAuth 2.0 implementations should always follow a few core security measures. All communication must occur over HTTPS; using HTTP allows tokens and authorization codes to be intercepted on the network. The state parameter must be a cryptographically secure random value, stored in the session and verified on callback to prevent CSRF attacks. The redirect_uri must exactly match the pre-registered value, and wildcards should not be allowed to prevent open redirect vulnerabilities.
 
 ### Token Security
 

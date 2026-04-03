@@ -8,15 +8,15 @@ draft: false
 
 ## History and Background of Layered Architecture
 
-Layered Architecture is a design pattern established in 1990s enterprise application development to realize the Separation of Concerns principle. It was systematized in Martin Fowler's "Patterns of Enterprise Application Architecture" (2002). The traditional 3-layer architecture consists of Presentation Layer, Business Logic Layer, and Data Access Layer. Spring Framework has made this structure easily implementable through @Controller, @Service, and @Repository annotations, becoming the de facto standard for Java enterprise development.
+Layered architecture is a design pattern that emerged in 1990s enterprise application development to support the principle of separation of concerns. It was later systematized in Martin Fowler's "Patterns of Enterprise Application Architecture" (2002). The traditional three-layer architecture consists of the presentation layer, business logic layer, and data access layer. Spring Framework made this structure easy to implement through @Controller, @Service, and @Repository annotations, and it became the de facto standard for Java enterprise development.
 
-Applying layered architecture in Spring Boot restricts each layer to communicate only with adjacent layers, reducing coupling. It enables independent testing and replacement of each layer, making it easier for new developers to understand the codebase. Typically, Controller receives HTTP requests and calls Service, Service performs business logic and accesses data through Repository, and Repository communicates with the database to perform CRUD operations.
+In a Spring Boot application, layered architecture limits communication to adjacent layers, which helps reduce coupling. It also allows each layer to be tested or replaced independently, making the codebase easier for new developers to understand. Typically, a controller receives HTTP requests and calls a service, a service performs business logic and accesses data through a repository, and a repository communicates with the database to perform CRUD operations.
 
 ## Entity Design Principles
 
 ### Entity and Table Mapping
 
-Entity is a persistence object corresponding to a database table in JPA. It is declared with the @Entity annotation, table names are specified with @Table, and primary key generation strategies are defined with @Id and @GeneratedValue. Entity class names should be nouns representing tables. Field names use camelCase following Java naming conventions, which can be mapped to snake_case column names using @Column's name attribute. Entities should be designed as immutable as possible, minimizing setter usage and creating objects through constructors or static factory methods.
+An entity is a persistence object that corresponds to a database table in JPA. It is declared with the @Entity annotation, table names are specified with @Table, and primary key generation strategies are defined with @Id and @GeneratedValue. Entity class names should be nouns that represent tables. Field names use camelCase following Java naming conventions, which can be mapped to snake_case column names through @Column's name attribute. Entities should be designed to be as immutable as possible, minimizing setter usage and creating objects through constructors or static factory methods.
 
 ```java
 @Entity
@@ -58,7 +58,7 @@ JPA associations should use lazy loading (FetchType.LAZY) by default to prevent 
 
 ### Using Spring Data JPA
 
-Repository is the data access layer. Extending Spring Data JPA's JpaRepository automatically provides basic CRUD methods (save, findById, findAll, delete), and queries are auto-generated according to method naming rules. Declaring method names like findByUsername, findByEmailAndStatus, or existsByEmail causes Spring Data JPA to parse the method name and generate appropriate JPQL, requiring no separate implementation for simple queries.
+A repository is the data access layer. Extending Spring Data JPA's JpaRepository automatically provides basic CRUD methods (save, findById, findAll, delete), and queries are generated according to method naming rules. Declaring method names like findByUsername, findByEmailAndStatus, or existsByEmail causes Spring Data JPA to parse the method name and generate the appropriate JPQL, so simple queries require no separate implementation.
 
 ```java
 @Repository
@@ -77,13 +77,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 ### Handling Complex Queries
 
-Complex conditions or dynamic queries that are difficult to express with method name-based queries can be written directly in JPQL using @Query annotation or by using QueryDSL for type-safe queries. QueryDSL writes queries in Java code based on Q-type classes, enabling compile-time verification of syntax errors, utilizing IDE auto-completion, and easily writing dynamic queries that conditionally add where clauses.
+Complex conditions or dynamic queries that are difficult to express with method name-based queries can be written directly in JPQL with the @Query annotation or implemented with QueryDSL for type-safe queries. QueryDSL expresses queries in Java code based on Q-type classes, which allows compile-time checking, benefits from IDE auto-completion, and makes it easier to build dynamic queries with conditional where clauses.
 
 ## Service Layer
 
 ### Implementing Business Logic
 
-Service is the layer responsible for business logic, representing a use case or business transaction, performing domain logic by combining Repositories. Service classes are annotated with @Service, dependencies are received through constructor injection, and fields are declared final to ensure immutability. Business logic should be concentrated in Service rather than scattered across Controller or Repository for easier testing and maintenance.
+A service is the layer responsible for business logic. It usually represents a use case or business transaction and performs domain logic by coordinating repositories. Service classes are annotated with @Service, dependencies are received through constructor injection, and fields are declared final to ensure immutability. Business logic should be concentrated in the service layer rather than scattered across a controller or repository for easier testing and maintenance.
 
 ```java
 @Service
@@ -117,7 +117,7 @@ The @Transactional annotation wraps method execution in a transaction, ensuring 
 
 ### REST API Design
 
-Controller is the presentation layer that receives HTTP requests and returns responses. Using @RestController annotation causes all method return values to be serialized to JSON. URLs should be designed with resource nouns (/api/orders), actions expressed through HTTP methods (GET, POST, PUT, DELETE), appropriately utilizing path variables (@PathVariable), query parameters (@RequestParam), and request body (@RequestBody).
+A controller is the presentation layer that receives HTTP requests and returns responses. Using the @RestController annotation causes all method return values to be serialized to JSON. URLs should be designed around resource nouns (/api/orders), with actions expressed through HTTP methods (GET, POST, PUT, DELETE), and should use path variables (@PathVariable), query parameters (@RequestParam), and the request body (@RequestBody) appropriately.
 
 ```java
 @RestController
@@ -150,7 +150,7 @@ Using @Valid annotation with Bean Validation (JSR 380) allows declarative valida
 
 ### Separating Entity and DTO
 
-DTO (Data Transfer Object) is an object used for data transfer between layers or between client and server. Reasons to use DTOs instead of directly exposing Entities as API responses include preventing Entity changes from affecting API specifications, avoiding circular reference problems, and selectively including only necessary data in responses. Separating request DTOs and response DTOs allows independent management of input validation annotations and response serialization settings.
+A DTO (Data Transfer Object) is an object used to transfer data between layers or between the client and server. Using DTOs instead of directly exposing entities in API responses helps prevent entity changes from affecting the API specification, avoids circular reference problems, and allows responses to include only the necessary data. Separating request DTOs and response DTOs also allows input validation annotations and response serialization settings to be managed independently.
 
 ```java
 // Request DTO
@@ -190,7 +190,7 @@ public class OrderResponse {
 
 ### Global Exception Handling
 
-Using @ControllerAdvice and @ExceptionHandler allows handling exceptions occurring globally in the application in one place, maintaining consistent error response formats. Business exceptions are defined as custom exception classes extending RuntimeException, mapping HTTP status codes and error messages to deliver meaningful error information to clients.
+Using @ControllerAdvice and @ExceptionHandler makes it possible to handle application-wide exceptions in one place and keep error response formats consistent. Business exceptions are defined as custom exception classes that extend RuntimeException, mapping HTTP status codes and error messages to provide meaningful error information to clients.
 
 ```java
 @RestControllerAdvice
@@ -215,4 +215,4 @@ public class GlobalExceptionHandler {
 
 ## Conclusion
 
-Spring Boot applications are based on Controller-Service-Repository 3-layer architecture, clearly separating responsibilities of each layer to ensure testability, maintainability, and scalability. Entities utilize immutable design and static factory methods, associations default to lazy loading, and Repositories combine Spring Data JPA's method name-based queries with QueryDSL. The Service layer concentrates business logic and manages transaction boundaries, while Controllers design APIs following REST principles and perform input validation. Encapsulating Entities with DTOs ensures API specification stability, and providing consistent error responses through global exception handling is the key to developing robust Spring Boot applications.
+Spring Boot applications commonly use a controller-service-repository three-layer architecture to separate responsibilities and improve testability, maintainability, and scalability. Entities favor immutable design and static factory methods, associations default to lazy loading, and repositories combine Spring Data JPA's method name-based queries with QueryDSL. The service layer concentrates business logic and manages transaction boundaries, while controllers design APIs around REST principles and handle input validation. Using DTOs helps keep the API specification stable, and global exception handling helps maintain consistent error responses across the application.

@@ -1,5 +1,5 @@
 ---
-title: "ERD Entity Relationship Diagram"
+title: "Entity Relationship Diagram (ERD)"
 date: 2024-05-25T16:02:12+09:00
 draft: false
 tags: ["ERD", "Database", "Modeling"]
@@ -16,7 +16,7 @@ Entity-Relationship modeling was developed for database design by Peter Chen and
 
 Peter Chen (also known as Peter Pin-Shan Chen), currently a faculty member at Carnegie-Mellon University in Pittsburgh, is credited with developing ER modeling for database design in the 1970s. Before Chen's work, Charles Bachman and A.P.G. Brown were working with close predecessors of Chen's approach. Bachman developed a type of Data Structure Diagram named after him as the Bachman Diagram.
 
-The ER model was also named an ANSI standard. The year 2026 marks 50 years since Peter Chen's groundbreaking 1976 publication that introduced the Entity-Relationship model to the world of database design. Today it is commonly used for teaching students the basics of database structure.
+The ER model later became an ANSI standard. Decades after Peter Chen's groundbreaking 1976 publication introduced the Entity-Relationship model to database design, it is still widely used to teach the basics of database structure.
 
 ## Core Components of ERD
 
@@ -54,7 +54,7 @@ Crow's Foot (Information Engineering/IE) notation shows entities as boxes with a
 
 ![Crow's Foot Notation Example](image-2.png)
 
-Advantages include being compact, readable, widely supported in CASE tools, and easy to map to relational schemas. The most commonly used are IE and Barker.
+Advantages include being compact, readable, widely supported in CASE tools, and easy to map to relational schemas. Among Crow's Foot variants, IE and Barker are the most commonly used.
 
 ### IDEF1X Notation
 
@@ -64,9 +64,9 @@ For example, it uses primary keys, foreign keys, and unique identifiers to defin
 
 ### UML Notation
 
-UML notation is primarily used in software engineering. It incorporates a wider range of diagram types and focuses on object-oriented representation. It differs from Crow's Foot which is more specialized for database schema representation.
+UML notation is primarily used in software engineering. It supports a wider range of diagram types and focuses on object-oriented representation, whereas Crow's Foot is more specialized for database schema modeling.
 
-The main difference between UML and ER diagrams is that UML is a language used to create diagrams, whereas ERDs are a type of diagram.
+In other words, UML is a general-purpose modeling language, while ERD is a database-focused diagramming approach.
 
 ### Notation Selection Guide
 
@@ -78,7 +78,7 @@ IE notation or Crow's Foot notation is the most widely used notation in ERD. It 
 
 ### Entity Representation
 
-Entities are represented by rectangles. The entity name is written at the top of the rectangle. Attribute names are written inside the rectangle. You can write the attribute name and data type together. You can display constraints such as PK (Primary Key) and FK (Foreign Key).
+Entities are represented by rectangles. The entity name is written at the top of the rectangle, and attribute names are written inside it. The attribute name and data type can be shown together, along with constraints such as PK (Primary Key) and FK (Foreign Key).
 
 ### Relationship Representation
 
@@ -104,7 +104,7 @@ Cardinality indicates the maximum number of instances one entity can have with a
 
 ## Cardinality and Relationship Types
 
-Cardinality indicates what numerical relationship one entity has with another entity in the relationship between entities. It defines the maximum number of occurrences of the relationship. Cardinality indicates the maximum number of times an instance of one entity can relate to instances of another entity. This is a key element in defining relationships between tables in database design.
+Cardinality describes the numerical relationship between entities. It defines the maximum number of times an instance of one entity can relate to instances of another, making it a key element in database relationship design.
 
 ### 1:1 Relationship (One-to-One)
 
@@ -128,7 +128,7 @@ N:M relationships cannot be implemented directly in relational databases. They m
 
 ### Optionality
 
-Optionality indicates the minimum number of occurrences of the relationship. It indicates whether the relationship is mandatory or optional. A mandatory relationship means the relationship must exist. An optional relationship means the relationship may not exist.
+Optionality indicates the minimum number of occurrences in a relationship and whether that relationship is mandatory or optional. A mandatory relationship must exist, while an optional relationship may not.
 
 ## Strong Entities and Weak Entities
 
@@ -158,7 +158,7 @@ Normalization is a core principle for minimizing data redundancy and ensuring da
 
 ### Concurrent Application of Normalization and ERD
 
-It is difficult to separate the normalization process from the ER modeling process, so the two techniques should be used concurrently. Current best practices for 2025-2026 advocate for concurrent application of normalization principles during ERD development rather than treating them as separate sequential phases.
+It is difficult to separate the normalization process from the ER modeling process, so the two techniques should be used concurrently. Current best practices favor applying normalization principles during ERD development rather than treating them as separate sequential phases.
 
 ### Third Normal Form (3NF) Principles
 
@@ -204,7 +204,7 @@ ERDs should be continuously updated according to requirement changes. Track chan
 
 ## ERD Tool Comparison
 
-Various tools exist for creating ERDs, each with unique features and pricing policies. Comparing the most popular tools as of 2026 is as follows.
+Various tools exist for creating ERDs, each with unique features and pricing policies. A comparison of popular tools is as follows.
 
 ### dbdiagram.io
 
@@ -220,7 +220,7 @@ It is 100% free and open source. It supports online collaboration, allowing mult
 
 ### Lucidchart
 
-One of the most popular diagrams and chart editing packages that can help you create, customize, and import Entity Relationship Diagrams. It's an incredibly flexible tool, enabling you to model diagrams from scratch using templates, symbols, and notations.
+Lucidchart is a widely used diagramming tool for creating, customizing, and importing Entity Relationship Diagrams. It is highly flexible and lets teams build diagrams from scratch using templates, symbols, and notation libraries.
 
 There are plenty of collaboration options so you can work on the diagram with your teammates collectively. It provides real-time editing, version history, and broad template support.
 
@@ -230,7 +230,7 @@ However, the onboarding process is a bit overwhelming. The free plan is limited 
 
 A minimal, academic-focused ERD tool, good for students or quick one-off diagrams. It's a basic database modeling tool for creating Entity Relationship Diagrams, Relational Schemas, Star Schemas, and SQL DDL statements.
 
-It is free with no sign-up needed. It exports SQL and PNG. It is held in high regard in the industry. However, it has very basic visuals with no real collaboration and is not ideal for large schemas.
+It is free with no sign-up needed. It exports SQL and PNG. However, it offers only basic visuals, has no meaningful collaboration features, and is not ideal for large schemas.
 
 ### Tool Selection Guide
 
@@ -240,7 +240,7 @@ It is free with no sign-up needed. It exports SQL and PNG. It is held in high re
 
 ## Practical ERD Example
 
-When creating an actual ERD, you should start with requirement analysis and approach systematically. Taking an online shopping mall as an example, the process is as follows.
+When creating an actual ERD, start with requirement analysis and proceed systematically. Taking an online shopping mall as an example, the process is as follows.
 
 ### Step 1: Entity Identification
 
@@ -275,10 +275,10 @@ Use the selected ERD tool to create the diagram. Draw entities as rectangles and
 
 ## Conclusion
 
-ERD has been a core tool for database design for 50 years since Peter Chen published it at MIT in 1976. It visually represents complex data structures through three basic components: entities, attributes, and relationships.
+ERD has been a core tool for database design since Peter Chen published the model at MIT in 1976. It visually represents complex data structures through three basic components: entities, attributes, and relationships.
 
 Various notations exist including Chen, IE (Crow's Foot), IDEF1X, and UML, but in practice, the concise and intuitive IE (Crow's Foot) notation is most widely used. Relationships between entities are clearly defined through cardinality and optionality.
 
 The distinction between strong and weak entities, application of normalization principles, and use of clear naming conventions are key to high-quality ERD design. Various tools such as dbdiagram.io, Draw.io, Lucidchart, and ERDPlus can be used to efficiently create ERDs.
 
-As of 2026, ERD is still used as an essential tool for teaching database structure to students and facilitating communication between developers and stakeholders. The modern approach of concurrently applying normalization and ERD helps achieve a balance between data integrity and performance.
+ERD remains an essential tool for teaching database structure and facilitating communication between developers and stakeholders. The modern approach of applying normalization alongside ERD helps achieve a balance between data integrity and performance.

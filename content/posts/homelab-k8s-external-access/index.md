@@ -34,7 +34,7 @@ series: ["홈랩 구축기"]
 
 > **Cloudflare란?**
 >
-> Cloudflare는 2009년에 설립된 웹 인프라 및 보안 회사로, 전 세계에 분산된 CDN(Content Delivery Network), DDoS 방어, DNS 서비스, WAF(Web Application Firewall) 등을 제공하며, 무료 플랜에서도 강력한 보안 기능과 DNS 관리 기능을 사용할 수 있어 홈랩 환경에서 널리 사용된다.
+> Cloudflare는 DNS, CDN, DDoS 방어, WAF 같은 기능을 제공하는 서비스다. 무료 플랜에서도 DNS 관리와 기본적인 보호 기능을 사용할 수 있어 홈랩 환경에서 자주 활용된다.
 
 Cloudflare에서는 도메인 DNS 레코드를 아래처럼 잡아두었다:
 
@@ -63,7 +63,7 @@ SSL/TLS 설정은 "Full" 또는 "Full (Strict)" 모드로 설정하여 Cloudflar
 
 > **Cloudflare Workers란?**
 >
-> Cloudflare Workers는 Cloudflare의 글로벌 엣지 네트워크에서 JavaScript 코드를 실행할 수 있는 서버리스 플랫폼으로, 2017년에 출시되었으며 요청마다 코드가 실행되어 API 엔드포인트, 리다이렉트, 인증 등 다양한 용도로 사용할 수 있고 무료 플랜에서 하루 10만 건의 요청을 처리할 수 있다.
+> Cloudflare Workers는 Cloudflare 엣지에서 JavaScript 코드를 실행할 수 있는 서버리스 플랫폼이다. 간단한 API 엔드포인트나 인증 처리 같은 작업을 별도 서버 없이 구현할 수 있어 DDNS 업데이트용 엔드포인트를 만들기에 적합하다.
 
 Cloudflare Worker는 아래 순서로 만들었다:
 
@@ -275,11 +275,13 @@ URL 형식에서 `[USERNAME]`, `[PASSWORD]`, `[DOMAIN]`은 플레이스홀더로
 
 ## 외부 서비스 라우팅 구성
 
-포트포워딩을 마친 뒤에는 외부 공개용 서비스가 `web`, `websecure` 엔트리포인트를 통해 192.168.0.201으로 들어오도록 라우팅을 맞췄다.
+포트포워딩을 마친 뒤에는 외부에 공개할 서비스만 `web`, `websecure` 엔트리포인트를 통해 192.168.0.201으로 들어오도록 라우팅을 맞췄다. 반대로 ArgoCD, Longhorn, Traefik 대시보드 같은 관리 서비스는 내부용 로드밸런서와 내부 전용 엔트리포인트만 사용하도록 유지했다.
+
+이렇게 구성하면 같은 Traefik을 사용하더라도 어떤 서비스가 외부에 공개되는지는 IngressRoute와 엔트리포인트 설정 수준에서 명확하게 분리할 수 있다.
 
 ## Let's Encrypt 인증서 발급 확인
 
-외부 접근이 열린 뒤에는 Traefik의 Let's Encrypt 통합이 HTTP-01 챌린지로 도메인 소유권을 확인하고 인증서를 발급했다. 나는 아래 명령으로 발급 상태를 확인했다:
+외부 접근이 열린 뒤에는 Traefik이 HTTP-01 챌린지로 도메인 소유권을 확인하고 Let's Encrypt 인증서를 발급받았다. 나는 아래 명령으로 발급 상태를 확인했다:
 
 ```bash
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
@@ -360,7 +362,7 @@ kubectl apply -f hello-world.yaml
 
 ### 내부 네트워크 테스트
 
-내부 네트워크(홈 네트워크)에서 다음 URL로 각 서비스에 접근하여 정상적으로 표시되는지 확인한다:
+내부 네트워크(홈 네트워크)에서 다음 URL로 각 서비스에 접근해 정상적으로 표시되는지 확인했다:
 
 - `http://traefik.injunweb.com/dashboard/` - Traefik 대시보드
 - `http://argocd.injunweb.com` - ArgoCD UI
@@ -369,7 +371,7 @@ kubectl apply -f hello-world.yaml
 
 ### 외부 네트워크 테스트
 
-외부 네트워크(모바일 데이터 또는 다른 네트워크)에서 다음 URL로 접근하여 서비스 분리가 의도한 대로 작동하는지 확인한다:
+외부 네트워크(모바일 데이터 또는 다른 네트워크)에서 다음 URL로 접근해 서비스 분리가 의도한 대로 작동하는지 확인했다:
 
 - `https://traefik.injunweb.com/dashboard/` - 접근 불가 (의도한 대로)
 - `https://argocd.injunweb.com` - 접근 불가 (의도한 대로)

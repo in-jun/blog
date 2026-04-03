@@ -1,12 +1,12 @@
 ---
-title: "GitOps Deployment Strategies Push vs Pull"
+title: "GitOps Deployment Strategies: Push vs. Pull"
 date: 2025-02-14T03:52:02+09:00
 tags: ["GitOps", "Kubernetes", "DevOps"]
 description: "Comparing push and pull deployment strategies in GitOps."
 draft: false
 ---
 
-GitOps is an operational methodology that uses Git as the Single Source of Truth to manage declarative states of infrastructure and applications and deploy them automatically. The term was first proposed by Alexis Richardson, CEO of Weaveworks, in 2017 and introduced to the cloud-native community. GitOps extends the Git workflow familiar to developers (Pull Requests, code reviews, branching strategies, etc.) into the infrastructure operations domain, and has become a core paradigm of modern DevOps practices when combined with declarative infrastructure platforms like Kubernetes.
+GitOps is an operating model that uses Git as the single source of truth for declarative infrastructure and application state, then synchronizes that state to running systems automatically. The term was introduced by Alexis Richardson, CEO of Weaveworks, in 2017 and later gained broad traction in the cloud-native community. By extending familiar Git workflows such as pull requests, code reviews, and branching into operations, GitOps has become a core practice in modern DevOps, especially when paired with declarative platforms like Kubernetes.
 
 ## The Birth of GitOps and Core Principles
 
@@ -14,7 +14,7 @@ GitOps is an operational methodology that uses Git as the Single Source of Truth
 >
 > An operational methodology that declaratively defines all infrastructure configurations and application settings in a Git repository and uses this repository as the single source of truth to automatically synchronize the actual system state.
 
-The term GitOps first appeared in August 2017 in the Weaveworks blog post "GitOps - Operations by Pull Request." Alexis Richardson systematized the Git-centric operational approach based on his company's Kubernetes management experience and established it as the concept of GitOps. Subsequently, CNCF (Cloud Native Computing Foundation) formed the GitOps Working Group to standardize GitOps principles and best practices, and in 2021, the OpenGitOps project published the official definition and principles of GitOps.
+The term GitOps first appeared in August 2017 in the Weaveworks blog post "GitOps - Operations by Pull Request." In that post, Alexis Richardson drew on his company's Kubernetes management experience to describe a Git-centric operating approach and define the idea of GitOps. Later, CNCF (Cloud Native Computing Foundation) formed the GitOps Working Group to standardize GitOps principles and best practices, and in 2021, the OpenGitOps project published the official definition and principles of GitOps.
 
 ### The Four Core Principles of GitOps
 
@@ -84,7 +84,7 @@ When a developer modifies application code and pushes to the Git repository, the
 
 **Stage 2: Manifest Repository Update**
 
-The CI pipeline updates the image tag in the Kubernetes manifests of the Config Repository and commits, or uses image tag auto-update features (ArgoCD Image Updater, Flux Image Automation, etc.) to detect new images and automatically update manifests.
+The CI pipeline can update the image tag in the Kubernetes manifests stored in the config repository and commit that change. Alternatively, image tag auto-update features such as ArgoCD Image Updater or Flux Image Automation can detect new images and update the manifests automatically.
 
 **Stage 3: GitOps Operator Change Detection**
 
@@ -181,26 +181,26 @@ Flux is a GitOps tool developed by Weaveworks, the company that coined the term 
 
 ## Tool Selection Guide
 
-It is important to select the appropriate GitOps tool based on organizational context and requirements. The following criteria can be considered for decision-making.
+Choosing the right GitOps tool depends on your organization's context and requirements. The following criteria can help guide that decision.
 
 **When to Choose ArgoCD**:
 - When team members of various roles (developers, operators, managers) need to intuitively check deployment status
 - When centralized management of multi-clusters is needed
 - When advanced deployment strategies like Canary and Blue/Green are required
-- Early stage of GitOps adoption where visual feedback helps learning
+- When the team is early in its GitOps adoption journey and visual feedback helps learning
 
 **When to Choose Flux**:
 - When CLI and automation-centric workflow is preferred and UI is not essential
 - When resources are limited or lightweight solution is needed
 - When Helm and Kustomize are core tools
-- When wanting to selectively configure only needed features through modular architecture
+- When the team wants to enable only the features it needs through a modular architecture
 
 **When to Maintain Push-Based Approach (Jenkins, GitLab CI, etc.)**:
 - When existing CI/CD pipeline investment is significant and immediate transition is difficult
-- Early stage of GitOps adoption planning gradual transition
+- When the organization is in the early stages of GitOps adoption and plans to transition gradually
 - When needing to deploy to various environments (VMs, serverless, etc.) beyond Kubernetes in the same way
 - When integration with legacy systems is essential
 
 ## Conclusion
 
-Since its birth at Weaveworks in 2017, GitOps has established itself as a core paradigm for deployment automation in cloud-native environments. Push-based and Pull-based approaches each have their own advantages and disadvantages. Push-based is easy to adopt as it can leverage existing CI/CD tools, but has limitations in security and state consistency. Pull-based excels in security and Self-Healing capabilities, but requires dedicated tool adoption and learning. ArgoCD is suitable for large teams with its powerful UI and multi-cluster support, while Flux is suitable for automation-preferring teams with its lightweight CLI-centric workflow. The appropriate strategy and tool should be selected by comprehensively considering organizational scale, technical capabilities, security requirements, and existing infrastructure. Regardless of which approach is chosen, the core value of GitOps is building a consistent and traceable deployment process by using Git as the single source of truth.
+GitOps has become a core model for deployment automation in cloud-native environments since it emerged at Weaveworks in 2017. Push-based and pull-based approaches each have clear tradeoffs. Push-based deployment is easier to adopt because it can reuse existing CI/CD tools, but it has limitations in security and state consistency. Pull-based deployment provides stronger security and self-healing capabilities, but it requires dedicated tooling and a different operational model. ArgoCD is a strong fit for larger teams that benefit from a powerful UI and multi-cluster support, while Flux works well for teams that prefer lightweight, automation-focused workflows. The right strategy depends on organizational scale, technical maturity, security requirements, and existing infrastructure. Regardless of which approach you choose, the core value of GitOps is a consistent, traceable deployment process built around Git as the single source of truth.

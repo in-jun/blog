@@ -6,7 +6,7 @@ description: "Installing and configuring OpenSSH server on Ubuntu."
 draft: false
 ---
 
-SSH (Secure Shell) is an encrypted network protocol that enables secure remote access to other computers over a network for executing commands and transferring files. It was developed in 1995 by Tatu Ylönen at Helsinki University of Technology in Finland to address security vulnerabilities in Telnet and rsh (remote shell). Today, OpenSSH has become the de facto standard implementation and serves as a core tool for server management worldwide. Installing and configuring an SSH server on Ubuntu enables remote server management not only within local networks but also over the internet. This guide covers the entire process from OpenSSH server installation to security configuration.
+SSH (Secure Shell) is an encrypted network protocol for securely accessing another computer over a network, running commands, and transferring files. Today, OpenSSH is the de facto standard implementation and a core tool for server management. Installing and configuring an SSH server on Ubuntu lets you manage a system remotely, whether it is on a local network or reachable over the internet. This guide walks through the full process, from installing OpenSSH Server to applying basic security settings.
 
 ## SSH Protocol Overview
 
@@ -14,7 +14,7 @@ SSH (Secure Shell) is an encrypted network protocol that enables secure remote a
 >
 > SSH is a protocol for securely connecting to remote systems through encrypted communication channels. It uses port 22 by default and combines symmetric encryption, asymmetric encryption, and hash functions to ensure confidentiality, integrity, and authentication.
 
-SSH evolved from the initial SSH-1 protocol to the current standard SSH-2. SSH-2 addressed security vulnerabilities and enhanced file transfer capabilities with SFTP (SSH File Transfer Protocol) support. An SSH connection begins with key exchange between client and server to generate a session key, after which all communication is encrypted with this session key.
+SSH evolved from the original SSH-1 protocol to the current SSH-2 standard. SSH-2 addressed known security issues and improved file transfer support through SFTP (SSH File Transfer Protocol). An SSH connection begins with a key exchange between the client and server, then uses the resulting session key to encrypt the rest of the communication.
 
 ### SSH vs Legacy Remote Access Protocols
 
@@ -53,7 +53,7 @@ Before installing an SSH server, verify system requirements and gather necessary
 
 ### Step 1: System Update and OpenSSH Installation
 
-Update the system package list and install the OpenSSH server. The SSH service starts automatically upon installation completion.
+Update the system package list and install the OpenSSH server. The SSH service usually starts automatically when the installation finishes.
 
 ```bash
 # Update package list
@@ -181,7 +181,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 22
 
 ### Generate Key Pair on Client
 
-Generate an SSH key pair on the client computer. The Ed25519 algorithm is currently the most recommended algorithm.
+Generate an SSH key pair on the client computer. Ed25519 is currently the recommended choice.
 
 ```bash
 # Generate Ed25519 key (recommended)
@@ -218,7 +218,7 @@ Disabling password authentication after registering the public key significantly
 
 ### Basic Connection
 
-Connect to the server using the SSH command from the client. On first connection, a message asking to verify the server's host key fingerprint will appear.
+Connect to the server from the client using the SSH command. The first time you connect, SSH will ask you to verify the server's host key fingerprint.
 
 ```bash
 # Basic connection
@@ -293,4 +293,4 @@ chmod 700 ~/.ssh
 
 ## Conclusion
 
-This guide covered the process of installing and configuring an SSH server on Ubuntu. OpenSSH originated from the OpenBSD project in 1999 and has become the most widely used SSH implementation. SSH serves various purposes including server management, remote development, and file transfer. A secure remote access environment can be established through public key authentication and proper security configuration. For servers exposed to the internet, security measures such as non-standard port usage, public key authentication only, and fail2ban installation must be applied to protect against threats like brute force attacks.
+This guide covered the process of installing and configuring an SSH server on Ubuntu. With OpenSSH in place, you can use SSH for server administration, remote development, and secure file transfer. Public key authentication and careful SSH configuration provide a solid foundation for secure remote access. If the server is exposed to the internet, change the default port, allow only public key authentication, and install fail2ban to reduce the risk of brute force attacks.

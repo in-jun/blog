@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-gitops/), we set up a GitOps environment by installing ArgoCD. This post covers how to install and configure the Longhorn distributed storage system in a homelab Kubernetes cluster, sharing experiences from evaluating various storage solutions and explaining why persistent storage is necessary.
+In the [previous post](/posts/homelab-k8s-gitops/), I set up a GitOps environment by installing ArgoCD. This post covers how I installed and configured the Longhorn distributed storage system in my homelab Kubernetes cluster, along with what I learned from comparing storage options and why persistent storage turned out to be necessary.
 
 ![Longhorn Logo](image.png)
 
@@ -23,9 +23,9 @@ Initially, the following approaches were attempted:
 
 1. **Local Storage**: The simplest approach using local disks on each node directly, but when pods were rescheduled to different nodes, data stored on the original node became inaccessible. The critical drawback is that data recovery is impossible when a node fails.
 
-2. **NFS (Network File System)**: Configuring a separate NAS device as an NFS server for shared storage across all nodes allowed pods to access the same data regardless of which node they ran on. However, the NFS server became a single point of failure, making all storage inaccessible when the server failed. Stability issues with NFS file locking in Kubernetes environments were also experienced.
+2. **NFS (Network File System)**: Configuring a separate NAS device as an NFS server for shared storage across all nodes allowed pods to access the same data regardless of which node they ran on. However, the NFS server became a single point of failure, making all storage inaccessible when the server failed. I also ran into stability issues with NFS file locking in Kubernetes.
 
-3. **Rook-Ceph**: Deploying the Kubernetes-native distributed storage solution Ceph through the Rook operator provides powerful features and high reliability. However, it requires a minimum of 3 OSD (Object Storage Daemon) nodes and has significant memory and CPU overhead, which places a heavy resource burden on a homelab environment built with Dell OptiPlex Micro units.
+3. **Rook-Ceph**: Deploying the Kubernetes-native distributed storage solution Ceph through the Rook operator provides powerful features and high reliability. However, it requires a minimum of 3 OSD (Object Storage Daemon) nodes and has significant memory and CPU overhead, which felt too heavy for a homelab cluster built with Dell OptiPlex Micro units.
 
 After several rounds of trial and error, Longhorn was chosen. Longhorn is simple to install, has low resource requirements, and still provides enterprise-grade features like distributed replication, snapshots, and backup, making it the most suitable distributed storage system for a homelab environment.
 
@@ -85,7 +85,7 @@ After that, I checked that the iSCSI service was actually running on each node:
 sudo systemctl status iscsid
 ```
 
-You should see `active (running)` status like this:
+On each node, the service showed `active (running)` like this:
 
 ```
 ● iscsid.service - iSCSI Initiator Daemon
@@ -99,7 +99,7 @@ In this series, all Kubernetes resources are managed using GitOps methodology. L
 
 ### 1. Add Longhorn Helm Chart Configuration to Git Repository
 
-I added the Longhorn setup to my GitOps repository, starting with the following local directory structure:
+I added the Longhorn setup to my GitOps repository, starting from this local setup:
 
 ```bash
 git clone https://github.com/injunweb/k8s-resource.git
@@ -123,7 +123,7 @@ dependencies:
       repository: https://charts.longhorn.io
 ```
 
-This configuration defines fetching and installing the v1.4.0 chart from the official Longhorn Helm repository (`https://charts.longhorn.io`).
+This configuration pulls and installs version 1.4.0 of the chart from the official Longhorn Helm repository (`https://charts.longhorn.io`).
 
 I used the following `values.yaml` for Longhorn:
 
@@ -172,7 +172,7 @@ After the push, I checked that ApplicationSet had created the application:
 kubectl get applications -n argocd
 ```
 
-Confirm that the `longhorn-system` application has been created and synchronized in the output:
+In the output, the `longhorn-system` application appeared as created and synchronized:
 
 ```
 NAME              SYNC STATUS   HEALTH STATUS
@@ -189,7 +189,7 @@ Once ArgoCD synced, I checked that the Longhorn components were actually up:
 kubectl -n longhorn-system get pods
 ```
 
-All pods should be in `Running` status as follows:
+At that point, all pods were in `Running` status:
 
 ```
 NAME                                                READY   STATUS    RESTARTS   AGE
@@ -301,7 +301,7 @@ Filesystem                Size      Used Available Use% Mounted on
 /dev/longhorn/pvc-xxx     976.0M    2.5M    907.4M   0% /data
 ```
 
-After the validation, I cleaned up the test resources:
+After confirming everything worked, I cleaned up the test resources:
 
 ```bash
 kubectl delete -f test.yaml
@@ -309,7 +309,7 @@ kubectl delete -f test.yaml
 
 ## Conclusion
 
-This post covered how I added Longhorn distributed storage to the homelab Kubernetes cluster. In my environment, it struck a good balance between capability and operational weight: much more practical than local storage or NFS, but still lighter than Rook-Ceph.
+This post covered how I added Longhorn distributed storage to the homelab Kubernetes cluster. In my environment, it struck a good balance between features and operational overhead: much more practical than local storage or NFS, but still lighter than Rook-Ceph.
 
 The next post covers installing the Traefik ingress controller and configuring access to internal services.
 

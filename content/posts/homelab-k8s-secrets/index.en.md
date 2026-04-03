@@ -23,7 +23,7 @@ Second, there is the secret rotation problem. External API tokens and certificat
 
 > **What is HashiCorp Vault?**
 >
-> HashiCorp Vault is a secret management tool that HashiCorp released as open source in 2015. It securely stores and manages sensitive data like passwords, API keys, and certificates in a centralized location, provides enterprise-grade features such as fine-grained access control, audit logging, and automatic secret renewal, and supports Kubernetes integration.
+> HashiCorp Vault is an open-source secret management tool that HashiCorp released in 2015. It stores and manages sensitive data like passwords, API keys, and certificates in a central location, and it includes features such as fine-grained access control, audit logging, automatic secret renewal, and Kubernetes integration.
 
 HashiCorp Vault provides secret encryption, access control, and automatic renewal features along with integration with Kubernetes and GitOps workflows, making it the chosen solution to address these problems.
 
@@ -55,7 +55,7 @@ dependencies:
       repository: "https://helm.releases.hashicorp.com"
 ```
 
-This configuration defines fetching and installing the Vault v0.27.0 chart from the official HashiCorp Helm repository.
+This configuration pulls the Vault v0.27.0 chart from the official HashiCorp Helm repository.
 
 I added the following Vault settings in `values.yaml`:
 
@@ -68,7 +68,7 @@ vault:
         enabled: true
 ```
 
-High availability (HA) configuration was considered, but it was judged to be an unnecessary use of resources in this homelab environment. The setup was therefore kept simple, with the option to upgrade later if needed.
+I considered high availability (HA), but it felt like unnecessary overhead for this homelab. I kept the setup simple, with the option to upgrade later if needed.
 
 ### 3. Ingress Configuration
 
@@ -108,7 +108,7 @@ After that commit, ArgoCD picked up the change and deployed Vault to the cluster
 
 ## Vault Initialization and Unsealing
 
-After Vault installation, two important steps are required: initialization and unsealing. These processes involve encryption key generation and activation, and are performed manually rather than automated for security reasons.
+After Vault installation, two important steps are required: initialization and unsealing. These steps generate the encryption keys and bring Vault into an active state, and I handled them manually rather than automating them for security reasons.
 
 ### 1. Perform Initialization
 
@@ -175,15 +175,15 @@ Once Vault was active, I also accessed it through the web UI. On my local machin
 192.168.0.200 vault.injunweb.com
 ```
 
-Access `http://vault.injunweb.com` in a browser to see the Vault UI. Use the root token obtained during initialization for login.
+I then opened `http://vault.injunweb.com` in a browser and logged in with the root token from initialization.
 
 ![Vault UI Login](image-1.png)
 
-Dashboard displayed after login:
+This was the dashboard after login:
 
 ![Vault Dashboard](image-2.png)
 
-The UI is organized intuitively, making complex policy configuration and secret management tasks easier to handle.
+The UI felt intuitive, which made complex policy configuration and secret management tasks easier to handle.
 
 ## Basic Vault Configuration
 
@@ -281,11 +281,11 @@ db.password    supersecret
 db.username    dbuser
 ```
 
-Now basic secrets are stored in Vault. Next, implement two methods for using these secrets in Kubernetes applications.
+At this point, the basic secrets were stored in Vault. Next, I tried two ways of using them in Kubernetes applications.
 
 ## Installing Vault Secrets Operator
 
-The first approach is to use the Vault Secrets Operator. This Operator automatically synchronizes Vault secrets to Kubernetes Secrets, with the advantage of utilizing Vault secrets without changing existing application code.
+The first approach was to use the Vault Secrets Operator. It automatically synchronized Vault secrets to Kubernetes Secrets, which meant I could use Vault without changing existing application code.
 
 ### 1. Add Operator Configuration
 
@@ -643,7 +643,7 @@ spec:
                                 key: db.password
 ```
 
-The advantage of this method is that no modification to existing application code is needed. Vault's secret management features can be utilized while using the standard Kubernetes Secret reference method as-is.
+The advantage of this method is that it does not require changes to existing application code. It lets applications keep using the standard Kubernetes Secret reference pattern while still benefiting from Vault.
 
 ### 2. Using Secrets Replaced by ArgoCD Vault Plugin
 

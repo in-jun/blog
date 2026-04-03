@@ -6,9 +6,9 @@ description: "Writing and optimizing Dockerfiles for React applications."
 draft: false
 ---
 
-Packaging React applications as Docker containers maintains consistency between development and production environments, facilitates integration with CI/CD pipelines, enables using the same image across various deployment environments (Kubernetes, AWS ECS, Azure Container Instances, etc.) to standardize deployment processes, and allows creating optimized production images through multi-stage builds and nginx-based static file serving.
+Packaging React applications as Docker containers keeps development and production environments consistent. It also fits naturally into CI/CD pipelines, lets you use the same image across deployment targets such as Kubernetes, AWS ECS, and Azure Container Instances, and makes it easier to create optimized production images through multi-stage builds and nginx-based static file serving.
 
-## Understanding React Application Containerization
+## Containerizing React Applications
 
 > **Why Containerize React Apps?**
 >
@@ -35,11 +35,11 @@ To effectively create Docker images for React applications, you need to understa
 
 In this process, Node.js and npm required for building are not needed at runtime, so they can be excluded from the final image through multi-stage builds.
 
-## Writing Basic Dockerfile
+## Writing a Basic Dockerfile
 
 ### Single-Stage Dockerfile (Not Recommended)
 
-This is the simplest form of Dockerfile but has several issues.
+This is the simplest form of a Dockerfile, but it has several issues.
 
 ```dockerfile
 FROM node:20
@@ -107,7 +107,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 > **Docker Layer Caching**
 >
-> Docker caches each Dockerfile instruction as a layer and rebuilds all layers after a changed layer. Therefore, layers with low change frequency (dependencies) should be placed first, and layers with high change frequency (source code) should be placed later.
+> Docker caches each Dockerfile instruction as a layer and rebuilds every layer that follows a changed one. Therefore, layers that change less often, such as dependencies, should come first, while layers that change more often, such as source code, should come later.
 
 ### Optimized Layer Structure
 
@@ -188,7 +188,7 @@ docker-compose*
 
 ### Build-Time Environment Variables
 
-In React applications (Create React App), environment variables with the `REACT_APP_` prefix are included in the JavaScript bundle at build time, so they must be injected as ARG during Docker build.
+In React applications (Create React App), environment variables with the `REACT_APP_` prefix are included in the JavaScript bundle at build time, so they must be passed as build arguments during the Docker build.
 
 ```dockerfile
 # ===== Build Stage =====
@@ -230,7 +230,7 @@ docker build \
 
 ### Environment Variables in Vite Projects
 
-Projects using Vite use the `VITE_` prefix.
+Vite projects use the `VITE_` prefix.
 
 ```dockerfile
 # ===== Build Stage =====
@@ -315,7 +315,7 @@ nginx -g "daemon off;"
 
 ### SPA (Single Page Application) Routing
 
-In SPAs using React Router, `index.html` must be returned for all paths for client-side routing to work.
+In SPAs using React Router, `index.html` must be returned for every path so client-side routing can work correctly.
 
 **nginx.conf:**
 
@@ -520,4 +520,4 @@ Comparing image sizes before and after optimization:
 
 ## Conclusion
 
-The key to writing Dockerfiles for React applications is separating build and runtime environments through multi-stage builds, optimizing layer caching, and configuring efficient static file serving through nginx. By applying additional optimizations such as environment variable management, security header configuration, and gzip compression, you can create secure and efficient production-level container images, which significantly contributes to reducing CI/CD pipeline build times and maintaining deployment environment consistency.
+The key to writing Dockerfiles for React applications is separating the build and runtime environments, optimizing layer caching, and configuring nginx to serve static files efficiently. Additional improvements such as environment variable management, security headers, and gzip compression help you produce leaner, more secure images while keeping CI/CD pipelines faster and deployment environments consistent.

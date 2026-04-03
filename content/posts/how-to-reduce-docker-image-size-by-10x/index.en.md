@@ -6,24 +6,24 @@ description: "Reducing Docker image size with multi-stage builds and layer cachi
 draft: false
 ---
 
-Docker image optimization is a core technology that directly impacts build time reduction, deployment speed improvement, storage cost savings, and security vulnerability reduction for container-based applications. By applying techniques such as appropriate base image selection, multi-stage builds, and layer optimization, you can reduce image size by 10x or more, which also significantly affects CI/CD pipeline efficiency and cloud infrastructure costs.
+Docker image optimization affects build times, deployment speed, storage costs, and the security profile of containerized applications. By choosing the right base image, using multi-stage builds, and cleaning up layers, you can often shrink an image by 10x or more while also improving CI/CD throughput and reducing cloud infrastructure costs.
 
 ## Understanding Docker Image Size Problems
 
 > **Why is Image Size Important?**
 >
-> Docker image size directly affects build time, push/pull time, container startup time, storage costs, and security attack surface. Image optimization is essential for efficient operations in production environments.
+> Docker image size directly affects build time, push/pull time, container startup time, storage costs, and attack surface. Image optimization is essential for efficient operations in production environments.
 
 ### Main Causes of Image Size Increase
 
-Typically, unoptimized Docker images become bloated for the following reasons. Understanding each cause is necessary to establish appropriate optimization strategies.
+Unoptimized Docker images usually grow larger than necessary for a few common reasons. Understanding them makes it easier to choose the right optimization strategy.
 
 | Cause | Description | Impact |
 |-------|-------------|--------|
-| **Heavy base image** | Using debian, ubuntu, etc. with full OS packages | Adds hundreds of MB ~ 1GB |
-| **Development tools included** | Compilers, build tools unnecessarily included at runtime | Adds hundreds of MB |
-| **Development dependencies included** | devDependencies, test libraries included | Adds tens to hundreds of MB |
-| **Unnecessary files copied** | .git, node_modules, test files copied | Adds tens of MB ~ several GB |
+| **Heavy base image** | Using debian, ubuntu, etc. with full OS packages | Adds hundreds of MB to 1GB |
+| **Development tools included** | Compilers and build tools unnecessarily included at runtime | Adds hundreds of MB |
+| **Development dependencies included** | devDependencies and test libraries included | Adds tens to hundreds of MB |
+| **Unnecessary files copied** | .git, node_modules, and test files copied | Adds tens of MB to several GB |
 | **Layer inefficiency** | Temporary files created in each RUN command not deleted | Accumulates per layer |
 | **Cache files accumulated** | apt, pip, npm caches included in image | Adds tens to hundreds of MB |
 
@@ -53,7 +53,7 @@ RUN npm run build
 CMD ["npm", "start"]
 ```
 
-Images built with this Dockerfile reach approximately 1.2GB ~ 1.5GB because node_modules and build artifacts are added on top of the node:20 base image (approximately 1GB).
+Images built with this Dockerfile usually end up around 1.2GB to 1.5GB because `node_modules` and build artifacts are added on top of the `node:20` base image, which is itself about 1GB.
 
 ## Base Image Optimization
 
@@ -65,10 +65,10 @@ Images built with this Dockerfile reach approximately 1.2GB ~ 1.5GB because node
 
 | Image Type | Size Range | Features | Suitable Use Cases |
 |------------|------------|----------|-------------------|
-| **Regular images** (debian, ubuntu) | 100MB ~ 1GB | Full package manager, shell, debugging tools | Development environment, debugging needed |
-| **slim images** (node:slim, python:slim) | 50MB ~ 200MB | Essential runtime only, some tools removed | General production environment |
-| **Alpine images** (node:alpine, python:alpine) | 5MB ~ 50MB | musl libc based, minimal packages | Size optimization critical |
-| **distroless images** (gcr.io/distroless) | 2MB ~ 20MB | No shell, application runtime only | Security-critical production |
+| **Regular images** (debian, ubuntu) | 100MB to 1GB | Full package manager, shell, debugging tools | Development environment, debugging needed |
+| **slim images** (node:slim, python:slim) | 50MB to 200MB | Essential runtime only, some tools removed | General production environment |
+| **Alpine images** (node:alpine, python:alpine) | 5MB to 50MB | musl libc based, minimal packages | Size optimization critical |
+| **distroless images** (gcr.io/distroless) | 2MB to 20MB | No shell, application runtime only | Security-critical production |
 | **scratch** | 0MB | Completely empty image | Static binaries (Go, Rust) |
 
 ### Alpine Linux Based Images
@@ -83,7 +83,7 @@ FROM node:20
 FROM node:20-alpine
 ```
 
-When using Alpine images, note that it uses musl libc instead of glibc, which may cause compatibility issues with some native modules. In such cases, additional package installation may be required during build.
+Alpine uses musl libc instead of glibc, which can cause compatibility issues with some native modules. If that happens, you may need to install extra packages during the build stage.
 
 ```dockerfile
 FROM node:20-alpine
@@ -121,16 +121,16 @@ CMD ["dist/index.js"]
 
 ## Multi-Stage Builds
 
-> **What is Multi-Stage Build?**
+> **What is a Multi-Stage Build?**
 >
-> Multi-stage build is a technique that uses multiple FROM instructions in a single Dockerfile to separate build and runtime environments. By excluding build tools and intermediate artifacts from the final image, it dramatically reduces image size.
+> A multi-stage build uses multiple FROM instructions in a single Dockerfile to separate the build environment from the runtime environment. By excluding build tools and intermediate artifacts from the final image, it can dramatically reduce image size.
 
 ### Multi-Stage Build Principles
 
-Multi-stage build is a feature introduced in Docker 17.05 that operates in the following stages:
+Multi-stage builds were introduced in Docker 17.05 and usually follow this flow:
 
-1. **Build stage**: Performs build tasks such as source code compilation, dependency installation, and test execution
-2. **Runtime stage**: Creates final image by copying only artifacts generated from build stage
+1. **Build stage**: Runs build steps such as source compilation, dependency installation, and test execution
+2. **Runtime stage**: Creates the final image by copying only the artifacts produced in the build stage
 3. **Layer separation**: Each stage has independent layers, and only the last stage's layers are included in the final image
 
 ### Node.js Application Optimization
@@ -342,7 +342,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ### Command Consolidation
 
-Connect multiple RUN instructions with `&&` and delete temporary files in the same layer.
+Combine multiple RUN instructions with `&&` and delete temporary files in the same layer.
 
 **Inefficient approach:**
 
@@ -426,7 +426,7 @@ RUN npm ci --only=production && \
 
 ## Optimization Results Comparison
 
-Comparing results after applying various languages and optimization techniques:
+Here is a comparison of image size reductions across languages and optimization approaches:
 
 | Language | Before | After | Reduction | Key Techniques |
 |----------|--------|-------|-----------|----------------|
@@ -451,4 +451,4 @@ Docker image size optimization provides the following practical benefits:
 
 ## Conclusion
 
-Docker image optimization can reduce image size by 10x or more by combining techniques such as appropriate base image selection, multi-stage builds, layer optimization, and cache cleanup. This leads to reduced build time, improved deployment speed, storage cost savings, and enhanced security. Since optimal strategies differ by language and framework, it is important to select optimization techniques appropriate for application characteristics and continuously monitor and improve image size.
+Docker image optimization can reduce image size by 10x or more when you combine the right base image, multi-stage builds, layer cleanup, and cache management. In practice, that means faster builds, quicker deployments, lower storage costs, and a smaller attack surface. Because the best approach depends on the language and framework you use, it is worth choosing techniques that fit your application and reviewing image size regularly.

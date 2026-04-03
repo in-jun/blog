@@ -6,7 +6,7 @@ description: "All-pairs shortest path algorithm using dynamic programming."
 draft: false
 ---
 
-The Floyd-Warshall algorithm is a dynamic programming-based algorithm that finds the shortest paths between all pairs of vertices in a graph. Independently published by Robert Floyd and Stephen Warshall in 1962, it differs from Dijkstra's and Bellman-Ford algorithms by computing shortest paths for all pairs simultaneously in a single execution. With O(V³) time complexity, it can handle edges with negative weights and detect the presence of negative cycles, making it a core component in various fields including network diameter calculation, transitive closure operations, and database query optimization.
+The Floyd-Warshall algorithm is a dynamic programming algorithm for finding the shortest paths between every pair of vertices in a graph. Robert Floyd and Stephen Warshall published it independently in 1962. Unlike Dijkstra's and Bellman-Ford algorithms, it computes all-pairs shortest paths in a single run. With O(V³) time complexity, it can handle negative edge weights and detect negative cycles, making it useful for tasks such as network diameter calculation, transitive closure, and database query optimization.
 
 ## History of the Floyd-Warshall Algorithm
 
@@ -14,7 +14,7 @@ The Floyd-Warshall algorithm is a dynamic programming-based algorithm that finds
 >
 > A dynamic programming-based algorithm that simultaneously finds the shortest paths between all pairs of vertices in a weighted graph, capable of handling negative weight edges and detecting the presence of negative cycles.
 
-The Floyd-Warshall algorithm was presented by American computer scientist Robert W. Floyd in his 1962 paper "Algorithm 97: Shortest Path" published in Communications of the ACM, applied to the shortest path problem. In the same year, Stephen Warshall independently published the same algorithm applied to the transitive closure problem in his paper "A Theorem on Boolean Matrices" in the Journal of the ACM. The algorithm was named after both researchers. Interestingly, French mathematician Bernard Roy had already described essentially the same algorithm in research published in 1959, so some European literature refers to it as the "Roy-Floyd-Warshall algorithm."
+American computer scientist Robert W. Floyd introduced the algorithm in his 1962 Communications of the ACM paper "Algorithm 97: Shortest Path," where he applied it to the shortest path problem. In the same year, Stephen Warshall published "A Theorem on Boolean Matrices" in the Journal of the ACM, presenting the same idea for the transitive closure problem. The algorithm was named after both researchers. French mathematician Bernard Roy had already described essentially the same method in 1959, so some European literature refers to it as the "Roy-Floyd-Warshall algorithm."
 
 This algorithm is a classic example of dynamic programming frequently covered in computer science education and has made significant contributions to the development of graph theory and optimization theory. Robert Floyd received the Turing Award in 1978 for his contributions to programming languages and algorithms, including this algorithm. In modern computer science, the algorithm is practically utilized in various fields including network routing, reachability analysis in game theory, relational operations in databases, and connectivity analysis in social networks.
 
@@ -36,7 +36,7 @@ In actual implementation, a 2D array is used instead of a 3D array for space opt
 D[i][j] = min(D[i][j], D[i][k] + D[k][j])
 ```
 
-This recurrence relation embodies the meaning "update if going through vertex k is shorter," utilizing the optimal substructure property that subpaths of shortest paths are also shortest paths.
+This recurrence relation captures a simple idea: update the distance if going through vertex k produces a shorter path. It relies on the optimal substructure property, where subpaths of shortest paths are themselves shortest paths.
 
 ### Meaning of the Triple Loop
 
@@ -62,7 +62,7 @@ Iterate intermediate vertex k from 1 to V, applying D[i][j] = min(D[i][j], D[i][
 
 **Step 3: Check Results**
 
-After the algorithm terminates, D[i][j] contains the shortest distance from vertex i to vertex j. If a negative cycle exists, cases where D[i][i] < 0 occur among the diagonal elements.
+After the algorithm terminates, D[i][j] contains the shortest distance from vertex i to vertex j. If a negative cycle exists, one or more diagonal entries will satisfy D[i][i] < 0.
 
 ### Working Example
 
@@ -187,7 +187,7 @@ Unlike Dijkstra's algorithm, the Floyd-Warshall algorithm can correctly handle e
 >
 > A cycle where the sum of the weights of its constituent edges is negative. If a negative cycle exists, the distance can be reduced to negative infinity by repeating the cycle infinitely, so the shortest path is not defined.
 
-For example, if the sum of weights on a path A → B → C → A is -5, the distance continues to decrease as -5, -10, -15, ... as the cycle repeats. Therefore, the shortest distance for all vertex pairs involving vertices in a negative cycle or reachable from such vertices becomes negative infinity.
+For example, if the sum of weights on a path A → B → C → A is -5, the distance continues to decrease as -5, -10, -15, ... as the cycle repeats. In such cases, shortest distances involving that cycle are not well defined because the total cost can be driven downward without bound.
 
 ### Negative Cycle Detection Method
 
@@ -195,7 +195,7 @@ Negative cycles can be detected in O(V) time by examining the diagonal elements 
 
 ### Real-World Applications of Negative Cycles
 
-Negative cycles are utilized in arbitrage detection in financial trading. When modeling exchange rates between multiple currencies as a graph, transforming exchange rate r to -log(r) converts the multiplication of the exchange process to addition. The existence of a negative cycle indicates an arbitrage opportunity to gain risk-free profit by repeating exchanges.
+Negative cycles are utilized in arbitrage detection in financial trading. When modeling exchange rates between multiple currencies as a graph, transforming an exchange rate r to -log(r) turns repeated multiplication of exchange rates into addition. The existence of a negative cycle indicates an arbitrage opportunity to gain risk-free profit by repeating exchanges.
 
 ## Time Complexity Analysis
 
@@ -315,7 +315,7 @@ The maximum of all shortest distances between vertex pairs is the network's diam
 
 ### Transportation Network Optimization Between Cities
 
-Pre-calculating shortest paths between all city pairs is utilized for logistics center placement, prioritizing transportation infrastructure investment, and optimizing emergency service deployment. In small-scale networks with limited vertex counts, Floyd-Warshall can pre-calculate all paths and respond to queries in O(1) time.
+Precomputing shortest paths between every pair of cities helps with logistics center placement, prioritizing transportation infrastructure investment, and optimizing emergency service deployment. In small-scale networks with limited vertex counts, Floyd-Warshall can precompute all paths and answer queries in O(1) time.
 
 ### Game AI Pathfinding
 
@@ -345,4 +345,4 @@ If no distances are updated at a particular k stage, no updates will occur in su
 
 ## Conclusion
 
-The Floyd-Warshall algorithm was independently published by Robert Floyd and Stephen Warshall in 1962. It calculates the shortest paths between all pairs of vertices in a graph in O(V³) time using the principles of dynamic programming. Unlike Dijkstra's and Bellman-Ford, it can obtain shortest paths for all pairs simultaneously in a single execution, handle negative weights, and detect negative cycles. Implemented with just a triple loop and one line of update logic, it is very simple yet powerful. It is used as a core component in various fields including transitive closure, network diameter calculation, transportation network optimization, and game AI. It is the most suitable choice when all-pairs shortest paths are needed in dense graphs with a few hundred or fewer vertices.
+The Floyd-Warshall algorithm was independently published by Robert Floyd and Stephen Warshall in 1962. Using dynamic programming, it computes shortest paths between all pairs of vertices in O(V³) time. Its combination of simplicity and support for negative weights and negative-cycle detection keeps it relevant in areas such as transitive closure, network diameter calculation, transportation planning, and game AI. It is especially well suited to dense graphs with a few hundred vertices or fewer, where all-pairs shortest paths are needed.

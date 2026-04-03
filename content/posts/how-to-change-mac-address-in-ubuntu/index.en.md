@@ -8,7 +8,7 @@ tags: ["Linux", "Network", "Ubuntu"]
 
 ## The Need for Changing MAC Address
 
-MAC address (Media Access Control address) is a unique physical address that identifies network devices. It is permanently assigned to the Network Interface Card (NIC) during manufacturing and is designed to remain unchanged. However, there are situations where you may need to temporarily or permanently change your MAC address for reasons such as security, privacy protection, bypassing network access controls, or setting up test environments. This is particularly useful when using public Wi-Fi or when you want to prevent network tracking. Most Linux distributions, including Ubuntu, provide the ability to change MAC addresses through software. This post explores how to safely and effectively change MAC addresses in Ubuntu.
+A MAC address (Media Access Control address) is a unique hardware address that identifies a network device. It is assigned to the Network Interface Card (NIC) during manufacturing, but it can still be changed through software when needed. This can be useful for privacy, security, bypassing network access controls, or setting up test environments. It is especially helpful on public Wi-Fi or when you want to reduce network tracking. Most Linux distributions, including Ubuntu, let you change MAC addresses through software. This post explains how to do it safely and effectively in Ubuntu.
 
 ## MAC Address Structure and Role
 
@@ -54,11 +54,11 @@ sudo apt update
 sudo apt install macchanger
 ```
 
-During installation, a debconf configuration screen will appear asking "Automatically change MAC address at boot?" If you enable this option, your MAC address will automatically change to a random value every time the system boots. It is recommended to select 'Yes' in environments where security and privacy are important, and 'No' in typical usage environments. You can change this setting later by modifying scripts in the `/etc/network/if-pre-up.d/` directory.
+During installation, a debconf configuration screen will appear asking "Automatically change MAC address at boot?" If you enable this option, your MAC address will automatically change to a random value every time the system boots. Selecting 'Yes' makes sense if privacy matters on that system, while 'No' is usually fine for everyday use. You can change this setting later by modifying scripts in the `/etc/network/if-pre-up.d/` directory.
 
 ### 2. Changing the MAC Address
 
-Changing a MAC address involves three steps, each necessary to safely manage the network interface state while changing the address. Changing the MAC address while the network interface is active can cause unstable network connections or system errors. Therefore, you must disable the interface before changing it and then re-enable it.
+Changing a MAC address safely takes three steps: disable the interface, change the address, and enable it again. Attempting the change while the interface is active can disrupt the network connection or cause errors, so bring it down first and bring it back up afterward.
 
 #### 2.1 Disable the Network Interface
 
@@ -86,7 +86,7 @@ With the interface disabled, use macchanger to change the MAC address. You can c
 sudo macchanger -r <interface_name>
 ```
 
-This option generates random values for all 48 bits including the OUI, creating an address unrelated to any actual manufacturer. It provides the highest anonymity but may be recognized as an abnormal device on some networks.
+This option generates random values for all 48 bits including the OUI, creating an address unrelated to any actual manufacturer. It provides the highest anonymity but may stand out as unusual on some networks.
 
 **Change to a specific MAC address:**
 
@@ -127,9 +127,9 @@ macchanger provides various options to support different use cases, allowing you
 
 **Detailed Option Descriptions:**
 
-- **`-r` (Completely random)**: Generates random values for all 48 bits including the OUI, creating an address unrelated to any actual manufacturer. It provides the highest anonymity but may be recognized as an abnormal device on some networks.
+- **`-r` (Completely random)**: Generates random values for all 48 bits including the OUI, creating an address unrelated to any actual manufacturer. It provides the highest anonymity but may stand out as unusual on some networks.
 - **`-a` (Random from same vendor)**: Maintains the OUI of the current MAC address while randomizing only the remaining 24 bits, making it appear as another device from the same manufacturer and attracting less suspicion from network administrators.
-- **`-A` (Random of same type)**: Selects an OUI appropriate for the network interface type (wired, wireless, etc.) and generates a random MAC address. Wired interfaces use OUIs for wired devices, while wireless interfaces use OUIs for wireless devices.
+- **`-A` (Random of same type)**: Selects an OUI appropriate for the network interface type, such as wired or wireless, and then generates a random MAC address.
 - **`-p` (Reset to original)**: Returns to the original MAC address (Permanent MAC address) set in the hardware. macchanger automatically records the address before changes, making restoration easy.
 - **`-m` (Set specific address)**: Changes to a specific MAC address specified by the user. This is useful in test environments or when you need to mimic a specific device.
 - **`-s` (Show information)**: Displays the current MAC address, original MAC address, and manufacturer information. You can check information without actually changing the address.
@@ -142,10 +142,10 @@ Changing MAC addresses should be used for legitimate security and privacy purpos
 
 **Network Conflicts**: Changing to a MAC address that already exists on the same network can cause IP address conflicts, and both devices may not connect to the network properly. Network administrators may detect this and trigger security alerts. It is safer to generate completely random MAC addresses or select addresses that are not actually in use.
 
-**Reset on Reboot**: MAC addresses changed with macchanger are software-based changes, so they revert to the hardware's original MAC address when the system is rebooted. If you want permanent changes, you must configure them to change automatically at boot through NetworkManager settings or systemd services.
+**Reset on Reboot**: MAC addresses changed with macchanger are software-based changes, so they revert to the hardware's original MAC address when the system is rebooted. If you want the changed address to be reapplied after each reboot, configure it through NetworkManager settings or systemd services.
 
 **Remote Connection Caution**: If you change the MAC address while connected remotely to the system via SSH or remote desktop, the network connection may be disconnected. It is safer to work with physical access to the system or maintain a backup connection through another network interface.
 
 ## Conclusion
 
-Changing MAC addresses is a useful technique for security and privacy protection. It can be used for purposes such as preventing tracking when using public Wi-Fi, building network test environments, and enhancing privacy. In Ubuntu, you can safely change MAC addresses with simple commands using the `macchanger` tool. It provides various options from generating completely random addresses to creating addresses from specific manufacturers, allowing you to adjust according to your needs. However, you must be aware of precautions to prevent legal issues and network conflicts, use it only for legal and ethical purposes, and it is important to comply with network administrator policies and service terms.
+Changing MAC addresses is a useful technique for security and privacy protection. It can help reduce tracking on public Wi-Fi, support network testing, and improve privacy. In Ubuntu, you can do this safely with a few simple `macchanger` commands. The tool supports everything from fully random addresses to specific manually assigned ones, so you can choose the approach that fits your needs. Use it only for legal and ethical purposes, and be mindful of network conflicts, administrator policies, and service terms.

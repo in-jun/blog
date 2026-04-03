@@ -10,7 +10,7 @@ draft: false
 
 RAID (Redundant Array of Independent Disks) is a data storage virtualization technology that combines multiple physical hard disks into a single logical unit to improve data reliability or enhance input/output performance. It was first proposed in the 1988 paper "A Case for Redundant Arrays of Inexpensive Disks" by David Patterson, Garth A. Gibson, and Randy Katz at the University of California, Berkeley. At the time, it stood for "Inexpensive Disks," but the meaning later changed to "Independent Disks." The technology originated from the goal of achieving both cost efficiency and reliability by combining multiple small disks instead of using a single large-capacity disk.
 
-The fundamental idea of RAID is to distribute data across multiple disks (Striping), store redundant copies (Mirroring), or store error detection and recovery information (Parity) alongside data. This provides superior performance, reliability, or both compared to a single disk. Today, RAID has become an essential component in almost all data-centric infrastructures, including modern server systems, enterprise storage, NAS (Network Attached Storage), and SAN (Storage Area Network). It is also utilized as a core technology in the physical storage layer of cloud computing environments.
+The fundamental idea of RAID is to distribute data across multiple disks (Striping), store redundant copies (Mirroring), or store error detection and recovery information (Parity) alongside data. This provides superior performance, reliability, or both compared to a single disk. Today, RAID has become an essential component in almost all data-centric infrastructures, including modern server systems, enterprise storage, NAS (Network Attached Storage), and SAN (Storage Area Network). It also underpins the physical storage layer in many cloud computing environments.
 
 ## Historical Background and Evolution of RAID
 
@@ -36,7 +36,7 @@ Hardware RAID is implemented using dedicated RAID controller cards or RAID chips
 **Disadvantages of Hardware RAID**:
 - High cost: Dedicated controller card prices range from hundreds to thousands of dollars, with enterprise-grade controllers being even more expensive.
 - Vendor lock-in: Dependent on a specific manufacturer's controller; controller failures can only be replaced with the same or compatible models.
-- Limited portability: Moving disks to a different RAID controller often results in recognition failure.
+- Limited portability: Moving disks to a different RAID controller often means the array is not recognized.
 - Firmware dependency: Controller firmware bugs or compatibility issues can occur.
 
 Representative hardware RAID controllers include Broadcom (formerly LSI) MegaRAID, Adaptec SmartRAID, Dell PERC (PowerEdge RAID Controller), HP Smart Array, and Microsemi Adaptec series. These are widely used in enterprise servers and data center environments.
@@ -80,7 +80,7 @@ mount /dev/md0 /mnt/raid5
 
 ### Firmware RAID (Fake RAID)
 
-Firmware RAID uses RAID functionality built into the motherboard chipset. It is configured at the BIOS/UEFI level, but actual RAID operations are performed by operating system drivers, hence the names "Fake RAID" or "Host RAID." Intel RST (Rapid Storage Technology) and AMD RAIDXpert are representative examples. This is commonly found on consumer motherboards. It is an intermediate form between hardware RAID and software RAID. It can be configured in the BIOS, allowing boot disk configuration, but since actual operations use the CPU, performance and stability are limited. Vendor-specific drivers are required, reducing portability.
+Firmware RAID uses RAID functionality built into the motherboard chipset. It is configured at the BIOS/UEFI level, but actual RAID operations are performed by operating system drivers, hence the names "Fake RAID" or "Host RAID." Intel RST (Rapid Storage Technology) and AMD RAIDXpert are representative examples. This is commonly found on consumer motherboards. It is an intermediate form between hardware RAID and software RAID. It can be set up in the BIOS and used for boot disks, but because the actual RAID operations still rely on the CPU, performance and stability are limited. Vendor-specific drivers are required, reducing portability.
 
 Generally, firmware RAID is chosen when hardware RAID is too expensive and software RAID configuration is too complex. However, it is not recommended for enterprise environments and is typically limited to simple RAID 1 (mirroring) configurations in home NAS or workstations.
 
@@ -150,7 +150,7 @@ RAID 1 uses a mirroring technique that completely copies identical data to two o
 
 ### RAID 5 (Distributed Parity)
 
-RAID 5 combines block-level striping with distributed parity. Data blocks and parity information generated through XOR operations are cyclically distributed across all disks. A minimum of 3 disks is required. One disk's worth of capacity is allocated to parity, so capacity efficiency is (N-1)/N. In case of a single disk failure, lost data can be reconstructed using the remaining disks' data and parity. It is a balanced solution that compromises between the performance of RAID 0 and the stability of RAID 1, making it the most widely used configuration in small to medium-sized servers and NAS.
+RAID 5 combines block-level striping with distributed parity. Data blocks and parity information generated through XOR operations are cyclically distributed across all disks. A minimum of 3 disks is required. One disk's worth of capacity is allocated to parity, so capacity efficiency is (N-1)/N. In case of a single disk failure, lost data can be reconstructed using the remaining disks' data and parity. It strikes a balance between the performance of RAID 0 and the reliability of RAID 1, making it the most widely used configuration in small to medium-sized servers and NAS.
 
 **Working Principle**:
 1. Data is divided into blocks, and N-1 data blocks and 1 parity block are written to N disks.
@@ -415,7 +415,7 @@ cat /sys/block/md0/md/mismatch_cnt       # Mismatched block count (should be 0)
 
 ### Hardware RAID Configuration Example (Dell PERC)
 
-Process for configuring Dell PowerEdge server PERC (PowerEdge RAID Controller) using BIOS setup utility:
+The following steps show how to configure a Dell PowerEdge server PERC (PowerEdge RAID Controller) in the BIOS setup utility:
 
 1. **Press Ctrl+R during server boot to enter PERC setup utility**
 2. **Select Virtual Disk Management**
@@ -529,7 +529,7 @@ rclone sync /mnt/raid5/data/ remote:backup/data/
 
 ### Managing Rebuild Risks
 
-RAID 5/6 configured with large-capacity disks (4TB+) can take days to weeks to rebuild. During this period, system performance is significantly degraded. If another disk fails or a URE (Unrecoverable Read Error) occurs during rebuild, all data can be lost.
+RAID 5/6 arrays built with large-capacity disks (4TB+) may take days to weeks to rebuild. During this period, system performance is significantly degraded. If another disk fails or a URE (Unrecoverable Read Error) occurs during the rebuild, all data can be lost.
 
 **URE (Unrecoverable Read Error) Risk**:
 - Enterprise-grade disk URE rate: 10^-15 (per bit)
@@ -560,7 +560,7 @@ cat /sys/block/md0/md/mismatch_cnt  # Should be 0
 
 ### Disk Compatibility and Performance Optimization
 
-**Recommend Using Identical Model Disks**:
+**Use Identical Disk Models**:
 - Mixing disks of different capacities results in matching the smallest disk capacity.
 - Disks with different performance (RPM, interface) match the slowest disk.
 - Using disks with the same manufacturer, model, and firmware version ensures predictable performance and compatibility.
@@ -623,9 +623,9 @@ systemctl start smartd
 
 ## Conclusion and Recommendations
 
-RAID is an essential storage virtualization technology in modern data infrastructure. It is a core mechanism that protects system availability from disk hardware failures and improves performance. Starting from Berkeley research in 1988, it has evolved for over 30 years and has become the standard for enterprise storage. Various levels from RAID 0 to RAID 60 provide different combinations of performance, stability, and cost efficiency, enabling optimized choices for specific workloads and requirements.
+RAID is an essential storage virtualization technology in modern data infrastructure. It is a core mechanism for improving performance and protecting system availability from disk hardware failures. Since its introduction in Berkeley research in 1988, it has evolved for more than 30 years and become a standard part of enterprise storage. Levels ranging from RAID 0 to RAID 60 offer different trade-offs in performance, reliability, and cost efficiency, allowing organizations to choose the best fit for specific workloads and requirements.
 
-Selecting the appropriate RAID level requires comprehensive consideration of workload characteristics (random vs sequential, read vs write), data criticality (recoverability, downtime tolerance), performance requirements (IOPS, throughput, latency), cost constraints (number of disks, hardware investment), and capacity requirements. Generally, operating systems and critical databases should choose RAID 1 or RAID 10, large-capacity file servers and backup storage should choose RAID 5 or RAID 6, and high-performance temporary storage should choose RAID 0.
+Selecting the appropriate RAID level requires careful consideration of workload characteristics (random vs sequential, read vs write), data criticality (recoverability, downtime tolerance), performance requirements (IOPS, throughput, latency), cost constraints (number of disks, hardware investment), and capacity requirements. In general, operating systems and critical databases are best served by RAID 1 or RAID 10, large-capacity file servers and backup storage usually fit RAID 5 or RAID 6, and high-performance temporary storage is well suited to RAID 0.
 
 After configuring RAID, regular monitoring and preventive maintenance are essential. Track disk health with SMART monitoring, detect potential errors early with monthly scrubbing, minimize rebuild time by preparing hot spares, and perform preventive disk replacement every 3-5 years. Most importantly, remember that RAID is not a substitute for backup, and establish a comprehensive data protection strategy that follows the 3-2-1 backup rule (3 copies, 2 media, 1 offsite).
 

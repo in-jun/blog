@@ -8,7 +8,7 @@ draft: false
 
 ## Git 타임스탬프의 구조
 
-Git의 타임스탬프 시스템은 2005년 Linus Torvalds가 Git을 설계할 때부터 두 가지 시간을 별도로 기록하도록 설계되었으며, 이는 Linux 커널 개발의 특성상 패치를 작성한 시간과 실제로 커밋된 시간이 다를 수 있기 때문이었다.
+Git의 타임스탬프 시스템은 2005년 Linus Torvalds가 Git을 만들 때부터 두 가지 시간을 별도로 기록하도록 구성되었다. 이는 Linux 커널 개발의 특성상 패치를 작성한 시간과 실제로 커밋된 시간이 다를 수 있기 때문이다.
 
 ### AuthorDate와 CommitDate
 
@@ -156,9 +156,9 @@ git commit --date="2024-05-25T14:30:00Z" -m "feat: Add feature"
 git commit --date="2024-05-25T14:30:00-05:00" -m "feat: Add feature"
 ```
 
-### GitHub 잔디 심기
+### GitHub 기여 기록 날짜 조정
 
-GitHub의 Contribution 그래프에 특정 날짜에 커밋을 표시하고 싶을 때 AuthorDate를 조정하며, GitHub은 AuthorDate를 기준으로 Contribution을 계산한다.
+GitHub의 Contribution 그래프에 특정 날짜로 커밋을 표시하고 싶다면 AuthorDate를 조정하면 된다. GitHub은 Contribution을 계산할 때 AuthorDate를 기준으로 삼는다.
 
 ```bash
 # 특정 날짜에 기여 기록 남기기
@@ -169,7 +169,7 @@ git commit --date="2024-01-01T12:00:00+09:00" -m "chore: Happy new year commit"
 
 ### 협업 시 주의점
 
-이미 원격 저장소에 push한 커밋의 시간을 수정하면 커밋 해시가 변경되므로 `--force` push가 필요하며, 이는 다른 팀원의 로컬 히스토리와 충돌을 일으킬 수 있으므로 공유된 브랜치에서는 사용을 피해야 한다.
+이미 원격 저장소에 push한 커밋의 시간을 수정하면 커밋 해시가 바뀐다. 따라서 `--force` push가 필요하고, 이 과정에서 다른 팀원의 로컬 히스토리와 충돌할 수 있다. 공유된 브랜치에서는 이런 방식의 사용을 피하는 것이 좋다.
 
 ```bash
 # 강제 push (위험 - 협업 시 주의)
@@ -197,4 +197,4 @@ git reset --hard backup/before-time-adjustment
 
 ## 결론
 
-Git의 타임스탬프 시스템은 AuthorDate(원저자 작성 시간)와 CommitDate(저장소 기록 시간)로 구분되며, 이는 분산 버전 관리 시스템의 특성을 반영한 설계이다. `--date` 옵션으로 새 커밋의 AuthorDate를 지정하고, `--amend`로 마지막 커밋을 수정하며, interactive rebase로 과거 커밋을 조정할 수 있고, CommitDate까지 변경하려면 `GIT_COMMITTER_DATE` 환경변수를 사용해야 한다. 다만 이미 push한 커밋의 시간 수정은 히스토리 재작성이 필요하므로 협업 환경에서는 신중하게 사용해야 한다.
+Git의 타임스탬프 시스템은 AuthorDate(원저자 작성 시간)와 CommitDate(저장소 기록 시간)로 나뉜다. 이는 분산 버전 관리 시스템의 특성을 반영한 설계다. `--date` 옵션으로 새 커밋의 AuthorDate를 지정할 수 있고, `--amend`로 마지막 커밋을 수정할 수 있으며, interactive rebase로 과거 커밋의 시간도 조정할 수 있다. CommitDate까지 바꾸려면 `GIT_COMMITTER_DATE` 환경변수를 함께 사용해야 한다. 다만 이미 push한 커밋의 시간을 수정하려면 히스토리 재작성이 필요하므로 협업 환경에서는 신중하게 다뤄야 한다.

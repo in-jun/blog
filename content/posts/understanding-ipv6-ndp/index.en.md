@@ -2,15 +2,15 @@
 title: "Understanding IPv6 Neighbor Discovery Protocol"
 date: 2025-02-24T01:01:25+09:00
 draft: false
-description: "How IPv6 Neighbor Discovery Protocol works."
+description: "An overview of how IPv6 Neighbor Discovery Protocol works."
 tags: ["Network", "IPv6", "Protocol"]
 ---
 
 ## What is NDP
 
-NDP (Neighbor Discovery Protocol) is a core IPv6 protocol standardized in RFC 4861. It combines the roles of several IPv4-era mechanisms such as ARP (Address Resolution Protocol), ICMP Router Discovery, and ICMP Redirect into one protocol, which makes IPv6 network management more consistent and efficient. Built on ICMPv6 (Internet Control Message Protocol version 6), it handles functions such as neighbor discovery, router discovery, automatic address configuration, duplicate address detection, and path optimization.
+NDP (Neighbor Discovery Protocol) is a core IPv6 protocol defined in RFC 4861. It combines the roles of several IPv4-era mechanisms such as ARP (Address Resolution Protocol), ICMP Router Discovery, and ICMP Redirect into a single protocol, making IPv6 network management more consistent and efficient. Built on ICMPv6 (Internet Control Message Protocol version 6), it handles functions such as neighbor discovery, router discovery, automatic address configuration, duplicate address detection, and path optimization.
 
-In IPv4 environments, multiple protocols operated independently for different functions (ARP, DHCP, ICMP, etc.), making network management complex. However, in IPv6, NDP integrates these functions to simplify the protocol stack and enhance security. In particular, using multicast-based communication significantly improves network efficiency compared to IPv4's broadcast method. This contributes to reducing unnecessary traffic and saving power consumption in large-scale network environments.
+In IPv4 environments, multiple protocols operated independently for different functions such as ARP, DHCP, and ICMP, which made network management more complex. In IPv6, NDP brings these functions together to simplify the protocol stack and improve security. In particular, multicast-based communication is much more efficient than IPv4's broadcast model. It reduces unnecessary traffic and can lower power consumption in large-scale network environments.
 
 ## Why NDP Was Introduced and How It Differs from IPv4
 
@@ -35,7 +35,7 @@ When designing IPv6, the IETF introduced NDP to address these issues and incorpo
 
 ![NDP Message Types and Functions](ndp-messages.png)
 
-NDP performs the following core functions in IPv6 networks.
+NDP provides the following core functions in IPv6 networks.
 
 ### 1. Router Discovery
 
@@ -59,7 +59,7 @@ Hosts can automatically generate unique global unicast addresses by combining th
 
 ### 3. Neighbor Address Resolution
 
-Replaces IPv4's ARP to convert IPv6 addresses to Link-Layer addresses (MAC addresses). Uses Neighbor Solicitation (NS) and Neighbor Advertisement (NA) messages. Uses Solicited-Node multicast addresses instead of broadcast, greatly improving network efficiency.
+This function replaces IPv4's ARP by converting IPv6 addresses to Link-Layer addresses (MAC addresses). It uses Neighbor Solicitation (NS) and Neighbor Advertisement (NA) messages. It also uses Solicited-Node multicast addresses instead of broadcast, which greatly improves network efficiency.
 
 **Solicited-Node Multicast**:
 - Format: `FF02::1:FF00:0000` + last 24 bits of IPv6 address
@@ -79,7 +79,7 @@ A mandatory process where hosts verify whether an address is already in use on t
 
 ### 5. Neighbor Unreachability Detection (NUD)
 
-This function periodically checks whether cached neighbor nodes are still reachable so the network can respond quickly to topology changes. It is managed through the Neighbor Cache state machine and removes unreachable nodes from the cache to avoid unnecessary packet transmission.
+This function periodically checks whether cached neighbor nodes are still reachable so the network can respond quickly to topology changes. It is managed through the Neighbor Cache state machine, which removes unreachable nodes from the cache and avoids unnecessary packet transmission.
 
 **Neighbor Cache States**:
 - **INCOMPLETE**: Waiting for NA after sending NS
@@ -90,7 +90,7 @@ This function periodically checks whether cached neighbor nodes are still reacha
 
 ### 6. Path Optimization (Redirect)
 
-This is the mechanism through which a router informs a host of a more efficient next hop. It improves performance by reducing unnecessary router hops. Redirect messages can only be sent by routers, and hosts use them to update their routing tables.
+This mechanism lets a router inform a host of a more efficient next hop. It improves performance by reducing unnecessary router hops. Redirect messages can only be sent by routers, and hosts use them to update their routing tables.
 
 **Usage Scenarios**:
 - Destination is on the same link (direct communication possible)
@@ -103,7 +103,7 @@ NDP uses 5 ICMPv6 message types, each with specific purposes and structures.
 
 ### Router Solicitation (RS) - Type 133
 
-Message sent by hosts to find routers. Transmitted immediately upon network connection, enabling rapid network configuration.
+This message is sent by hosts to find routers. It is transmitted immediately upon network connection, enabling rapid network configuration.
 
 **Packet Structure**:
 ```
@@ -123,7 +123,7 @@ Options:
 
 ### Router Advertisement (RA) - Type 134
 
-Message providing network configuration information from router. Transmitted periodically or in response to RS.
+This message provides network configuration information from a router. It is transmitted periodically or in response to RS.
 
 **Packet Structure**:
 ```
@@ -156,7 +156,7 @@ Options:
 
 ### Neighbor Solicitation (NS) - Type 135
 
-Message to find destination's Link-Layer address or verify neighbor reachability. Replaces IPv4's ARP Request.
+This message is used to find a destination's Link-Layer address or verify neighbor reachability. It replaces IPv4's ARP Request.
 
 **Packet Structure**:
 ```
@@ -177,7 +177,7 @@ Options:
 
 ### Neighbor Advertisement (NA) - Type 136
 
-This message is used either as a response to a Neighbor Solicitation or to notify other nodes of a Link-Layer address change.
+This message is used either in response to a Neighbor Solicitation or to notify other nodes of a Link-Layer address change.
 
 **Packet Structure**:
 ```
@@ -266,7 +266,7 @@ Router Advertisement (Type 134):
 
 ### Stage 2: Automatic Address Configuration (SLAAC)
 
-Generates global unicast address by combining prefix received from router with own interface ID.
+At this stage, the host generates a global unicast address by combining the prefix received from the router with its interface ID.
 
 **Address Generation Process**:
 ```
@@ -289,7 +289,7 @@ Generates global unicast address by combining prefix received from router with o
 
 ### Stage 3: Duplicate Address Detection (DAD)
 
-Mandatory stage to verify that the generated address is unique on the network.
+This is the mandatory stage used to verify that the generated address is unique on the network.
 
 **DAD Message Exchange**:
 ```
@@ -316,7 +316,7 @@ Neighbor Solicitation (Type 135):
 
 ### Stage 4: Neighbor Node Address Resolution (Neighbor Discovery)
 
-Find MAC address of destination IPv6 address for actual communication.
+At this stage, the host finds the MAC address for the destination IPv6 address so that actual communication can begin.
 
 **Address Resolution Message Exchange**:
 ```
@@ -345,7 +345,7 @@ Neighbor Advertisement (Type 136):
 
 ### Stage 5: Data Transmission and Neighbor Reachability Verification
 
-Transmit data using cached MAC address and periodically verify reachability.
+The host then transmits data using the cached MAC address and periodically verifies reachability.
 
 **Neighbor Cache State Transitions**:
 ```
@@ -432,11 +432,11 @@ Example:
 
 ## NDP Security Vulnerabilities and Attacks
 
-While NDP provides improved security features compared to IPv4 ARP, it can still be exposed to various attacks. Basic NDP without authentication mechanisms is particularly vulnerable to Man-in-the-Middle (MITM) attacks.
+Although NDP improves on IPv4 ARP in several ways, it can still be exposed to various attacks. Basic NDP without authentication mechanisms is particularly vulnerable to Man-in-the-Middle (MITM) attacks.
 
 ### 1. RA Spoofing (Router Advertisement Spoofing)
 
-Attack where attacker sends forged RA messages to manipulate host network configuration. The most serious type of NDP attack.
+In this attack, an attacker sends forged RA messages to manipulate host network configuration. It is one of the most serious types of NDP attack.
 
 **Attack Scenario**:
 ```
@@ -464,7 +464,7 @@ Attacker → RA (forged):
 
 ### 2. NS/NA Spoofing (Neighbor Solicitation/Advertisement Spoofing)
 
-Similar to IPv4 ARP spoofing, attack where attacker sends forged NS or NA messages to poison Neighbor Cache.
+Similar to IPv4 ARP spoofing, this attack involves an attacker sending forged NS or NA messages to poison the Neighbor Cache.
 
 **Attack Mechanism**:
 ```
@@ -488,7 +488,7 @@ Packets Host A sends to Host B are delivered to attacker
 
 ### 3. DAD DoS Attack (Duplicate Address Detection Denial of Service)
 
-Denial of Service attack where attacker responds with NA to all DAD NS messages, preventing host from obtaining address.
+This Denial of Service attack works by having an attacker respond with NA to all DAD NS messages, preventing a host from obtaining an address.
 
 **Attack Flow**:
 ```
@@ -509,7 +509,7 @@ Attacker → NA: Target = 2001:db8::5678 (false response again)
 
 ### 4. Redirect Attack
 
-Attacker sends forged Redirect messages to manipulate host's routing table and intercept traffic.
+In this attack, an attacker sends forged Redirect messages to manipulate a host's routing table and intercept traffic.
 
 **Attack Example**:
 ```
@@ -533,7 +533,7 @@ All packets to external server route through attacker
 
 ### 1. SEND (SEcure Neighbor Discovery, RFC 3971)
 
-SEND is a protocol that adds cryptographic signatures to NDP messages to ensure authentication and integrity. Uses public key cryptography (RSA) based authentication and effectively prevents RA spoofing and NS/NA spoofing.
+SEND is a protocol that adds cryptographic signatures to NDP messages to ensure authentication and integrity. It uses RSA-based public key authentication and effectively prevents RA spoofing and NS/NA spoofing.
 
 **SEND Operation Principles**:
 1. **Certificate-based Authentication**: Use X.509 certificates to verify router and host identities
@@ -557,7 +557,7 @@ ICMPv6 Header (RA, NS, NA, etc.)
 
 ### 2. RA Guard (RFC 6105)
 
-Function to block unauthorized RA messages at switches. Filters RA sent from non-router devices through physical port-based policies.
+RA Guard blocks unauthorized RA messages at switches. It filters RA messages sent from non-router devices through physical port-based policies.
 
 **RA Guard Operation Mechanism**:
 ```
@@ -602,7 +602,7 @@ interface GigabitEthernet1/0/24
 
 ### 3. DHCPv6 Guard
 
-Similar to RA Guard, function to block unauthorized DHCPv6 server responses.
+Similar to RA Guard, DHCPv6 Guard blocks unauthorized DHCPv6 server responses.
 
 **Configuration Example (Cisco)**:
 ```
@@ -615,7 +615,7 @@ interface GigabitEthernet1/0/1
 
 ### 4. IPv6 Source Guard
 
-Function to verify source addresses to prevent IPv6 address spoofing. Operates based on DHCPv6 binding table or Neighbor Discovery snooping table.
+IPv6 Source Guard verifies source addresses to prevent IPv6 address spoofing. It operates based on a DHCPv6 binding table or a Neighbor Discovery snooping table.
 
 **Operation Principle**:
 ```
@@ -636,7 +636,7 @@ Function to verify source addresses to prevent IPv6 address spoofing. Operates b
 
 ### 5. Access Control Lists (ACL)
 
-Filter ICMPv6 messages at firewalls or routers to block attacks.
+ACLs can filter ICMPv6 messages at firewalls or routers to block attacks.
 
 **Recommended ACL Rules**:
 ```
@@ -656,7 +656,7 @@ deny icmpv6 any any nd-ns
 
 ### 6. Network Segmentation (VLAN Segmentation)
 
-Use VLANs to segment broadcast/multicast domains and limit attack impact scope.
+VLANs can be used to segment broadcast and multicast domains and limit the scope of an attack.
 
 **Security-Enhanced VLAN Design**:
 ```
@@ -684,4 +684,6 @@ Apply ACL at router between each VLAN
 
 ## Conclusion
 
-NDP (Neighbor Discovery Protocol) has established itself as a core protocol for IPv6 networks since its standardization through RFC 4861 in 2007. It integrates the functions of several IPv4 protocols such as ARP, ICMP Router Discovery, and ICMP Redirect to enable more efficient and automated network management. It significantly reduces network traffic through multicast-based communication, and through SLAAC enables operation of large-scale networks without DHCP servers. It performs various functions including Router Discovery, Address Resolution, Duplicate Address Detection, Neighbor Unreachability Detection, and Redirect through 5 ICMPv6 message types (RS, RA, NS, NA, Redirect). However, basic NDP lacks authentication mechanisms and can be exposed to various security threats such as RA spoofing, NS/NA spoofing, DAD DoS, and Redirect attacks. Network administrators should build secure IPv6 networks by appropriately combining security measures such as SEND (SEcure Neighbor Discovery), RA Guard, DHCPv6 Guard, IPv6 Source Guard, ACL filtering, and VLAN segmentation. As IPv6 adoption accelerates in modern network environments, accurately understanding NDP's operation principles and security issues is essential knowledge for network engineers and security professionals.
+NDP (Neighbor Discovery Protocol) is one of the core protocols of IPv6 networks. By integrating the roles of ARP, ICMP Router Discovery, and ICMP Redirect, it makes network configuration and neighbor communication more efficient and more automated. Through message types such as RS, RA, NS, NA, and Redirect, it supports router discovery, address resolution, duplicate address detection, neighbor reachability checks, and path optimization.
+
+At the same time, basic NDP does not include strong built-in authentication, which leaves it open to threats such as RA spoofing, NS/NA spoofing, DAD DoS, and Redirect attacks. In practice, secure IPv6 operation depends on combining protections such as SEND, RA Guard, DHCPv6 Guard, IPv6 Source Guard, ACL filtering, and VLAN segmentation. As IPv6 adoption continues to grow, understanding both how NDP works and how to secure it remains essential for network engineers and security professionals.

@@ -8,13 +8,13 @@ draft: false
 
 ## What is ARP
 
-ARP (Address Resolution Protocol) is a network protocol officially standardized in 1982 through the IETF's RFC 826 document. In TCP/IP network environments, it dynamically discovers the MAC address (physical address) corresponding to a given IP address as an address translation protocol. It operates at the boundary between Layer 2 (Data Link Layer) and Layer 3 (Network Layer) of the OSI 7-layer model, performing the core role of mapping logical addresses (IP) to physical addresses (MAC).
+ARP (Address Resolution Protocol) is a network protocol defined in RFC 826 by the IETF in 1982. In TCP/IP networks, it dynamically discovers the MAC address (physical address) associated with a given IP address. It sits at the boundary between Layer 2 (Data Link Layer) and Layer 3 (Network Layer) of the OSI 7-layer model and maps logical addresses (IP) to physical addresses (MAC).
 
-In network communication, actual data transmission between devices is based on MAC addresses. Since the upper layer (Network Layer) only knows IP addresses, the lower layer (Data Link Layer) must know the destination's MAC address to transmit packets. This is where ARP handles the process of converting IP addresses to MAC addresses. ARP operates by broadcasting queries to all devices in the network, with only the device having that IP responding. It is an essential protocol used in most local network environments, including Ethernet networks.
+In network communication, actual data transmission between devices relies on MAC addresses. The upper layer (Network Layer) works with IP addresses, but the lower layer (Data Link Layer) needs the destination's MAC address to send packets. ARP performs this IP-to-MAC conversion. It broadcasts a query across the network, and only the device that owns the target IP responds. Because of this, ARP is an essential protocol in most local network environments, including Ethernet networks.
 
 ## Role and Necessity of ARP
 
-ARP performs the following core roles in the TCP/IP network stack, which are essential elements for normal network communication.
+ARP plays the following core roles in the TCP/IP network stack, all of which are essential for normal network communication.
 
 1. **Converts IP addresses to MAC addresses**
    - Maps Layer 3 (Network Layer) logical addresses (IP) to Layer 2 (Data Link Layer) physical addresses (MAC)
@@ -38,20 +38,20 @@ ARP performs the following core roles in the TCP/IP network stack, which are ess
 
 ## ARP's Position in the OSI Layer
 
-ARP occupies a unique position in the OSI 7-layer model. It is officially considered a Layer 2.5 protocol. While encapsulated within Layer 2 (Data Link Layer) Ethernet frames, it uses Layer 3 (Network Layer) IP addresses, acting as a bridge connecting the two layers.
+ARP occupies a unique position in the OSI 7-layer model. It is often described as a Layer 2.5 protocol. While it is carried inside Layer 2 (Data Link Layer) Ethernet frames, it uses Layer 3 (Network Layer) IP addresses, acting as a bridge between the two layers.
 
 **Role by Layer**:
 - **Layer 3 (Network Layer)**: IP packet generation, logical addressing, routing decisions
 - **ARP (Layer 2.5)**: IP address → MAC address conversion
 - **Layer 2 (Data Link Layer)**: Ethernet frame generation, physical addressing, switching
 
-ARP packets are not encapsulated within IP packets but are directly encapsulated in Ethernet frames. The Ethernet frame's EtherType field uses the value 0x0806 to indicate the ARP protocol.
+ARP packets are not carried inside IP packets. Instead, they are encapsulated directly in Ethernet frames. The Ethernet frame's EtherType field uses the value 0x0806 to indicate the ARP protocol.
 
 ## ARP Packet Structure
 
 ![ARP Packet Structure](arp-packet.png)
 
-ARP packets have a fixed size of 28 bytes and are transmitted directly encapsulated within Ethernet frames.
+ARP packets have a fixed size of 28 bytes and are encapsulated directly in Ethernet frames.
 
 **Ethernet Frame Header (14 bytes)**:
 - **Destination MAC Address (6 bytes)**: FF:FF:FF:FF:FF:FF (broadcast) for ARP requests, specific MAC address for ARP replies
@@ -75,7 +75,7 @@ Ethernet frames require a minimum size of 60 bytes, so ARP packets (14 + 28 = 42
 
 ![ARP Request-Reply Flow](arp-flow.png)
 
-ARP operates through a 2-step process (request-reply), consisting of a combination of broadcast requests and unicast replies.
+ARP works through a 2-step request-reply process: a broadcast request followed by a unicast reply.
 
 ### 1. ARP Request
 
@@ -135,11 +135,11 @@ Target IP: 192.168.1.10
 
 ### 3. ARP Cache Storage and Data Transmission
 
-Host A stores the learned MAC address in the ARP cache. Subsequently, it can directly transmit all packets destined for Host B by setting the destination MAC address to BB:BB:BB:BB:BB:BB. ARP cache entries expire and are deleted after a certain time (usually 2-20 minutes) according to TTL (Time To Live), and can be renewed through ARP requests when needed.
+Host A stores the learned MAC address in the ARP cache. It can then send later packets for Host B directly to BB:BB:BB:BB:BB:BB. ARP cache entries expire after a certain time (usually 2-20 minutes) based on TTL (Time To Live), and can be renewed through ARP requests when needed.
 
 ## ARP Cache and TTL
 
-ARP caches learned MAC address information in memory to optimize network performance. This is called the ARP cache (ARP Table) or ARP table.
+To optimize network performance, ARP stores learned MAC address information in memory. This is called the ARP cache (ARP table).
 
 **Types of ARP Cache**:
 
@@ -169,7 +169,7 @@ ARP caches learned MAC address information in memory to optimize network perform
 
 ## Special ARP Types
 
-The ARP protocol is utilized for several special purposes beyond basic request-reply, each designed to solve specific network scenarios.
+Beyond basic request-reply operation, ARP is also used in several special network scenarios.
 
 ### Gratuitous ARP
 
@@ -191,7 +191,7 @@ Gratuitous ARP is an ARP packet sent voluntarily without being requested. Both s
 
 ### Proxy ARP
 
-Proxy ARP is a technique where a router responds to ARP requests on behalf of hosts in other subnets. Clients can communicate as if they are in the same subnet without recognizing the router's existence.
+Proxy ARP is a technique in which a router responds to ARP requests on behalf of hosts in other subnets. Clients can communicate as if they were on the same subnet without being aware of the router.
 
 **Operation Principle**:
 1. Host A (192.168.1.10/24) tries to send a packet to Host B (192.168.2.20/24) but has no gateway configuration and mistakenly assumes it's the same subnet
@@ -220,7 +220,7 @@ Reverse ARP is a protocol defined in RFC 903 (1984) that performs the opposite f
 
 ## Security Issues with ARP
 
-The ARP protocol did not consider security during its 1982 design and has no authentication mechanism whatsoever. This results in several security vulnerabilities and exposure to malicious attacks.
+ARP was designed in 1982 without security in mind and has no authentication mechanism. As a result, it has several security vulnerabilities and is exposed to malicious attacks.
 
 ### 1. ARP Spoofing
 
@@ -245,7 +245,7 @@ ARP cache poisoning is similar to ARP spoofing but a broader concept. It injects
 
 ### 3. MITM (Man-in-the-Middle) Attack
 
-A Man-in-the-Middle attack based on ARP spoofing where the attacker positions themselves between two communicating parties to intercept and eavesdrop on or manipulate all traffic.
+This type of Man-in-the-Middle attack uses ARP spoofing to place the attacker between two communicating parties, allowing them to intercept, inspect, or manipulate all traffic.
 
 **Attack Scenarios**:
 1. **Password Theft**: Intercepts plaintext passwords transmitted through HTTP login forms
@@ -256,11 +256,11 @@ A Man-in-the-Middle attack based on ARP spoofing where the attacker positions th
 
 ## ARP Security Enhancement Methods
 
-While ARP's security vulnerabilities cannot be completely eliminated, the following defense techniques can significantly reduce attack risks.
+ARP's security weaknesses cannot be eliminated completely, but the following defense techniques can significantly reduce the risk of attack.
 
 ### 1. Using Static ARP Tables
 
-Manually registers MAC addresses for important servers, gateways, and network equipment to completely block ARP spoofing attacks at the source.
+Static ARP tables manually register MAC addresses for important servers, gateways, and network equipment to block ARP spoofing attacks at the source.
 
 **Advantages**:
 - Complete immunity to ARP spoofing attacks
@@ -282,7 +282,7 @@ arp -s 192.168.1.1 aa-bb-cc-dd-ee-ff
 
 ### 2. Dynamic ARP Inspection (DAI)
 
-A security feature provided by managed switches that validates ARP packet validity based on DHCP Snooping tables to block forged ARP packets.
+This security feature on managed switches validates ARP packets against DHCP Snooping tables to block forged ARP traffic.
 
 **Operation Principle**:
 1. Builds binding table by learning IP-MAC mapping information for hosts connected to each port through DHCP Snooping
@@ -332,7 +332,7 @@ ARP spoofing attacks are only possible on local networks (same broadcast domain)
 
 ### 5. Network Segmentation
 
-Logically dividing networks through VLANs (Virtual LANs) to limit broadcast domains minimizes the impact scope of ARP spoofing attacks.
+Logically dividing networks through VLANs (Virtual LANs) to limit broadcast domains reduces the scope of ARP spoofing attacks.
 
 **Advantages**:
 - Limits the number of hosts attackers can access
@@ -341,4 +341,6 @@ Logically dividing networks through VLANs (Virtual LANs) to limit broadcast doma
 
 ## Conclusion
 
-ARP (Address Resolution Protocol) has been used for over 40 years since its standardization through RFC 826 in 1982 as a core protocol of TCP/IP networks. It performs the essential role of converting IP addresses to MAC addresses, enabling actual data transmission in Ethernet networks. While operating efficiently through broadcast-based request-reply mechanisms and caching, it has various security vulnerabilities including ARP spoofing, cache poisoning, and Man-in-the-Middle attacks due to lack of security considerations in its early design. Network administrators should strengthen security by appropriately combining defense techniques such as static ARP tables, Dynamic ARP Inspection, ARP monitoring systems, VPN encryption, and network segmentation. In modern network environments, ARP is being replaced by IPv6's NDP (Neighbor Discovery Protocol), but understanding ARP's operation principles and security issues remains essential knowledge for network engineers and security professionals as IPv4 networks continue to be widely used.
+ARP (Address Resolution Protocol) has been a core part of TCP/IP networks since RFC 826 standardized it in 1982. Its job is simple but essential: converting IP addresses to MAC addresses so Ethernet communication can actually take place. ARP does this efficiently through broadcast-based request-reply exchanges and caching, but it also has well-known security weaknesses such as ARP spoofing, cache poisoning, and Man-in-the-Middle attacks because it was designed without authentication.
+
+To reduce those risks, network administrators often combine multiple defenses, including static ARP tables, Dynamic ARP Inspection, ARP monitoring systems, VPN encryption, and network segmentation. In modern networks, IPv6 replaces ARP with NDP (Neighbor Discovery Protocol). Even so, ARP remains important knowledge for network engineers and security professionals because IPv4 networks are still widely used.

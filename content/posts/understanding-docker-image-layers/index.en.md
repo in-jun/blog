@@ -6,7 +6,7 @@ description: "Docker image layer structure and optimization techniques."
 draft: false
 ---
 
-Docker image layers are the fundamental building blocks of Docker images. Each layer captures filesystem changes and stacks as a read-only tier on top of previous layers. These layers are unified into a single filesystem through the Union File System and provided to containers. Understanding the layer structure is essential for efficient image building and storage optimization.
+Docker image layers are the fundamental building blocks of Docker images. Each layer captures filesystem changes and stacks as a read-only tier on top of previous layers. Through a Union File System, these layers are presented as a single filesystem view for containers. Understanding the layer structure is essential for efficient image building and storage optimization.
 
 ## Docker Image Layer Overview
 
@@ -16,7 +16,7 @@ Docker image layers are the fundamental building blocks of Docker images. Each l
 
 ### History and Background of the Layer System
 
-Docker's layer system is rooted in the Linux Union File System concept. This technology originated from Unionfs, developed in 2004 by Professor Erez Zadok's research team at SUNY Stony Brook. Docker initially used AUFS (Another Union File System), but overlay2 is now adopted as the default storage driver, natively supported in Linux kernel 3.18 and above.
+Docker's layer system is rooted in the Linux Union File System concept. This technology originated from Unionfs, developed in 2004 by Professor Erez Zadok's research team at SUNY Stony Brook. Docker initially used AUFS (Another Union File System), but overlay2 is now the default storage driver and is natively supported in Linux kernel 3.18 and above.
 
 | Year | Event | Description |
 |------|-------|-------------|
@@ -29,7 +29,7 @@ Docker's layer system is rooted in the Linux Union File System concept. This tec
 
 ### Why Layers are Necessary
 
-Composing Docker images as a single filesystem causes various inefficiencies. The layer system solves the following problems.
+Treating a Docker image as a single filesystem creates several inefficiencies. The layer system solves the following problems.
 
 | Problem | Limitation of Single Structure | Layer System Solution |
 |---------|-------------------------------|----------------------|
@@ -52,7 +52,7 @@ The current default storage driver for Docker, overlay2, is based on the Linux k
 
 ### Layer Stack Operation
 
-When multiple layers stack like a stack, the filesystem operates by the following rules: upper layer files shadow files at the same path in lower layers, file deletion is marked with whiteout files, and file reads search sequentially from the upper layer and return the first file found.
+When multiple layers are stacked, the filesystem follows these rules: files in upper layers shadow files at the same path in lower layers, file deletions are marked with whiteout files, and file reads search from the upper layer downward and return the first file found.
 
 ```dockerfile
 FROM ubuntu:22.04           # Layer 1: ~77MB - Ubuntu base filesystem
@@ -82,7 +82,7 @@ When modifying a file in a container, Copy-on-Write operates in the following st
 
 ### CoW Performance Characteristics
 
-The Copy-on-Write mechanism has advantages of space efficiency and fast container startup. However, there is copy overhead on the first modification of large files, and performance degradation can occur in write-intensive workloads. In such cases, it is recommended to bypass CoW overhead using volume mounts.
+The Copy-on-Write mechanism offers space efficiency and fast container startup. However, the first modification of a large file incurs copy overhead, and write-intensive workloads can suffer performance degradation. In such cases, it is recommended to bypass CoW overhead using volume mounts.
 
 ```yaml
 # docker-compose.yml - Use volumes for write-intensive directories
@@ -104,7 +104,7 @@ volumes:
 
 ### Cache Invalidation Rules
 
-Docker invalidates the cache for a layer and all subsequent layers when any of the following conditions are met. This means layer order directly affects build performance.
+Docker invalidates the cache for a layer and all subsequent layers when any of the following conditions are met, so layer order directly affects build performance.
 
 | Condition | Description | Example |
 |-----------|-------------|---------|
@@ -115,7 +115,7 @@ Docker invalidates the cache for a layer and all subsequent layers when any of t
 
 ### Cache-Optimized Dockerfile Writing
 
-To maximize cache efficiency, place layers with low change frequency first and place frequently changing layers at the bottom of the Dockerfile.
+To maximize cache efficiency, place layers with low change frequency first and place frequently changing layers later in the Dockerfile.
 
 **Inefficient Dockerfile:**
 
@@ -148,7 +148,7 @@ In the optimized version, even if source code changes, if `package.json` has not
 
 > **Minimizing Layer Count**
 >
-> Each RUN, COPY, and ADD instruction in a Dockerfile creates a new layer. Consolidating related instructions reduces layer count and image size.
+> Each RUN, COPY, and ADD instruction in a Dockerfile creates a new layer. Consolidating related instructions reduces the number of layers and image size.
 
 ### Command Consolidation Techniques
 
@@ -203,7 +203,7 @@ coverage/
 
 ### Multi-Stage Build Example
 
-This Go application multi-stage build example demonstrates how separating build and runtime environments reduces image size.
+This multi-stage build example for a Go application shows how separating the build and runtime environments reduces image size.
 
 ```dockerfile
 # ===== Build Stage =====
@@ -237,11 +237,11 @@ EXPOSE 8080
 CMD ["./main"]
 ```
 
-In this example, the build stage's golang:1.21-alpine image is about 300MB, but the final runtime image is about 10MB based on alpine:3.19, reducing image size by over 97%.
+In this example, the build stage's golang:1.21-alpine image is about 300MB, while the final runtime image based on alpine:3.19 is about 10MB. That cuts the image size by over 97%.
 
 ### Node.js Multi-Stage Build
 
-This is a multi-stage build example for frontend applications.
+The following example applies the same multi-stage approach to a frontend application.
 
 ```dockerfile
 # ===== Dependencies Stage =====
@@ -332,6 +332,6 @@ CI=true dive nginx:latest --ci-config .dive-ci.yml
 
 ## Conclusion
 
-The Docker image layer system is a core technology for efficient storage usage, fast image builds, and rapid container startup. It operates based on Union File System and Copy-on-Write mechanisms. By understanding the layer structure and applying techniques such as cache optimization, command consolidation, and multi-stage builds, you can reduce build time, decrease image size, and improve overall development and deployment efficiency.
+The Docker image layer system is central to efficient storage usage, fast image builds, and rapid container startup. It relies on Union File System and Copy-on-Write mechanisms. Understanding how layers work helps you write Dockerfiles that build faster, ship smaller images, and make better use of storage.
 
-For effective Dockerfile writing, it is important to place layers with low change frequency first, consolidate related commands, separate build and runtime environments with multi-stage builds, and analyze layers with tools like docker history and dive to discover optimization opportunities.
+In practice, that means putting low-change layers first, consolidating related commands, separating build and runtime environments with multi-stage builds, and using tools like docker history and dive to spot optimization opportunities.

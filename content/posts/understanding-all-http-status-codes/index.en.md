@@ -6,7 +6,7 @@ draft: false
 description: "HTTP status code categories and meanings."
 ---
 
-HTTP status codes are standardized three-digit response codes that a server returns to indicate the result of processing a client's request. These codes play a crucial role in all HTTP-based communication, including web browsers, API clients, and search engines, by showing whether a request succeeds, requires redirection, or results in a client-side or server-side error. In RESTful API design, choosing the right status codes has a major impact on API clarity and developer experience.
+HTTP status codes are standardized three-digit response codes that a server returns to indicate the result of processing a client's request. These codes play a crucial role in HTTP-based communication for web browsers, API clients, and search engines by showing whether a request succeeds, requires redirection, or fails with a client-side or server-side error. In RESTful API design, choosing the right status codes has a major impact on API clarity and developer experience.
 
 > **What is an HTTP Status Code?**
 >
@@ -18,7 +18,7 @@ HTTP status codes have evolved alongside the web, progressing from simple early 
 
 ### The HTTP/0.9 Era (1991)
 
-HTTP version 0.9, the first HTTP version developed by Tim Berners-Lee at CERN, had no concept of status codes at all. It only supported the GET method and simply returned HTML documents or closed the connection, leaving no way to express response status or error handling. At that stage, HTTP was little more than a protocol for transferring hypertext documents and lacked the metadata and header information that are essential to the modern web.
+HTTP version 0.9, the first HTTP version developed by Tim Berners-Lee at CERN, had no concept of status codes at all. It only supported the GET method and simply returned HTML documents or closed the connection, leaving no way to express response status or error handling. At that stage, HTTP was little more than a protocol for transferring hypertext documents and lacked the metadata and header information that are essential to modern web communication.
 
 ### The Emergence of HTTP/1.0 (1996, RFC 1945)
 
@@ -26,7 +26,7 @@ HTTP/1.0 was the first version to introduce status codes. It defined 16 basic st
 
 ### The Expansion of HTTP/1.1 (1999, RFC 2616)
 
-HTTP/1.1 significantly expanded status codes to more than 40, allowing more granular response handling. It introduced capabilities like 100 Continue for pre-validating large requests, 206 Partial Content for range requests, 409 Conflict for resource collisions, and 410 Gone for permanent deletion. These additions covered scenarios that commonly appear in real-world use. The 1xx category for informational responses was also officially added, and persistent connections (Keep-Alive) and pipelining greatly improved performance. The Host header became mandatory as well, enabling multiple domains to be hosted on a single IP address.
+HTTP/1.1 significantly expanded status codes to more than 40, allowing more granular response handling. It introduced capabilities like 100 Continue for pre-validating large requests, 206 Partial Content for range requests, 409 Conflict for resource collisions, and 410 Gone for permanent deletion. These additions covered scenarios commonly encountered in real-world use. The 1xx category for informational responses was also officially added, and persistent connections (Keep-Alive) and pipelining greatly improved performance. The Host header became mandatory as well, enabling multiple domains to be hosted on a single IP address.
 
 ### Establishment of Modern Standards (2014, RFC 7231)
 
@@ -55,7 +55,7 @@ HTTP/2 (2015, RFC 7540) and HTTP/3 (2022, RFC 9114) greatly improved transport l
 
 ### How 100 Continue Works
 
-When uploading large files, if the client sends a request with the `Expect: 100-continue` header, the server first examines only the request headers to determine whether it can process the request. If it can, it sends a 100 Continue response so the client can transmit the body. Otherwise, it immediately returns a 4xx or 5xx error, avoiding unnecessary large data transfers.
+When uploading large files, if the client sends a request with the `Expect: 100-continue` header, the server first examines only the request headers to determine whether it can process the request. If it can process the request, it sends a 100 Continue response so the client can transmit the body. Otherwise, it immediately returns a 4xx or 5xx error, avoiding unnecessary large data transfers.
 
 ```http
 POST /upload HTTP/1.1
@@ -153,7 +153,7 @@ HTTP/1.1 204 No Content
 
 ### Async Processing Pattern with 202 Accepted
 
-202 Accepted is used when a request has been accepted but processing is not yet complete. It works well for long-running asynchronous jobs such as sending emails, processing large files, or integrating with external systems.
+202 Accepted is used when a request has been accepted but processing is not yet complete. It works well for long-running asynchronous tasks such as sending emails, processing large files, or integrating with external systems.
 
 ```http
 POST /api/reports/generate HTTP/1.1
@@ -187,7 +187,7 @@ Content-Type: application/json
 
 ## 3xx (Redirection): Redirection Responses
 
-3xx status codes indicate that the client needs to take additional action to complete the request. They are primarily used for URL changes, cache validation, and moved resources, guiding clients to the correct location or improving network efficiency.
+3xx status codes indicate that the client needs to take additional action to complete the request. They are primarily used for URL changes, cache validation, and relocated resources, guiding clients to the correct location or improving network efficiency.
 
 > **Types of Redirection**
 >
@@ -280,7 +280,7 @@ ETag: "abc123"
 
 ## 4xx (Client Error): Client Error Responses
 
-4xx status codes indicate a problem with the client's request. They are used in situations like malformed syntax, authentication failure, insufficient permissions, or accessing non-existent resources, where the same error will repeat unless the client modifies the request.
+4xx status codes indicate a problem with the client's request. They are used in situations like malformed syntax, authentication failure, insufficient permissions, or accessing non-existent resources, where the request will keep failing unless the client changes it.
 
 > **Key to Client Error Handling**
 >
@@ -368,7 +368,7 @@ Content-Type: application/json
 
 ### Security Considerations for 404 Not Found
 
-404 Not Found is used when a resource doesn't exist, but for security-sensitive cases, you can return 404 instead of 403 to hide whether a resource exists. For example, when accessing another user's private resource, returning 403 reveals that the resource exists, so returning 404 may be safer.
+404 Not Found is used when a resource doesn't exist, but for security-sensitive cases, you can return 404 instead of 403 to hide whether a resource exists. For example, when accessing another user's private resource, a 403 response reveals that the resource exists, so some systems intentionally return 404 instead.
 
 ```http
 # Security 404: Hide resource existence
@@ -409,7 +409,7 @@ Content-Type: application/json
 
 ### 429 Too Many Requests and Rate Limiting
 
-429 Too Many Requests is used when a client has sent too many requests within a certain time period. It should indicate when retry is possible via the `Retry-After` header and provide limit information via `X-RateLimit-*` headers.
+429 Too Many Requests is used when a client has sent too many requests within a certain time period. It should indicate when the client may retry via the `Retry-After` header and provide limit information via `X-RateLimit-*` headers.
 
 ```http
 GET /api/search?q=example HTTP/1.1
@@ -464,7 +464,7 @@ Content-Type: application/json
 
 ## 5xx (Server Error): Server Error Responses
 
-5xx status codes indicate that the server failed to process a valid request. The client is not responsible, and the server side must resolve the issue. These are serious situations requiring immediate monitoring and response.
+5xx status codes indicate that the server failed to process a valid request. The client is not responsible, and the server must resolve the issue. These are serious situations requiring immediate monitoring and response.
 
 > **Principles of 5xx Error Handling**
 >
@@ -549,7 +549,7 @@ Content-Type: application/json
 
 ### 418 I'm a teapot
 
-418 I'm a teapot was defined on April 1, 1998, as part of HTCPCP (Hyper Text Coffee Pot Control Protocol) in RFC 2324. This joke code indicates that a teapot cannot brew coffee. Although it's a joke, it's actually implemented in many web frameworks (Express, Spring, Django, etc.), and has become part of developer culture, used by Google on April Fool's Day 2014.
+418 I'm a teapot was defined on April 1, 1998, as part of HTCPCP (Hyper Text Coffee Pot Control Protocol) in RFC 2324. This joke code indicates that a teapot cannot brew coffee. Although it's a joke, it has been implemented in many web frameworks (Express, Spring, Django, etc.), has become part of developer culture, and was even used by Google on April Fool's Day in 2014.
 
 ### 451 Unavailable For Legal Reasons
 
@@ -640,7 +640,7 @@ When receiving a 401 status code with `WWW-Authenticate: Basic realm="..."` head
 
 ## Conclusion
 
-HTTP status codes are a core element of client-server communication. They have evolved from the simple form without status codes in HTTP/0.9 in 1991 to the sophisticated system of today. Choosing the correct status code directly impacts API intuitiveness, debugging ease, and user experience. When designing RESTful APIs, it's important to select appropriate status codes for each situation, provide consistent error response structures, and detect and respond to issues early through effective monitoring.
+HTTP status codes are a core element of client-server communication. They have evolved from a protocol with no status codes in HTTP/0.9 to the more mature system used today. Choosing the correct status code directly impacts API intuitiveness, debugging ease, and user experience. When designing RESTful APIs, it's important to select appropriate status codes for each situation, provide consistent error response structures, and detect and respond to issues early through effective monitoring.
 
 ## References
 

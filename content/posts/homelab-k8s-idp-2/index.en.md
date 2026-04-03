@@ -1,5 +1,5 @@
 ---
-title: "Homelab Build Log #8 Building an IDP Part 2"
+title: "Homelab Build Log #8: Building an IDP, Part 2"
 date: 2025-02-28T07:47:18+09:00
 draft: false
 description: "Building an internal developer platform on Kubernetes."
@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-idp-1/), I set up Harbor container registry, Argo Events, and Argo Workflows as the foundation of the IDP. This post covers integrating those components with ArgoCD and designing Helm chart-based project templates to shape them into an Internal Developer Platform (IDP) that can deploy projects from a single YAML file.
+In the [previous post](/posts/homelab-k8s-idp-1/), I set up Harbor container registry, Argo Events, and Argo Workflows as the foundation of the IDP. This post covers integrating those components with ArgoCD and designing Helm chart-based project templates to turn them into an Internal Developer Platform (IDP) that can deploy projects from a single YAML file.
 
 ![Internal Developer Platform Architecture](image.png)
 
@@ -19,7 +19,7 @@ In the [previous post](/posts/homelab-k8s-idp-1/), I set up Harbor container reg
 >
 > An Internal Developer Platform is a system that provides developers with an abstracted self-service interface to deploy and operate applications without directly configuring infrastructure and deployment pipelines. As a core deliverable of platform engineering, it aims to improve developer experience and reduce operational burden through standardized deployment processes.
 
-Traditional CI/CD pipelines usually had to be set up separately for each project. What I wanted instead was a template-driven internal platform that could provision most of the surrounding infrastructure from a small configuration file. The version I built in this post worked roughly like this:
+Traditional CI/CD pipelines usually had to be set up separately for each project. What I wanted instead was a template-driven internal platform that could provision most of the surrounding infrastructure from a small configuration file. The version I built in this post worked like this:
 
 1. **A developer pushes code to a Git repository.**
 2. **A GitHub webhook sends an event to Argo Events' EventSource.**
@@ -30,7 +30,7 @@ Traditional CI/CD pipelines usually had to be set up separately for each project
 
 ## Project Template Design
 
-I designed a Helm chart-based project template that I could reuse across multiple projects. The idea was to reduce a new project to a small YAML file while the surrounding CI/CD wiring stayed shared.
+I designed a Helm chart-based project template that I could reuse across multiple projects. The idea was to reduce a new project to a small YAML file while keeping the surrounding CI/CD wiring shared.
 
 ### Project Template Requirements
 
@@ -43,7 +43,7 @@ For this homelab setup, I wanted the template to provide the following features:
 
 ### Git Repository Structure
 
-I organized the project management repository with the following structure:
+I organized the GitOps repository with the following structure:
 
 ```
 projects-gitops/
@@ -71,7 +71,7 @@ projects-gitops/
     └── ...
 ```
 
-In this structure, the `chart/` directory contains the Helm chart shared by all projects, and the `projects/` directory contains the configuration files for each project. To deploy a new project, simply add a YAML file to the `projects/` directory.
+In this structure, the `chart/` directory contains the Helm chart shared by all projects, and the `projects/` directory contains the configuration files for each project. Deploying a new project was as simple as adding a YAML file to the `projects/` directory.
 
 ## ApplicationSet Configuration
 
@@ -124,11 +124,11 @@ spec:
                     - CreateNamespace=true
 ```
 
-This ApplicationSet uses a Git generator with the `projects/*.yaml` files pattern and automatically creates an ArgoCD Application for each file. The filename, minus the `.yaml` extension, becomes the project name and namespace. Secrets stored in Vault are then injected through the ArgoCD Vault Plugin.
+This ApplicationSet uses a Git generator configured with the `projects/*.yaml` files pattern and automatically creates an ArgoCD Application for each file. The filename, minus the `.yaml` extension, becomes the project name and namespace. Secrets stored in Vault are then injected through the ArgoCD Vault Plugin.
 
 ## Project Configuration File Structure
 
-Each project in this setup is described with a YAML file in the following shape:
+Each project in this setup is described with a YAML file that looks like this:
 
 ```yaml
 applications:
@@ -197,7 +197,7 @@ spec:
             antiAffinity: false
 ```
 
-This EventBus is configured with 3 NATS replicas for high availability and establishes an independent event transport layer for each project.
+This EventBus runs 3 NATS replicas for high availability and gives each project its own event transport layer.
 
 ### EventSource Template
 
@@ -242,7 +242,7 @@ spec:
 {{- end }}
 ```
 
-This template creates an EventSource for each application defined in the project configuration and listens for push events from GitHub repositories. The `webhook.url` value is the externally accessible endpoint that GitHub sends events to.
+This template creates an EventSource for each application defined in the project configuration and listens for push events from its GitHub repository. The `webhook.url` value is the externally accessible endpoint that GitHub sends events to.
 
 ### Sensor Template
 
@@ -302,7 +302,7 @@ This Sensor filters only push events to specific branches (e.g., main, develop) 
 
 ### WorkflowTemplate
 
-A WorkflowTemplate that defines the build step and the project config update step:
+A WorkflowTemplate that defines the build step and updates the project config afterward:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -412,7 +412,7 @@ spec:
 The key components of this WorkflowTemplate are:
 
 - **DAG Template**: Defines two tasks, `build` and `update-config`, as a DAG with dependencies so that the configuration update only runs after a successful build.
-- **Kaniko**: A tool for building images inside containers without a Docker daemon, allowing safe image building without privilege escalation. Caching is enabled to reduce build times.
+- **Kaniko**: A tool for building images inside containers without a Docker daemon, allowing image builds without privilege escalation. Caching is enabled to reduce build times.
 - **GitHub API Call**: When the build succeeds, it triggers a repository_dispatch event to update the `git.hash` value in the project configuration file.
 
 ## CD Pipeline Templates
@@ -421,7 +421,7 @@ When the CI pipeline updates the project configuration file, ArgoCD picks up the
 
 ### Deployment Template
 
-A Deployment template for application deployment:
+A Deployment template for deploying applications:
 
 ```yaml
 {{- range $app := .Values.applications }}
@@ -522,7 +522,7 @@ spec:
 {{- end }}
 ```
 
-This template creates a Traefik IngressRoute for each domain defined in the project configuration. It uses the `web` and `websecure` entry points to handle HTTP and HTTPS traffic.
+This template creates a Traefik IngressRoute for each domain defined in the project configuration, using the `web` and `websecure` entry points for HTTP and HTTPS traffic.
 
 ### Database StatefulSet Template
 
@@ -594,7 +594,7 @@ spec:
 {{- end }}
 ```
 
-This template supports four database types: MySQL, PostgreSQL, Redis, and MongoDB. It also sets the environment variables and volume mount paths needed for each one.
+This template supports four database types: MySQL, PostgreSQL, Redis, and MongoDB. It also sets the environment variables and volume mount paths each one needs.
 
 ## GitHub Actions Configuration Update Workflow
 
@@ -655,7 +655,7 @@ This workflow receives `repository_dispatch` events and uses `yq` to update proj
 
 ## Project Creation and Usage
 
-In practice, adding a new project to this platform looked like this:
+In practice, adding a new project to this platform looked like this.
 
 ### Creating a Project Configuration File
 
@@ -683,7 +683,7 @@ databases:
 
 ### Storing Secrets in Vault
 
-I stored the project-specific secrets in Vault first:
+I first stored the project-specific secrets in Vault:
 
 ```bash
 vault kv put injunweb/myproject-github-access username=myuser token=ghp_xxxxx
@@ -693,7 +693,7 @@ vault kv put injunweb/myproject-api-secret API_KEY=my-api-key
 
 ### Verifying Deployment
 
-After committing and pushing the project configuration file, ArgoCD created the related resources automatically:
+After I committed and pushed the project configuration file, ArgoCD created the related resources automatically:
 
 ```bash
 kubectl get ns myproject
@@ -701,7 +701,7 @@ kubectl get eventbus,eventsource,sensor -n myproject
 kubectl get statefulset -n myproject
 ```
 
-When code is pushed to the GitHub repository, the CI pipeline runs automatically, followed by the build and deployment flow.
+When code is pushed to the GitHub repository, the CI pipeline runs automatically, then builds and deploys the application.
 
 ## Conclusion
 

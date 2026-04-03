@@ -19,7 +19,7 @@ In the [previous post](/posts/homelab-k8s-setup/), we set up a homelab Kubernete
 >
 > GitOps is an operational model first proposed by Alexis Richardson of Weaveworks in 2017. It uses a Git repository as the Single Source of Truth for infrastructure and application configurations. All infrastructure changes are tracked through Git commits, reviewed via Pull Requests, and reflected in the actual environment through automated processes, enabling infrastructure to be managed like code.
 
-Traditional infrastructure management involved administrators directly connecting to servers to execute commands or change settings through consoles. This approach had problems including difficulty tracking change history, complex root cause analysis and recovery when failures occurred due to mistakes, and difficulty maintaining consistency across multiple environments. GitOps addresses these issues by defining all infrastructure configuration as code, version controlling it in Git repositories, and having automated tools continuously compare the Git repository state with the actual cluster state, automatically synchronizing when differences occur.
+Traditional infrastructure management often meant administrators logging directly into servers and making changes by hand, either with shell commands or through management consoles. That made it difficult to track change history, slowed down root cause analysis and recovery when mistakes caused failures, and made it harder to keep multiple environments consistent. GitOps addresses these issues by defining infrastructure as code in Git repositories and having automated tools continuously compare the Git state with the actual cluster state, synchronizing when differences appear.
 
 ### Core Principles of GitOps
 
@@ -43,7 +43,7 @@ Adopting the GitOps approach provides the following advantages:
 
 > **What is ArgoCD?**
 >
-> ArgoCD is a declarative GitOps continuous deployment tool for Kubernetes. It was developed by Intuit and released as open source in 2018, and is now widely used as a graduated project of the CNCF (Cloud Native Computing Foundation). It automatically synchronizes Kubernetes manifests defined in Git repositories to clusters and provides functionality for visually monitoring application status through a web UI and CLI.
+> ArgoCD is a declarative continuous deployment tool for Kubernetes built around GitOps. It was developed by Intuit and released as open source in 2018, and later became a CNCF (Cloud Native Computing Foundation) graduated project. It automatically synchronizes Kubernetes manifests stored in Git repositories to clusters and provides a web UI and CLI for monitoring application status.
 
 ![ArgoCD Logo](image-1.png)
 
@@ -68,11 +68,11 @@ There are two core concepts to understand when using ArgoCD:
 
 ## Installing ArgoCD
 
-ArgoCD can be installed in several ways, but in my homelab I used Helm because it was the simplest option to keep in GitOps.
+ArgoCD can be installed in several ways, but in my homelab I used Helm because it was the simplest way to keep the installation under GitOps control.
 
 > **What is Helm?**
 >
-> Helm is a package manager for Kubernetes applications. It was first developed by Deis (now Microsoft) in 2015 and is currently maintained as a CNCF graduated project. It defines complex Kubernetes applications in a package format called "Charts," can apply different settings per environment through templates and values files, and performs a role similar to apt on Linux or Homebrew on macOS in the Kubernetes environment.
+> Helm is a package manager for Kubernetes applications. It was first developed by Deis (now Microsoft) in 2015 and is currently maintained as a CNCF graduated project. It defines complex Kubernetes applications in a package format called "Charts," can apply different settings per environment through templates and values files, and fills a role similar to apt on Linux or Homebrew on macOS for Kubernetes.
 
 ![Helm Logo](image-2.png)
 
@@ -123,7 +123,7 @@ And installed ArgoCD with:
 helm upgrade --install argocd argo/argo-cd --namespace argocd
 ```
 
-The `upgrade --install` option is idempotent: it upgrades ArgoCD if it is already installed, and installs it if it is not. That makes the command safe to run repeatedly. When the installation is complete, the following message is displayed:
+The `upgrade --install` option is idempotent: it upgrades ArgoCD if it is already installed, and installs it if it is not. That makes the command safe to run repeatedly. When the installation finished, it printed the following message:
 
 ```
 Release "argocd" does not exist. Installing it now.
@@ -191,13 +191,13 @@ To make ArgoCD manageable in this homelab, I split responsibilities across two G
 - **app-of-apps repository**: Repository defining the top-level bootstrap application, managing the list of applications to deploy to the cluster and their settings.
 - **k8s-resource repository**: Repository containing actual Kubernetes resources and Helm charts, managing the specific configuration of each application.
 
-This separation structure reduces management complexity by separating bootstrap logic from actual resource definitions, and is advantageous for security management as different access permissions can be set for each repository.
+This split reduces management complexity by keeping bootstrap logic separate from the actual resource definitions. It is also useful from a security perspective because each repository can have different access permissions.
 
 ### App of Apps Pattern
 
 > **What is the App of Apps Pattern?**
 >
-> The App of Apps pattern is a design pattern for hierarchically managing multiple applications in ArgoCD. It has a structure where one root Application creates and manages multiple child Applications. Using this pattern provides excellent scalability since you only need to add a directory to the Git repository when adding new applications, and management is easy since you can understand the entire cluster configuration from a single entry point.
+> The App of Apps pattern is a design pattern for hierarchically managing multiple applications in ArgoCD. It has a structure where one root Application creates and manages multiple child Applications. With this pattern, adding a new application is usually just a matter of adding another directory to the Git repository. It also gives you a single entry point for understanding the overall cluster configuration.
 
 ![App of Apps Structure](image-5.png)
 
@@ -318,7 +318,7 @@ This Application fetches and applies only the `applicationset.yaml` file from th
 
 > **What is ApplicationSet?**
 >
-> ApplicationSet is an ArgoCD feature that uses templates and Generators to automatically create and manage multiple Applications. It can dynamically create Applications based on Git repository directory structures, cluster lists, external data sources, and more. It is useful for managing large-scale multi-cluster environments or many microservices, allowing dozens of Applications to be automatically created and maintained with a single definition.
+> ApplicationSet is an ArgoCD feature that uses templates and Generators to automatically create and manage multiple Applications. It can dynamically create Applications based on Git repository directory structures, cluster lists, external data sources, and more. This makes it useful for larger multi-cluster environments or repositories with many services, where a single definition can create and maintain many Applications.
 
 The `applicationset.yaml` file in the `k8s-resource` repository looks like this:
 
@@ -381,6 +381,6 @@ From that point on, adding a new folder under `apps/` in the `k8s-resource` repo
 
 ## Conclusion
 
-In this post, I installed ArgoCD on my homelab Kubernetes cluster and used the App of Apps pattern to shape the GitOps workflow I wanted. From this point on, most of the cluster configuration lived in Git, and later pieces like storage, networking, and monitoring were all added on top of this structure.
+In this post, I installed ArgoCD on my homelab Kubernetes cluster and used the App of Apps pattern to put the GitOps workflow in place. From this point on, most of the cluster configuration lived in Git, and later pieces like storage, networking, and monitoring were all added on top of this structure.
 
 [Next Post: Homelab Build Log #3: Longhorn Storage](/posts/homelab-k8s-storage/)

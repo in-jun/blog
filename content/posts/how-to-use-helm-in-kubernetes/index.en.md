@@ -2,11 +2,11 @@
 title: "Using Helm in Kubernetes"
 date: 2024-07-28T23:22:52+09:00
 tags: ["Kubernetes", "Helm", "Package Manager"]
-description: "Deploying applications in Kubernetes with Helm package manager."
+description: "Deploying applications in Kubernetes using the Helm package manager."
 draft: false
 ---
 
-Helm is a package manager for packaging, deploying, and version management of Kubernetes applications. It was first developed by Deis (now Microsoft) in 2015, joined CNCF (Cloud Native Computing Foundation) in 2018, and has become the most widely used deployment tool in the Kubernetes ecosystem. Helm performs a similar role in Kubernetes as apt or yum in Linux or Homebrew in macOS. It bundles complex Kubernetes manifest files into packages called Charts, enabling installation, upgrade, and rollback with a single command while automating environment-specific configuration management and dependency handling to significantly reduce deployment complexity.
+Helm is a package manager for packaging, deploying, and managing versions of Kubernetes applications. It was first developed by Deis (now Microsoft) in 2015 and joined CNCF (Cloud Native Computing Foundation) in 2018. Today, it is the most widely used deployment tool in the Kubernetes ecosystem. Much like apt or yum on Linux or Homebrew on macOS, Helm bundles complex Kubernetes manifest files into packages called Charts. This lets you install, upgrade, and roll back applications with a single command while simplifying environment-specific configuration management and dependency handling.
 
 ## Helm Overview
 
@@ -49,11 +49,11 @@ A release is a running instance of a Chart. The same Chart can be installed mult
 
 ### Repository
 
-A place to store and share Charts, hosted on HTTP servers with chart listings managed through an index.yaml file. Notable repositories include Artifact Hub (formerly Helm Hub) and Bitnami Charts.
+A repository is a place to store and share Charts. It is typically hosted on an HTTP server, with chart listings managed through an `index.yaml` file. Notable repositories include Artifact Hub (formerly Helm Hub) and Bitnami Charts.
 
 ### Values
 
-Configuration values that override Chart defaults, defined in values.yaml or passed as command-line arguments.
+Values are configuration settings that override a Chart's defaults. They can be defined in `values.yaml` or passed as command-line arguments.
 
 ## Helm Installation
 
@@ -211,7 +211,7 @@ affinity: {}
 
 ## Template Writing
 
-Helm templates are based on the Go template language, dynamically generating Kubernetes manifests by referencing values from values.yaml.
+Helm uses the Go template language to generate Kubernetes manifests dynamically by referencing values from `values.yaml`.
 
 ### Basic Syntax
 
@@ -405,4 +405,4 @@ deploy:
 
 ## Conclusion
 
-Helm is a core tool that standardizes packaging, deployment, and version management of Kubernetes applications. Since its initial development in 2015, it has become the de facto standard package manager in the Kubernetes ecosystem. It enables managing complex applications as single deployment units through Charts, environment-specific configuration management using templates and values, rollback functionality through release history, and sharing and reuse through chart repositories, significantly reducing the complexity of Kubernetes operations.
+Helm is a core tool for standardizing the packaging, deployment, and version management of Kubernetes applications. Since its initial development in 2015, it has become the de facto standard package manager in the Kubernetes ecosystem. By packaging applications as Charts and combining templates, values, and release history, Helm makes Kubernetes deployments easier to manage, update, and roll back.

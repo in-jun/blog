@@ -14,7 +14,7 @@ Linux is an open-source operating system that has evolved for more than 30 years
 >
 > Linux traces its roots back to Unix, developed by Ken Thompson and Dennis Ritchie at AT&T Bell Labs in 1969. Unix's design philosophy of "combining small programs that each do one thing well" has become a core principle of Linux and modern software engineering today.
 
-The GNU Project, started by Richard Stallman in 1983, became a key starting point for the free software movement. It argued that software source code should be freely used, modified, and distributed, which led to the GPL (GNU General Public License). In 1991, the kernel project Linus Torvalds began as a hobby while studying at the University of Helsinki was combined with tools from the GNU Project, forming what is commonly called GNU/Linux. Since then, it has grown into one of the most successful open-source projects in history, with thousands of developers collaborating worldwide.
+The GNU Project, started by Richard Stallman in 1983, became a key starting point for the free software movement. It argued that software source code should be freely used, modified, and distributed, which led to the GPL (GNU General Public License). In 1991, the kernel project that Linus Torvalds began as a hobby while studying at the University of Helsinki was combined with tools from the GNU Project, forming what is commonly called GNU/Linux. Since then, it has grown into one of the most successful open-source projects in history, with thousands of developers collaborating worldwide.
 
 ### Linux Kernel Development
 
@@ -36,7 +36,7 @@ The open-source philosophy has profoundly influenced the modern development ecos
 >
 > A Linux distribution combines the Linux kernel with package managers, desktop environments, and system tools to form a complete operating system. Each distribution has its own philosophy and target users, and hundreds of distributions exist.
 
-### Major Distribution Comparison
+### Comparing Common Distributions
 
 | Distribution | Base | Package Manager | Release Style | Suitable For |
 |--------------|------|-----------------|---------------|--------------|
@@ -47,7 +47,7 @@ The open-source philosophy has profoundly influenced the modern development ecos
 | **CentOS Stream** | Red Hat | dnf | Rolling release | Enterprise testing |
 | **Linux Mint** | Ubuntu | apt | Ubuntu-based | Beginners, Windows switchers |
 
-Ubuntu is a distribution developed by Canonical and has become one of the most widely used desktop Linux options since its first release in 2004. Its LTS (Long Term Support) version provides security updates for 5 years, has an extensive community, and offers rich documentation, which makes problem-solving easier. Most commercial Linux software also tends to support Ubuntu first. Fedora is a community distribution sponsored by Red Hat and is known for adopting new technologies quickly. It serves as the upstream for RHEL (Red Hat Enterprise Linux) and provides strong security with SELinux enabled by default.
+Ubuntu is a distribution developed by Canonical and has become one of the most widely used desktop Linux options since its first release in 2004. Its LTS (Long Term Support) version provides security updates for 5 years, and it has an extensive community and rich documentation, which makes problem-solving easier. Most commercial Linux software also tends to support Ubuntu first. Fedora is a community distribution sponsored by Red Hat and is known for adopting new technologies quickly. It serves as the upstream for RHEL (Red Hat Enterprise Linux) and provides strong security with SELinux enabled by default.
 
 Arch Linux follows the "Keep It Simple, Stupid" (KISS) philosophy and keeps packages up to date through a rolling release model. It also provides access to a huge number of community packages through the AUR (Arch User Repository). Building the system from scratch gives users a deep understanding of Linux, though the entry barrier is high for beginners. Debian, which started in 1993, prioritizes stability above all else and includes only thoroughly tested packages. It serves as the base for many derivative distributions, including Ubuntu, and is widely used as a server operating system.
 
@@ -71,7 +71,7 @@ Linux provides a POSIX-compliant Unix environment, along with powerful text-proc
 
 ### 4. Perfect Compatibility with Container Technologies
 
-Docker and related container technologies use Linux kernel features like namespaces and cgroups directly, so they run most naturally on Linux. On macOS and Windows, Docker usually sits on top of a virtual machine layer, which adds overhead and can limit some features. On Linux, containers share the host kernel directly, which keeps startup times fast and memory usage relatively low.
+Docker and related container technologies use Linux kernel features like namespaces and cgroups directly, so they run most naturally on Linux. On macOS and Windows, Docker usually sits on top of a virtual machine layer, which adds overhead and can limit some features. On Linux, containers share the host kernel, which keeps startup times fast and memory usage relatively low.
 
 ### 5. System Stability and Resource Efficiency
 
@@ -94,13 +94,13 @@ Linux gives users deep control over the operating system, including kernel param
 | **Commercial SW** | Limited | Best | Good |
 | **Hardware Compatibility** | Most supported | Best | Apple only |
 
-Windows still has the strongest support for games and commercial software, and WSL2 (Windows Subsystem for Linux 2) makes it much better for development than it used to be. At the same time, licensing costs, mandatory updates, and Microsoft's overall system design may still feel limiting for some developers. macOS also offers strong development tooling as a Unix-based system and is especially important for iOS development. However, it only runs on Apple hardware, which raises the cost of entry and limits customization.
+Windows still has the strongest support for games and commercial software, and WSL2 (Windows Subsystem for Linux 2) makes it much better for development than it used to be. At the same time, licensing costs, mandatory updates, and Microsoft's overall system design may still feel limiting for some developers. macOS also offers strong development tooling as a Unix-based system, and it is especially important for iOS development. However, it only runs on Apple hardware, which raises the cost of entry and limits customization.
 
 ## Practical Considerations and Solutions
 
 ### Hardware Compatibility
 
-Linux hardware support has greatly improved recently, with most hardware recognized by default. However, some WiFi adapters and NVIDIA graphics cards may require additional driver installation. It is advisable to check Linux compatibility before purchasing new hardware. Choosing Linux-friendly hardware like ThinkPad, Dell XPS, System76, or Framework can minimize issues.
+Linux hardware support has greatly improved recently, with most hardware recognized by default. However, some WiFi adapters and NVIDIA graphics cards may require additional driver installation. It is advisable to check Linux compatibility before purchasing new hardware. Choosing Linux-friendly hardware from vendors such as Lenovo ThinkPad, Dell XPS, System76, or Framework can minimize issues.
 
 ### Commercial Software Alternatives
 
@@ -116,7 +116,7 @@ Wine and Proton are compatibility layers that enable running Windows programs on
 
 ### Learning Curve
 
-Switching to Linux does require an initial adaptation period. It takes time to become comfortable with the CLI, the filesystem structure, and the permission model. Still, the knowledge gained during that process transfers directly to server management, cloud operations, and DevOps work, so the learning cost tends to pay off.
+Switching to Linux does require an initial adaptation period. It takes time to become comfortable with the CLI, the filesystem structure, and the permission model. Still, the knowledge gained during that process transfers directly to server management, cloud operations, and DevOps work, so the learning curve tends to pay off.
 
 ## Recommended Resources
 
@@ -124,4 +124,4 @@ For learning materials, Linux Journey offers a free interactive guide for beginn
 
 ## Conclusion
 
-Linux offers developers a practical mix of server alignment, strong CLI tooling, native container compatibility, and deep system control. There is still a learning curve, but the understanding you gain from using Linux tends to carry over directly into modern infrastructure work. In that sense, Linux knowledge has become an essential skill in the cloud-native era. With changes like Steam Deck's success, the growth of WSL2, and the maturity of Wayland, desktop Linux has also become much more usable than it once was. If you are thinking about improving your development environment, Linux is worth serious consideration.
+Linux offers developers a practical mix of server alignment, strong CLI tooling, native container compatibility, and deep system control. There is still a learning curve, but the understanding you gain from using Linux tends to carry over directly into modern infrastructure work. In that sense, Linux knowledge has become an essential skill in the cloud-native era. Desktop Linux has also become much more usable than it once was, helped by changes like Steam Deck's success, the growth of WSL2, and the maturity of Wayland. If you are thinking about improving your development environment, Linux is worth serious consideration.

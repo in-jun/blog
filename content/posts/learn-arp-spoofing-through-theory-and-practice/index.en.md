@@ -64,7 +64,7 @@ Unidirectional ARP spoofing is an attack method that manipulates the ARP cache t
 
 **Victim Host Targeting Spoofing**
 
-When an attacker sends false ARP replies to the victim host claiming "the MAC address corresponding to the gateway's IP address is the attacker's MAC address", the victim sends all packets intended for the gateway to the attacker. The attacker can eavesdrop on or modify this traffic before forwarding it to the actual gateway. In this case, response traffic from the gateway to the victim is delivered directly normally, so the victim may experience some asymmetric network latency.
+When an attacker sends false ARP replies to the victim host claiming "the MAC address corresponding to the gateway's IP address is the attacker's MAC address", the victim sends all packets intended for the gateway to the attacker. The attacker can eavesdrop on or modify this traffic before forwarding it to the actual gateway. In this case, response traffic from the gateway still reaches the victim directly, so the victim may notice some asymmetric network latency.
 
 ```bash
 # Spoof gateway IP targeting the victim
@@ -299,7 +299,7 @@ sudo killall arpspoof
 
 ### Stage 4: Verify ARP Cache Manipulation
 
-To confirm the attack succeeded, query the ARP table again on the victim machine.
+To confirm that the attack has succeeded, query the ARP table again on the victim machine.
 
 ```bash
 # Execute on victim machine
@@ -386,7 +386,7 @@ This demonstrates the serious security risks of websites not using HTTPS. Modern
 
 ### Stage 6: Terminate Attack and Restore Normal State
 
-When the exercise is finished, terminate the arpspoof processes and restore the victim's ARP cache to normal state.
+When the exercise is finished, terminate the arpspoof processes and restore the victim's ARP cache to its normal state.
 
 ```bash
 # Terminate arpspoof on attacker machine
@@ -406,7 +406,7 @@ sudo ip neigh flush all
 arp -d
 ```
 
-Alternatively, waiting until the ARP cache TTL expires will automatically restore to normal state.
+Alternatively, waiting until the ARP cache TTL expires will allow it to return to its normal state automatically.
 
 ## Advanced Attack Techniques Enabled by ARP Spoofing
 
@@ -420,7 +420,7 @@ Tools like BetterCAP, mitmproxy, and bdfproxy can automatically detect and modif
 
 ### DNS Spoofing (DNS Hijacking)
 
-Performing DNS spoofing along with ARP spoofing allows changing the IP address of domains the victim tries to access to malicious servers controlled by the attacker. The dnsspoof tool can be used to forge DNS responses for specific domains.
+Performing DNS spoofing along with ARP spoofing allows the attacker to redirect domains the victim tries to access to malicious servers under the attacker's control. The dnsspoof tool can be used to forge DNS responses for specific domains.
 
 ```bash
 # Create DNS spoofing rule file in /etc/hosts format
@@ -491,7 +491,7 @@ Since ARP spoofing exploits structural vulnerabilities of the protocol, complete
 
 **Static ARP Entry Configuration**
 
-Setting static ARP entries for critical systems (gateway, DNS server, domain controller, etc.) prevents the attacker's false ARP replies from overwriting the cache. Communication to those systems is protected from ARP spoofing.
+Setting static ARP entries for critical systems (gateway, DNS server, domain controller, etc.) prevents the attacker's false ARP replies from overwriting the cache. This protects traffic to those systems from ARP spoofing.
 
 ```bash
 # Add static ARP entry on Ubuntu/Linux
@@ -530,7 +530,7 @@ Therefore, it is practical to apply static ARP only to a small number of core in
 
 **Using ARP Monitoring Tools**
 
-Tools like arpwatch, XArp, and ArpON monitor network ARP table changes in real-time and alert administrators when detecting abnormal IP-MAC mapping changes.
+Tools like arpwatch, XArp, and ArpON monitor ARP table changes in real time and alert administrators when they detect suspicious IP-MAC mapping changes.
 
 ```bash
 # Install arpwatch (Ubuntu/Debian)
@@ -617,7 +617,7 @@ The main advantages of DAI are:
 
 **DHCP Snooping**
 
-DHCP snooping monitors DHCP traffic on the switch and only allows replies from trusted DHCP servers. It stores IP-MAC-port binding information to serve as the foundation database for DAI and IP Source Guard. It also defends against Rogue DHCP Server attacks.
+DHCP snooping monitors DHCP traffic on the switch and only allows replies from trusted DHCP servers. It stores IP-MAC-port binding information that serves as the reference binding table for DAI and IP Source Guard. It also defends against Rogue DHCP Server attacks.
 
 ```cisco
 ! Enable DHCP snooping globally
@@ -753,7 +753,7 @@ Machine learning-based solutions (Darktrace, Vectra AI, etc.) that learn normal 
 
 **VPN and IPsec Tunnels**
 
-Encrypting all network traffic through VPN tunnels prevents attackers from reading or modifying packet contents even if they secure a man-in-the-middle position. End-to-end encryption can be implemented using VPN protocols such as OpenVPN, WireGuard, and IPsec.
+Encrypting all network traffic through VPN tunnels prevents attackers from reading or modifying packet contents even if they gain a man-in-the-middle position. End-to-end encryption can be implemented using VPN protocols such as OpenVPN, WireGuard, and IPsec.
 
 WireGuard VPN configuration example (Ubuntu):
 
@@ -818,7 +818,7 @@ server {
 
 **802.1X Network Access Control**
 
-802.1X is an IEEE standard port-based network access control protocol. It requires authentication before users or devices connect to the network. Integration with a RADIUS server can implement strong authentication through AD (Active Directory) credentials or digital certificates. Unauthenticated devices cannot access the network, so the attacker's opportunity to attempt ARP spoofing is blocked at the source.
+802.1X is an IEEE standard port-based network access control protocol. It requires authentication before users or devices connect to the network. When integrated with a RADIUS server, it can enforce strong authentication through AD (Active Directory) credentials or digital certificates. Unauthenticated devices cannot access the network, so the attacker's opportunity to attempt ARP spoofing is blocked at the source.
 
 802.1X configuration example on Cisco switch:
 
@@ -850,4 +850,4 @@ ARP spoofing is an old attack technique stemming from the structural limitations
 
 Network administrators and security professionals must accurately understand the principles and risks of ARP spoofing. They should establish defense-in-depth strategies including endpoint protection (static ARP, monitoring tools), network infrastructure security (DAI, DHCP snooping, port security, VLAN segmentation), detection and monitoring (IDS/IPS, SIEM), and traffic encryption (VPN, HTTPS, 802.1X) to protect their organization's network assets. All security solutions must be regularly tested and updated to respond to new attack techniques.
 
-Ultimately, transitioning to next-generation protocols that include authentication and integrity verification (e.g., NDP with SEND in IPv6 environments) is necessary to solve the fundamental security problems of the ARP protocol. However, in the reality where IPv4 networks are still widely used, the practical approach is to improve the actual security level by combining the defense techniques described above.
+Ultimately, transitioning to next-generation protocols that include authentication and integrity verification (e.g., NDP with SEND in IPv6 environments) is necessary to solve the fundamental security problems of the ARP protocol. However, while IPv4 networks remain widely used, the practical approach is to improve real-world security by combining the defense techniques described above.

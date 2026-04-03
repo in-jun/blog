@@ -10,9 +10,9 @@ draft: false
 
 ## Go Package Design Philosophy
 
-Go's package system has a unique philosophy compared to other languages, reflecting Go's core design principles of simplicity and clarity. Go did not adopt complex package hierarchies like Java or C++'s namespace system. Instead, it separates package paths and package names to enable concise yet expressive code.
+Go's package system reflects the language's emphasis on simplicity and clarity. Instead of adopting deep package hierarchies like Java or C++ namespace systems, Go separates package paths from package names so code can stay concise without losing meaning.
 
-Go's package conventions do not enforce strict rules for directory structure or architectural patterns. This is a deliberate design choice by the Go team. Go language creators, including Rob Pike and Ken Thompson, preferred an approach that provides flexibility to programmers while offering clear guidelines. This philosophy can be observed in the package structure of the standard library. Go's package conventions are built around the following key principles.
+Go's package conventions do not enforce strict rules for directory structure or architectural patterns. That is a deliberate design choice. The language's creators, including Rob Pike and Ken Thompson, favored an approach that gives programmers flexibility while still offering clear guidance. You can see this throughout the standard library. In practice, Go's package conventions center on the following principles.
 
 ## 1. Organize by Responsibility
 
@@ -57,7 +57,7 @@ In this structure, all user-related code resides in the `user` package, and all 
 
 ## 2. Leveraging Package Paths for Namespaces
 
-Go uses package paths themselves as expressive tools and namespaces. This is one of Go's unique characteristics. Package paths are not merely file system locations but semantic tools that express the purpose and category of packages. The Go standard library is a representative case of consistently applying this principle.
+Go uses package paths as both namespaces and a way to communicate intent. This is one of the language's distinctive traits. Package paths are not just file system locations; they also tell readers what a package is for and where it fits. The standard library applies this idea consistently.
 
 ### Hierarchical Namespaces in the Standard Library
 
@@ -69,12 +69,12 @@ The Go standard library groups related packages under top-level directories to p
 
 ### Clear Distinction of Packages with Identical Names
 
-Using package paths allows clear distinction between packages with identical names based on purpose and usage. A representative example is the `pprof` package.
+Package paths also make it easy to distinguish packages that share the same name. A representative example is `pprof`.
 
 -   `runtime/pprof`: A low-level package that generates and saves runtime profiling data. Use this when you need to save profiling data to a file or control it directly.
 -   `net/http/pprof`: A high-level package that provides profiling data through an HTTP server. It registers HTTP handlers so profiling information can be viewed in a web browser.
 
-Both packages use the name `pprof`, but the paths clearly indicate that `runtime/pprof` provides runtime-related functionality and `net/http/pprof` provides HTTP server-related functionality. Users can determine which package to use just by looking at the import path.
+Both packages are named `pprof`, but their paths show the difference: `runtime/pprof` is for runtime profiling, while `net/http/pprof` exposes profiling through an HTTP server. In many cases, the import path alone tells you which one you need.
 
 ### Project Namespace Organization
 
@@ -113,7 +113,7 @@ package json
 type JSONEncoder struct {}    // json.JSONEncoder (redundant!)
 ```
 
-When used, such code becomes unnecessarily verbose with `user.UserService` or `json.JSONEncoder`, where `user` and `json` information is repeated twice.
+When used, this code becomes unnecessarily verbose: `user.UserService` and `json.JSONEncoder` repeat the same context in both the package and type name.
 
 ### Recommended Pattern: Concise Naming
 
@@ -155,7 +155,7 @@ The standard library's `log` package uses concise names like `Print`, `Printf`, 
 
 ## 4. Package Naming Principles
 
-Package names themselves follow Go philosophy, being concise, clear, and lowercase-only.
+Package names follow Go's philosophy: they should be concise, clear, and lowercase.
 
 ### Prefer Lowercase and Single Words
 
@@ -204,9 +204,9 @@ package regexp    // regular expression
 
 However, abbreviations should be commonly used in the relevant domain. Avoid arbitrarily created abbreviations.
 
-## Practical Application Cases
+## Putting the Principles into Practice
 
-### Standard Library Analysis
+### Examples from the Standard Library
 
 The Go standard library perfectly applies these principles. Let's examine a few examples.
 
@@ -224,8 +224,8 @@ These patterns have been validated through nearly 20 years of use. New Go projec
 
 ## Conclusion
 
-Go's package conventions are not mere rules but guidelines for code clarity, maintainability, and consistency across the Go community. These principles reflect decades of programming experience and philosophy from Go's language creators. Responsibility-based package organization achieves high cohesion and low coupling. Namespace utilization through package paths provides clear structure. Eliminating redundancy creates concise and readable code.
+Go's package conventions are not just rules. They are guidelines that help keep code clear, maintainable, and consistent across the Go community. Organizing packages by responsibility improves cohesion and reduces coupling. Using package paths as namespaces makes code easier to navigate. Avoiding redundancy keeps APIs concise and readable.
 
-It is important to appropriately apply these principles according to each project's context and scale. Small projects can start with simple structures and expand gradually as needed. Large projects should consider clear package boundaries and responsibility separation from the beginning. Referencing the Go standard library and popular open-source projects can teach real-world application cases, greatly helping in writing idiomatic Go code.
+Apply these principles based on the size and needs of your project. Small projects can start with a simple structure and grow over time. Larger codebases benefit from defining package boundaries and responsibilities early. The Go standard library and well-maintained open source projects are strong references for writing idiomatic Go code.
 
 > Reference: https://go.dev/blog/package-names

@@ -6,7 +6,7 @@ description: "Network switch types and selection criteria."
 draft: false
 ---
 
-Network switches emerged in the early 1990s to overcome the performance limitations of Ethernet networks. They addressed the inefficiency of traditional hubs that broadcast data to all ports by providing the capability to selectively forward frames based on destination MAC addresses, becoming a core component of modern network infrastructure. In the OSI (Open Systems Interconnection) 7-layer model, switches are classified from L1 to L7 based on which layer they operate at. Each layer's switch has unique characteristics and purposes, analyzing protocol information at that layer to process traffic.
+Network switches emerged in the early 1990s to overcome the performance limitations of Ethernet networks. Unlike traditional hubs, which broadcast data to all ports, switches can forward frames selectively based on destination MAC addresses. That capability made them a core component of modern network infrastructure. In the OSI (Open Systems Interconnection) 7-layer model, switches are classified from L1 to L7 according to the layer at which they operate. Each type has distinct characteristics and purposes, analyzing protocol information at its respective layer to process traffic.
 
 ## Historical Development of Network Switches
 
@@ -34,7 +34,7 @@ Network switches are classified according to which layer of the OSI 7-layer mode
 >
 > An L1 switch is the most basic network device operating at the Physical Layer (Layer 1) of the OSI model. It only performs the function of amplifying electrical signals and retransmitting them to all ports, and is commonly known as a "Hub" today.
 
-A hub does not interpret or filter received signals but simply amplifies and broadcasts them to all connected devices. This means all ports form a single collision domain, and when two or more devices transmit data simultaneously, collisions occur requiring retransmission through the CSMA/CD (Carrier Sense Multiple Access with Collision Detection) mechanism. Due to these characteristics, collision frequency increases and effective bandwidth decreases dramatically as the number of connected devices grows. While hubs are rarely used in modern networks, they hold important conceptual significance for understanding basic network principles.
+A hub does not interpret or filter received signals but simply amplifies and broadcasts them to all connected devices. This means all ports form a single collision domain, and when two or more devices transmit data simultaneously, collisions occur requiring retransmission through the CSMA/CD (Carrier Sense Multiple Access with Collision Detection) mechanism. Due to these characteristics, collision frequency increases and effective bandwidth decreases dramatically as the number of connected devices grows. While hubs are rarely used in modern networks, they remain useful for understanding basic network principles.
 
 ### L1 Switch Characteristics
 
@@ -66,7 +66,7 @@ An L2 switch learns the MAC addresses of devices connected to each port and stor
 
 ### Managed vs Unmanaged Switches
 
-L2 switches are divided into Unmanaged switches and Managed switches based on the presence of management features. Unmanaged switches operate immediately upon connection without any configuration in a plug-and-play manner, making them suitable for small networks or home use. Managed switches allow various settings such as VLAN, QoS, and port security through web interfaces or CLI (Command Line Interface), and are primarily used in enterprise environments.
+L2 switches are divided into Unmanaged switches and Managed switches based on the presence of management features. Unmanaged switches work as soon as they are connected, with no configuration required, making them suitable for small networks or home use. Managed switches allow various settings such as VLAN, QoS, and port security through web interfaces or CLI (Command Line Interface), and are primarily used in enterprise environments.
 
 | Category | Unmanaged | Managed |
 |----------|-----------|---------|
@@ -83,7 +83,7 @@ L2 switches are divided into Unmanaged switches and Managed switches based on th
 >
 > An L3 switch operates at the Network Layer (Layer 3) of the OSI model. In addition to all L2 switch functions, it is a multilayer switch that handles packet routing based on IP addresses at the hardware level.
 
-While traditional routers process packets through software resulting in relatively slow speeds, L3 switches use ASIC (Application-Specific Integrated Circuit) chips to perform routing at the hardware level, enabling high-speed packet processing at near wire speed. L3 switches enable communication between different VLANs or subnets, support dynamic routing protocols such as OSPF, EIGRP, and BGP to automatically calculate optimal paths in large networks and respond flexibly to network changes. They also enable fine-grained traffic filtering through ACL (Access Control List) and QoS policy application.
+While traditional routers process packets through software, resulting in relatively slower speeds, L3 switches use ASIC (Application-Specific Integrated Circuit) chips to perform routing at the hardware level, enabling high-speed packet processing at near wire speed. L3 switches enable communication between different VLANs or subnets. In larger networks, they can use dynamic routing protocols such as OSPF, EIGRP, and BGP to calculate paths automatically and adapt to network changes. They also support fine-grained traffic filtering through ACL (Access Control List) and QoS policy application.
 
 ### L3 Switch vs Router
 
@@ -121,9 +121,9 @@ In addition to load balancing, L4 switches hide internal server real IP addresse
 
 > **The Reality of L5 and L6 Switches**
 >
-> Independent switch hardware for the Session Layer (L5) and Presentation Layer (L6) of the OSI model virtually does not exist. The functions of these layers are mostly integrated into L7 switches or ADCs (Application Delivery Controllers).
+> Dedicated switch hardware for the Session Layer (L5) and Presentation Layer (L6) of the OSI model is uncommon in practice. The functions of these layers are usually integrated into L7 switches or ADCs (Application Delivery Controllers).
 
-Session layer functions such as session management, connection setup/teardown, and checkpointing, along with presentation layer functions such as data format conversion, encryption/decryption, and compression, are typically implemented as additional features of L4 or L7 switches in modern network equipment or handled at the application level. Therefore, there is no need to consider L5 or L6 switches separately when selecting network equipment. Instead, review the feature specifications of L4 load balancers or L7 ADCs to verify that required session management and data processing functions are included.
+Session layer functions such as session management, connection setup/teardown, and checkpointing, along with presentation layer functions such as data format conversion, encryption/decryption, and compression, are typically implemented as additional features of L4 or L7 switches in modern network equipment or handled at the application level. As a result, L5 and L6 are usually not considered separate categories when selecting network equipment. Instead, review the feature specifications of L4 load balancers or L7 ADCs to verify that the required session management and data processing functions are included.
 
 ## L7 Switch: Application Layer Device
 
@@ -157,7 +157,7 @@ L7 switches use DPI (Deep Packet Inspection) technology to deeply analyze packet
 
 ## Switch Selection Guide
 
-When selecting a network switch, network scale, traffic characteristics, security requirements, and budget should be comprehensively considered. Selecting equipment more advanced than necessary results in cost waste, while selecting equipment with insufficient features creates constraints on future expansion or feature additions.
+When selecting a network switch, network scale, traffic characteristics, security requirements, and budget should all be considered. Choosing equipment that is more advanced than necessary increases costs, while choosing equipment with insufficient features can limit future expansion or additional functionality.
 
 | Environment | Recommended Switch | Reason |
 |-------------|-------------------|--------|
@@ -169,4 +169,4 @@ When selecting a network switch, network scale, traffic characteristics, securit
 
 ## Conclusion
 
-Network switches range from L1 hubs to L7 ADCs according to OSI layers, with each layer's switch providing unique functions by analyzing protocol information at that layer. L1 hubs perform only simple signal amplification, L2 switches provide MAC address-based frame switching and VLAN, and L3 switches handle IP routing at the hardware level. L4 switches perform load balancing based on TCP/UDP port information, and L7 switches analyze application content to provide sophisticated traffic control and security functions. Selecting the appropriate layer switch based on network environment scale, traffic characteristics, and security requirements is key to building an efficient network.
+Network switches span everything from L1 hubs to L7 ADCs, and each type provides a different set of functions based on the protocol information it analyzes. L1 hubs perform only simple signal amplification, L2 switches provide MAC address-based frame switching and VLAN, and L3 switches handle IP routing at the hardware level. L4 switches perform load balancing based on TCP/UDP port information, and L7 switches analyze application content to provide sophisticated traffic control and security functions. Selecting the right type of switch for the size of the network, its traffic characteristics, and its security requirements is key to building an efficient network.

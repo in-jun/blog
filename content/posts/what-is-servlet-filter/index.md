@@ -8,7 +8,7 @@ draft: false
 
 ## 서블릿 필터의 개념과 역사
 
-서블릿 필터(Servlet Filter)는 2001년 발표된 Servlet 2.3 명세에서 처음 도입된 기능으로, 서블릿이 HTTP 요청을 처리하기 전과 응답을 클라이언트에게 보내기 전에 요청과 응답을 가로채어 전처리(preprocessing)와 후처리(postprocessing)를 수행하는 자바 컴포넌트이며, 이 기능의 도입으로 인증, 로깅, 문자 인코딩, 데이터 압축 같은 횡단 관심사(cross-cutting concerns)를 비즈니스 로직과 분리하여 재사용 가능한 형태로 구현할 수 있게 되었고, Chain of Responsibility 디자인 패턴을 기반으로 여러 필터를 체인 형태로 연결하여 순차적으로 실행할 수 있는 구조를 제공한다.
+서블릿 필터(Servlet Filter)는 서블릿이 HTTP 요청을 처리하기 전과 응답을 클라이언트에게 보내기 전에 요청과 응답을 가로채는 자바 컴포넌트다. 2001년 발표된 Servlet 2.3 명세에서 처음 도입되었으며, 인증, 로깅, 문자 인코딩, 데이터 압축 같은 횡단 관심사(cross-cutting concerns)를 비즈니스 로직과 분리하는 데 쓰인다. 여러 필터를 체인 형태로 연결해 순차적으로 실행할 수 있으며, 구조적으로는 Chain of Responsibility 패턴을 따른다.
 
 > **서블릿(Servlet)**
 >
@@ -16,13 +16,13 @@ draft: false
 
 ## 필터의 주요 활용 사례
 
-서블릿 필터는 요청이나 응답을 수정하거나 특정 처리를 수행해야 하는 다양한 상황에서 활용되며, 대표적인 사용 사례로는 사용자 인증 및 인가 검증, 요청과 응답에 대한 로깅, 요청/응답 데이터의 암호화, HTTP 헤더 조작, 이미지 포맷 변환, 데이터 압축 및 해제, 그리고 예외 발생 시 사용자 정의 처리 등이 있으며, 이러한 기능들을 필터로 구현하면 각 서블릿이나 컨트롤러에서 중복 코드 없이 공통 기능을 적용할 수 있다.
+서블릿 필터는 요청이나 응답을 수정하거나 공통 처리를 적용해야 하는 다양한 상황에서 활용된다. 대표적인 사례로는 사용자 인증 및 인가 검증, 요청과 응답에 대한 로깅, 요청/응답 데이터 암호화, HTTP 헤더 조작, 이미지 포맷 변환, 데이터 압축 및 해제, 예외 발생 시 사용자 정의 처리 등이 있다. 이런 기능을 필터로 구현하면 각 서블릿이나 컨트롤러에 중복 코드를 넣지 않고 공통 기능을 일관되게 적용할 수 있다.
 
 ## 필터 구현 방식
 
 ### GenericFilterBean
 
-Spring Framework에서 제공하는 `GenericFilterBean`은 `javax.servlet.Filter` 인터페이스를 구현한 추상 클래스로, Spring의 환경 설정과 통합되어 필터 초기화 시 Spring Bean의 프로퍼티를 자동으로 설정할 수 있으며, `doFilter` 메서드를 오버라이드하여 요청마다 실행되는 로직을 구현한다.
+Spring Framework에서 제공하는 `GenericFilterBean`은 `javax.servlet.Filter` 인터페이스를 구현한 추상 클래스다. Spring 환경 설정과 통합되어 필터 초기화 시 Spring Bean의 프로퍼티를 자동으로 설정할 수 있으며, `doFilter` 메서드를 오버라이드해 요청마다 실행할 로직을 구현한다.
 
 ```java
 public class CustomFilter extends GenericFilterBean {
@@ -38,7 +38,7 @@ public class CustomFilter extends GenericFilterBean {
 
 ### OncePerRequestFilter
 
-`OncePerRequestFilter`는 `GenericFilterBean`을 상속받아 구현된 클래스로, 하나의 HTTP 요청당 정확히 한 번만 실행되는 것을 보장하는 필터이며, 서블릿 컨테이너에서 내부적으로 forward나 include가 발생하여 같은 요청이 여러 번 필터 체인을 통과하는 경우에도 최초 한 번만 필터 로직이 실행되도록 설계되어 있어 인증 필터나 로깅 필터처럼 요청당 한 번만 수행되어야 하는 작업에 적합하다.
+`OncePerRequestFilter`는 `GenericFilterBean`을 상속한 클래스로, 하나의 HTTP 요청당 정확히 한 번만 실행되도록 보장한다. 서블릿 컨테이너에서 내부적으로 forward나 include가 발생해 같은 요청이 여러 번 필터 체인을 통과하더라도 최초 한 번만 필터 로직이 실행되도록 설계되어 있다. 그래서 인증 필터나 로깅 필터처럼 요청당 한 번만 수행되어야 하는 작업에 적합하다.
 
 ```java
 public class CustomFilter extends OncePerRequestFilter {
@@ -54,7 +54,7 @@ public class CustomFilter extends OncePerRequestFilter {
 
 ## 필터 체인과 실행 순서
 
-서블릿 컨테이너는 요청이 들어오면 등록된 필터들을 필터 체인(Filter Chain)에 따라 순차적으로 실행하고, 모든 필터를 통과한 후 대상 서블릿을 호출하며, 서블릿의 처리가 완료되면 역순으로 각 필터의 후처리 로직이 실행되는데, 이러한 구조는 Chain of Responsibility 패턴의 구현으로 각 필터가 독립적으로 자신의 역할을 수행하면서도 다음 필터나 서블릿으로 제어를 넘길 수 있게 한다.
+서블릿 컨테이너는 요청이 들어오면 등록된 필터를 필터 체인(Filter Chain)에 따라 순차적으로 실행한다. 모든 필터를 통과한 뒤 대상 서블릿을 호출하고, 서블릿 처리가 끝나면 역순으로 각 필터의 후처리 로직이 실행된다. 이 구조는 Chain of Responsibility 패턴의 구현으로, 각 필터가 독립적으로 역할을 수행하면서도 다음 필터나 서블릿으로 제어를 넘길 수 있게 한다.
 
 필터의 실행 순서는 `@Order` 어노테이션이나 `FilterRegistrationBean`의 `setOrder` 메서드로 지정할 수 있으며, 숫자가 낮을수록 우선순위가 높아 먼저 실행된다.
 
@@ -72,7 +72,7 @@ public class FirstFilter extends OncePerRequestFilter {
 
 ## 필터 등록 방법
 
-Spring Boot에서 필터를 등록하는 방법은 `@Component` 어노테이션을 사용하여 자동 등록하거나, `FilterRegistrationBean`을 통해 프로그래밍 방식으로 등록하는 두 가지가 있으며, `FilterRegistrationBean`을 사용하면 특정 URL 패턴에만 필터를 적용하거나 실행 순서를 명시적으로 지정하는 등 세밀한 제어가 가능하다.
+Spring Boot에서 필터를 등록하는 방법은 크게 두 가지다. `@Component` 어노테이션으로 자동 등록할 수 있고, `FilterRegistrationBean`으로 프로그래밍 방식 등록도 할 수 있다. `FilterRegistrationBean`을 사용하면 특정 URL 패턴에만 필터를 적용하거나 실행 순서를 명시적으로 지정하는 등 더 세밀하게 제어할 수 있다.
 
 ```java
 @Configuration
@@ -91,7 +91,7 @@ public class FilterConfig {
 
 ## Filter와 Spring Interceptor 비교
 
-서블릿 필터와 Spring Interceptor는 모두 요청을 가로채어 처리하는 역할을 하지만 실행되는 계층과 시점에서 근본적인 차이가 있으며, 필터는 서블릿 컨테이너(Tomcat, Jetty 등) 레벨에서 DispatcherServlet에 도달하기 전에 실행되는 반면, Interceptor는 Spring MVC의 DispatcherServlet 내부에서 Handler(컨트롤러)를 호출하기 전후에 실행되어 Spring Context에 더 쉽게 접근할 수 있고 @ExceptionHandler를 통한 예외 처리가 가능하다.
+서블릿 필터와 Spring Interceptor는 모두 요청을 가로채어 처리하지만, 실행 계층과 시점이 다르다. 필터는 서블릿 컨테이너(Tomcat, Jetty 등) 레벨에서 DispatcherServlet에 도달하기 전에 실행된다. 반면 Interceptor는 Spring MVC의 DispatcherServlet 내부에서 Handler(컨트롤러)를 호출하기 전후에 실행되므로, Spring Context에 더 쉽게 접근할 수 있고 `@ExceptionHandler`를 통한 예외 처리도 가능하다.
 
 | 특성 | Servlet Filter | Spring Interceptor |
 |------|---------------|-------------------|
@@ -139,7 +139,7 @@ Filter 1 (후처리)
 
 ### CORS 필터
 
-Cross-Origin Resource Sharing(CORS) 설정을 위한 필터로, 브라우저의 동일 출처 정책(Same-Origin Policy)을 우회하여 다른 도메인에서의 API 호출을 허용하며, preflight 요청인 OPTIONS 메서드를 처리한다.
+Cross-Origin Resource Sharing(CORS) 설정을 위한 필터다. 브라우저의 동일 출처 정책(Same-Origin Policy)에서 허용 범위를 확장해 다른 도메인에서의 API 호출을 처리하며, preflight 요청인 OPTIONS 메서드도 함께 다룬다.
 
 ```java
 @Component
@@ -164,7 +164,7 @@ public class CorsFilter extends OncePerRequestFilter {
 
 ### JWT 인증 필터
 
-JSON Web Token을 검증하여 인증 정보를 Spring Security의 SecurityContext에 설정하는 필터로, Authorization 헤더에서 Bearer 토큰을 추출하여 유효성을 검증한다.
+JSON Web Token을 검증해 인증 정보를 Spring Security의 SecurityContext에 설정하는 필터다. Authorization 헤더에서 Bearer 토큰을 추출한 뒤 유효성을 검증한다.
 
 ```java
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -190,8 +190,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 ## 필터 구현 시 주의사항
 
-필터를 구현할 때는 몇 가지 중요한 사항을 고려해야 하는데, 첫째로 필터 순서가 동작에 큰 영향을 미치므로 @Order 어노테이션이나 setOrder 메서드로 명시적으로 관리해야 하고, 둘째로 `filterChain.doFilter(request, response)` 호출이 누락되면 다음 필터나 서블릿으로 요청이 전달되지 않으며, 셋째로 필터에서 발생한 예외는 Spring의 @ControllerAdvice로 처리할 수 없으므로 필터 내부에서 직접 try-catch로 처리해야 하고, 넷째로 모든 요청에 대해 실행되므로 성능에 영향을 줄 수 있는 무거운 작업은 피하고 필요한 경우에만 실행되도록 URL 패턴이나 조건문을 통해 필터링해야 한다.
+필터를 구현할 때는 몇 가지를 주의해야 한다.
+
+첫째, 필터 순서는 동작에 큰 영향을 미치므로 `@Order` 어노테이션이나 `setOrder` 메서드로 명시적으로 관리해야 한다.
+
+둘째, `filterChain.doFilter(request, response)` 호출이 누락되면 다음 필터나 서블릿으로 요청이 전달되지 않는다.
+
+셋째, 필터에서 발생한 예외는 Spring의 `@ControllerAdvice`로 처리할 수 없으므로 필터 내부에서 직접 `try-catch`로 처리해야 한다.
+
+넷째, 필터는 모든 요청에 대해 실행되므로 성능에 영향을 줄 수 있는 무거운 작업은 피하고, 필요한 경우에만 실행되도록 URL 패턴이나 조건문으로 범위를 좁히는 편이 좋다.
 
 ## 결론
 
-서블릿 필터는 2001년 Servlet 2.3 명세에서 도입된 이래로 자바 웹 애플리케이션에서 횡단 관심사를 처리하는 핵심 메커니즘으로 자리 잡았으며, 서블릿 컨테이너 레벨에서 동작하여 모든 HTTP 요청에 대해 인증, 로깅, 인코딩, CORS 설정 등의 공통 기능을 적용할 수 있고, Chain of Responsibility 패턴을 통해 여러 필터를 조합하여 유연한 요청 처리 파이프라인을 구성할 수 있으며, Spring Interceptor와의 차이점을 이해하고 각 상황에 맞는 적절한 기술을 선택하는 것이 효과적인 웹 애플리케이션 개발의 핵심이다.
+서블릿 필터는 자바 웹 애플리케이션에서 횡단 관심사를 처리하는 핵심 메커니즘이다. 서블릿 컨테이너 레벨에서 동작하므로 인증, 로깅, 인코딩, CORS 설정 같은 공통 기능을 요청 전후에 일관되게 적용할 수 있다. 또한 Spring Interceptor와의 차이를 이해하면 상황에 맞는 처리 지점을 더 정확하게 선택할 수 있다.

@@ -8,9 +8,9 @@ draft: false
 
 ## History and Importance of Commit Management
 
-Git's commit management features were one of the core design principles when Linus Torvalds developed Git in 2005. The rebase feature existed from Git's early versions, and when interactive rebase was introduced in Git 1.5 in 2007, it became a powerful tool for fine-grained editing of commit history.
+Thoughtful commit management has been part of Git's design since Linus Torvalds created it in 2005. Rebase existed from the early days, and interactive rebase, introduced in Git 1.5 in 2007, turned it into a powerful tool for fine-grained history editing.
 
-Commit history management is important because the Git log serves as documentation of a project's change history. A well-organized history enables understanding of a project's evolution through `git log` alone, allows clear comprehension of each commit's intent when tracking bugs with `git bisect`, and helps new team members quickly grasp the codebase's history when joining a project.
+Commit history management matters because the Git log serves as documentation for a project's evolution. A well-organized history makes it easier to understand how the project changed over time. It also makes each commit's intent clearer when tracking bugs with `git bisect` and helps new team members get up to speed faster.
 
 ## Applying Single Responsibility Principle to Commits
 
@@ -20,11 +20,11 @@ The Single Responsibility Principle (SRP), one of the SOLID principles of softwa
 
 ### Why It Matters
 
-Single responsibility commits are important for several reasons. First, code reviewers can focus on one change at a time, improving review quality. Second, when problems occur, specific changes can be reverted with `git revert`, making rollback easy. Third, `git cherry-pick` can bring specific features to other branches, increasing flexibility. Fourth, narrowing down bug causes with `git bisect` becomes easier.
+Single responsibility commits matter for several reasons. First, code reviewers can focus on one change at a time, which improves review quality. Second, when problems occur, you can revert a specific change with `git revert`, making rollback easier. Third, `git cherry-pick` lets you bring a specific feature to another branch more flexibly. Fourth, `git bisect` becomes more effective when each commit has a narrow scope.
 
 ### Implementation Methods
 
-Concrete methods for applying the single responsibility principle to commits are as follows.
+Here are a few practical ways to apply the single responsibility principle to commits.
 
 **Separate by logical units**: Bug fixes, feature additions, and refactoring should each be separate commits. For example, if you fix an existing bug while adding a login feature, separate the bug fix commit from the feature addition commit.
 
@@ -47,11 +47,11 @@ git add -p filename.js
 
 ### Benefits
 
-The benefits of committing frequently include being able to track changes in detail so you can easily return to a specific point in time, reduced risk of data loss during work, and prevention of large merge conflicts by syncing more frequently with team members.
+Committing frequently makes it easier to trace changes in detail and return to a specific point in time. It also reduces the risk of losing work and helps prevent large merge conflicts by encouraging more frequent syncs with teammates.
 
 ### WIP Commit Strategy
 
-When committing Work In Progress states, use the `WIP:` prefix with the assumption of cleaning up later. These commits are squashed or cleaned up with rebase before creating a PR.
+When committing work in progress, use the `WIP:` prefix and plan to tidy it up later. Before opening a PR, squash or reorganize these commits with rebase.
 
 ```bash
 # WIP commit examples
@@ -76,13 +76,13 @@ While `git rebase` existed from Git's early versions, interactive rebase (`git r
 
 ### Basic Usage
 
-When starting interactive rebase, an editor opens where you can specify actions to perform on each commit.
+When you start an interactive rebase, Git opens an editor where you can choose an action for each commit.
 
 ```bash
 git rebase -i HEAD~5  # Edit last 5 commits
 ```
 
-Available commands in the editor are as follows.
+The editor supports the following commands.
 
 | Command | Abbreviation | Description |
 |---------|--------------|-------------|
@@ -121,7 +121,7 @@ fixup jkl3456 Fix login button style
 pick mno7890 Add logout feature
 ```
 
-The result is only two clean commits:
+This results in just two clean commits:
 
 ```
 abc1234 Add login feature
@@ -164,7 +164,7 @@ git commit --amend -m "feat: Add user authentication with JWT and refresh token"
 
 ### Precautions
 
-Since `--amend` and `rebase` change the commit's SHA-1 hash, using them on already-pushed commits causes history divergence requiring `--force` push. This can cause conflicts with other team members' local history during collaboration, so avoid using them on shared branches.
+Since `--amend` and `rebase` change a commit's SHA-1 hash, using them on commits that have already been pushed causes history divergence and requires a force push. That can conflict with other team members' local history, so avoid using them on shared branches.
 
 ```bash
 # Before push: safe to use
@@ -176,7 +176,7 @@ git push --force-with-lease origin feature/my-branch
 
 `--force-with-lease` is a safer option than `--force` as it fails if someone else has pushed changes, preventing unintended overwrites.
 
-## Reverting Commits with reset
+## Resetting Commits with reset
 
 ### Difference Between soft, mixed, and hard
 
@@ -211,4 +211,4 @@ git commit -m "feat: Add complete user authentication system"
 
 ## Conclusion
 
-Git commit management techniques have continued to evolve since Git's creation in 2005, with features like interactive rebase (2007) and autosquash (2010) being added. The core principles are applying the single responsibility principle to commits to contain only one logical change, committing frequently locally but organizing before push, and maintaining clean history with interactive rebase and fixup/squash. Clean history is as important as clean code, and well-organized commit history improves project quality in all aspects including code review, bug tracking, and new team member onboarding.
+Git commit management techniques have continued to evolve since Git was created in 2005, with features like interactive rebase (2007) and autosquash (2010) added along the way. The core principles are simple: keep each commit focused on one logical change, commit frequently during local work, and clean up history before pushing. Clean history matters as much as clean code, and a well-organized commit log improves code review, bug tracking, and onboarding.

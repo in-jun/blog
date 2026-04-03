@@ -39,7 +39,7 @@ Docker supports various CPU architectures, and installation methods may vary sli
 
 ### Step 1: Remove Existing Docker Packages
 
-Before installing new Docker, you should remove any unofficial Docker packages or previous versions that may be installed on the system. This prevents package conflicts and ensures a clean installation environment.
+Before installing Docker, remove any unofficial Docker packages or previous versions that may already be installed on the system. This helps prevent package conflicts and ensures a clean installation environment.
 
 ```bash
 # Remove existing Docker-related packages
@@ -68,7 +68,7 @@ sudo apt-get install -y \
     lsb-release
 ```
 
-The role of each package is as follows:
+Each package serves the following purpose:
 
 | Package | Role |
 |---------|------|
@@ -113,7 +113,7 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-The role of installed packages is as follows:
+The installed packages provide the following components:
 
 | Package | Role |
 |---------|------|
@@ -256,7 +256,7 @@ As a practical example, let's run an Nginx web server container.
 docker run -d -p 8080:80 --name my-nginx nginx:latest
 ```
 
-The description of each option in this command is as follows:
+Each option in this command does the following:
 
 | Option | Description |
 |--------|-------------|
@@ -380,16 +380,16 @@ docker system prune --volumes
 
 > **What is Docker Networking?**
 >
-> Docker networking is a virtual network infrastructure that manages communication between containers. It enables implementing microservices architecture by isolating or connecting containers.
+> Docker networking is a virtual network infrastructure that manages communication between containers. It helps you build a microservices architecture by isolating containers or allowing them to communicate.
 
 ### Network Types
 
 | Network Driver | Description | Use Case |
 |----------------|-------------|----------|
-| **bridge** | Default network, container communication within same host | Single-host applications |
-| **host** | Direct use of host network, no isolation | Performance-critical applications |
+| **bridge** | Default network for container communication on the same host | Single-host applications |
+| **host** | Direct access to the host network with no isolation | Performance-critical applications |
 | **none** | Network disabled | Completely isolated containers |
-| **overlay** | Network across multiple Docker hosts | Docker Swarm, multi-host |
+| **overlay** | Network spanning multiple Docker hosts | Docker Swarm, multi-host |
 | **macvlan** | Assign MAC address to container | Legacy applications |
 
 ### Network Creation and Management
@@ -448,7 +448,7 @@ docker run -d \
 
 ## Docker Volumes
 
-> **What is Docker Volume?**
+> **What Is a Docker Volume?**
 >
 > Docker volumes are a mechanism for persistently storing container data. Data is preserved even when containers are deleted, and data can be shared between multiple containers.
 
@@ -580,7 +580,7 @@ docker run --rm alpine nslookup google.com
 
 ## Next Steps
 
-After learning Docker basic installation and usage, studying the following topics will help you utilize container technology more effectively.
+Once you are comfortable with Docker installation and basic usage, the following topics will help you use containers more effectively.
 
 | Next Step | Description |
 |-----------|-------------|
@@ -592,6 +592,6 @@ After learning Docker basic installation and usage, studying the following topic
 
 ## Conclusion
 
-Docker installation is the first step to getting started with container technology, and installation through the official repository is the most stable way to maintain the latest version. Learning basic container execution, image management, and network and volume configuration enables effective construction of complex microservices architectures.
+Installing Docker from the official repository is a reliable way to keep the engine up to date. Once Docker is installed, learning the basics of running containers, managing images, and working with networks and volumes gives you a solid foundation for more advanced container workflows.
 
-Docker has become an essential technology in modern software development as a powerful tool that ensures development environment consistency, simplifies deployment processes, and improves resource efficiency.
+From here, you can build on that foundation with tools such as Docker Compose, custom Dockerfiles, and container orchestration platforms.

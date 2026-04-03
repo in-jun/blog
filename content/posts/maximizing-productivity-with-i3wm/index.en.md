@@ -10,47 +10,47 @@ tags: ["Linux", "i3wm", "Productivity"]
 
 ![i3wm basic layout](image.png)
 
-The i3 window manager (i3wm) is a tiling window manager focused on efficiency and productivity. It was first developed in 2009 by German developer Michael Stapelberg to overcome the limitations of the existing wmii window manager. The name "i3" stands for "improved tiling wm". Written in C with approximately 10,000 lines of concise code, i3 provides lightweight yet powerful functionality. It has gained significant popularity among developers, system administrators, and power users who prefer keyboard-only workflows with minimal mouse usage. It shows particularly high adoption rates among Arch Linux, Gentoo, and NixOS users.
+The i3 window manager (i3wm) is a tiling window manager focused on efficiency and productivity. It was first developed in 2009 by German developer Michael Stapelberg to address the limitations of the wmii window manager. The name "i3" stands for "improved tiling wm." Written in C with roughly 10,000 lines of concise code, i3 is lightweight while still offering powerful functionality. It has become popular among developers, system administrators, and power users who prefer keyboard-driven workflows with minimal mouse use. It is especially common among users of distributions such as Arch Linux, Gentoo, and NixOS.
 
-i3 operates in the traditional X Window System (X11) environment and runs independently of the X Display Manager, making it compatible with any login manager such as LightDM, GDM, or SDDM. Recently, Sway (an i3-compatible Wayland compositor) has been developed to support the next-generation display server protocol Wayland. It is now widely used, leveraging Wayland's improved security and performance while maintaining nearly identical i3 configuration and key bindings. i3's design philosophy follows the Unix philosophy of "do one thing and do it well". It completely eliminates unnecessary visual decorations and animation effects, maximizes screen space utilization for actual work content, and provides multi-monitor support, efficient window management, and highly customizable text-based configuration files.
+i3 runs on the traditional X Window System (X11) and works with common display managers such as LightDM, GDM, and SDDM. More recently, Sway, an i3-compatible Wayland compositor, has emerged to support the newer Wayland display protocol. It is now widely used because it combines Wayland's security and performance benefits with nearly identical i3 configuration and key bindings. i3's design philosophy follows the Unix principle of "do one thing and do it well." It removes unnecessary visual decorations and animation effects, maximizes screen space for actual work, and provides multi-monitor support, efficient window management, and highly customizable text-based configuration files.
 
-i3wm is renowned for its exceptional official documentation among open-source projects. All features and configuration options are clearly and systematically documented, allowing even beginners new to tiling window managers to learn step-by-step and build their own environment. The official documentation is available at [i3wm.org/docs](https://i3wm.org/docs/) and covers various topics including User's Guide, Configuration Reference, and IPC Protocol. Active information exchange also takes place in community forums and Reddit's r/i3wm subreddit.
+i3wm is also well known for the quality of its official documentation. Its features and configuration options are documented clearly and systematically, so even beginners can learn step by step and build their own environment. The official documentation is available at [i3wm.org/docs](https://i3wm.org/docs/) and covers topics such as the User's Guide, Configuration Reference, and IPC Protocol. Active discussion also takes place in community forums and in Reddit's r/i3wm subreddit.
 
 ### Philosophy and Structure of the Tiling System
 
 ![i3wm tiling layout example](image-1.png)
 
-The most fundamental and core feature of i3wm is its 'tiling' window arrangement method. This is a fundamentally different approach from traditional stacking window managers like GNOME, KDE Plasma, Windows, and macOS. In stacking window managers, windows can overlap each other and users must manually adjust window positions and sizes. This requires essential mouse usage and causes inefficiency where significant screen space is unused or obscured. In contrast, i3 logically divides the screen and automatically arranges windows so all windows are non-overlapping and maximize screen space utilization. Users can focus solely on their work content without worrying about window placement.
+The most fundamental feature of i3wm is its "tiling" window arrangement model. This is fundamentally different from the floating-window behavior common in desktop environments such as GNOME and KDE Plasma, as well as operating systems like Windows and macOS. In those environments, windows can overlap and users must manually adjust their positions and sizes. That usually means more mouse use and more wasted or obscured screen space. In contrast, i3 divides the screen logically and arranges windows automatically so they do not overlap and use the available space efficiently. Users can focus on their work instead of managing window placement.
 
 **Key tiling characteristics of i3:**
 
--   **Automatic Layout**: When a new window opens, i3 automatically divides existing space and places the new window. There's no need to manually resize or reposition windows, and all windows are always fully visible on screen.
+-   **Automatic Layout**: When a new window opens, i3 automatically splits the available space and places the new window. There is no need to manually resize or reposition windows, and all windows remain visible on screen.
 
--   **Directional Split**: You can specify horizontal or vertical splitting to control where the next window will be placed relative to the current window. Complex layouts can be easily composed by combining these splits.
+-   **Directional Split**: You can specify horizontal or vertical splits to control where the next window will be placed relative to the current one. Complex layouts are easy to build by combining these splits.
 
--   **Ratio Adjustment**: The boundaries between split windows can be adjusted with keyboard or mouse to freely change the space ratio each window occupies. Precise adjustments can be made in 10px or 10% increments.
+-   **Ratio Adjustment**: The boundaries between split windows can be adjusted with the keyboard or mouse to change how much space each window occupies. Precise adjustments can be made in 10px or 10% increments.
 
--   **Layout Switching**: In addition to tiling mode, stacking and tabbed modes are supported. You can switch instantly with a single key to select the optimal layout for each situation, and different layouts can be applied per container.
+-   **Layout Switching**: In addition to tiling mode, i3 also supports stacking and tabbed modes. You can switch instantly with a single key and choose the best layout for each situation, and different layouts can be applied per container.
 
-i3's tiling algorithm is based on a binary tree data structure, an elegant design that applies computer science data structures to window arrangement. Each time a user opens a new window, the space occupied by the currently focused window is split as a tree node into two parts: one for the existing window and one for the new window. The split direction (horizontal or vertical) is either explicitly specified by the user or determined by i3's default behavior mode. Thanks to this tree structure, i3 can manage even very complex layouts in a consistent manner. The parent-child relationships between windows are clear, ensuring logically predictable behavior when moving or removing windows.
+i3's tiling algorithm is based on a binary tree data structure, an elegant design that applies a familiar computer science concept to window arrangement. Each time a user opens a new window, the space occupied by the currently focused window is split into two parts: one for the existing window and one for the new one. The split direction, horizontal or vertical, is either explicitly specified by the user or determined by i3's default behavior. Thanks to this tree structure, i3 can manage even very complex layouts consistently. The parent-child relationships between windows remain clear, which makes behavior more predictable when moving or removing windows.
 
 ## Installing i3wm
 
-i3wm is included in the official repositories of most major Linux distributions and can be easily installed through package managers. Distributions provide various package names such as `i3`, `i3-wm`, and `i3-gaps` (a fork version with inter-window gap support).
+i3wm is included in the official repositories of most major Linux distributions and can be installed easily through their package managers. Depending on the distribution, the package may be named `i3`, `i3-wm`, or `i3-gaps` (a fork that adds gaps between windows).
 
-**Debian/Ubuntu-based**: The `sudo apt install i3` command installs basic components including i3-wm, i3status, and i3lock. It's recommended to also install `dmenu` or `rofi` (application launcher), `feh` or `nitrogen` (wallpaper setting), and `compton` or `picom` (compositor).
+**Debian/Ubuntu-based**: The `sudo apt install i3` command installs the basic components, including i3-wm, i3status, and i3lock. It is also recommended to install `dmenu` or `rofi` (application launcher), `feh` or `nitrogen` (wallpaper management), and `compton` or `picom` (compositor).
 
 **Fedora**: Install with `sudo dnf install i3`. Fedora provides the i3-with-shmlog version by default and supports debugging through IPC sockets.
 
-**Arch Linux**: Install with `sudo pacman -S i3-wm` or `sudo pacman -S i3-gaps`. Arch users can utilize various i3-related packages and themes through the AUR (Arch User Repository). The `i3-gnome` package allows using i3 together with GNOME.
+**Arch Linux**: Install with `sudo pacman -S i3-wm` or `sudo pacman -S i3-gaps`. Arch users can also explore many i3-related packages and themes through the AUR (Arch User Repository). The `i3-gnome` package allows i3 to be used together with GNOME.
 
-After installation, log out and select the i3 session from the login screen to start i3. At first launch, a setup wizard automatically appears asking whether to create a configuration file (`~/.config/i3/config`) and to set up the mod key. The mod key is the core modifier key used in all i3 shortcuts. You typically choose between Alt (Mod1) or the Windows/Super key (Mod4). Personally, I recommend the Windows key (Mod4) because the Alt key is already used by many applications for shortcuts, which can cause conflicts.
+After installation, log out and select the i3 session from the login screen to start i3. On first launch, a setup wizard appears and asks whether to create a configuration file (`~/.config/i3/config`) and which mod key to use. The mod key is the main modifier used in most i3 shortcuts. You will typically choose either Alt (Mod1) or the Windows/Super key (Mod4). I recommend the Windows key (Mod4) because the Alt key is already used by many applications and can cause shortcut conflicts.
 
 ![i3wm first run screen](image-2.png)
 
 ## Basic Key Combinations
 
-Since i3wm provides a keyboard-centric environment, it's important to learn the basic key combinations.
+Because i3wm is designed around the keyboard, learning the basic key combinations is essential.
 
 ![i3wm keyboard shortcuts reference-1](image-3.png)
 ![i3wm keyboard shortcuts reference-2](image-4.png)
@@ -74,20 +74,20 @@ Since i3wm provides a keyboard-centric environment, it's important to learn the 
 -   **$mod + r**: Resize mode
 -   **$mod + space**: Toggle between tiling and floating mode
 
-Unlike vim, i3wm uses `jkl;` as directional keys by default. This design considers the natural position of the right hand on the keyboard home row, but may feel unfamiliar to users accustomed to vim. If needed, you can change to `hjkl` style in the configuration file (`~/.config/i3/config`). Personally, since I've been using `hjkl` as directional keys in vim, tmux, and many CLI tools, I found changing to `hjkl` in i3 much more intuitive and convenient. It allows maintaining consistent muscle memory with minimal transition cost.
+Unlike vim, i3wm uses `jkl;` as directional keys by default. This choice is based on the natural position of the right hand on the keyboard home row, but it may feel unfamiliar to users who are used to vim. If needed, you can switch to `hjkl` style bindings in the configuration file (`~/.config/i3/config`). Since I already use `hjkl` in vim, tmux, and many CLI tools, I found that switching i3 to `hjkl` felt much more intuitive. It also helped me keep the same muscle memory across tools.
 
 ### Workspace Management
 
 -   **$mod + number(1-0)**: Switch to the workspace with that number
 -   **$mod + Shift + number(1-0)**: Move current window to that workspace
 
-## Configuring the i3wm Configuration File
+## Configuring i3wm
 
-i3wm is configured through a text-based configuration file (`~/.config/i3/config`).
+i3wm is configured through a text file at `~/.config/i3/config`.
 
 ### Configuration File Contents
 
-1. Basic variable settings (mod key, font, etc.)
+1. Basic settings (mod key, font, etc.)
 2. Autostart program settings
 3. Dark mode and power management settings
 4. Media key bindings
@@ -139,11 +139,11 @@ bindsym $mod+Shift+1 move container to workspace number $ws1
 bindsym $mod+Shift+2 move container to workspace number $ws2
 ```
 
-In my configuration, I use concise workspace names with just numbers like `"1"`, `"2"`, `"3"`. This is a choice to minimize cognitive load and enable quick switching. Some users add colons and descriptions after numbers like `"1:web"`, `"2:code"`, `"3:term"` to specify the purpose of each workspace. However, I prefer using workspaces flexibly rather than for fixed purposes, so I found using only numbers more free and efficient. I maintain the flexibility to change names in the configuration file whenever needed.
+In my configuration, I use simple workspace names such as `"1"`, `"2"`, and `"3"`. This helps reduce cognitive load and makes switching faster. Some users add labels after the number, such as `"1:web"`, `"2:code"`, or `"3:term"`, to give each workspace a fixed purpose. I prefer to keep workspaces flexible, so plain numbers feel freer and more efficient for my workflow. If needed, the names can always be changed later in the configuration file.
 
 ## Customizing i3bar and i3status
 
-i3wm provides a status bar at the bottom (or top) of the screen. It consists of i3bar (the bar rendering component) and i3status (the system information collection and formatting component). i3bar receives JSON-formatted data output by i3status and displays it visually. i3status monitors various system information including CPU usage, memory usage, disk space, network status, battery level, and time. You can freely customize the displayed information and format through the configuration file (`~/.config/i3status/config`). If you need more powerful features, you can use alternative status bar programs such as i3blocks, polybar, or bumblebee-status instead of i3status.
+i3wm provides a status bar at the bottom or top of the screen. It consists of i3bar, which renders the bar itself, and i3status, which collects and formats system information. i3bar receives the JSON-formatted output from i3status and displays it visually. i3status can monitor CPU usage, memory usage, disk space, network status, battery level, and time. You can customize both the displayed information and its format through the configuration file (`~/.config/i3status/config`). If you need more features, you can also use alternatives such as i3blocks, polybar, or bumblebee-status instead of i3status.
 
 ### i3bar Configuration
 
@@ -167,13 +167,13 @@ bar {
 }
 ```
 
-Key features: It's hidden by default and only shows when the $mod key is pressed. It uses dark theme-based colors and allows volume control with the mouse wheel.
+In this example, the bar is hidden by default and only appears when the `$mod` key is pressed. It uses a dark color scheme and also allows volume control with the mouse wheel.
 
 ## Tips for Enhancing Productivity
 
 ### Resize Mode
 
-Resize mode for precisely adjusting window sizes:
+Resize mode lets you adjust window sizes more precisely:
 
 ```bash
 mode "resize" {
@@ -191,7 +191,7 @@ mode "resize" {
 
 ### Key Binding Customization
 
-Changing the default jkl; array to VI editor-style hjkl keys:
+You can also change the default `jkl;` navigation keys to vim-style `hjkl` bindings:
 
 ```bash
 # VI style hjkl change
@@ -215,10 +215,10 @@ bindsym $mod+Shift+x exec xtrlock  # Screen lock
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Do you want to exit?'"
 ```
 
-More detailed configuration examples and my actual settings can be found in my GitHub repository ([github.com/in-jun/i3wm-setup](https://github.com/in-jun/i3wm-setup)).
+More detailed configuration examples and my actual settings are available in my GitHub repository ([github.com/in-jun/i3wm-setup](https://github.com/in-jun/i3wm-setup)).
 
 ## Conclusion
 
-i3wm is a minimalist philosophy window manager that takes a fundamentally different approach from traditional desktop environments like GNOME, KDE Plasma, and Xfce. However, once you overcome the initial learning curve, you can experience remarkable productivity improvements by minimizing mouse usage and quickly performing all tasks with just the keyboard. The keyboard-centric interface, efficient window management through automatic tiling, high customization via text-based configuration files, and lightweight stability are very attractive features for developers, system administrators, and power users. It particularly shines in development workflows with heavy multitasking.
+i3wm is a minimalist window manager that takes a fundamentally different approach from traditional desktop environments like GNOME, KDE Plasma, and Xfce. Once you get past the initial learning curve, it can offer a noticeable boost in productivity by reducing mouse use and letting you handle most tasks from the keyboard. Its keyboard-centric interface, efficient automatic tiling, flexible text-based configuration, and lightweight design make it especially appealing to developers, system administrators, and power users. It is particularly effective in development workflows that involve heavy multitasking.
 
-While the learning curve may feel somewhat steep, the official documentation ([i3wm.org/docs](https://i3wm.org/docs/)) is very detailed and systematically written, making it excellent for step-by-step learning. The r/i3wm community on Reddit and the i3 page on Arch Wiki also provide abundant examples and tips. Most importantly, the process of gradually improving your configuration while actually using it becomes an enjoyable and rewarding experience in itself.
+While the learning curve can feel steep at first, the official documentation ([i3wm.org/docs](https://i3wm.org/docs/)) is detailed and well organized, making it excellent for step-by-step learning. The r/i3wm community on Reddit and the i3 page on the Arch Wiki also provide plenty of examples and tips. Most importantly, gradually refining your configuration as you use it can be an enjoyable and rewarding process in its own right.

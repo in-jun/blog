@@ -11,7 +11,7 @@ series: ["Homelab Build Log"]
 
 This series is a place to record the parts of my homelab that feel worth writing down. Rather than treating it as a step-by-step guide, I want it to focus more on what I built and why I chose to put it together that way.
 
-This first post is the starting point, covering the hardware I used and the initial setup process for a Mini PC-based Kubernetes cluster.
+This first post covers the hardware I used and the initial setup for a Mini PC-based Kubernetes cluster.
 
 ![Cluster](image.png)
 
@@ -37,7 +37,7 @@ On this screen, I enabled the "Install OpenSSH server" option. Since this homela
 
 ![Additional package setup screen](image-3.png)
 
-On the additional package screen, I left everything unselected. Packages like Docker or PostgreSQL were going to be handled separately inside the Kubernetes setup anyway, so preinstalling them here did not help much.
+On the additional package screen, I left everything unselected. Packages like Docker or PostgreSQL were going to be handled separately during the Kubernetes setup anyway, so preinstalling them here did not help much.
 
 ![Installation complete screen](image-4.png)
 
@@ -55,7 +55,7 @@ I covered the actual static IP setup in the [Ubuntu 24.04 LTS Static IP Configur
 
 ## Kubernetes Installation
 
-With Ubuntu installation and network configuration complete, Kubernetes installation can now begin. To install Kubernetes, the container runtime containerd and the core Kubernetes components kubelet, kubeadm, and kubectl must first be installed.
+With Ubuntu installed and the network configured, the next step was installing Kubernetes. I first installed the container runtime, containerd, along with the core Kubernetes components kubelet, kubeadm, and kubectl.
 
 > **Core Kubernetes Components**
 >
@@ -63,7 +63,7 @@ With Ubuntu installation and network configuration complete, Kubernetes installa
 > - **kubeadm**: A tool for bootstrapping Kubernetes clusters, responsible for cluster initialization and node joining.
 > - **kubectl**: A CLI tool for interacting with the Kubernetes cluster, used for all management tasks.
 
-I ran the following commands on every node, both master and worker.
+I ran the following commands on every node, both the master and the workers.
 
 ```bash
 # Update system packages
@@ -174,11 +174,11 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-The commands above copy the Kubernetes administrator configuration file to the current user's home directory and grant appropriate permissions to execute kubectl commands without sudo.
+The commands above copy the Kubernetes administrator configuration file to the current user's home directory and set permissions so I could run kubectl without sudo.
 
 ### CNI Plugin Installation
 
-The Kubernetes cluster has been initialized, but pod communication between nodes is not yet possible. A CNI (Container Network Interface) plugin must be installed for the pod network to be configured and inter-node communication to be enabled.
+At that point, the cluster was initialized, but pods still could not communicate across nodes. I needed to install a CNI (Container Network Interface) plugin to configure the pod network and enable inter-node communication.
 
 > **What is Calico?**
 >
@@ -234,7 +234,7 @@ One controller pod and a speaker pod on each node should be displayed in Running
 
 In this series, MetalLB is used in Layer 2 mode. In this mode, the MetalLB speaker implements load balancer functionality by using ARP (IPv4) or NDP (IPv6) protocols to respond to the assigned virtual IP with its own MAC address.
 
-For example, if MetalLB assigns the virtual IP 192.168.0.200 to a service and another device on the same network sends an ARP request for the MAC address of 192.168.0.200, the MetalLB speaker responds with the MAC address of the node hosting that service, ensuring that traffic is delivered to the correct node.
+For example, if MetalLB assigns the virtual IP 192.168.0.200 to a service, another device on the same network may send an ARP request for that address. The MetalLB speaker then responds with the MAC address of the node hosting the service, ensuring that traffic is delivered to the correct node.
 
 I covered ARP and NDP in more detail in the following posts:
 

@@ -6,13 +6,13 @@ description: "JPA entity lifecycle states and transitions."
 draft: false
 ---
 
-## What is Entity Lifecycle
+## What the Entity Lifecycle Is
 
-In JPA (Java Persistence API), the entity lifecycle refers to the series of state changes an entity object goes through from creation to destruction. This concept was first defined in the JPA 1.0 specification released with Java EE 5 in 2006, designed around the persistence context that standardized Hibernate's Session concept. Entities are classified into four states based on whether they are managed by the persistence context and their synchronization status with the database: Transient, Managed, Detached, and Removed. Each state transitions through EntityManager methods such as persist(), merge(), detach(), and remove().
+In JPA (Java Persistence API), the entity lifecycle describes the state changes an entity object goes through from creation to deletion. The concept was defined in the JPA 1.0 specification released with Java EE 5 in 2006, built around the persistence context and influenced by Hibernate's Session model. Entities are classified into four states based on whether the persistence context manages them and how they are synchronized with the database: Transient, Managed, Detached, and Removed. They move between these states through EntityManager methods such as persist(), merge(), detach(), and remove().
 
 Understanding entity states correctly is essential for effectively using JPA, maintaining data consistency, and optimizing performance. This is because features provided by the persistence context—such as first-level cache, dirty checking, and write-behind—only work when entities are in the managed state. Misunderstanding states can lead to exceptions like LazyInitializationException or EntityNotFoundException, or cause unintended data loss.
 
-## Historical Background of Entity Lifecycle
+## Historical Background of the Entity Lifecycle
 
 The JPA entity lifecycle concept originated from Hibernate's Session and persistent object concepts developed by Gavin King in 2001. It presented a simple POJO (Plain Old Java Object) based persistence model to address the complexity and performance issues of EJB 2.x Entity Beans. Hibernate introduced the concept of transparent persistence, which tracks object states and automatically reflects changes to the database. This idea was adopted as the JPA 1.0 standard in 2006, specified under the names EntityManager and persistence context. It has since evolved through JPA 2.0 (2009), JPA 2.1 (2013), and JPA 2.2 (2017).
 
@@ -22,7 +22,7 @@ The persistence context implements the Unit of Work and Identity Map patterns de
 
 ### Transient
 
-The transient state occurs when an entity object is created with the new keyword but has not yet been saved to the persistence context. It is a pure Java object with no relationship to EntityManager, not connected to the database, and typically has no assigned identifier (ID). Entities in transient state are not managed by JPA at all, so they cannot use persistence context features like dirty checking or first-level cache. Even when transactions commit, they are not reflected in the database and can be removed from memory at any time as garbage collection targets.
+The transient state occurs when an entity object is created with the new keyword but has not yet been saved to the persistence context. It is a pure Java object with no relationship to EntityManager, not connected to the database, and typically has no assigned identifier (ID). Entities in the transient state are not managed by JPA at all, so they cannot use persistence context features like dirty checking or the first-level cache. Even when transactions commit, they are not reflected in the database and remain eligible for garbage collection at any time.
 
 An important consideration in the transient state is that for entities using @GeneratedValue strategy, the ID is null until persist() is called. Therefore, equals() and hashCode() implementations should not rely solely on ID, and using business keys or natural keys is recommended.
 
@@ -36,7 +36,7 @@ user.setEmail("hong@example.com");
 
 ### Managed
 
-The managed state occurs when an entity is saved to the persistence context and managed by EntityManager. Entities automatically become managed when persist() is called or when retrieved from the database using find(), JPQL, or Criteria API. The persistence context tracks changes to the entity and automatically synchronizes with the database when the transaction commits.
+The managed state begins when an entity is stored in the persistence context and tracked by EntityManager. Entities automatically become managed when persist() is called or when they are retrieved from the database using find(), JPQL, or the Criteria API. The persistence context tracks changes to the entity and automatically synchronizes them with the database when the transaction commits.
 
 Managed entities are stored in the first-level cache, so querying with the same identifier within the same transaction returns from cache without database access. Dirty checking is enabled, so simply changing entity fields automatically executes UPDATE queries when the transaction commits. Lazy loading allows loading associated entities when needed, and the write-behind store collects SQL to execute at once, reducing database round trips.
 
@@ -57,7 +57,7 @@ em.getTransaction().commit(); // INSERT and UPDATE queries execute at once
 
 ### Detached
 
-The detached state occurs when an entity that was previously managed is separated from the persistence context and no longer managed by EntityManager. It has a database identifier (ID) but is not a management target of the persistence context, so features like dirty checking, lazy loading, and first-level cache do not work. Entities transition to detached state when detach() separates a specific entity, clear() initializes the entire persistence context, or close() terminates the persistence context. When a transaction ends and the persistence context closes, all managed entities also become detached.
+The detached state occurs when an entity that was previously managed is separated from the persistence context and is no longer tracked by EntityManager. It has a database identifier (ID) but is no longer managed by the persistence context, so features like dirty checking, lazy loading, and the first-level cache do not work. Entities transition to the detached state when detach() separates a specific entity, clear() clears the entire persistence context, or close() terminates the persistence context. When a transaction ends and the persistence context closes, all managed entities also become detached.
 
 The most common problem in the detached state is LazyInitializationException. When attempting to access an associated entity configured for lazy loading, if the persistence context is already closed, the proxy cannot be initialized and an exception occurs. To resolve this, you should either load associated entities in advance while in the managed state, use JPQL fetch join, or utilize @EntityGraph.
 
@@ -76,13 +76,13 @@ User merged = em.merge(user); // Returns new managed entity with detached entity
 
 The removed state occurs when an entity is scheduled for deletion from the persistence context and database. Calling remove() transitions the entity to removed state, and the actual DELETE query executes when the transaction commits. Until commit, the entity is not deleted from the database, and deletion can be canceled with rollback. Removed entities are managed by the persistence context but marked for removal, so find() won't return them. To make a deleted entity managed again, persist() must be called again.
 
-Using CASCADE.REMOVE or orphanRemoval = true options deletes associated child entities when the parent entity is deleted. While convenient, this can cause unintended mass deletions and should be used carefully.
+Using CASCADE.REMOVE or the orphanRemoval = true option deletes associated child entities when the parent entity is deleted. While convenient, this can cause unintended mass deletions and should be used carefully.
 
 ## Core Features of Persistence Context
 
 ### First-Level Cache and Identity Guarantee
 
-The persistence context has an internal first-level cache that stores managed entities in a Map format, where the key is the identifier specified by @Id and the value is the entity instance. When querying an entity with the same identifier within the same transaction, it returns from the first-level cache, reducing database access. It always returns the same instance for the same identifier, providing REPEATABLE READ level transaction isolation at the application level.
+The persistence context has an internal first-level cache that stores managed entities in a map, where the key is the identifier specified by @Id and the value is the entity instance. When querying an entity with the same identifier within the same transaction, it returns the cached instance and avoids another database access. It always returns the same instance for the same identifier, providing REPEATABLE READ level transaction isolation at the application level.
 
 ```java
 User user1 = em.find(User.class, 1L); // DB query, stored in first-level cache
@@ -97,9 +97,9 @@ Dirty checking is a feature that automatically detects changes when a managed en
 
 ### Flush and Clear
 
-Flush is the operation of reflecting persistence context changes to the database. It's automatically called when em.flush() is directly called, when transactions commit, and before JPQL query execution to ensure query result consistency. When flush is called, dirty checking activates to find modified entities, registers modification queries in the write-behind SQL store, then transmits the store's queries to the database. The important point is that flush doesn't empty the persistence context but synchronizes changes, so entities remain in managed state after flush.
+Flush synchronizes changes in the persistence context with the database. It runs when you call em.flush(), when a transaction commits, and before JPQL query execution to keep query results consistent. During flush, dirty checking identifies modified entities, registers modification queries in the write-behind SQL store, and then sends those queries to the database. The important point is that flush does not clear the persistence context, so entities remain in the managed state after flush.
 
-Clear is the operation that completely initializes the persistence context, transitioning all managed entities to detached state. Calling em.clear() deletes all contents of the persistence context including the first-level cache. It's used to manage memory usage during batch processing or ensure isolation in test code. After clear, previously retrieved entities must be re-queried to use, and changes to existing entity objects are not reflected in the database.
+Clear completely clears the persistence context, transitioning all managed entities to the detached state. Calling em.clear() removes all contents of the persistence context, including the first-level cache. It is used to manage memory usage during batch processing or to ensure isolation in test code. After clear, previously retrieved entities must be queried again before use, and changes to existing entity objects are not reflected in the database.
 
 ```java
 em.getTransaction().begin();
@@ -109,7 +109,7 @@ user.setName("Changed");
 
 em.flush(); // Changes reflected in DB but user remains managed
 
-em.clear(); // Persistence context initialized, user becomes detached
+em.clear(); // Persistence context cleared, user becomes detached
 
 User fresh = em.find(User.class, 1L); // Fresh query from DB
 System.out.println(user == fresh); // false - different instances
@@ -125,7 +125,7 @@ The persist() method saves a new transient entity to the persistence context, ma
 
 ### merge()
 
-The merge() method makes detached entities managed. Its operation first queries the persistence context for an entity using the detached entity's identifier, then queries the database if not found. It copies all values from the detached entity to the retrieved managed entity, then returns the merged managed entity. The important point is that merge() doesn't convert the detached entity itself to managed state but returns a new managed entity with the detached entity's values. After calling merge(), you must use the returned entity, and the original detached entity remains detached.
+The merge() method makes detached entities managed. It first looks for an entity in the persistence context using the detached entity's identifier, then checks the database if none is found. It copies all values from the detached entity to the retrieved managed entity and returns that managed instance. The important point is that merge() does not convert the detached entity itself to the managed state. Instead, it returns a new managed entity containing the detached entity's values. After calling merge(), you must use the returned entity, and the original detached entity remains detached.
 
 ### detach() and remove()
 
@@ -133,7 +133,7 @@ The detach() method separates a specific entity from the persistence context, ma
 
 ## Practical Application Guide
 
-The most important principle when applying entity lifecycle in practice is to modify only managed entities, perform changes within transactions, and load all necessary associated entities before the transaction ends. The pattern of modifying detached entities and reflecting them with merge() UPDATEs all fields, which can cause unintended data loss. It's recommended to query and modify entities within transactions whenever possible.
+The most important principle when applying the entity lifecycle in practice is to modify only managed entities, perform changes within transactions, and load all necessary associated entities before the transaction ends. Modifying detached entities and then applying those changes through merge() updates all fields, which can cause unintended data loss. It is recommended to query and modify entities within transactions whenever possible.
 
 During batch processing, you should manage memory usage by calling flush() and clear() after processing a certain number of entities. For example, when inserting 10,000 records, calling flush() and clear() every 100 records keeps a maximum of 100 entities in the persistence context, preventing OutOfMemoryError.
 

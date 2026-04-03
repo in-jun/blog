@@ -50,7 +50,7 @@ Once the connection is successfully established, the shell process on the target
 
 **5. Interactive Shell Session Maintenance**
 
-Through the established reverse shell session, the attacker can execute arbitrary commands on the target system, explore the file system, attempt privilege escalation, download and execute additional malware, scan internal networks, exfiltrate sensitive data, and delete logs to remove traces. These are all common post-exploitation activities. Even if the connection is severed, persistence mechanisms may be added to attempt reconnection and maintain long-term access.
+Through the established reverse shell session, the attacker can execute arbitrary commands on the target system, explore the file system, attempt privilege escalation, download and execute additional malware, scan internal networks, exfiltrate sensitive data, and delete logs to remove traces, all of which are common post-exploitation activities. Even if the connection is severed, persistence mechanisms may be added to attempt reconnection and maintain long-term access.
 
 ### Comparative Analysis with Bind Shells
 
@@ -487,7 +487,7 @@ if __name__ == '__main__':
 
 ### DNS Tunneling
 
-Even in extremely restricted network environments (such as air-gapped networks, military facilities, financial institution internal networks), DNS queries are often not blocked as they are essential for internet access. DNS protocol subdomain queries and TXT record responses can be utilized to covertly transmit data.
+Even in extremely restricted network environments (such as air-gapped networks, military facilities, and internal financial networks), DNS queries are often not blocked because they are essential for internet access. DNS subdomain queries and TXT record responses can be used to covertly transmit data.
 
 **How DNS Tunneling Works**
 
@@ -607,7 +607,7 @@ def time_aware_shell(c2_ip, c2_port):
         time.sleep(600)  # 10-minute interval
 ```
 
-This technique operates only during times when security administrators are less likely to be actively monitoring the network, which makes real-time detection and response more difficult. It also reduces the chance that daytime traffic analysis will stand out.
+This technique operates only during times when security administrators are less likely to be actively monitoring the network, which makes real-time detection and response more difficult. It also reduces the chance that the activity will stand out during daytime traffic analysis.
 
 ## Reverse Shell Defense Strategies
 
@@ -912,7 +912,7 @@ WHERE
 
 ## Conclusion and Recommendations
 
-Reverse shells are a practical attack technique for bypassing firewall and NAT constraints. Once initial access has been established, they are one of the main ways attackers maintain remote control of a victim system. Implementation methods vary widely, from simple Bash one-liners to encrypted multi-stage payloads, HTTP or DNS tunneling, and time-based evasion techniques.
+Reverse shells are a practical attack technique for bypassing firewall and NAT constraints. After gaining initial access, attackers often use them to maintain remote control of a victim system. Implementation methods vary widely, from simple Bash one-liners to encrypted multi-stage payloads, HTTP or DNS tunneling, and time-based evasion techniques.
 
 For effective defense, a defense-in-depth strategy integrating network perimeter controls (egress filtering, mandatory proxy, DNS monitoring), host-based protection (application whitelisting, script hardening, noexec mounts), behavioral detection (EDR, Sysmon, OSQuery), centralized logging and correlation analysis (SIEM), and automated incident response (SOAR) is essential. In particular, applying a Zero Trust approach to outbound traffic that blocks all connections by default and allows only explicitly approved communications can significantly reduce reverse shell attack success rates.
 

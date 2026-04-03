@@ -8,15 +8,15 @@ draft: false
 
 ## Spring Framework의 역사와 등장 배경
 
-Spring Framework는 2002년 Rod Johnson이 그의 저서 "Expert One-on-One J2EE Design and Development"에서 제시한 아이디어를 바탕으로 2003년에 처음 공개된 자바 기반 엔터프라이즈 애플리케이션 프레임워크로, 당시 복잡하고 무거웠던 EJB(Enterprise JavaBeans) 2.x의 대안으로 등장하여 POJO(Plain Old Java Object) 기반의 경량 개발 방식을 제시했다. EJB 2.x는 컨테이너에 강하게 결합되어 있어 단위 테스트가 어렵고 XML 설정이 방대했으며 개발 생산성이 낮았는데, Spring은 IoC(Inversion of Control)와 DI(Dependency Injection) 개념을 핵심으로 하여 객체 간의 결합도를 낮추고 테스트 용이성을 높였다.
+Spring Framework는 2002년 Rod Johnson이 그의 저서 "Expert One-on-One J2EE Design and Development"에서 제시한 아이디어를 바탕으로, 2003년에 처음 공개된 자바 기반 엔터프라이즈 애플리케이션 프레임워크다. 당시 복잡하고 무거웠던 EJB(Enterprise JavaBeans) 2.x는 컨테이너에 강하게 결합되어 단위 테스트가 어렵고 XML 설정이 방대해 개발 생산성이 낮았다. Spring은 이에 대한 대안으로 등장해 POJO(Plain Old Java Object) 기반의 경량 개발 방식을 제시했고, IoC(Inversion of Control)와 DI(Dependency Injection)를 핵심으로 객체 간 결합도를 낮추고 테스트 용이성을 높였다.
 
-Spring Framework는 2004년 1.0 버전 정식 출시 이후 지속적으로 발전하여 2006년 Spring 2.0에서 XML 네임스페이스와 어노테이션 지원을 추가했고, 2009년 Spring 3.0에서 자바 5 기반의 어노테이션 구성(@Configuration, @Bean)과 REST 지원을 강화했으며, 2013년 Spring 4.0에서 자바 8 람다와 웹소켓을 지원하기 시작했다. 현재 Spring 6.0(2022년)은 자바 17을 기본으로 하고 Jakarta EE 9+ 네임스페이스를 채택하여 javax.* 대신 jakarta.*를 사용하며, GraalVM 네이티브 이미지 지원을 강화하여 클라우드 네이티브 환경에 최적화되었다.
+Spring Framework는 2004년 1.0 정식 출시 이후 지속적으로 발전해 왔다. 2006년 Spring 2.0에서는 XML 네임스페이스와 어노테이션 지원이 추가되었고, 2009년 Spring 3.0에서는 자바 5 기반의 어노테이션 구성(@Configuration, @Bean)과 REST 지원이 강화되었다. 이어 2013년 Spring 4.0에서는 자바 8 람다와 웹소켓 지원이 도입되었다. 현재 Spring 6.0(2022년)은 자바 17을 기본으로 하며, Jakarta EE 9+ 네임스페이스를 채택해 javax.* 대신 jakarta.*를 사용한다. 또한 GraalVM 네이티브 이미지 지원을 강화해 클라우드 네이티브 환경에 더욱 적합해졌다.
 
 ## Spring Boot의 탄생과 철학
 
-Spring Boot는 2014년 Pivotal(현재 VMware)에서 Spring Framework 기반 애플리케이션의 복잡한 설정을 자동화하고 빠른 프로토타이핑을 가능하게 하기 위해 출시한 프레임워크로, "Convention over Configuration(설정보다 관례)" 철학을 따라 개발자가 비즈니스 로직에 집중할 수 있게 한다. Spring Boot 이전에는 Spring MVC 웹 애플리케이션을 만들기 위해 web.xml, applicationContext.xml, dispatcher-servlet.xml 등 수십 줄에서 수백 줄에 달하는 XML 설정이 필요했고, 톰캣이나 제티 같은 외부 서블릿 컨테이너를 별도로 설치하고 WAR 파일을 배포해야 했다.
+Spring Boot는 2014년 Pivotal(현재 VMware)에서 Spring Framework 기반 애플리케이션의 복잡한 설정을 자동화하고, 빠른 프로토타이핑을 가능하게 하기 위해 출시한 프레임워크다. "Convention over Configuration(설정보다 관례)" 철학을 바탕으로 개발자가 비즈니스 로직에 더 집중할 수 있게 한다. Spring Boot 이전에는 Spring MVC 웹 애플리케이션을 만들기 위해 web.xml, applicationContext.xml, dispatcher-servlet.xml 등 수십 줄에서 수백 줄에 달하는 XML 설정이 필요했고, 톰캣이나 제티 같은 외부 서블릿 컨테이너를 별도로 설치한 뒤 WAR 파일을 배포해야 했다.
 
-Spring Boot의 핵심 기능은 자동 구성(Auto-configuration), 내장 서버(Embedded Server), 스타터 의존성(Starter Dependencies), 액추에이터(Actuator)로, 자동 구성은 클래스패스에 있는 라이브러리를 감지하여 해당 기술에 필요한 빈을 자동으로 등록하고, 내장 서버는 톰캣, 제티, 언더토우를 JAR 파일 안에 포함하여 java -jar 명령으로 애플리케이션을 바로 실행할 수 있게 하며, 스타터 의존성은 관련 라이브러리들을 하나의 의존성으로 묶어 버전 호환성 문제를 해결하고, 액추에이터는 애플리케이션의 상태, 메트릭, 헬스 체크 엔드포인트를 제공하여 운영 환경에서의 모니터링을 용이하게 한다.
+Spring Boot의 핵심 기능으로는 자동 구성(Auto-configuration), 내장 서버(Embedded Server), 스타터 의존성(Starter Dependencies), 액추에이터(Actuator)가 있다. 자동 구성은 클래스패스에 있는 라이브러리를 감지해 해당 기술에 필요한 빈을 자동으로 등록한다. 내장 서버는 톰캣, 제티, 언더토우를 JAR 파일 안에 포함해 `java -jar` 명령만으로 애플리케이션을 실행할 수 있게 한다. 스타터 의존성은 관련 라이브러리를 하나의 의존성으로 묶어 버전 호환성 문제를 줄여 주며, 액추에이터는 애플리케이션의 상태, 메트릭, 헬스 체크 엔드포인트를 제공해 운영 환경의 모니터링을 쉽게 해 준다.
 
 ## Spring IoC 컨테이너와 의존성 주입
 
@@ -50,7 +50,7 @@ public class OrderService {
 
 ### 빈 스코프
 
-빈 스코프(Bean Scope)는 빈 인스턴스가 존재하는 범위를 정의하며, 기본값인 싱글톤(Singleton) 스코프에서는 Spring 컨테이너당 하나의 인스턴스만 생성되어 모든 요청에서 공유된다. 프로토타입(Prototype) 스코프는 빈을 요청할 때마다 새 인스턴스를 생성하고, 웹 환경에서는 리퀘스트(Request), 세션(Session), 애플리케이션(Application) 스코프가 추가로 제공되어 각각 HTTP 요청, HTTP 세션, 서블릿 컨텍스트와 생명주기를 같이한다.
+빈 스코프(Bean Scope)는 빈 인스턴스가 존재하는 범위를 정의하며, 기본값인 싱글톤(Singleton) 스코프에서는 Spring 컨테이너당 하나의 인스턴스만 생성되어 모든 요청에서 공유된다. 프로토타입(Prototype) 스코프는 빈을 요청할 때마다 새 인스턴스를 생성한다. 웹 환경에서는 리퀘스트(Request), 세션(Session), 애플리케이션(Application) 스코프가 추가로 제공되며, 각각 HTTP 요청, HTTP 세션, 서블릿 컨텍스트와 생명주기를 함께한다.
 
 | 스코프 | 설명 | 생명주기 |
 |--------|------|----------|
@@ -68,7 +68,7 @@ AOP(Aspect-Oriented Programming)는 횡단 관심사(Cross-cutting Concerns)를 
 
 ### Advice 종류
 
-Spring AOP는 다섯 가지 Advice 타입을 제공하며, @Before는 대상 메서드 실행 전에, @AfterReturning은 정상 반환 후에, @AfterThrowing은 예외 발생 시에, @After는 정상이든 예외든 무조건 실행되고, @Around는 대상 메서드 실행 전후 모두를 제어할 수 있다. @Around가 가장 강력하여 메서드 실행 여부 결정, 반환값 조작, 예외 처리 등 모든 것을 제어할 수 있지만, 단순한 작업에는 목적에 맞는 Advice를 사용하는 것이 코드 가독성 면에서 좋다.
+Spring AOP는 다섯 가지 Advice 타입을 제공한다. `@Before`는 대상 메서드 실행 전에, `@AfterReturning`은 정상 반환 후에, `@AfterThrowing`은 예외 발생 시에 실행된다. `@After`는 정상 종료 여부와 관계없이 실행되며, `@Around`는 대상 메서드 실행 전후를 모두 제어할 수 있다. `@Around`가 가장 강력해 메서드 실행 여부 결정, 반환값 조작, 예외 처리까지 모두 제어할 수 있지만, 단순한 작업에는 목적에 맞는 Advice를 사용하는 편이 코드 가독성에 더 좋다.
 
 ```java
 @Aspect
@@ -90,7 +90,7 @@ public class PerformanceAspect {
 
 ### 자동 구성의 동작 원리
 
-Spring Boot의 자동 구성(Auto-configuration)은 @EnableAutoConfiguration 어노테이션(@SpringBootApplication에 포함)이 활성화하며, spring-boot-autoconfigure 모듈의 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports 파일에 정의된 설정 클래스들을 조건부로 로드한다. 각 자동 구성 클래스는 @ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty 같은 조건부 어노테이션을 사용하여 특정 클래스가 클래스패스에 있거나, 특정 빈이 없거나, 특정 프로퍼티가 설정된 경우에만 활성화되므로, 개발자가 명시적으로 설정한 빈이 있으면 자동 구성이 물러나고 개발자의 설정이 우선한다.
+Spring Boot의 자동 구성(Auto-configuration)은 `@SpringBootApplication`에 포함된 `@EnableAutoConfiguration`에 의해 활성화된다. 이 기능은 `spring-boot-autoconfigure` 모듈의 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 파일에 정의된 설정 클래스들을 조건부로 로드한다. 각 자동 구성 클래스는 `@ConditionalOnClass`, `@ConditionalOnMissingBean`, `@ConditionalOnProperty` 같은 조건부 어노테이션을 사용해 특정 클래스가 클래스패스에 있거나, 특정 빈이 없거나, 특정 프로퍼티가 설정된 경우에만 활성화된다. 따라서 개발자가 명시적으로 설정한 빈이 있으면 자동 구성은 물러나고 개발자의 설정이 우선한다.
 
 ### 스타터 의존성
 
@@ -98,4 +98,8 @@ Spring Boot의 자동 구성(Auto-configuration)은 @EnableAutoConfiguration 어
 
 ## 결론
 
-Spring Framework는 2003년 EJB의 복잡성에 대한 대안으로 등장하여 IoC와 DI를 통해 자바 엔터프라이즈 개발의 패러다임을 바꿨고, 2014년 출시된 Spring Boot는 자동 구성과 내장 서버를 통해 설정의 복잡성을 극적으로 줄여 마이크로서비스와 클라우드 네이티브 개발에 최적화된 환경을 제공한다. Spring의 핵심은 IoC 컨테이너의 의존성 주입으로, 객체 간의 결합도를 낮추고 테스트 용이성을 높이며, 빈 스코프와 AOP를 통해 객체의 생명주기와 횡단 관심사를 선언적으로 관리할 수 있다. Spring Boot 스타터와 자동 구성은 개발자가 비즈니스 로직에 집중할 수 있게 하며, 액추에이터는 운영 환경에서의 모니터링과 관리를 용이하게 하여 현대 자바 백엔드 개발의 사실상 표준으로 자리 잡았다.
+Spring Framework는 2003년 EJB의 복잡성에 대한 대안으로 등장해, IoC와 DI를 통해 자바 엔터프라이즈 개발의 패러다임을 바꿨다. 2014년에 출시된 Spring Boot는 자동 구성과 내장 서버를 통해 설정의 복잡성을 크게 줄였고, 마이크로서비스와 클라우드 네이티브 개발에 적합한 환경을 제공했다.
+
+Spring의 핵심은 IoC 컨테이너를 통한 의존성 주입에 있다. 이를 통해 객체 간 결합도를 낮추고 테스트 용이성을 높일 수 있으며, 빈 스코프와 AOP를 활용해 객체의 생명주기와 횡단 관심사를 선언적으로 관리할 수 있다.
+
+또한 Spring Boot의 스타터와 자동 구성은 개발자가 비즈니스 로직에 더 집중할 수 있게 돕고, 액추에이터는 운영 환경에서 모니터링과 관리를 쉽게 해 준다. 이런 점에서 Spring Boot는 현대 자바 백엔드 개발의 사실상 표준으로 자리 잡았다.

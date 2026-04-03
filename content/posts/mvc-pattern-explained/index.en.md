@@ -10,7 +10,7 @@ draft: false
 
 The MVC pattern was first conceived in 1979 by Norwegian computer scientist Trygve Reenskaug while working on the Smalltalk-76 project at Xerox PARC (Palo Alto Research Center). This was part of a revolutionary effort to advance graphical user interfaces during the dawn of personal computing. Xerox PARC pioneered many modern computing concepts, including Ethernet, laser printers, and object-oriented programming. Reenskaug was exploring ways for users to effectively control and visualize complex data structures when he conceived the idea of separating data (Model), presentation (View), and control (Controller).
 
-Initially known by various names including "Thing-Model-View-Editor," the pattern was finalized as Model-View-Controller on December 10, 1979, following intensive discussions with Adele Goldberg, a key member of the Smalltalk team. This name was chosen as it most clearly expressed the role of each component. For over 40 years since, it has established itself as a foundational pattern across nearly all software domains including web development, desktop applications, and mobile apps. It has profoundly influenced the design philosophy of major web frameworks such as Ruby on Rails (2004), Spring Framework (2002), Django (2005), and ASP.NET MVC (2009).
+Initially known by various names including "Thing-Model-View-Editor," the pattern was finalized as Model-View-Controller on December 10, 1979, following intensive discussions with Adele Goldberg, a key member of the Smalltalk team. This name was chosen because it most clearly expressed the role of each component. Since 1979, it has become a foundational pattern across nearly all software domains, including web development, desktop applications, and mobile apps. It has profoundly influenced the design philosophy of major web frameworks such as Ruby on Rails (2004), Spring Framework (2002), Django (2005), and ASP.NET MVC (2009).
 
 ## Core Concepts and Design Principles of the MVC Pattern
 
@@ -20,7 +20,7 @@ The MVC pattern is an architectural pattern that separates an application into t
 
 The Model is the layer responsible for core data and business logic in the application.
 
-The main roles are as follows:
+Its core responsibilities include:
 
 - Interacts with the database and manages data state
 - Validates data integrity
@@ -33,7 +33,7 @@ In Spring Boot, it consists of components such as Entity, DTO, Repository, and S
 
 The View is the presentation layer that visually represents data to users.
 
-It can be implemented in various forms:
+Common examples include:
 
 - Web pages using HTML, CSS, and JavaScript
 - Dynamic page generation through template engines (Thymeleaf, JSP, Freemarker, etc.)
@@ -45,7 +45,7 @@ The View only displays Model data to users and should not contain business logic
 
 The Controller acts as a mediator that receives user requests and controls the flow between Model and View.
 
-The main responsibilities are as follows:
+Typical responsibilities include:
 
 - Validates user input
 - Invokes appropriate business logic
@@ -56,7 +56,7 @@ In Spring Boot, Controllers are defined using `@Controller` or `@RestController`
 
 ## How Spring MVC Works
 
-Spring MVC is designed based on the Front Controller Pattern. A centralized controller called DispatcherServlet receives all HTTP requests and delegates them to appropriate handlers. This allows common concerns such as authentication, logging, and exception handling to be processed in one place. Developers can focus solely on business logic.
+Spring MVC is designed around the Front Controller Pattern. A centralized controller called DispatcherServlet receives all HTTP requests and delegates them to appropriate handlers. This centralizes concerns such as authentication, logging, and exception handling, separating them from individual controller logic.
 
 ### Request Processing Flow
 
@@ -95,7 +95,7 @@ MVP (Model-View-Presenter) and MVVM (Model-View-ViewModel) patterns emerged to o
 
 The MVP pattern replaces MVC's Controller with a Presenter to completely eliminate dependencies between View and Model.
 
-The main characteristics are as follows:
+Key characteristics include:
 
 - The View communicates with Model only through the Presenter and has no direct references
 - The Presenter controls the View through a View interface, reducing coupling between them
@@ -107,7 +107,7 @@ However, a 1:1 relationship forms between View and Presenter, causing the Presen
 
 The MVVM pattern automates synchronization between View and ViewModel using Data Binding.
 
-The main characteristics are as follows:
+Its defining characteristics include:
 
 - Changes in the View are automatically reflected in the ViewModel and vice versa
 - The ViewModel contains only pure data and logic without dependencies on specific Views
@@ -117,9 +117,9 @@ MVVM has been widely adopted in modern frontend frameworks such as Angular, Reac
 
 ### Pattern Selection Guide
 
-The application targets for each pattern are as follows:
+Each pattern tends to fit different kinds of applications:
 
-- **MVC**: Suitable for traditional server-side web applications (Spring, Django, Ruby on Rails). It is optimized for structures that render HTML on the server and return it. Implementation is intuitive with a low learning curve, enabling rapid prototype development.
+- **MVC**: Suitable for traditional server-side web applications (Spring, Django, Ruby on Rails). It works well for applications that render HTML on the server and send it as the response. Implementation is intuitive with a low learning curve, enabling rapid prototype development.
 
 - **MVP**: Useful for Android development or projects where testability is important. It is chosen when complete separation of View and Model is needed. View logic can be isolated through the Presenter, making unit testing easy.
 
@@ -127,8 +127,8 @@ The application targets for each pattern are as follows:
 
 ## Conclusion
 
-The MVC pattern has been evolving as the foundation of software architecture for over 40 years since its birth in 1979. It became the basis for major web frameworks such as Spring, Django, and Ruby on Rails, providing core values of separation of concerns and improved code reusability.
+The MVC pattern has served as a foundation of software architecture since 1979. It became the basis for major web frameworks such as Spring, Django, and Ruby on Rails, providing the core benefits of separation of concerns and improved code reusability.
 
-Although limitations exist such as Controller bloat and Model-View dependency issues, it is still effectively utilized in modern web application development when combined with Spring MVC's advanced features like DispatcherServlet, Interceptors, and AOP, as well as REST API architecture and microservice patterns.
+Although it has limitations such as controller bloat and Model-View dependency issues, it remains widely used in modern web application development. In practice, teams often pair it with Spring MVC features such as DispatcherServlet, Interceptors, and AOP, along with REST API and microservice architectures.
 
-Selecting the appropriate pattern among MVC, MVP, and MVVM based on project requirements, team technology stack, and application complexity, and mixing multiple patterns as needed is the best approach. It is important to understand and apply the essence of separation of concerns and improved maintainability that each pattern pursues, rather than the patterns themselves.
+The best approach is to choose among MVC, MVP, and MVVM based on project requirements, the team's technology stack, and application complexity, and to combine patterns when needed. What matters most is understanding and applying the principles each pattern emphasizes, especially separation of concerns and maintainability.

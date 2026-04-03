@@ -6,7 +6,7 @@ description: "Writing effective pull requests and conducting code reviews."
 draft: false
 ---
 
-PR (Pull Request) review is a core collaborative activity that improves team code quality, shares knowledge among developers, and prevents potential bugs in advance. Since GitHub introduced the Pull Request feature in 2008, it has become the standard code integration method in both open source projects and enterprise development environments. PR reviews go beyond simply finding errors in code to become an essential quality management activity in software development that helps team members understand each other's code, maintain a consistent codebase, and make better design decisions through collective intelligence.
+PR (Pull Request) review is a core collaborative activity that improves team code quality, shares knowledge among developers, and catches potential bugs early. Since GitHub introduced the Pull Request feature in 2008, it has become the standard way to integrate code in both open source projects and enterprise development environments. PR reviews go beyond simply finding errors in code. They are an essential quality management practice in software development that helps team members understand each other's code, maintain a consistent codebase, and make better design decisions through collective intelligence.
 
 ## History of Code Review and Evolution of PR Reviews
 
@@ -14,13 +14,13 @@ PR (Pull Request) review is a core collaborative activity that improves team cod
 >
 > A software quality assurance activity where other developers review written code to discover bugs, design issues, coding standard violations, and improve code quality.
 
-The history of code review dates back to the 1970s, when IBM's Michael Fagan published a systematic code review methodology called "Fagan Inspection" in 1976, which began to be formally introduced to the software industry. Code reviews at that time followed a Formal Inspection approach where multiple developers would gather in a meeting room and review printed code line by line. This method was effective but had the disadvantage of requiring significant time and manpower.
+The history of code review dates back to the 1970s, when IBM's Michael Fagan published a systematic methodology called "Fagan Inspection" in 1976, formally introducing the practice to the software industry. Code reviews at that time followed a Formal Inspection approach in which multiple developers gathered in a meeting room and reviewed printed code line by line. This method was effective, but it required significant time and manpower.
 
 In the 2000s, code review methods evolved along with the development of Distributed Version Control Systems (DVCS). The emergence of Git in 2005 and GitHub's introduction of the Pull Request feature in 2008 were revolutionary changes that enabled effective code reviews even in asynchronous and distributed environments. Since then, similar features like GitLab's Merge Request and Bitbucket's Pull Request have been introduced on other platforms, and PR-based code review has become established as the standard workflow in modern software development.
 
 ## Purpose and Value of PR Reviews
 
-PR reviews provide various purposes and values, serving as a multidimensional activity that goes beyond simple error detection to improve the capabilities of the entire team.
+PR reviews serve several purposes and deliver value in multiple ways. They go beyond simple error detection and help improve the capabilities of the entire team.
 
 ### Improving Code Quality
 
@@ -36,7 +36,7 @@ Team coding conventions, architecture patterns, and naming rules can be consiste
 
 ### Leveraging Collective Intelligence
 
-For complex problems, better solutions can be found by leveraging the diverse perspectives and experiences of multiple developers. Synergy effects occur where one team member discovers problems that another missed or suggests more efficient approaches.
+For complex problems, better solutions can be found by drawing on the diverse perspectives and experiences of multiple developers. One team member may spot an issue another missed or suggest a more efficient approach.
 
 ### Sharing Code Ownership
 
@@ -88,7 +88,7 @@ Effective PR reviews require systematic review criteria. Checking the following 
 - Is documentation updated for API changes?
 - Is README or CHANGELOG update needed?
 
-## Comment Level Distinctions
+## Review Comment Levels
 
 Using prefixes is recommended to clearly convey the importance and intent of feedback in PR reviews. This allows authors to quickly understand which feedback must be addressed and which is optional.
 
@@ -143,7 +143,7 @@ for (let i = 0; i < len; i++) { ... }
 
 > `[nit]` or `[minor]`
 
-Very minor points such as variable names, spacing, and comment typos that do not affect code behavior but are mentioned for consistency or readability. Good to fix, but not fixing does not affect PR approval.
+Very minor points such as variable names, spacing, and comment typos that do not affect code behavior but are mentioned for consistency or readability. They are worth fixing, but leaving them as-is does not affect PR approval.
 
 ```
 [nit] The variable name `cachedUserProfile` would convey intent more clearly than `temp`.
@@ -158,7 +158,7 @@ would maintain consistency with other functions in the project.
 
 > `[question]`
 
-Questions for understanding the code, used to understand the reason for specific design decisions, unexpected approaches, or to grasp context. Helps the reviewer's understanding and sometimes serves as an opportunity for the author to reconsider their decisions.
+Questions used to better understand the code, the reasoning behind specific design decisions, unexpected approaches, or missing context. They help the reviewer understand the change and can also give the author a chance to reconsider their decisions.
 
 ```
 [question] Is there a reason for using memory cache instead of Redis in this logic?
@@ -172,7 +172,7 @@ Adding logging at least would make debugging easier.
 
 > `[praise]`
 
-Positive feedback for well-written code, creative solutions, or improved areas. Shows that review is not just an activity that points out problems but also acknowledges and encourages good code.
+Positive feedback for well-written code, creative solutions, or meaningful improvements. It shows that review is not just about pointing out problems, but also about acknowledging and encouraging good code.
 
 ```
 [praise] This error handling logic is really clean!
@@ -230,7 +230,7 @@ Feedback is about the code, not the author personally. Using phrases like "this 
 
 ### Recommend Appropriate PR Size
 
-Research shows that review effectiveness decreases sharply for PRs with more than 400 lines of changes. Recommending that large PRs be submitted in smaller units is advisable. However, for already submitted large PRs, respond realistically while suggesting future improvement directions.
+Research shows that review effectiveness decreases sharply for PRs with more than 400 lines of changes. It is helpful to recommend submitting large PRs in smaller units. However, when reviewing a large PR that has already been submitted, it is better to work within that constraint while suggesting smaller PRs for the future.
 
 ### Timely Reviews
 
@@ -264,7 +264,7 @@ An environment must be created where team members can give and receive feedback 
 
 ### Documenting Review Guidelines
 
-Documenting and sharing team review criteria, comment level definitions, and expected response times enables maintaining a consistent review culture and helps with onboarding new team members.
+Documenting and sharing team review criteria, comment level definitions, and expected response times helps maintain a consistent review culture and makes it easier to onboard new team members.
 
 ### Separating Automation and Human Roles
 
@@ -276,4 +276,4 @@ Rotate or use CODEOWNERS files to appropriately distribute reviews so they don't
 
 ## Conclusion
 
-PR review is the modern evolution of code review that started with Fagan Inspection in the 1970s and has become a standard quality management activity in software development since GitHub introduced Pull Requests in 2008. For effective PR reviews, it is important to clearly distinguish feedback levels such as blocking, suggestion, nit, question, and praise, provide specific and actionable feedback, and separate criticism of code from respect for the author. A healthy review culture is a core activity that goes beyond simply finding bugs to leverage team collective intelligence, share knowledge, and improve overall code quality and team capabilities. Building a culture of giving and receiving constructive feedback based on psychological safety is an essential element of successful software development.
+PR review is the modern evolution of code review, which began with Fagan Inspection in the 1970s and became a standard quality management practice in software development after GitHub introduced Pull Requests in 2008. For effective PR reviews, it is important to clearly distinguish feedback levels such as blocking, suggestion, nit, question, and praise, provide specific and actionable feedback, and critique the code while respecting the author. A healthy review culture goes beyond simply finding bugs. It helps teams use collective intelligence, share knowledge, and improve overall code quality and team capability. Building a culture of giving and receiving constructive feedback with psychological safety is an essential part of successful software development.

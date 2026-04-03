@@ -1,12 +1,12 @@
 ---
-title: "HTTP Methods GET POST PUT DELETE"
+title: "HTTP Methods: GET, POST, PUT, and DELETE Explained"
 date: 2024-05-25T14:05:29+09:00
 tags: ["HTTP", "API", "Protocol"]
 draft: false
-description: "HTTP methods including GET, POST, PUT, and DELETE."
+description: "An overview of HTTP methods including GET, POST, PUT, and DELETE."
 ---
 
-HTTP (HyperText Transfer Protocol) methods are core elements of client-server communication protocols that have continuously evolved since Tim Berners-Lee first introduced them when designing the World Wide Web in 1991. The HTTP/1.1 standard (RFC 7231) defines 9 standard methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, and TRACE. Each method has important characteristics of idempotency and safety, playing essential roles in RESTful API design and web application development.
+HTTP (HyperText Transfer Protocol) methods define how clients and servers communicate on the web. HTTP/1.1 (RFC 7231) defines 9 standard methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, and TRACE. Each method has important properties such as safety and idempotency, which shape caching, retry behavior, RESTful API design, and web application development.
 
 ## History and Evolution of HTTP Methods
 
@@ -14,7 +14,7 @@ HTTP (HyperText Transfer Protocol) methods are core elements of client-server co
 >
 > An application layer protocol for transferring hypertext documents between clients and servers on the web. It operates on a request-response model where the method used in each request defines the semantics of the operation to be performed.
 
-The HTTP protocol has continuously evolved since Tim Berners-Lee proposed it as an information sharing system at CERN in 1989, with the types and semantics of methods expanding alongside.
+The HTTP protocol has continuously evolved since Tim Berners-Lee proposed it as an information sharing system at CERN in 1989, and HTTP methods have expanded in both type and semantics along with it.
 
 ### HTTP/0.9 (1991)
 
@@ -42,7 +42,7 @@ The two most important concepts for understanding HTTP methods are idempotency a
 >
 > A read-only method that does not change server state. Performing the same request multiple times causes no side effects on the server's resources.
 
-Safe methods (GET, HEAD, OPTIONS, TRACE) do not modify server data, so they can be cached. Browser prefetching and search engine crawlers can call them safely. They can also be stored in bookmarks or history and re-executed without issues.
+Safe methods (GET, HEAD, OPTIONS, TRACE) do not modify server data, so requests using them can be cached. Browser prefetching and search engine crawlers can call them safely. The resulting URLs can also be stored in bookmarks or browser history and revisited without issues.
 
 ### Idempotency
 
@@ -116,7 +116,7 @@ curl -X GET https://api.example.com/users/123 \
 
 ### POST - Create Resources and Process Data
 
-The POST method submits data to the server to create new resources or request data processing. It is used for various purposes including form submission, file uploads, and passing complex search conditions.
+The POST method submits data to the server to create new resources or request data processing. It is used for various purposes including form submission, file uploads, and sending complex search criteria.
 
 **Key Characteristics**
 
@@ -474,7 +474,7 @@ POST   /deleteUser
 
 ## CORS and Preflight Requests
 
-CORS (Cross-Origin Resource Sharing) is a mechanism that allows access to resources from different domains by circumventing the web browser's Same-Origin Policy. Preflight requests using the OPTIONS method are central to this mechanism.
+CORS (Cross-Origin Resource Sharing) is a mechanism that allows access to resources from different domains while working within the web browser's Same-Origin Policy. Preflight requests using the OPTIONS method are central to this mechanism.
 
 ### Simple Request vs Preflight Request
 
@@ -619,9 +619,9 @@ app.delete('/users/:id',
 
 ## Conclusion
 
-HTTP methods are core elements defining communication between clients and servers on the web. Starting with only the GET method in HTTP/0.9 in 1991, 9 standard methods were established in HTTP/1.1. Each method has important characteristics of safety and idempotency that directly affect caching, retry policies, and API design.
+HTTP methods are core elements that define communication between clients and servers on the web. Starting with only the GET method in HTTP/0.9 in 1991, the protocol grew to 9 standard methods in HTTP/1.1. Each method has important characteristics of safety and idempotency that directly affect caching, retry policies, and API design.
 
-Properly leveraging HTTP method semantics in RESTful API design enables creation of consistent and intuitive APIs. Understanding CORS and applying security considerations (CSRF prevention, TRACE disabling, authentication/authorization validation) enables building secure and scalable web services.
+Using HTTP method semantics correctly in RESTful API design helps you build consistent and intuitive APIs. A solid understanding of CORS and core security practices such as CSRF prevention, TRACE disabling, and authentication and authorization checks also helps you build secure and scalable web services.
 
 ## References
 

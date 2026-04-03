@@ -6,7 +6,7 @@ description: "Vim editor basics and essential commands."
 draft: false
 ---
 
-Vim, which stands for Vi IMproved, was developed by Bram Moolenaar in 1991 as an extended and improved version of the vi editor that Bill Joy created for BSD Unix in 1976. It adds modern features like syntax highlighting, multiple undo, plugin support, and split windows while preserving vi's core philosophy of modal editing, enabling extremely fast editing using only the keyboard. Vim comes pre-installed on nearly all Unix-like systems, making it essential for server management. It enables powerful editing without GUI editors in SSH environments, and its value is supported by nearly 50 years of accumulated community knowledge and a robust plugin ecosystem.
+Vim, short for Vi IMproved, was created by Bram Moolenaar in 1991 as an expanded version of the vi editor Bill Joy wrote for BSD Unix in 1976. It keeps vi's core philosophy of modal editing while adding modern features such as syntax highlighting, multiple undo, plugin support, and split windows. Because it comes pre-installed on nearly all Unix-like systems, Vim remains especially useful for server management and editing over SSH. It also benefits from decades of community knowledge and a robust plugin ecosystem.
 
 ## History of Vim
 
@@ -43,16 +43,16 @@ Neovim is a project that began in 2014 by forking Vim's codebase. It cleaned up 
 
 > **What is Modal Editing?**
 >
-> Modal editing separates editor operations into multiple modes where the same key performs different functions depending on the mode. In regular editors, pressing `j` inputs the character 'j'. In Vim's Normal mode, pressing `j` moves the cursor down.
+> Modal editing separates editor operations into multiple modes where the same key performs different functions depending on the mode. In regular editors, pressing `j` types the character 'j'. In Vim's Normal mode, pressing `j` moves the cursor down.
 
-Modal editing allows all character keys on the keyboard to be used as commands, enabling concise expression of hundreds of commands without modifier keys like Ctrl or Alt. It clearly separates text input from editing, preventing unintended text input, and allows combining commands (composability) to express complex editing tasks simply. The initial learning curve is steep, but learning just 20-30 basic commands enables everyday editing, and after a few months, you experience editing speeds far faster than conventional editors.
+Modal editing allows all character keys on the keyboard to be used as commands, enabling concise expression of hundreds of commands without modifier keys like Ctrl or Alt. It clearly separates text input from editing, helps prevent unintended input, and lets you combine commands (composability) to express complex editing tasks simply. The initial learning curve is steep, but learning just 20-30 basic commands is enough for everyday editing, and over time many users find it faster than conventional editors.
 
 ### Why People Still Use Vim
 
 | Reason | Explanation |
 |--------|-------------|
 | **Server Environment** | Pre-installed on almost all Unix/Linux systems, immediately available via SSH |
-| **Speed** | Lighter than GUI editors, keyboard-centric is faster than mouse |
+| **Speed** | Lighter than GUI editors, and keyboard-centric editing is often faster than using a mouse |
 | **Versatility** | Vim key bindings supported in VS Code, JetBrains, browsers, and more |
 | **Customization** | Infinite configuration possibilities, build your own workflow |
 | **Community** | 50 years of accumulated knowledge, tutorials, plugins |
@@ -207,7 +207,7 @@ The substitution command uses `:s` (substitute) and can perform various substitu
 
 > **Plugin Managers**
 >
-> The most popular Vim plugin manager is vim-plug, characterized by concise syntax and fast parallel installation. Plugins can be batch installed with the `:PlugInstall` command and updated with `:PlugUpdate`.
+> The most popular Vim plugin manager is vim-plug, known for its concise syntax and fast parallel installation. Plugins can be installed in batches with the `:PlugInstall` command and updated with `:PlugUpdate`.
 
 ### Essential Plugins
 
@@ -286,8 +286,8 @@ Macros are a powerful feature for automating repetitive tasks. Start recording w
 
 ## Learning Methods
 
-vimtutor is an interactive tutorial built into Vim. It runs by entering `vimtutor` in the terminal and takes about 30 minutes. A Korean version is also available (`vimtutor ko`). It is the best learning method for beginners as you can learn basic commands through hands-on practice. Learning one new command at a time while using Vim daily is effective. Vim key bindings are supported in many tools including VS Code (Vim extension), JetBrains IDE (IdeaVim), and browsers (Vimium), making it a high-value skill that can be used for a lifetime once learned.
+vimtutor is an interactive tutorial built into Vim. Run `vimtutor` in the terminal to start it; it takes about 30 minutes. A Korean version is also available (`vimtutor ko`). It is one of the best ways for beginners to learn because it teaches the basic commands through hands-on practice. Learning one new command at a time while using Vim daily is also effective. Vim key bindings are supported in many tools including VS Code (Vim extension), JetBrains IDE (IdeaVim), and browsers (Vimium), making it a high-value skill you can keep using for years.
 
 ## Conclusion
 
-Vim is a text editor with nearly 50 years of history since vi's birth in 1976. Through the unique philosophy of modal editing, it enables extremely fast editing using only the keyboard. The initial learning curve is steep, but once familiar, it is more efficient than any other editor. It comes pre-installed on nearly all Unix/Linux systems, making it essential in server environments. Through plugins and configuration, it can achieve modern IDE-level functionality. Vim key bindings are supported in VS Code, JetBrains, browsers, and more, making it a skill you can use for a lifetime once learned.
+Vim has a long history, a distinctive editing model, and a workflow that still holds up today. The learning curve is real, but the basics pay off quickly, especially if you work in terminals, on servers, or in tools that support Vim key bindings. Start with `vimtutor`, practice a few commands every day, and build from there. Once the core motions and modes become familiar, Vim becomes a practical skill you can keep using for a long time.

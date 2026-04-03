@@ -34,7 +34,7 @@ In my homelab, opening services to the outside world came down to three main ste
 
 > **What is Cloudflare?**
 >
-> Cloudflare is a web infrastructure and security company founded in 2009 that provides a globally distributed CDN (Content Delivery Network), DDoS protection, DNS services, and a WAF (Web Application Firewall). Its free plan offers strong security features and DNS management capabilities, making it widely used in homelab environments.
+> Cloudflare provides DNS, proxying, and security features like DDoS protection and WAF. In this setup, I used it to manage my domain and hide my home IP behind the proxy.
 
 In the Cloudflare dashboard, I set the DNS records like this:
 
@@ -45,25 +45,25 @@ Setting up a wildcard subdomain (`*.injunweb.com`) causes all subdomains not sep
 
 Enabling Cloudflare's proxy feature (orange cloud icon) routes all traffic through Cloudflare servers, applying security features like DDoS protection, caching, and WAF, while also hiding the domain's actual IP address to prevent direct attacks.
 
-Configure SSL/TLS settings to "Full" or "Full (Strict)" mode to encrypt the connection between Cloudflare and the origin server (Traefik) as well.
+I set SSL/TLS mode to "Full" or "Full (Strict)" so the connection between Cloudflare and the origin server (Traefik) would also be encrypted.
 
 ### 2. Dynamic DNS (DDNS) Configuration
 
-Home internet services typically have ISPs (Internet Service Providers) dynamically assign IP addresses, which can change when routers reboot or lease times expire. This necessitates DDNS (Dynamic DNS) configuration to automatically update DNS records when IP changes occur.
+My home internet connection uses a dynamic public IP, so the address can change when the router reboots or the lease renews. That meant I needed DDNS (Dynamic DNS) to keep my DNS records pointed at the correct IP.
 
-Initially, existing DDNS services like No-IP, DuckDNS, and Dyn were tried, but they had the following limitations:
+I first looked at services like No-IP, DuckDNS, and Dyn, but they had a few limitations:
 
 1. **Subdomain Limitations**: Most free plans provided only a limited number of subdomains, making wildcard domain support impossible.
 2. **Renewal Requirements**: Free services usually required manual account renewal every 30 days.
 3. **Limited Customization**: Fine-grained control through APIs was difficult, and certain settings (like enabling proxying) could not be adjusted.
 
-Since the domain was already managed with Cloudflare, the decision was made to develop a custom DDNS solution using Cloudflare's API and Workers. This approach resolved all limitations and enabled easy management of wildcard domains and multiple subdomains.
+Since I was already managing the domain in Cloudflare, I ended up building a small DDNS solution with the Cloudflare API and Workers. That removed those limits and made wildcard domains and multiple subdomains easy to manage.
 
 #### Cloudflare Worker Implementation
 
 > **What is Cloudflare Workers?**
 >
-> Cloudflare Workers is a serverless platform that allows JavaScript code to run on Cloudflare's global edge network. Launched in 2017, code executes on each request and can be used for various purposes including API endpoints, redirects, and authentication. The free plan allows processing up to 100,000 requests per day.
+> Cloudflare Workers lets you run small JavaScript handlers on Cloudflare's edge network. I used it here as a lightweight endpoint that my router could call to update DNS records.
 
 I created the Cloudflare Worker in roughly this order:
 
@@ -285,7 +285,7 @@ After external access started working, Traefik's Let's Encrypt integration handl
 kubectl exec -n traefik $(kubectl get pods -n traefik -l app.kubernetes.io/name=traefik -o jsonpath='{.items[0].metadata.name}') -- cat /data/acme.json | jq
 ```
 
-This command accesses the Traefik pod to query the contents of the `acme.json` file where certificate information is stored, and `jq` formats the JSON data for readability. When certificates are successfully issued, certificate information for each domain is displayed, and Traefik automatically attempts renewal starting 30 days before certificate expiration.
+This command accesses the Traefik pod and prints the contents of `acme.json`, where Traefik stores certificate data. Piping the output through `jq` makes the JSON easier to read. When certificate issuance succeeds, I can see entries for each domain, and Traefik automatically starts renewing them 30 days before expiration.
 
 ## Deploying a Test Application
 
@@ -360,7 +360,7 @@ After that, I tested the results from both inside and outside the home network.
 
 ### Internal Network Test
 
-From the internal network (home network), access each service through the following URLs and verify they display properly:
+From inside my home network, these URLs worked as expected:
 
 - `http://traefik.injunweb.com/dashboard/` - Traefik dashboard
 - `http://argocd.injunweb.com` - ArgoCD UI
@@ -369,19 +369,19 @@ From the internal network (home network), access each service through the follow
 
 ### External Network Test
 
-From an external network (mobile data or another network), access the following URLs and verify that service separation is working as intended:
+From an external network, such as mobile data, I saw the following:
 
 - `https://traefik.injunweb.com/dashboard/` - Not accessible (as intended)
 - `https://argocd.injunweb.com` - Not accessible (as intended)
 - `https://longhorn.injunweb.com` - Not accessible (as intended)
 - `https://hello.injunweb.com` - Accessible normally
 
-If internal management services are not accessible from outside and only the test application is accessible from outside, the service separation strategy is working as intended.
+That confirmed the separation was working as intended: management services stayed internal, while the test application remained reachable from outside.
 
 ## Conclusion
 
 This post covered how I set up DDNS and port forwarding to expose services from the homelab Kubernetes cluster. The key design choice was keeping internal and external load balancers separate and forwarding traffic only to the external IP.
 
-The next post covers installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
+The next post will cover installing HashiCorp Vault to securely manage sensitive information like passwords and API keys.
 
 [Next Post: Homelab Build Log #6: Vault Secrets Management](/posts/homelab-k8s-secrets/)

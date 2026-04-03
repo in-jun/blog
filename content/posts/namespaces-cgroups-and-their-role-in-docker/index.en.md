@@ -6,7 +6,7 @@ description: "Linux namespaces and cgroups for Docker container isolation."
 draft: false
 ---
 
-Linux container technology has steadily evolved since the first introduction of mount namespace in kernel 2.4.19 in 2002 to become a core foundation of modern cloud infrastructure, with Namespaces handling process isolation and Cgroups (Control Groups) handling resource control at its center. All container runtimes including Docker, Kubernetes, and Podman leverage these two kernel features to provide isolation environments that are much lighter and faster than virtual machines, and understanding them is the first step to deeply grasping container technology.
+Linux container technology has steadily evolved since mount namespaces first appeared in kernel 2.4.19 in 2002. Namespaces provide process isolation, while Cgroups (Control Groups) provide resource control. Together, they form a core foundation of modern cloud infrastructure. Container runtimes such as Docker, Kubernetes, and Podman rely on these two kernel features to provide isolation that is much lighter and faster than virtual machines, and understanding them is the first step toward a deeper grasp of container technology.
 
 ## Historical Background of Container Technology
 
@@ -14,7 +14,7 @@ Linux container technology has steadily evolved since the first introduction of 
 >
 > Traditional virtual machines emulate entire hardware to run complete operating systems, resulting in large resource overhead and long startup times. Containers share the host kernel while providing process-level isolation, achieving the same isolation effect with millisecond-level fast startup and minimal resource usage.
 
-The concept of Linux namespaces was inspired by the Plan 9 operating system from Bell Labs, with the first implementation starting as mount namespace in Linux kernel 2.4.19 in 2002. Full-scale expansion began from 2006, with PID namespace and network namespace added in 2007, and memory cgroups appearing in 2008 to strengthen resource control capabilities. The technical foundation for complete container support was completed when user namespace was introduced in kernel 3.8. LXC (Linux Containers) provided user tools leveraging these features in 2008, and Docker popularized container technology in 2013 by combining image building and deployment tools.
+The concept of Linux namespaces was inspired by the Plan 9 operating system from Bell Labs. The first implementation appeared as the mount namespace in Linux kernel 2.4.19 in 2002. Broader expansion began in 2006: PID and network namespaces were added in 2007, and memory cgroups appeared in 2008 to strengthen resource control. The technical foundation for full container support was completed when user namespace was introduced in kernel 3.8. LXC (Linux Containers) exposed these features through user tools in 2008, and Docker popularized container technology in 2013 by combining them with image-building and deployment workflows.
 
 ## Namespaces: Isolation of Kernel Resources
 
@@ -22,7 +22,7 @@ The concept of Linux namespaces was inspired by the Plan 9 operating system from
 >
 > A namespace is a Linux kernel feature that partitions specific system resources by process group, making each group appear to have its own independent instance of that resource. Unlike virtual machines that virtualize hardware, namespaces partition kernel functionality itself to provide lighter and more efficient isolation.
 
-The current Linux kernel (6.1 and above) provides 8 types of namespaces, each responsible for isolating specific system resources. Container runtimes combine the necessary namespaces when creating new containers to create isolated environments, and processes inside containers have their own unique resource views.
+The current Linux kernel (6.1 and above) provides 8 types of namespaces, each responsible for isolating specific system resources. Container runtimes combine the namespaces they need when creating containers, giving processes inside each container their own view of those resources.
 
 ### Detailed Explanation by Namespace Type
 
@@ -53,7 +53,7 @@ User namespace plays the most important role in container security, implementing
 
 > **What are Cgroups?**
 >
-> Cgroups (Control Groups) is a Linux kernel feature that limits, accounts for, and isolates resource usage of process groups, developed by Google engineers in 2007 and merged into kernel 2.6.24. It can finely control resources such as CPU, memory, disk I/O, and network bandwidth, and is the core mechanism for preventing the "noisy neighbor" problem in container environments.
+> Cgroups (Control Groups) are a Linux kernel feature that limit, account for, and isolate the resource usage of process groups. Developed by Google engineers in 2007, they were merged into kernel 2.6.24. Cgroups can finely control resources such as CPU, memory, disk I/O, and network bandwidth, and they are the core mechanism for preventing the "noisy neighbor" problem in container environments.
 
 Cgroups are organized in a hierarchical structure, with child cgroups inheriting resource limits from parent cgroups. Each cgroup can contain multiple processes, and each process belongs to exactly one cgroup. Resource controllers (subsystems) perform actual resource limiting, with major controllers including cpu, cpuacct, memory, blkio, net_cls, and pids.
 
@@ -70,7 +70,7 @@ Cgroups are organized in a hierarchical structure, with child cgroups inheriting
 
 ### Differences Between Cgroups v1 and v2
 
-Cgroups v1 allowed each resource controller to have separate hierarchies, providing configuration flexibility but increasing complexity and lacking consistency between controllers. Cgroups v2 was introduced in kernel 4.5 in 2016, using a single unified hierarchy where all controllers operate in the same hierarchy, simplifying management. In v2, processes can only be attached to leaf nodes, it operates at process granularity instead of thread-level fine-grained control, and the memory controller supports hierarchical memory limits by default.
+Cgroups v1 allowed each resource controller to have a separate hierarchy, providing configuration flexibility but increasing complexity and reducing consistency between controllers. Cgroups v2 was introduced in kernel 4.5 in 2016 and uses a single unified hierarchy in which all controllers operate together, simplifying management. In v2, processes can only be attached to leaf nodes, control is applied at the process level rather than per thread, and the memory controller supports hierarchical memory limits by default.
 
 | Characteristic | Cgroups v1 | Cgroups v2 |
 |----------------|-----------|------------|
@@ -102,11 +102,11 @@ To verify namespaces and cgroups at the system level, use the `lsns` command to 
 >
 > Unlike virtual machines, containers share the host kernel, so when kernel vulnerabilities are discovered, all containers can be affected. As the saying goes, "Containers don't contain" - namespaces and cgroups alone cannot provide complete security boundaries, and additional security layers are needed.
 
-Beyond security risks from kernel sharing, default settings have no limits on process creation counts making them vulnerable to resource exhaustion attacks like fork bombs. Improper cgroups settings can cause noisy neighbor problems where one container uses excessive resources degrading other containers' performance. Additionally, when containers are configured to access host privileged resources (`--privileged` flag), isolation is effectively neutralized.
+Beyond the risks that come from sharing the kernel, default settings often place no limit on process creation, which leaves containers vulnerable to resource-exhaustion attacks such as fork bombs. Improper cgroups settings can also cause noisy neighbor problems, where one container consumes excessive resources and degrades the performance of others. Additionally, when containers are configured to access privileged host resources through the `--privileged` flag, isolation is effectively neutralized.
 
 ### Security Enhancement Methods
 
-A defense-in-depth approach is needed to strengthen container security. Enable user namespace so container root maps to non-privileged user on host, use MAC (Mandatory Access Control) systems like AppArmor or SELinux to restrict process behavior. Apply seccomp profiles to whitelist-restrict system calls containers can invoke, remove unnecessary Linux capabilities, and apply read-only filesystems and principle of least privilege. eBPF-based runtime security tools (Falco, Cilium, Tetragon, etc.) can detect and block anomalous container behavior in real-time.
+A defense-in-depth approach is needed to strengthen container security. Enable user namespaces so container root maps to a non-privileged user on the host. Use MAC (Mandatory Access Control) systems such as AppArmor or SELinux to restrict process behavior. Apply seccomp profiles to limit containers to approved system calls, remove unnecessary Linux capabilities, and use read-only filesystems alongside the principle of least privilege. eBPF-based runtime security tools (Falco, Cilium, Tetragon, etc.) can detect and block anomalous container behavior in real time.
 
 | Security Layer | Technology | Effect |
 |----------------|------------|--------|
@@ -118,4 +118,4 @@ A defense-in-depth approach is needed to strengthen container security. Enable u
 
 ## Conclusion
 
-Linux namespaces and cgroups have gone through a long development process since 2002 to become the core foundation of modern container technology, with the entire container ecosystem including Docker and Kubernetes built on these two kernel features. Namespaces isolate 8 types of resources including processes, networks, filesystems, and user IDs to make each container operate like an independent system, while cgroups precisely allocate and limit resources like CPU, memory, and I/O to enable fair resource distribution and noisy neighbor prevention. However, due to the structural characteristic of sharing the kernel, complete security isolation cannot be provided, so applying multi-layered security mechanisms such as user namespace, MAC, seccomp, and eBPF together is key to building a secure container environment.
+Linux namespaces and cgroups have evolved since 2002 into the core foundation of modern container technology, and the broader container ecosystem, including Docker and Kubernetes, is built on these two kernel features. Namespaces isolate 8 types of resources, including processes, networks, filesystems, and user IDs, so each container can behave like an independent system. Cgroups allocate and limit CPU, memory, and I/O resources to support fair sharing and prevent noisy neighbor issues. Because containers still share the host kernel, they do not provide complete security isolation on their own, so combining user namespaces, MAC, seccomp, and eBPF is essential for a more secure container environment.

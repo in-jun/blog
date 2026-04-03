@@ -18,7 +18,7 @@ When accessing websites on the internet, we use domain names instead of IP addre
 
 In the early days of the internet during the 1970s, when the number of hosts connected to the network was only in the hundreds, a single text file called HOSTS.TXT managed by Stanford Research Institute (SRI) was used to map host names to IP addresses. Network administrators periodically downloaded this file via FTP and applied it to their systems (/etc/hosts). HOSTS.TXT was a simple and easy-to-understand method, but as ARPANET grew and the number of hosts increased dramatically, the centralized file management approach revealed serious limitations in terms of scalability (file size growth), consistency (update conflicts), and traffic (download load).
 
-In 1983, Paul Mockapetris designed DNS as a distributed, hierarchical name resolution system to solve these problems. He defined the concepts and implementation of DNS in RFC 882 and RFC 883 (later replaced by RFC 1034 and RFC 1035 in 1987). The core design goals of DNS were to provide a name resolution service that operates reliably in large-scale internet environments through distributed management authority (each organization independently manages its own domain), scalable hierarchical structure (supporting millions of domains), and efficient caching (minimizing repetitive queries). This design philosophy remains valid 40 years later.
+In 1983, Paul Mockapetris designed DNS as a distributed, hierarchical name resolution system to solve these problems. He defined the concepts and implementation of DNS in RFC 882 and RFC 883 (later replaced by RFC 1034 and RFC 1035 in 1987). The core design goals were clear: DNS needed to operate reliably at internet scale, let each organization manage its own domain, support a hierarchy that could grow to millions of domains, and reduce repetitive queries through caching. This design philosophy remains valid 40 years later.
 
 ## Core Functions of DNS
 
@@ -58,7 +58,7 @@ Second-level domains located directly below TLDs are domains that individuals or
 
 ### Subdomain
 
-Subdomains located below second-level domains can be freely created and managed by domain owners at no additional cost. In www.example.com, 'www' is the subdomain, and unlimited subdomains can be created in forms like blog.example.com, mail.example.com, and api.example.com. Subdomains are used for various purposes including service differentiation within organizations (mail.example.com, ftp.example.com, cdn.example.com), environment differentiation (dev.example.com, staging.example.com, prod.example.com), and regional differentiation (us.example.com, asia.example.com). Subdomains of subdomains (api.dev.example.com) can also be created.
+Subdomains located below second-level domains can be freely created and managed by domain owners at no additional cost. In www.example.com, 'www' is the subdomain, and unlimited subdomains can be created in forms like blog.example.com, mail.example.com, and api.example.com. Organizations use subdomains to separate services (mail.example.com, ftp.example.com, cdn.example.com), environments (dev.example.com, staging.example.com, prod.example.com), and regions (us.example.com, asia.example.com). Subdomains of subdomains (api.dev.example.com) can also be created.
 
 ## DNS Resolution Process
 
@@ -72,7 +72,7 @@ The operating system first checks the local DNS cache to see if the IP address f
 
 ### Step 2: Query to Resolver
 
-If the information is not in the local cache, the operating system sends a recursive query to the configured DNS resolver (typically the ISP's DNS server or public DNS servers like Google DNS (8.8.8.8) or Cloudflare DNS (1.1.1.1)). The resolver has the responsibility to complete the DNS resolution process on behalf of the client. If the information is in its own cache, it immediately returns the cached response; otherwise, it proceeds to the next step and sends iterative queries to other name servers until obtaining the final response.
+If the information is not in the local cache, the operating system sends a recursive query to the configured DNS resolver (typically the ISP's DNS server or public DNS servers like Google DNS (8.8.8.8) or Cloudflare DNS (1.1.1.1)). The resolver is responsible for completing the DNS resolution process on behalf of the client. If the information is in its own cache, it immediately returns the cached response; otherwise, it proceeds to the next step and sends iterative queries to other name servers until obtaining the final response.
 
 ### Step 3: Root Name Server Query
 
@@ -125,7 +125,7 @@ example.com.    IN    AAAA    2606:2800:220:1:248:1893:25c8:1946
 
 ### CNAME Records
 
-CNAME (Canonical Name) records are alias records that map domain names to other domain names. They are useful when multiple subdomains point to the same server, and management is convenient because only the CNAME target needs to be changed when the server IP address changes. CNAME records cannot coexist with other records (according to RFC 1034, CNAME cannot be used at the same level as MX, TXT, NS, etc.), and it should be considered that additional queries (CNAME chasing) are needed during DNS resolution, resulting in slight performance overhead.
+CNAME (Canonical Name) records are alias records that map domain names to other domain names. They are useful when multiple subdomains point to the same server, and management is convenient because only the CNAME target needs to be changed when the server IP address changes. CNAME records cannot coexist with other records (according to RFC 1034, CNAME cannot be used at the same level as MX, TXT, NS, etc.), and they require additional queries (CNAME chasing) during DNS resolution, which adds slight performance overhead.
 
 ```
 www.example.com.      IN    CNAME    example.com.
@@ -162,11 +162,11 @@ example.com.    IN    NS    ns2.example.com.
 
 ### SOA Records
 
-SOA (Start of Authority) records define authority information and operational parameters for a DNS zone, including primary name server, administrator email (. instead of @), zone serial number (increments when zone file changes), refresh interval (how often secondary servers check for zone updates from primary server), retry interval (retry period on connection failure), expiration time (validity period of secondary server data when primary server is unreachable), and minimum TTL (negative TTL, caching period for non-existent records). There must be only one SOA record per zone (RFC 1035), and it affects zone transfer (AXFR/IXFR) and caching behavior.
+SOA (Start of Authority) records define the authority information and operational parameters for a DNS zone. They include the primary name server, administrator email (. instead of @), zone serial number (incremented when the zone file changes), refresh interval (how often secondary servers check the primary server for updates), retry interval (how long to wait before retrying after a connection failure), expiration time (how long secondary server data remains valid when the primary server is unreachable), and minimum TTL (negative TTL, or the caching period for non-existent records). Each zone must have exactly one SOA record (RFC 1035), and it affects zone transfer (AXFR/IXFR) and caching behavior.
 
 ### SRV Records
 
-SRV (Service) records specify the location (domain) and port of hosts providing specific services, including service name (_service), protocol (_tcp or _udp), priority (lower is higher), weight (load balancing ratio within same priority), port (service port number), and target host (actual server domain). They are used for service discovery in protocols such as LDAP (directory service), SIP (VoIP), XMPP (messaging), and Minecraft (game server). Kubernetes also uses SRV records for service discovery.
+SRV (Service) records specify the domain and port of hosts that provide specific services. An SRV record includes the service name (_service), protocol (_tcp or _udp), priority (lower is higher), weight (the load balancing ratio within the same priority), port (the service port number), and target host (the actual server domain). They are used for service discovery in protocols such as LDAP (directory service), SIP (VoIP), XMPP (messaging), and Minecraft (game server). Kubernetes also uses SRV records for service discovery.
 
 ```
 _ldap._tcp.example.com.    IN    SRV    10 0 389 ldap.example.com.
@@ -222,4 +222,4 @@ example.com.    IN    CAA    0 issuewild ";"
 
 ## Conclusion
 
-This post covered the Domain Name System in detail, from its historical origins to hierarchical structure, resolution process, various record types, caching mechanisms, and security features. Since its design in 1983, DNS has served as core internet infrastructure for over 40 years, allowing users to easily access services without complex IP addresses. Through distributed hierarchical architecture and efficient caching, it reliably processes hundreds of billions of queries daily. With the introduction of security features like DNSSEC, DoH, and DoT, it continues to evolve into an increasingly secure and privacy-protecting system.
+This post covered the Domain Name System in detail, from its historical origins to hierarchical structure, resolution process, various record types, caching mechanisms, and security features. Since its design in 1983, DNS has served as a core part of internet infrastructure for over 40 years, allowing users to access services easily without memorizing complex IP addresses. Through its distributed hierarchical architecture and efficient caching, it reliably processes hundreds of billions of queries daily. With security features like DNSSEC, DoH, and DoT, it continues to evolve into a more secure and privacy-focused system.

@@ -6,7 +6,9 @@ description: "Helm을 사용한 쿠버네티스 애플리케이션 배포 방법
 draft: false
 ---
 
-Helm은 Kubernetes 애플리케이션의 패키징, 배포, 버전 관리를 위한 패키지 관리자로, 2015년 Deis(현재 Microsoft)에서 처음 개발되어 2018년 CNCF(Cloud Native Computing Foundation)에 합류했으며, 현재 Kubernetes 생태계에서 가장 널리 사용되는 배포 도구로 자리잡았다. Helm은 Linux의 apt나 yum, macOS의 Homebrew와 유사한 역할을 Kubernetes에서 수행하며, 복잡한 Kubernetes 매니페스트 파일들을 Chart라는 패키지 형태로 묶어 한 번의 명령으로 설치, 업그레이드, 롤백할 수 있게 하고, 환경별 설정 관리와 의존성 처리를 자동화하여 애플리케이션 배포의 복잡성을 크게 줄여준다.
+Helm은 Kubernetes 애플리케이션의 패키징, 배포, 버전 관리를 위한 패키지 관리자로, 2015년 Deis(현재 Microsoft)에서 처음 개발되었다. 2018년 CNCF(Cloud Native Computing Foundation)에 합류한 뒤 Kubernetes 생태계에서 가장 널리 사용되는 배포 도구 중 하나로 자리잡았다.
+
+Helm은 Linux의 apt나 yum, macOS의 Homebrew처럼 Kubernetes에서 패키지 관리자 역할을 한다. 복잡한 Kubernetes 매니페스트 파일을 Chart라는 패키지 형태로 묶어 한 번의 명령으로 설치, 업그레이드, 롤백할 수 있게 하며, 환경별 설정 관리와 의존성 처리도 자동화해 배포 복잡성을 크게 줄여준다.
 
 ## Helm 개요
 
@@ -49,7 +51,7 @@ Helm은 Kubernetes 애플리케이션의 패키징, 배포, 버전 관리를 위
 
 ### Repository (저장소)
 
-Chart들을 저장하고 공유하는 장소로, HTTP 서버에서 호스팅되며 index.yaml 파일로 차트 목록을 관리한다. 대표적인 저장소로는 Artifact Hub(구 Helm Hub), Bitnami Charts 등이 있다.
+Repository는 Chart를 저장하고 공유하는 공간이다. HTTP 서버에서 호스팅되며 index.yaml 파일로 차트 목록을 관리한다. 대표적인 저장소로는 Artifact Hub(구 Helm Hub), Bitnami Charts 등이 있다.
 
 ### Values (값)
 
@@ -326,7 +328,7 @@ helm dependency update mychart
 
 ## Hooks
 
-Helm Hook은 릴리스 라이프사이클의 특정 시점에 실행되는 리소스를 정의할 수 있게 한다.
+Helm Hook은 릴리스 라이프사이클의 특정 시점에 리소스가 실행되도록 지정할 수 있게 한다.
 
 | Hook | 실행 시점 |
 |------|----------|
@@ -405,4 +407,4 @@ deploy:
 
 ## 결론
 
-Helm은 Kubernetes 애플리케이션의 패키징, 배포, 버전 관리를 표준화하는 핵심 도구로, 2015년 처음 개발된 이후 Kubernetes 생태계의 사실상 표준 패키지 관리자로 자리잡았다. Chart를 통해 복잡한 애플리케이션을 단일 배포 단위로 관리하고, 템플릿과 values를 활용한 환경별 설정 관리, 릴리스 히스토리를 통한 롤백 기능, 차트 저장소를 통한 공유와 재사용이 가능하여 Kubernetes 운영의 복잡성을 크게 줄여준다.
+Helm은 Kubernetes 애플리케이션의 패키징, 배포, 버전 관리를 표준화하는 핵심 도구다. Chart를 통한 배포 단위 관리, 템플릿과 values를 활용한 환경별 설정, 릴리스 히스토리를 통한 롤백, 차트 저장소를 통한 공유와 재사용 덕분에 Kubernetes 운영을 훨씬 단순하게 만들 수 있다.

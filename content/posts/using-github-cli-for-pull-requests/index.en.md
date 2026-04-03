@@ -6,19 +6,19 @@ description: "Creating and managing pull requests using GitHub CLI."
 draft: false
 ---
 
-GitHub CLI (`gh`) is the official command-line interface tool released by GitHub in September 2020. It lets you use core GitHub features directly from the terminal, including creating pull requests, managing issues, and working with repositories. Since developers often write code and manage versions in the terminal, GitHub CLI helps maintain a more consistent workflow and can improve productivity by reducing context switching and automating repetitive tasks.
+GitHub CLI (`gh`) is GitHub's official command-line interface, released in September 2020. It lets you use core GitHub features directly from the terminal, including pull requests, issues, and repositories. Because developers often write code and manage versions in the terminal, GitHub CLI helps maintain a more consistent workflow while reducing context switching and automating repetitive tasks.
 
 ## Introduction to GitHub CLI
 
 > **What is GitHub CLI?**
 >
-> GitHub's official command-line tool that enables using core GitHub features such as Pull Requests, Issues, Repositories, and GitHub Actions from the terminal. It wraps the REST API and GraphQL API to provide an intuitive command interface.
+> GitHub's official command-line tool for using core GitHub features such as pull requests, issues, repositories, and GitHub Actions from the terminal. It wraps the REST and GraphQL APIs to provide an intuitive command interface.
 
-GitHub CLI was developed to replace the older `hub` command. Because it is developed and maintained directly by GitHub, new GitHub features are often supported quickly after release. It is written in Go, runs as a single binary across multiple platforms, and is developed as open source with community contributions.
+GitHub CLI was developed to replace the older `hub` command. Because it is maintained directly by GitHub, it often supports new GitHub features soon after they are released. It is written in Go, runs as a single binary across multiple platforms, and is developed as open source with community contributions.
 
 ### Key Benefits
 
-**Improved Efficiency**: You can perform GitHub operations using only the keyboard without a mouse and web browser, keeping your development flow uninterrupted. You can create or review PRs directly from your IDE or terminal, reducing context switching costs.
+**Improved Efficiency**: You can perform GitHub operations from the keyboard without switching to a mouse or web browser, keeping your development flow uninterrupted. You can create or review PRs directly from your IDE or terminal, reducing context-switching costs.
 
 **Automation Support**: GitHub operations can be integrated into scripts and CI/CD pipelines, enabling workflow automation such as automatically creating PRs, adding labels, or assigning reviewers under specific conditions. It supports JSON output for easy integration with other tools.
 
@@ -28,7 +28,7 @@ GitHub CLI was developed to replace the older `hub` command. Because it is devel
 
 ## Installing GitHub CLI
 
-Installation methods for GitHub CLI vary by operating system. It can be easily installed through each platform's package manager, and installation can be verified by checking the version after installation.
+Installation methods for GitHub CLI vary by operating system. It can be installed through each platform's package manager, and you can verify the installation by checking the version afterward.
 
 ### Linux (Ubuntu/Debian)
 
@@ -107,7 +107,7 @@ If you choose browser authentication, a one-time code is displayed, the browser 
 
 ### Checking Authentication Status
 
-To check current authentication status and connected account information, use the following command.
+To check your current authentication status and connected account information, use the following command.
 
 ```bash
 gh auth status
@@ -125,7 +125,7 @@ github.com
 
 ### Additional Authentication Options
 
-If you use multiple GitHub accounts or need to authenticate with GitHub Enterprise Server, you can add another authentication setup.
+If you use multiple GitHub accounts or need to authenticate with GitHub Enterprise Server, you can set up another authentication target.
 
 ```bash
 # GitHub Enterprise Server authentication
@@ -140,11 +140,11 @@ gh auth login --with-token < token.txt
 
 ## Pull Request Creation Workflow
 
-Before creating a PR, you should prepare your local repository properly. The usual flow goes from creating a branch to pushing it and then opening the PR.
+Before creating a PR, you should prepare your local repository properly. The usual flow is to create a branch, push it, and then open the PR.
 
-### Preparing Local Repository
+### Preparing the Local Repository
 
-**1. Move to the repository and sync with the latest state**
+**1. Go to the repository and sync with the latest changes**
 
 ```bash
 cd path/to/your/repository
@@ -154,7 +154,7 @@ git pull origin main  # or your default branch name
 
 **2. Create and switch to a new branch**
 
-Name the branch so it clearly reflects the work, following your team's branch naming conventions.
+Name the branch so it clearly reflects the work you're doing, following your team's branch naming conventions.
 
 ```bash
 git checkout -b feature/user-authentication
@@ -180,7 +180,7 @@ The `-u` option sets the upstream branch so you can omit the branch name in subs
 
 ### Creating a PR
 
-Once local repository preparation is complete, you can create a PR with GitHub CLI. It supports both interactive and non-interactive modes.
+Once your local repository is ready, you can create a PR with GitHub CLI. It supports both interactive and non-interactive modes.
 
 **Interactive Mode**
 
@@ -192,7 +192,7 @@ Running this command displays an interactive prompt where you can sequentially e
 
 **Non-Interactive Mode (using command-line options)**
 
-This mode is useful for scripts and automation because all information can be passed as command-line options.
+This mode is useful for scripts and automation because you can pass all required information as command-line options.
 
 ```bash
 gh pr create \
@@ -245,11 +245,11 @@ gh pr create --title "Release v2.0.0" --body-file CHANGELOG.md
 
 ## PR Management
 
-After creating a PR, you can perform various management tasks using GitHub CLI, including listing, viewing details, checkout, and status monitoring.
+After creating a PR, you can perform various management tasks using GitHub CLI, including listing PRs, viewing details, checking them out, and monitoring status.
 
 ### Listing PRs
 
-List PRs in the current repository with various filter options to filter only the PRs you want.
+List PRs in the current repository using various filters so you can focus on the ones you want.
 
 ```bash
 # List open PRs (default)
@@ -282,7 +282,7 @@ gh pr list --json number,title,author,state
 
 ### Viewing PR Details
 
-View detailed information of a specific PR in the terminal by specifying the PR number or viewing the PR of the current branch.
+View detailed information for a specific PR in the terminal by specifying its number, or view the PR for the current branch.
 
 ```bash
 # View specific PR
@@ -300,7 +300,7 @@ gh pr view 123 --json title,body,state,reviews
 
 ### Checking Out PRs
 
-You can check out another person's PR locally to test or review it. This is especially useful when you want to run the code yourself during review.
+You can check out another person's PR locally to test or review it. This is especially useful when you want to run the code yourself during a review.
 
 ```bash
 # Checkout by PR number
@@ -312,7 +312,7 @@ git checkout -
 
 ### Monitoring PR Status
 
-View the current status of PRs related to you at a glance, showing PRs you created, PRs requesting your review, and PRs mentioning you separately.
+View the current status of PRs related to you at a glance, with separate sections for PRs you created, PRs awaiting your review, and PRs that mention you.
 
 ```bash
 gh pr status
@@ -338,7 +338,7 @@ Involving you
 
 ### Checking CI Check Status
 
-View the execution status of PR's CI/CD pipeline, including success/failure status and details of each check.
+View the execution status of a PR's CI/CD pipeline, including overall success or failure and details for each check.
 
 ```bash
 # Check CI check status
@@ -419,7 +419,7 @@ gh pr comment 123 --editor
 
 ## PR Merging
 
-Once review is complete and all requirements are met, you can merge the PR. GitHub CLI supports three merge strategies and provides branch deletion options after merge.
+Once review is complete and all requirements are met, you can merge the PR. GitHub CLI supports three merge strategies and provides options for deleting the branch after merging.
 
 ### Merge Commands
 
@@ -467,7 +467,7 @@ gh pr merge 123 --disable-auto
 
 ## Editing and Updating PRs
 
-You can edit the title, body, labels, milestones, and more of created PRs using the `gh pr edit` command.
+You can edit the title, body, labels, milestones, and more for existing PRs using the `gh pr edit` command.
 
 ```bash
 # Edit title
@@ -544,7 +544,7 @@ gh pr create --template bug_fix.md
 
 ### Integration with GitHub Actions
 
-GitHub CLI can be used in CI/CD pipelines to build automated PR workflows. In GitHub Actions environments, `GITHUB_TOKEN` is automatically set, allowing use without separate authentication.
+GitHub CLI can be used in CI/CD pipelines to build automated PR workflows. In GitHub Actions environments, `GITHUB_TOKEN` is set automatically, so you can use GitHub CLI without separate authentication.
 
 ```yaml
 # .github/workflows/auto-pr.yml example
@@ -585,7 +585,7 @@ aliases:
 
 ## Useful Tips
 
-**Quick open in web browser**: Use the `--web` option when you want to view a PR in a web browser, and the PR page opens immediately.
+**Quickly open in a web browser**: Use the `--web` option when you want to view a PR in a web browser, and the PR page opens immediately.
 
 ```bash
 gh pr view 123 --web
@@ -612,4 +612,4 @@ sudo apt update && sudo apt upgrade gh
 
 ## Conclusion
 
-GitHub CLI is a powerful tool that enables efficient GitHub operations from the terminal. It can handle the entire workflow from PR creation to review and merge with a single command, and can reduce repetitive work and increase productivity through automation and scripting. It is particularly useful for developers who prefer keyboard-centric workflows and helps maintain consistent PR processes across the entire team.
+GitHub CLI is a powerful tool for working with GitHub efficiently from the terminal. It supports the full pull request workflow, from creation to review and merging, and can reduce repetitive work through automation and scripting. It is particularly useful for developers who prefer keyboard-centric workflows and helps teams maintain a consistent PR process.

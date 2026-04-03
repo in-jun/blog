@@ -8,9 +8,9 @@ draft: false
 
 ## Concept and History of Dirty Checking
 
-Dirty Checking is one of Hibernate's core features that automatically detects changes to entities managed by the persistence context and reflects them in the database. This concept was introduced as a core implementation of Transparent Persistence when Gavin King first developed Hibernate in 2001. It was designed so that the database would automatically update just by changing an object's state, without developers writing explicit UPDATE statements.
+Dirty Checking is one of Hibernate's core features. It automatically detects changes to entities managed by the persistence context and reflects those changes in the database. Gavin King introduced this mechanism when he first developed Hibernate in 2001 as part of the framework's Transparent Persistence model. The goal was simple: let developers update the database by changing an object's state, without writing explicit UPDATE statements.
 
-The term "Dirty" is a traditional expression in database systems referring to modified data that hasn't been saved yet, meaning the data in memory doesn't match the data on disk. Hibernate applied this concept to object-relational mapping to detect whether an entity object's current state differs from its initially loaded state. This feature was included as part of the persistence context specification when JPA 1.0 standardized Hibernate in 2006 and has since become a mandatory feature for all JPA implementations.
+The term "Dirty" is a traditional database expression for modified data that has not been saved yet, meaning the data in memory no longer matches the data on disk. Hibernate applied this idea to object-relational mapping by checking whether an entity object's current state differs from the state it had when it was first loaded. When JPA 1.0 was standardized in 2006, this behavior became part of the persistence context model and has since been a required feature of JPA implementations.
 
 The core problem Dirty Checking solves is eliminating the burden on developers to track which fields have changed and manually write corresponding UPDATE queries. In object-oriented programming, values are simply changed through setter methods, but in relational databases, UPDATE statements must be written—this paradigm mismatch is resolved through automation.
 
@@ -18,9 +18,9 @@ The core problem Dirty Checking solves is eliminating the burden on developers t
 
 ### Snapshot Creation Mechanism
 
-Hibernate's Dirty Checking operates through snapshot comparison. When an entity is first registered in the persistence context, all field values of that entity are copied and stored as a separate snapshot. This snapshot represents the entity's "Clean" state—the initial state that matches the database. The snapshot is stored in a Map structure inside the persistence context with the entity identifier as the key, and is actually kept as an Object array holding each field value in order.
+Hibernate's Dirty Checking works through snapshot comparison. When an entity is first registered in the persistence context, all of its field values are copied and stored as a separate snapshot. This snapshot represents the entity's "Clean" state, meaning the initial state that matches the database. Internally, the persistence context stores the snapshot in a Map-like structure keyed by the entity identifier, typically as an Object array that holds each field value in order.
 
-There are two main snapshot creation points: first, when an entity is queried from the database using EntityManager.find() or JPQL; second, when a new entity is persisted using EntityManager.persist(). For the merge() method, a new snapshot is created after copying the detached entity's values to a managed entity. What's returned is the newly created managed entity, while the original detached entity remains in detached state.
+Snapshots are mainly created in two situations: when an entity is loaded from the database through EntityManager.find() or JPQL, and when a new entity is made persistent with EntityManager.persist(). With merge(), Hibernate first copies the detached entity's values into a managed entity and then creates a snapshot for that managed instance. The returned object is the new managed entity, while the original object remains detached.
 
 ### Field Comparison Process
 
@@ -46,7 +46,7 @@ Flush is the operation of synchronizing persistence context changes to the datab
 
 ### When Flush Occurs
 
-There are three points when flush automatically occurs. First, right before transaction commit, because changes must be reflected in the database before committing. Second, right before JPQL or Criteria API query execution, to ensure queries can retrieve the latest data. Third, when EntityManager.flush() is explicitly called. FlushModeType.AUTO is the default. When set to COMMIT, flush only occurs at commit time, and automatic flush before JPQL execution is skipped.
+There are three common situations in which flush occurs. First, it runs right before transaction commit, because changes must be written to the database before the transaction finishes. Second, it runs right before JPQL or Criteria API query execution so the query can read the latest data. Third, it runs when EntityManager.flush() is explicitly called. FlushModeType.AUTO is the default. When it is set to COMMIT, flush happens only at commit time, and the automatic flush before JPQL execution is skipped.
 
 ```java
 em.getTransaction().begin();
@@ -69,7 +69,7 @@ JPA's default UPDATE strategy generates UPDATE queries that include all entity f
 
 ### @DynamicUpdate Annotation
 
-@DynamicUpdate is a Hibernate-specific annotation that, when applied to an entity class, dynamically generates UPDATE queries containing only changed fields. It compares the current state with the snapshot each time to find only the changed columns and construct the query. This approach loses the benefit of PreparedStatement caching since the query string differs each time, and incurs runtime costs for change field detection and dynamic query generation.
+@DynamicUpdate is a Hibernate-specific annotation that, when applied to an entity class, dynamically generates UPDATE queries containing only changed fields. It compares the current state with the snapshot each time to identify the changed columns and build the query. This approach loses the benefit of PreparedStatement caching because the query string changes each time, and it also adds runtime cost for detecting changed fields and generating SQL dynamically.
 
 Cases where @DynamicUpdate is effective include: when an entity has dozens or more columns and only some frequently change; when a table has large columns like TEXT or BLOB and you want to avoid unnecessary transmission; when the database uses column-level locking and you want to reduce lock contention on unchanged columns.
 
@@ -97,7 +97,7 @@ public class Article {
 
 ### Detached State
 
-Dirty Checking only works on entities in managed state that the persistence context manages. Entities become detached and are excluded from change detection targets when: separated by detach(), when the persistence context is cleared by clear(), or when the EntityManager is closed by close(). To make a detached entity managed again, you must use merge()—merge() copies the detached entity's values to a new managed entity and returns that managed entity.
+Dirty Checking only works for entities in the managed state within the persistence context. An entity becomes detached and is no longer part of change detection when detach() is called, when the persistence context is cleared with clear(), or when the EntityManager is closed with close(). To make a detached entity managed again, you must use merge()—merge() copies the detached entity's values to a new managed entity and returns that managed entity.
 
 ### Transient State
 
@@ -125,7 +125,7 @@ Activating Hibernate's JDBC batch feature allows collecting multiple UPDATE quer
 
 ### Utilizing Bulk Operations
 
-The most effective method is using bulk operations with JPQL or Criteria API. A single UPDATE statement can modify all records matching conditions at once, handling tens of thousands of records with a single query. However, bulk operations modify the database directly without going through the persistence context, so entities in the persistence context become unsynchronized with the database after execution. After bulk operations, you must either initialize the persistence context with clear() or re-query.
+The most effective method is using bulk operations with JPQL or Criteria API. A single UPDATE statement can modify all records matching conditions at once, handling tens of thousands of records with a single query. However, bulk operations modify the database directly without going through the persistence context, so entities in the persistence context become unsynchronized with the database after execution. After bulk operations, you must either clear the persistence context with clear() or query the data again.
 
 ```java
 // Bulk UPDATE - bypasses persistence context, processes large amounts with single query

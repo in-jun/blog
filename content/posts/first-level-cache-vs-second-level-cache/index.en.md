@@ -8,9 +8,9 @@ draft: false
 
 ## History and Concepts of Hibernate Cache Architecture
 
-Hibernate was designed with caching mechanisms as a core feature for performance optimization from when Gavin King first developed it in 2001. Since then, Hibernate's cache architecture has evolved into a two-level hierarchical structure called first-level cache and second-level cache, minimizing database access and maximizing application performance. The first-level cache is a mandatory feature that has existed since Hibernate's early versions along with Session (now EntityManager). The persistence context itself serves as the first-level cache, guaranteeing entity identity within transactions and serving as the foundation for Dirty Checking.
+Hibernate has included caching as a core performance feature since Gavin King first developed it in 2001. Since then, its cache architecture has evolved into a two-level hierarchy consisting of first-level and second-level cache, reducing database access and improving application performance. The first-level cache is a mandatory feature that has existed since Hibernate's early versions alongside Session (now EntityManager). The persistence context itself serves as the first-level cache, guaranteeing entity identity within a transaction and providing the foundation for Dirty Checking.
 
-The second-level cache was first introduced as an optional feature in Hibernate 2.x (around 2003) and was standardized as "Shared Cache" in the JPA 2.0 specification in 2009, enabling consistent usage across all JPA implementations. Hibernate adopted an architecture that doesn't provide second-level cache implementation directly but integrates external cache providers like EhCache, Infinispan, and Hazelcast in a plugin-based manner through SPI (Service Provider Interface). This design allows users to select the optimal cache solution for their application requirements.
+The second-level cache was first introduced as an optional feature in Hibernate 2.x (around 2003) and was standardized as "Shared Cache" in the JPA 2.0 specification in 2009, making it available in a consistent way across JPA implementations. Hibernate does not implement the second-level cache itself. Instead, it integrates external cache providers such as EhCache, Infinispan, and Hazelcast through an SPI (Service Provider Interface)-based plugin architecture. This design allows users to choose the cache solution that best fits their application requirements.
 
 The core principle of the cache hierarchy structure comes from the Memory Hierarchy concept that data closer to the processor is faster. The first-level cache is the layer closest to individual transactions, optimizing repeated queries within transactions, while the second-level cache is shared across the entire application, enabling data reuse between transactions.
 
@@ -18,7 +18,7 @@ The core principle of the cache hierarchy structure comes from the Memory Hierar
 
 ### First-Level Cache Structure and Lifecycle
 
-The first-level cache is implemented as a Map structure inside the persistence context. It stores entity identifiers (@Id) as keys and entity instances as values, enabling immediate cached instance returns without database access when querying with the same identifier. The first-level cache lifecycle is identical to the persistence context—it's created when a transaction starts and destroyed when it ends. This transaction-scoped characteristic naturally achieves data isolation between different transactions.
+The first-level cache is implemented as a Map structure inside the persistence context. It stores entity identifiers (@Id) as keys and entity instances as values, so when the same identifier is queried it can return the cached instance immediately without accessing the database. The first-level cache lifecycle is identical to the persistence context: it's created when a transaction starts and destroyed when it ends. This transaction-scoped characteristic naturally achieves data isolation between different transactions.
 
 The first-level cache is a mandatory feature in the JPA specification and is automatically activated in all JPA implementations. It's not an option that developers can explicitly disable or configure. When EntityManager.find() is called, it first queries the first-level cache. If the entity exists in cache, it returns immediately without a database query. Only when not in cache does it execute a SELECT query and store the result in the first-level cache.
 
@@ -39,7 +39,7 @@ em.getTransaction().commit();
 
 ### Identity Guarantee and Dirty Checking
 
-One of the first-level cache's core functions is implementing the Identity Map pattern, guaranteeing that entities queried with the same identifier within the same transaction always return the same object instance. This characteristic enables providing REPEATABLE READ transaction isolation at the application level. Additionally, the first-level cache serves as the foundation for Dirty Checking—when an entity is stored in the first-level cache, a snapshot of that moment is also stored. At flush time, it compares the current state with the snapshot and automatically generates UPDATE queries for changed entities.
+One of the first-level cache's core functions is implementing the Identity Map pattern, guaranteeing that entities queried with the same identifier within the same transaction always return the same object instance. This characteristic provides REPEATABLE READ transaction isolation at the application level. Additionally, the first-level cache serves as the foundation for Dirty Checking. When an entity is stored in the first-level cache, a snapshot of that moment is also stored. At flush time, Hibernate compares the current state with the snapshot and automatically generates UPDATE queries for changed entities.
 
 ### First-Level Cache Limitations and Memory Management
 
@@ -77,7 +77,7 @@ public class User {
 
 ### EhCache
 
-EhCache is an open-source cache library first developed by Greg Luck in 2003. It's the oldest and most widely used combination with Hibernate, providing simple configuration, excellent performance, and rich features. Starting with EhCache 3.x, it fully implements the JSR-107 (JCache) standard, allowing cache usage with standard APIs without vendor lock-in. It can be extended to distributed cache by integrating with Terracotta, making it usable in cluster environments.
+EhCache is an open-source cache library first developed by Greg Luck in 2003. It's one of the oldest and most widely used cache providers for Hibernate, offering simple configuration, solid performance, and rich features. Starting with EhCache 3.x, it fully implements the JSR-107 (JCache) standard, allowing cache usage through standard APIs without vendor lock-in. It can be extended into a distributed cache by integrating with Terracotta, making it usable in cluster environments.
 
 ### Infinispan
 
@@ -85,7 +85,7 @@ Infinispan is an open-source distributed in-memory data grid developed by Red Ha
 
 ### Hazelcast
 
-Hazelcast is an in-memory data grid developed by Hazelcast Inc., founded in 2008. It features cloud-native optimized design and auto-discovery functionality, providing various distributed data structures like distributed Map, Queue, and Topic. Its strength is automatic cluster configuration in Kubernetes and cloud environments like AWS, Azure, and GCP, with very easy Spring Boot integration.
+Hazelcast is an in-memory data grid developed by Hazelcast Inc., founded in 2008. It is optimized for cloud-native environments and includes auto-discovery functionality, providing various distributed data structures such as distributed Map, Queue, and Topic. One of its strengths is automatic cluster configuration in Kubernetes and cloud environments like AWS, Azure, and GCP, along with very simple Spring Boot integration.
 
 ## Cache Concurrency Strategies
 
@@ -115,7 +115,7 @@ The caution with query cache is that when related tables change, all query cache
 
 ### Local Cache Limitations
 
-Local cache alone is sufficient in single server environments. However, in distributed environments with multiple server instances, even if one server modifies data, caches on other servers still have previous data, causing cache inconsistency. This problem can lead to serious issues where users see inconsistent data when requesting from different servers.
+Local cache alone is sufficient in single server environments. However, in distributed environments with multiple server instances, when one server modifies data, caches on other servers may still hold stale values, causing inconsistency. This can lead to serious issues when a user's requests are routed to different servers and each server returns different data.
 
 ### Distributed Cache Solutions
 
@@ -129,7 +129,7 @@ Even in distributed caches, network delays can cause data inconsistencies betwee
 
 ### Utilizing Cache Statistics
 
-Hibernate provides statistics like cache hit rate, miss rate, store count, and eviction count. Enable with `spring.jpa.properties.hibernate.generate_statistics=true` and query through SessionFactory.getStatistics(). A low hit rate indicates either wrong caching target selection or early eviction due to small cache size—review your settings.
+Hibernate provides statistics such as cache hit rate, miss rate, store count, and eviction count. You can enable them with `spring.jpa.properties.hibernate.generate_statistics=true` and inspect them through `SessionFactory.getStatistics()`. A low hit rate indicates either poor cache target selection or early eviction caused by a small cache size, so you should review your settings.
 
 ### Selecting Cache Application Targets
 

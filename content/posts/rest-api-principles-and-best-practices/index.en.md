@@ -6,7 +6,7 @@ description: "REST API design principles and best practices."
 draft: false
 ---
 
-REST (Representational State Transfer) is an architectural style for distributed hypermedia systems first introduced in Roy Fielding's 2000 doctoral dissertation "Architectural Styles and the Design of Network-based Software Architectures" at UC Irvine. Fielding, one of the principal authors of the HTTP protocol, analyzed the success factors of the web and systematized them into architectural principles. REST has become the de facto standard for modern web API design and is widely used for communication between various distributed systems including microservice architectures, mobile applications, and Single Page Applications (SPAs).
+REST (Representational State Transfer) is an architectural style for distributed hypermedia systems, first introduced in Roy Fielding's 2000 doctoral dissertation "Architectural Styles and the Design of Network-based Software Architectures" at UC Irvine. Fielding, one of the principal authors of the HTTP protocol, analyzed the success factors of the web and systematized them into architectural principles. Since then, REST has become the de facto standard for modern web API design and is widely used across distributed systems, including microservice architectures, mobile applications, and Single Page Applications (SPAs).
 
 > **What is REST?**
 >
@@ -16,7 +16,7 @@ REST (Representational State Transfer) is an architectural style for distributed
 
 ### Evolution of Web Services
 
-Before REST emerged, web services primarily used SOAP (Simple Object Access Protocol) and XML-RPC. These protocols required complex XML-based message formats, strict type systems, and service definitions through WSDL (Web Services Description Language), making implementation and maintenance difficult. SOAP had advantages in enterprise environments, supporting transactions, security, and message reliability, but had overhead of using complex XML envelopes even for simple data queries.
+Before REST emerged, web services primarily used SOAP (Simple Object Access Protocol) and XML-RPC. These protocols required complex XML-based message formats, strict type systems, and service definitions through WSDL (Web Services Description Language), making implementation and maintenance difficult. SOAP had advantages in enterprise environments, supporting transactions, security, and message reliability, but it required complex XML envelopes even for simple data queries.
 
 ### Roy Fielding's Contribution
 
@@ -24,11 +24,11 @@ Roy Fielding was a principal author of the HTTP/1.0 and HTTP/1.1 specifications 
 
 ### Spread of REST APIs
 
-REST began to be widely adopted from the mid-2000s. When Flickr (2004), Amazon Web Services (2006), and Twitter (2006) released REST APIs, it became the standard for web APIs. Along with the rise of JSON format, REST became an attractive alternative for developers wanting to avoid SOAP's complexity, and its popularity grew further with the emergence of Ajax and mobile apps.
+REST saw widespread adoption in the mid-2000s. When Flickr (2004), Amazon Web Services (2006), and Twitter (2006) released REST APIs, it became the standard for web APIs. Along with the rise of JSON, REST became an attractive alternative for developers wanting to avoid SOAP's complexity, and its popularity grew further with the emergence of Ajax and mobile apps.
 
 ## The 6 Constraints of REST
 
-REST is an architectural style, not a specific protocol or technology. Systems that follow these 6 constraints are considered RESTful.
+REST is an architectural style, not a specific protocol or technology. In general, systems that follow these 6 constraints are considered RESTful.
 
 ### 1. Client-Server
 
@@ -165,7 +165,7 @@ GET /users/123/posts/456/comments      # Post 456's comment list
 
 ### 2. Proper Use of HTTP Methods
 
-Each HTTP method has unique semantics. Understand and properly use safe and idempotent properties.
+Each HTTP method has unique semantics. Understanding and applying safety and idempotency correctly is essential.
 
 | Method | Purpose | Safe | Idempotent | Request Body | Response Body |
 |--------|---------|------|------------|--------------|---------------|
@@ -218,7 +218,7 @@ Clearly communicate request processing results through HTTP status codes.
 
 ### 4. Versioning Strategies
 
-APIs may change over time, so versioning strategies are needed to add new features while maintaining backward compatibility.
+APIs evolve over time, so a versioning strategy helps you introduce new features without breaking existing clients.
 
 **URL Path Versioning:**
 ```
@@ -246,7 +246,7 @@ GET /api/users?version=1
 **Pros**: Simple implementation, easy browser testing
 **Cons**: Version may appear optional, complex caching
 
-**Practical Recommendation**: URL path versioning is most widely used and adopted by most major APIs (Google, Facebook, Twitter).
+**Practical Recommendation**: URL path versioning is the most widely used approach and is adopted by many major APIs (Google, Facebook, Twitter).
 
 ### 5. Pagination Strategies
 
@@ -339,7 +339,7 @@ A core REST principle that includes links to related resources in responses, ena
 
 > **Benefits of HATEOAS**
 >
-> Since clients follow response links rather than hardcoded URLs, servers can change URL structures without modifying clients. However, implementation complexity increases and most clients don't utilize this, so it's optionally implemented in practice.
+> Since clients follow response links rather than hardcoded URLs, servers can change URL structures without modifying clients. However, it adds implementation complexity, and many clients do not take full advantage of it, so it is often treated as optional in practice.
 
 ### 8. Error Handling
 
@@ -472,7 +472,7 @@ REST is a versatile and widely adopted architectural style, but it's not optimal
 
 ## Conclusion
 
-REST API design is a complex process that must consider not just technical decisions but also user experience and business requirements. Understanding REST's 6 constraints and referencing the Richardson Maturity Model is important, but rather than blindly following them, it's crucial to understand the trade-offs of each design decision and apply them flexibly according to project characteristics. Targeting practical and consistent REST-like APIs (Level 2) while emphasizing thorough documentation and developer experience is the key to successful API design, rather than implementing perfect RESTful APIs (Level 3).
+REST API design is a complex process that must consider not only technical decisions but also user experience and business requirements. Understanding REST's 6 constraints and the Richardson Maturity Model is useful, but the real goal is to understand the trade-offs behind each design decision and apply them based on the needs of the project. In practice, successful API design often comes from building practical, consistent REST-like APIs (Level 2) with strong documentation and a good developer experience, rather than pursuing a perfectly RESTful API (Level 3).
 
 ## References
 

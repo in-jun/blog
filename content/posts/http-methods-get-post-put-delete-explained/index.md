@@ -1,12 +1,12 @@
 ---
-title: "HTTP 메서드 GET POST PUT DELETE"
+title: "HTTP 메서드 완전 정리: GET, POST, PUT, PATCH, DELETE 등"
 date: 2024-05-25T14:05:29+09:00
 tags: ["HTTP", "API", "프로토콜"]
 draft: false
 description: "GET, POST, PUT, DELETE 등 HTTP 메서드의 특징과 사용법을 설명한다."
 ---
 
-HTTP(HyperText Transfer Protocol) 메서드는 1991년 Tim Berners-Lee가 World Wide Web을 고안하면서 처음 등장한 이후 지속적으로 발전해온 클라이언트-서버 간 통신 규약의 핵심 요소로, HTTP/1.1 표준(RFC 7231)에서는 GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, TRACE의 9가지 표준 메서드를 정의하고 있으며, 각 메서드는 멱등성(Idempotency)과 안전성(Safety)이라는 중요한 특성을 가지고 RESTful API 설계와 웹 애플리케이션 개발에서 핵심적인 역할을 담당한다.
+HTTP(HyperText Transfer Protocol) 메서드는 클라이언트와 서버가 어떤 방식으로 통신할지 정의하는 핵심 요소다. 1991년 Tim Berners-Lee가 World Wide Web을 고안한 이후 HTTP는 지속적으로 발전해왔고, HTTP/1.1 표준(RFC 7231)에서는 GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, TRACE의 9가지 표준 메서드를 정의한다. 각 메서드는 멱등성(Idempotency)과 안전성(Safety)이라는 중요한 특성을 가지며, RESTful API 설계와 웹 애플리케이션 개발에서 핵심적인 역할을 한다.
 
 ## HTTP의 역사와 메서드의 발전
 
@@ -42,7 +42,7 @@ HTTP 메서드를 이해하는 데 있어 가장 중요한 두 가지 개념은 
 >
 > 서버의 상태를 변경하지 않는 읽기 전용 메서드로, 같은 요청을 여러 번 수행해도 서버의 리소스에 부작용(side effect)이 발생하지 않는다.
 
-안전한 메서드(GET, HEAD, OPTIONS, TRACE)는 서버의 데이터를 변경하지 않으므로 캐싱이 가능하고, 브라우저의 프리페칭(prefetching)이나 검색 엔진 크롤러가 안심하고 호출할 수 있으며, 북마크나 히스토리에 저장되어 다시 실행되어도 문제가 없다.
+안전한 메서드(GET, HEAD, OPTIONS, TRACE)는 서버의 데이터를 변경하지 않으므로 캐싱이 가능하고, 브라우저의 프리페칭(prefetching)이나 검색 엔진 크롤러가 비교적 안전하게 호출할 수 있으며, 북마크하거나 브라우저 히스토리에 남아 다시 실행되어도 문제가 없다.
 
 ### 멱등성(Idempotency)
 
@@ -474,7 +474,7 @@ POST   /deleteUser
 
 ## CORS와 Preflight 요청
 
-CORS(Cross-Origin Resource Sharing)는 웹 브라우저의 동일 출처 정책(Same-Origin Policy)을 우회하여 다른 도메인의 리소스에 접근할 수 있도록 하는 메커니즘으로, OPTIONS 메서드를 활용한 preflight 요청이 핵심이다.
+CORS(Cross-Origin Resource Sharing)는 웹 브라우저의 동일 출처 정책(Same-Origin Policy) 아래에서 다른 도메인의 리소스에 접근할 수 있도록 해주는 메커니즘이다. 이때 OPTIONS 메서드를 활용한 preflight 요청이 핵심 역할을 한다.
 
 ### Simple Request vs Preflight Request
 
@@ -619,9 +619,9 @@ app.delete('/users/:id',
 
 ## 결론
 
-HTTP 메서드는 웹에서 클라이언트와 서버 간 통신을 정의하는 핵심 요소로, 1991년 GET 메서드만 존재하던 HTTP/0.9에서 시작하여 HTTP/1.1에서 9가지 표준 메서드가 정립되었다. 각 메서드는 안전성과 멱등성이라는 중요한 특성을 가지며, 이 특성은 캐싱, 재시도 정책, API 설계에 직접적인 영향을 미친다.
+HTTP 메서드는 웹에서 클라이언트와 서버 간 통신 방식을 정의하는 핵심 요소다. GET만 존재하던 HTTP/0.9에서 출발해 HTTP/1.1에서는 9가지 표준 메서드가 정립되었고, 각 메서드는 안전성과 멱등성이라는 중요한 특성을 바탕으로 서로 다른 역할을 맡는다. 이런 특성은 캐싱, 재시도 정책, API 설계 방식에 직접적인 영향을 준다.
 
-RESTful API 설계에서 HTTP 메서드의 의미론을 올바르게 활용하면 일관성 있고 직관적인 API를 만들 수 있으며, CORS를 이해하고 보안 고려사항(CSRF 방지, TRACE 비활성화, 인증/권한 검증)을 적용하면 안전하고 확장 가능한 웹 서비스를 구축할 수 있다.
+RESTful API를 설계할 때 HTTP 메서드의 의미를 올바르게 활용하면 더 일관되고 직관적인 인터페이스를 만들 수 있다. 여기에 CORS 동작 방식과 보안 고려사항(CSRF 방지, TRACE 비활성화, 인증/권한 검증)까지 함께 이해하면 안전하고 확장 가능한 웹 서비스를 구축하는 데 도움이 된다.
 
 ## 참고 자료
 

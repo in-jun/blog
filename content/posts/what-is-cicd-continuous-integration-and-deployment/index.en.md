@@ -1,28 +1,28 @@
 ---
-title: "CI/CD Continuous Integration and Deployment"
+title: "Understanding CI/CD: Continuous Integration and Delivery/Deployment"
 date: 2024-06-10T17:14:26+09:00
 tags: ["CI/CD", "DevOps", "Automation"]
-description: "Continuous integration and deployment concepts and implementation."
+description: "An overview of continuous integration and continuous delivery/deployment, including key concepts, tools, and implementation practices."
 draft: false
 ---
 
-CI/CD stands for Continuous Integration and Continuous Delivery/Deployment, referring to a set of automated processes that automatically build, test, and deploy code changes during software development. It has become a core element of DevOps culture in modern software development. CI/CD enables developers to integrate and deploy code more frequently and safely, thereby shortening software release cycles and improving product quality by detecting bugs early.
+CI/CD stands for Continuous Integration and Continuous Delivery or Continuous Deployment. It refers to a set of practices that automate how code changes are built, tested, and deployed during software development. In modern software teams, CI/CD is a core part of DevOps because it helps developers integrate and release code more frequently and with less risk. As a result, teams can shorten release cycles and catch bugs earlier.
 
 ## History and Origins of CI/CD
 
-CI/CD was born amid the innovation in software development methodologies during the 1990s, starting as one of the core practices of Extreme Programming (XP) and has continued to evolve to the present day.
+CI/CD emerged during the wave of software development methodology innovation in the 1990s. It began as one of the core practices of Extreme Programming (XP) and has continued to evolve ever since.
 
 ### The Birth of Continuous Integration
 
-The term Continuous Integration was first used by Grady Booch, one of the developers of UML (Unified Modeling Language), in his 1994 publication, where it was presented as a concept of frequently integrating code to minimize conflicts. However, the concrete form of CI that we practice today began to develop in earnest when Kent Beck established it as one of the 12 core practices of Extreme Programming in the mid-1990s. Kent Beck empirically demonstrated the effectiveness of CI by applying XP methodology to the Chrysler C3 (Chrysler Comprehensive Compensation) project in 1996, and this project became an opportunity for all developers to experience and embrace the value of continuous integration.
+The term Continuous Integration was first used by Grady Booch, one of the creators of UML (Unified Modeling Language), in a 1994 publication. He described it as a way to integrate code frequently so conflicts could be minimized. The form of CI widely practiced today took shape in the mid-1990s, when Kent Beck defined it as one of the 12 core practices of Extreme Programming. Beck demonstrated its effectiveness on the Chrysler C3 (Chrysler Comprehensive Compensation) project in 1996, helping establish continuous integration as a practical and valuable development practice.
 
 ### The Popularization of CI/CD
 
-CI/CD began to gain widespread adoption in 2000 when Martin Fowler, one of the founding members of the Agile Alliance, became an internal advocate for CI at ThoughtWorks. He published the famous article "Continuous Integration" in 2000, systematically organizing the core principles and best practices of CI, and continues to contribute to the development of CI/CD and software development methodologies as Chief Scientist at ThoughtWorks to this day.
+CI began to gain wider adoption around 2000, when Martin Fowler, one of the founding members of the Agile Alliance, became a strong internal advocate for it at ThoughtWorks. In 2000, he published the well-known article "Continuous Integration," which organized the core principles and best practices of CI in a systematic way. He has continued to influence CI/CD and software development practices through his work as Chief Scientist at ThoughtWorks.
 
 ### The Development of Continuous Delivery
 
-In 2010, Jez Humble and David Farley systematically established the concept of Continuous Delivery with their book "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation." This book expanded on the Continuous Integration ideas presented by Martin Fowler, introduced the concept of the Deployment Pipeline, and presented a methodology for automating the entire process from code commit to production deployment. Subsequently, CI/CD has further evolved alongside the advancement of cloud computing, the emergence of container technology, and the popularization of Kubernetes. Large technology companies such as Netflix, Amazon, and Google actively adopted CI/CD, ushering in an era where hundreds or thousands of deployments per day became possible.
+In 2010, Jez Humble and David Farley more formally established the concept of Continuous Delivery through their book "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation." Building on Martin Fowler's earlier Continuous Integration ideas, the book introduced the concept of the Deployment Pipeline and presented a way to automate the full path from code commit to production deployment. Since then, CI/CD has continued to evolve alongside cloud computing, container technology, and the rise of Kubernetes. Large technology companies such as Netflix, Amazon, and Google helped popularize CI/CD practices, making hundreds or even thousands of deployments per day possible.
 
 ## What is CI (Continuous Integration)?
 
@@ -30,7 +30,7 @@ In 2010, Jez Humble and David Farley systematically established the concept of C
 >
 > A software development practice where code written by multiple developers is continuously integrated into the main branch, with automatic builds and tests performed on each integration to detect and resolve integration errors early.
 
-The core idea of CI is "integrate small changes frequently." In traditional software development, developers would work independently for long periods and then integrate their code at the end using a "Big Bang Integration" approach. This approach caused numerous conflicts and bugs at the point of integration, leading to a situation known as "Integration Hell." CI solves this problem by integrating code in small units frequently and running automated verification processes each time, enabling early detection and resolution of problems.
+The core idea of CI is simple: integrate small changes frequently. In traditional software development, developers often worked independently for long periods and then merged everything at the end in a "Big Bang Integration" approach. That process created many conflicts and bugs at integration time, often leading to what became known as "Integration Hell." CI addresses this by integrating small changes often and running automated verification each time, so problems can be found and fixed early.
 
 ### Core Principles of CI
 
@@ -70,7 +70,7 @@ If the build succeeds, various levels of automated tests are executed. Unit test
 
 **Stage 6: Code Quality Inspection**
 
-Tools such as SonarQube, ESLint, and Checkstyle are used to analyze code quality. This includes checking coding convention compliance, code complexity, duplicate code, potential bug patterns, and security vulnerability scanning may also be performed at this stage.
+Tools such as SonarQube, ESLint, and Checkstyle are used to analyze code quality. This includes checking coding convention compliance, code complexity, duplicate code, and potential bug patterns. Security vulnerability scanning may also be performed at this stage.
 
 **Stage 7: Artifact Creation**
 
@@ -121,11 +121,11 @@ Continuous Deployment pursues complete automation. When a developer commits code
 
 ## Comparison of Major CI/CD Tools
 
-Various tools are available for implementing CI/CD, each with unique features and advantages and disadvantages. It is important to select a tool that fits the project requirements and environment.
+Various tools are available for implementing CI/CD, each with its own features, strengths, and trade-offs. It is important to choose a tool that fits the project's requirements and environment.
 
 ### Jenkins
 
-Jenkins is a Java-based open-source CI/CD tool that was born in 2011 when it split from the Hudson project. It is called the "father of CI" because it is the oldest and most widely used tool, and it can integrate with almost any development tool through more than 1,800 plugins.
+Jenkins is a Java-based open-source CI/CD tool that emerged in 2011 after splitting from the Hudson project. It is one of the oldest and most widely used CI/CD tools, and it can integrate with almost any development tool through more than 1,800 plugins.
 
 **Advantages**:
 - Vast plugin ecosystem supporting all SCMs including GitHub, GitLab, and Bitbucket, as well as most technology stacks including Docker, Kubernetes, AWS, and Azure
@@ -202,7 +202,7 @@ CircleCI is a cloud-based CI/CD service known for fast build speeds and excellen
 
 ## CI/CD Pipeline Best Practices
 
-A CI/CD pipeline is not something you build once and forget. It requires continuous management and improvement. The following best practices should be referenced to build and evolve effective pipelines.
+A CI/CD pipeline is not something you build once and forget. It requires ongoing management and improvement. The following best practices can help when building and evolving effective pipelines.
 
 ### Gradual Approach
 
@@ -257,4 +257,6 @@ CI/CD pipelines access sensitive information such as source code, credentials, a
 
 ## Conclusion
 
-CI/CD is a software development methodology that started in the 1990s with Extreme Programming and was developed by Kent Beck, Martin Fowler, Jez Humble, and others. It maintains code quality through build and test automation and shortens software release cycles by automating the deployment process. Continuous Delivery ensures stable releases through manual approval, while Continuous Deployment enables fast feedback loops through complete automation. Organizations should choose the approach that fits their situation and requirements. Various tools including Jenkins, GitHub Actions, GitLab CI/CD, and CircleCI are available, each with its own advantages and disadvantages, so selection should consider project scale, platforms in use, and requirements. Successful CI/CD implementation requires a gradual approach, cultural change, and continuous improvement. Beyond simply adopting tools, the entire team must create a culture that shares the values of automation and continuous improvement.
+CI/CD grew out of software development practices introduced in the 1990s and was shaped by figures such as Kent Beck, Martin Fowler, and Jez Humble. At its core, it improves software delivery by automating build, test, and deployment workflows so teams can release changes more frequently and with greater confidence. Continuous Delivery keeps software ready for release with manual approval before production, while Continuous Deployment automates production releases as well.
+
+The right approach depends on an organization's context, including its risk tolerance, regulatory environment, and release needs. The same is true for tooling: Jenkins, GitHub Actions, GitLab CI/CD, and CircleCI each offer different strengths depending on project scale, platform choices, and operational requirements. Successful adoption also depends on more than tools alone. Teams need to introduce CI/CD gradually, adapt their culture, and keep improving the pipeline over time.

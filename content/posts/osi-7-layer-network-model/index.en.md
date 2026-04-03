@@ -8,7 +8,7 @@ draft: false
 
 ## Overview
 
-Network communication involves complex processes, and understanding these processes systematically requires a standardized reference model. The OSI (Open Systems Interconnection) 7-layer model is a network communication standard published by the International Organization for Standardization (ISO) in 1984. It divides communication between different systems into seven layers, defining how each layer operates independently while cooperating with others to transmit data. This model serves as a fundamental conceptual framework for network engineers and software developers to understand complex communication processes and diagnose problems.
+Network communication involves many interacting processes, and making sense of them requires a standardized reference model. The OSI (Open Systems Interconnection) 7-layer model is a network communication standard published by the International Organization for Standardization (ISO) in 1984. It divides communication between different systems into seven layers, defining how each layer operates independently while cooperating with others to transmit data. This model serves as a fundamental conceptual framework for network engineers and software developers to understand communication processes and diagnose problems.
 
 > **What is the OSI 7-Layer Model?**
 >
@@ -16,9 +16,9 @@ Network communication involves complex processes, and understanding these proces
 
 ## The Origins of the OSI Model
 
-During the 1970s and early 1980s, each vendor used proprietary network architectures such as IBM's SNA (Systems Network Architecture), DEC's DECnet, and Xerox's XNS (Xerox Network Systems). This made communication between equipment from different manufacturers impossible or extremely difficult. Companies faced vendor lock-in problems where adopting one vendor's equipment meant being tied to that vendor's ecosystem. ISO began developing standards for open systems interconnection in 1977 to address these interoperability issues. After seven years of development, ISO officially published the OSI model as an international standard (ISO 7498) in 1984.
+During the 1970s and early 1980s, each vendor used proprietary network architectures such as IBM's SNA (Systems Network Architecture), DEC's DECnet, and Xerox's XNS (Xerox Network Systems). This made communication between equipment from different manufacturers difficult and often impossible. Companies faced vendor lock-in problems where adopting one vendor's equipment meant being tied to that vendor's ecosystem. ISO began developing standards for open systems interconnection in 1977 to address these interoperability issues. After seven years of development, ISO officially published the OSI model as an international standard (ISO 7498) in 1984.
 
-The core design principle of the OSI model is that each layer performs clearly defined functions and provides services to upper layers, enabling independent evolution through inter-layer interfaces. This achieves a modular structure where changes to protocols or technologies in one layer do not affect other layers. This layering concept has become the foundation for design patterns widely used in modern software architecture.
+The core design principle of the OSI model is that each layer performs clearly defined functions and provides services to upper layers, enabling independent evolution through inter-layer interfaces. This creates a modular structure where changes to protocols or technologies in one layer do not affect other layers. This layering concept has become the foundation for design patterns widely used in modern software architecture.
 
 ## OSI 7-Layer Architecture Overview
 
@@ -28,7 +28,7 @@ The following diagram illustrates how data is transmitted from sender to receive
 
 ## Layer 7 - Application Layer
 
-The Application layer is the topmost layer of the OSI model and the closest to the user. It is where applications that use network services operate. When users access network resources through web browsers, email clients, or file transfer programs, the protocols of this layer are at work. This layer provides user interfaces and defines methods for accessing network resources. Protocols such as HTTP, FTP, SMTP, DNS, SSH, and SNMP operate at this layer. Application layer protocols are designed to meet the requirements of specific applications, each having unique message formats and communication rules.
+The Application layer is the topmost layer of the OSI model and the closest to the user. It is where applications that rely on network services operate. When users access network resources through web browsers, email clients, or file transfer programs, the protocols of this layer are at work. This layer provides user interfaces and defines methods for accessing network resources. Protocols such as HTTP, FTP, SMTP, DNS, SSH, and SNMP operate at this layer. Application layer protocols are designed to meet the requirements of specific applications, each having unique message formats and communication rules.
 
 The primary function of the Application layer is to provide network application services that users directly interact with, including file transfer, email, remote access, directory services, and network management. Typical examples include web browsers communicating with web servers using the HTTP protocol, email clients sending and receiving mail using SMTP and IMAP, and network administrators monitoring network equipment through SNMP. Protocols operating at this layer are designed and optimized for their specific use cases.
 
@@ -42,9 +42,9 @@ The primary function of the Application layer is to provide network application 
 
 ## Layer 6 - Presentation Layer
 
-The Presentation layer sits between the Application and Session layers, responsible for converting and adjusting data representation formats. It acts as a translator when exchanging data between different systems, resolving differences in data formats. Thanks to this layer, data can be correctly interpreted even between heterogeneous systems. This layer handles data encoding and decoding, encryption and decryption, and compression and decompression. These functions contribute to increasing transmission efficiency and security while preserving data meaning.
+The Presentation layer sits between the Application and Session layers and is responsible for converting data representations. It acts as a translator between different systems, resolving differences in how data is formatted and encoded. Thanks to this layer, data can be correctly interpreted even between heterogeneous systems. This layer handles data encoding and decoding, encryption and decryption, and compression and decompression. These functions improve transmission efficiency and security while preserving the meaning of the data.
 
-The Presentation layer is necessary because different computer systems may represent data differently internally. For example, Intel x86 processors store bytes in little-endian format while some network protocols use big-endian format, requiring conversion of these byte order differences. Additionally, differences in character encoding schemes such as EBCDIC used in mainframes and ASCII/UTF-8 used in modern systems are also handled at this layer.
+The Presentation layer is necessary because different computer systems may represent data differently internally. For example, Intel x86 processors store bytes in little-endian format while some network protocols use big-endian format, requiring conversion between these byte orders. Additionally, differences in character encoding schemes such as EBCDIC used in mainframes and ASCII/UTF-8 used in modern systems are also handled at this layer.
 
 **Key Functions:**
 
@@ -55,7 +55,7 @@ The Presentation layer is necessary because different computer systems may repre
 
 ## Layer 5 - Session Layer
 
-The Session layer is responsible for establishing, managing, and terminating conversations (sessions) between two systems. It controls logical connections between applications and manages synchronization of data exchange, ensuring that both communicating parties recognize each other and maintain the conversation. This layer determines full-duplex (bidirectional simultaneous communication) or half-duplex (alternating communication) modes, manages checkpoints for recovery in case of communication failures, and governs session start and termination.
+The Session layer is responsible for establishing, managing, and terminating conversations (sessions) between two systems. It controls logical connections between applications and manages synchronization of data exchange, ensuring that both sides stay in sync throughout the session. This layer determines full-duplex (bidirectional simultaneous communication) or half-duplex (alternating communication) modes, manages checkpoints for recovery in case of communication failures, and governs session start and termination.
 
 One important function of the Session layer is setting synchronization points. When a connection is lost during large file transfers, this allows retransmission from the last checkpoint rather than from the beginning, efficiently using network resources and improving user experience. Token management also controls which side can transmit data, preventing collisions. This plays an important role in maintaining data integrity in bidirectional communication.
 
@@ -75,7 +75,7 @@ One important function of the Session layer is setting synchronization points. W
 
 ## Layer 4 - Transport Layer
 
-The Transport layer is responsible for end-to-end data transmission. It divides data from upper layers into segments and reassembles them on the receiving end, managing transmission quality (QoS) such as ensuring reliable data delivery or prioritizing fast transmission. This layer builds reliable communication channels on top of the unreliable communication provided by the Network layer. It uses port numbers (0-65535) to distinguish between multiple applications running on the same host. Port ranges are divided into well-known ports (0-1023), registered ports (1024-49151), and dynamic/private ports (49152-65535).
+The Transport layer is responsible for end-to-end data transmission. It divides data from upper layers into segments and reassembles them on the receiving end, managing transport characteristics such as reliable delivery or lower-latency transmission. This layer builds reliable communication channels on top of the unreliable communication provided by the Network layer. It uses port numbers (0-65535) to distinguish between multiple applications running on the same host. Port ranges are divided into well-known ports (0-1023), registered ports (1024-49151), and dynamic/private ports (49152-65535).
 
 The most representative protocols of the Transport layer are TCP (Transmission Control Protocol) and UDP (User Datagram Protocol). TCP, defined in RFC 793 in 1981, is a connection-oriented and reliable data transmission protocol that includes flow control and congestion control functions. UDP, defined in RFC 768 in 1980, is a connectionless protocol that does not guarantee reliability but has lower overhead, making it suitable for applications where speed is important and some data loss is acceptable, such as real-time streaming, online gaming, VoIP, and DNS queries.
 
@@ -98,7 +98,7 @@ The most representative protocols of the Transport layer are TCP (Transmission C
 
 The Network layer enables communication between different networks. It performs routing functions to determine packet paths as its core function, using logical addresses (IP addresses) to deliver data from source to destination across multiple networks. Without this layer, communication would only be possible within the same local network, and global networks like the internet could not exist. Routers are the representative devices operating at this layer. Routers forward packets to the next hop by referencing routing tables and determine optimal paths through static routing and dynamic routing protocols.
 
-IP (Internet Protocol), the core protocol of the Network layer, currently exists in two versions: IPv4 and IPv6. IPv4, defined in RFC 791 in 1981, uses a 32-bit address system providing approximately 4.3 billion (2^32) addresses. IPv6, defined in RFC 2460 in 1998, uses a 128-bit address system providing approximately 3.4×10^38 addresses, securing virtually unlimited address space. IP is designed as a connectionless and unreliable protocol that does not handle packet loss or out-of-order delivery. Reliability guarantee is the responsibility of TCP in the upper layer (Transport layer).
+IP (Internet Protocol), the core protocol of the Network layer, currently exists in two versions: IPv4 and IPv6. IPv4, defined in RFC 791 in 1981, uses a 32-bit address system providing approximately 4.3 billion (2^32) addresses. IPv6, defined in RFC 2460 in 1998, uses a 128-bit address system providing approximately 3.4×10^38 addresses, which is effectively unlimited for practical purposes. IP is designed as a connectionless and unreliable protocol that does not handle packet loss or out-of-order delivery. Reliability guarantee is the responsibility of TCP in the upper layer (Transport layer).
 
 **Key Protocols:**
 
@@ -109,7 +109,7 @@ IP (Internet Protocol), the core protocol of the Network layer, currently exists
 
 ## Layer 2 - Data Link Layer
 
-The Data Link layer organizes bit streams transmitted through the Physical layer into frames and handles reliable data transmission between adjacent nodes. While the Network layer uses logical addresses (IP), this layer uses physical addresses (MAC addresses) to identify devices within the same network segment and provides error detection and flow control functions. Switches and bridges are representative devices operating at this layer. Switches learn MAC address tables to forward frames only to specific ports, separating collision domains and improving network efficiency.
+The Data Link layer organizes bit streams transmitted through the Physical layer into frames and handles reliable data transmission between adjacent nodes. While the Network layer uses logical addresses (IP), this layer uses physical addresses (MAC addresses) to identify devices within the same network segment and provides error detection and flow control functions. Switches and bridges are representative devices operating at this layer. Switches learn MAC address tables to forward frames only to the appropriate ports, separating collision domains and improving network efficiency.
 
 The Data Link layer is divided by IEEE into two sublayers: LLC (Logical Link Control, IEEE 802.2) and MAC (Media Access Control). The LLC sublayer handles the interface with the Network layer, performs flow control and error control, and allows multiple network protocols to share the same physical medium. The MAC sublayer defines methods for accessing the physical layer, handles physical addressing, and has various standards defined according to media type, such as IEEE 802.3 (Ethernet) and IEEE 802.11 (Wi-Fi).
 
@@ -128,7 +128,7 @@ The Data Link layer is divided by IEEE into two sublayers: LLC (Logical Link Con
 
 ## Layer 1 - Physical Layer
 
-The Physical layer is the lowest layer of the OSI model, responsible for converting bits into electrical signals (copper wire), optical signals (fiber optic), or electromagnetic waves (wireless) and transmitting them through physical media. This layer does not understand the meaning or structure of data and focuses only on converting bits (0s and 1s) into physical signals. It defines hardware characteristics such as cables, connectors, voltage levels, signal timing, data transmission rates, and pin arrangements. This standardization enables equipment from different manufacturers to connect physically and communicate.
+The Physical layer is the lowest layer of the OSI model, responsible for converting bits into electrical signals (copper wire), optical signals (fiber optic), or electromagnetic waves (wireless) and transmitting them through physical media. This layer does not understand the meaning or structure of data and focuses only on transmitting bits (0s and 1s) as physical signals. It defines hardware characteristics such as cables, connectors, voltage levels, signal timing, data transmission rates, and pin arrangements. This standardization enables equipment from different manufacturers to connect physically and communicate.
 
 Elements defined by the Physical layer include electrical characteristics (voltage levels, signal duration, impedance), mechanical characteristics (connector shapes, number of pins, pin arrangements), functional characteristics (function definitions of each pin), and procedural characteristics (bit transmission procedures, synchronization methods). Standardizing these four characteristics enables various manufacturers' network equipment to physically interconnect.
 
@@ -141,7 +141,7 @@ Elements defined by the Physical layer include electrical characteristics (volta
 
 ## Data Encapsulation and De-encapsulation
 
-In the OSI model, when data is transmitted from sender to receiver, it undergoes encapsulation and de-encapsulation as it passes through each layer. This process is similar to putting a letter in an envelope and writing an address, where each layer adds necessary control information as headers. On the sending side, data starts at the Application layer and descends through lower layers, with each layer's header (and sometimes trailer) being added. On the receiving side, the process starts at the Physical layer and ascends through upper layers, with each layer's header being removed until only the original data is delivered to the Application layer.
+In the OSI model, when data is transmitted from sender to receiver, it undergoes encapsulation and de-encapsulation as it passes through each layer. The process is similar to putting a letter in an envelope and writing an address: each layer adds the control information it needs, usually in the form of headers. On the sending side, data starts at the Application layer and descends through lower layers, with each layer's header (and sometimes trailer) being added. On the receiving side, the process starts at the Physical layer and ascends through upper layers, with each layer's header being removed until only the original data is delivered to the Application layer.
 
 ![Data Encapsulation Process](encapsulation.png)
 
@@ -149,7 +149,7 @@ Each layer's data unit has a unique name: Data at the Application/Presentation/S
 
 ## Comparing OSI and TCP/IP Models
 
-The actual internet operates based on the TCP/IP 4-layer model rather than the OSI 7-layer model. While the OSI model is a theoretical and conceptual reference model published by ISO in 1984, the TCP/IP model is a practical model based on ARPANET developed by DARPA (Defense Advanced Research Projects Agency) in the 1970s, reflecting actual internet protocol implementations. The TCP/IP model consists of four layers: Application, Transport, Internet, and Network Access. OSI layers 5, 6, and 7 are consolidated into TCP/IP's Application layer, and layers 1 and 2 are consolidated into the Network Access layer.
+The actual internet operates based on the TCP/IP 4-layer model rather than the OSI 7-layer model. While the OSI model is a theoretical and conceptual reference model published by ISO in 1984, the TCP/IP model is a practical model derived from the ARPANET protocols developed by DARPA (Defense Advanced Research Projects Agency) in the 1970s, reflecting actual internet protocol implementations. The TCP/IP model consists of four layers: Application, Transport, Internet, and Network Access. OSI layers 5, 6, and 7 are consolidated into TCP/IP's Application layer, and layers 1 and 2 are consolidated into the Network Access layer.
 
 The OSI model remains important in practice because it allows network problems to be diagnosed and resolved by narrowing down the problem area layer by layer. For example, when a connection problem occurs, you can systematically identify the issue by checking cable connections and LED status (Layer 1), MAC address resolution and switch ports (Layer 2), IP addresses and routing tables (Layer 3), port connections and firewall rules (Layer 4), and application settings and logs (Layer 7) in sequence.
 
@@ -165,7 +165,7 @@ The OSI model remains important in practice because it allows network problems t
 
 ## Practical Use of OSI Model
 
-The OSI model is especially useful in network troubleshooting. A systematic layer-by-layer approach makes it easier to identify the cause of complex network problems.
+The OSI model is especially useful for network troubleshooting. A systematic layer-by-layer approach makes it easier to identify the cause of complex network problems.
 
 **Layer-by-Layer Troubleshooting Checklist:**
 

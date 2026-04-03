@@ -9,7 +9,7 @@ series: ["Homelab Build Log"]
 
 ## Overview
 
-In the [previous post](/posts/homelab-k8s-idp-2/), I pulled together the overall IDP structure using Helm chart-based project templates and ArgoCD ApplicationSet. This post covers how I added Prometheus and Grafana for metrics, and Loki for centralized log collection and analysis. Together, they form the monitoring stack for the homelab Kubernetes cluster.
+In the [previous post](/posts/homelab-k8s-idp-2/), I pulled together the overall IDP structure using Helm chart-based project templates and ArgoCD ApplicationSet. This post covers how I added Prometheus and Grafana for metrics, plus Loki for centralized log collection and analysis. Together, they form the monitoring stack for the homelab Kubernetes cluster.
 
 ![Grafana](image.png)
 
@@ -31,7 +31,7 @@ When operating a homelab Kubernetes cluster, I need to keep an eye on node and p
 
 ## Installing Kube-Prometheus-Stack
 
-Installing and wiring Prometheus and Grafana separately felt like more setup than I wanted, so I used Kube-Prometheus-Stack instead. As with the earlier posts, I kept the deployment in the same GitOps flow.
+Installing and wiring Prometheus and Grafana separately felt like more setup than I wanted, so I used Kube-Prometheus-Stack instead. As in the earlier posts, I kept the deployment in the same GitOps flow.
 
 ### 1. Creating Directory and File Structure
 
@@ -182,7 +182,7 @@ spec:
                 port: 80
 ```
 
-This IngressRoute uses the `intweb` and `intwebsec` entry points so it is reachable only from the internal network. `prometheus.injunweb.com` routes to the Prometheus server, and `grafana.injunweb.com` routes to Grafana.
+This IngressRoute uses the `intweb` and `intwebsec` entry points, so it is only reachable from the internal network. `prometheus.injunweb.com` routes to the Prometheus server, and `grafana.injunweb.com` routes to Grafana.
 
 ### 5. Committing Changes and Deploying
 
@@ -200,7 +200,7 @@ After I pushed the changes, ArgoCD deployed Kube-Prometheus-Stack automatically.
 kubectl get pods -n kube-prometheus-stack
 ```
 
-When the installation succeeds, the output looks similar to this:
+Once the installation finished, the output looked like this:
 
 ```
 NAME                                                       READY   STATUS    RESTARTS   AGE
@@ -215,7 +215,7 @@ prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   0  
 
 ## Installing Loki-Stack
 
-After the metrics side was working, I added Loki-Stack for log collection and analysis. Loki fit nicely here because its label-based model is conceptually close to Prometheus.
+After the metrics side was working, I added Loki-Stack for log collection and analysis. Loki fit nicely here because its label-based model is similar to Prometheus.
 
 ### 1. Creating Directory and File Structure
 
@@ -290,7 +290,7 @@ loki-stack:
         enabled: true
 ```
 
-The key characteristics of this configuration are as follows:
+The main parts of this configuration were:
 
 - **Loki**: Allocates 20Gi storage for storing log data and is configured to reject logs older than 7 days (168 hours) to manage disk usage.
 - **Promtail**: Enables the DaemonSet agent that collects container logs from each node and sends them to Loki.
@@ -299,7 +299,7 @@ The key characteristics of this configuration are as follows:
 
 ### 4. Committing Changes and Deploying
 
-I committed the Loki configuration in the same way:
+Once the configuration was ready, I committed and pushed it:
 
 ```bash
 git add .
@@ -307,7 +307,7 @@ git commit -m "Add Loki-Stack configuration"
 git push
 ```
 
-After installation is complete, you can verify with the following command:
+After the installation finished, I verified it with the following command:
 
 ```bash
 kubectl get pods -n loki-stack
@@ -335,9 +335,9 @@ You can now access the following URLs in your web browser:
 
 ## Using Grafana Dashboards
 
-One thing I liked immediately was that Kube-Prometheus-Stack already shipped with several useful dashboards. In Grafana, I mostly browsed the preconfigured dashboards from the left-side "Dashboards" menu.
+Kube-Prometheus-Stack already shipped with several useful dashboards, which made Grafana immediately useful. In Grafana, I mostly browsed the preconfigured dashboards from the left-side "Dashboards" menu.
 
-In particular, the "Kubernetes / Compute Resources" related dashboards in the "General" folder are very useful for understanding cluster CPU, memory, and network usage at the namespace, pod, and container level. The "Node Exporter" related dashboards allow checking detailed hardware-level metrics for each node such as disk I/O, network traffic, and system load, which helps with infrastructure monitoring.
+In particular, the dashboards under "Kubernetes / Compute Resources" in the "General" folder were very useful for understanding cluster CPU, memory, and network usage at the namespace, pod, and container level. The "Node Exporter" dashboards showed detailed hardware-level metrics for each node such as disk I/O, network traffic, and system load, which helped with infrastructure monitoring.
 
 ## Exploring Logs with Loki
 
@@ -371,10 +371,10 @@ For logs, I mostly used Grafana's "Explore" view with the Loki data source. Thes
 {namespace="default"} |= "timeout" | json
 ```
 
-Through Loki, you can centrally manage logs distributed across multiple pods and nodes, and quickly identify causes when problems occur using LogQL queries.
+Through Loki, you can centrally manage logs distributed across multiple pods and nodes, and quickly identify the cause of issues using LogQL queries.
 
 ## Conclusion
 
 This post covered how I added Kube-Prometheus-Stack and Loki-Stack to the homelab Kubernetes cluster so I could see both metrics and logs in one place.
 
-This concludes the homelab Kubernetes series. We have now completed a full homelab Kubernetes environment, covering everything from the basic cluster setup to an ArgoCD GitOps environment, Longhorn distributed storage, the Traefik ingress controller, Vault secret management, a CI/CD pipeline, and a monitoring system built with Prometheus, Grafana, and Loki. With this infrastructure as a foundation, you can test and develop various projects in a production-like Kubernetes environment without the cost burden of cloud services.
+This concludes the homelab Kubernetes series. At this point, I had completed a full homelab Kubernetes environment, covering everything from the basic cluster setup to an ArgoCD GitOps environment, Longhorn distributed storage, the Traefik ingress controller, Vault secret management, a CI/CD pipeline, and a monitoring system built with Prometheus, Grafana, and Loki. With this infrastructure as a foundation, I could test and develop various projects in a production-like Kubernetes environment without the cost burden of cloud services.

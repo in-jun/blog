@@ -8,21 +8,21 @@ draft: false
 
 ### What is the N+1 Problem?
 
-The **N+1 problem** is a common performance issue in Object-Relational Mapping (ORM) where N additional queries are executed when retrieving associated entities. As a result, the total number of queries becomes N+1. When the number of queries increases, database communication multiplies, network round-trip time grows, and there is a risk of database connection pool exhaustion, which can significantly degrade performance.
+The **N+1 problem** is a common performance issue in Object-Relational Mapping (ORM) where N additional queries are executed when retrieving associated entities. As a result, the total number of queries becomes N+1. As the number of queries increases, database round trips increase, network latency grows, and the risk of database connection pool exhaustion rises, which can significantly degrade performance.
 
 ### History and Background of the N+1 Problem
 
-The N+1 problem emerged alongside ORM frameworks and is particularly common when using Lazy Loading strategies in Hibernate and JPA. ORM frameworks adopt lazy loading as the default strategy to handle data in an object-oriented manner by deferring the loading of associated entities until needed. This approach has advantages such as preventing unnecessary data loading and improving initial loading speed. However, when developers access associated entities inside loops without recognizing the relationships, individual queries are executed for each entity, causing the N+1 problem. This has remained a critical performance issue that developers must be aware of from the early versions of Hibernate to the present.
+The N+1 problem emerged alongside ORM frameworks and is particularly common when using Lazy Loading strategies in Hibernate and JPA. ORM frameworks adopt lazy loading as the default strategy to handle data in an object-oriented manner by deferring the loading of associated entities until needed. This approach has advantages such as preventing unnecessary data loading and improving initial loading speed. However, when developers access associated entities inside loops without recognizing the relationships, individual queries are executed for each entity, causing the N+1 problem. It has been a persistent performance issue from the early versions of Hibernate to the present.
 
 ### N+1 Problem Occurrence Scenarios
 
 #### Occurrence in 1:N Relationships
 
-The most common case occurs in 1:N relationships where one parent entity has multiple child entities. For example, in the relationship between Team and Member, if you retrieve a list of teams and then access each team's member list, additional queries are executed equal to the number of teams. If there are 100 teams, 1 team retrieval query and 100 member retrieval queries will be executed.
+The most common case occurs in 1:N relationships where one parent entity has multiple child entities. For example, in the relationship between Team and Member, if you retrieve a list of teams and then access each team's member list, one additional query is executed per team. If there are 100 teams, 1 team retrieval query and 100 member retrieval queries will be executed.
 
 #### Occurrence in N:M Relationships
 
-The N+1 problem can also occur in many-to-many (N:M) relationships. In cases like the relationship between Student and Course connected through an intermediate table, if you retrieve a list of students and then access the list of courses each student is taking, additional queries are executed equal to the number of students.
+The N+1 problem can also occur in many-to-many (N:M) relationships. In cases like the relationship between Student and Course connected through an intermediate table, if you retrieve a list of students and then access the list of courses each student is taking, one additional query is executed per student.
 
 #### Occurrence in Nested Associations
 
@@ -36,7 +36,7 @@ When associations are nested in multiple levels (e.g., A -> B -> C), the N+1 pro
 List<Member> members = memberRepository.findAll();
 ```
 
-2. For each retrieved entity, additional queries are executed when used.
+2. For each retrieved entity, additional queries are executed when its associated entity is accessed.
 
 ```java
 for (Member member : members) {
@@ -55,22 +55,22 @@ SELECT * FROM Team WHERE team_id = 3;
 
 ### Performance Impact Analysis
 
-The performance impact of the N+1 problem increases exponentially with the amount of data. For example, when retrieving 100 members and accessing each member's team information, one optimized join query takes about 10ms, but 101 individual queries take a total of 505ms even if each takes an average of 5ms, resulting in more than 50 times the performance difference. A more serious problem is that each query uses a database connection and incurs network round-trip time (RTT), which can deplete the database connection pool. In environments with many concurrent users, other requests may wait for connections or experience timeouts.
+The performance impact of the N+1 problem increases sharply with the amount of data. For example, when retrieving 100 members and accessing each member's team information, one optimized join query might take about 10ms. By contrast, 101 individual queries can take a total of 505ms even if each takes only 5ms on average. A more serious problem is that each query uses a database connection and incurs network round-trip time (RTT), which can deplete the database connection pool. In environments with many concurrent users, other requests may wait for connections or experience timeouts.
 
 ### Solution
 
-> Attempting to solve the N+1 problem using Eager Loading can degrade performance by always loading all associations. Therefore, it is better to selectively resolve it only when needed using Fetch Join, Batch Fetch, EntityGraph, etc.
+> Attempting to solve the N+1 problem using Eager Loading can degrade performance by always loading all associations. Therefore, it is better to address it selectively where needed using Fetch Join, Batch Fetch, EntityGraph, and similar techniques.
 
 #### Fetch Join Details
 
-Fetch Join is a feature provided by JPQL that retrieves associated entities in one query through SQL join. Regular JOIN does not actually load the associated entity and only uses it in the condition clause, but JOIN FETCH immediately loads the associated entity, stores it together in the persistence context, and allows it to be used without additional queries.
+Fetch Join is a feature provided by JPQL that retrieves associated entities in one query through an SQL join. Regular JOIN does not actually load the associated entity and only uses it in the condition clause, but JOIN FETCH immediately loads the associated entity into the persistence context and allows it to be used without additional queries.
 
 ```java
 @Query("SELECT m FROM Member m JOIN FETCH m.team")
 List<Member> findAllWithTeam();
 ```
 
-When using Fetch Join, be aware that using it with pagination can cause performance issues by processing pagination in memory. When Fetch Joining collections, duplicate data can occur due to Cartesian product, so the DISTINCT keyword should be used. Fetch Joining more than one collection can cause MultipleBagFetchException, so only Fetch Join one collection and use Batch Fetch for the rest.
+When using Fetch Join, be aware that using it with pagination can cause performance issues by processing pagination in memory. When applying a fetch join to collections, duplicate data can occur due to Cartesian products, so the DISTINCT keyword should be used. Applying fetch join to more than one collection can cause MultipleBagFetchException, so only fetch join one collection and use Batch Fetch for the rest.
 
 #### @BatchSize Details
 
@@ -101,7 +101,7 @@ EntityGraph has two types: FETCH and LOAD. FETCH type loads attributes specified
 
 #### Direct DTO Retrieval
 
-You can also directly retrieve only the necessary data as DTOs using the new keyword in JPQL. This method does not load the entity graph but SELECTs only the required columns and puts them in DTOs. This prevents unnecessary data loading and reduces memory usage.
+You can also directly retrieve only the necessary data as DTOs using the new keyword in JPQL. This method does not load the entity graph. Instead, it selects only the required columns and maps them into DTOs. This prevents unnecessary data loading and reduces memory usage.
 
 ```java
 @Query("SELECT new com.example.dto.MemberDto(m.id, m.name, t.name) " +
@@ -111,7 +111,7 @@ List<MemberDto> findAllMemberDto();
 
 #### Solving with QueryDSL
 
-QueryDSL is a framework that supports type-safe query writing. You can apply Fetch Join using the fetchJoin() method. It is more convenient than JPQL when writing complex conditions and dynamic queries. It can also verify errors at compile time.
+QueryDSL is a framework that supports type-safe query writing. You can apply Fetch Join using the fetchJoin() method. It is more convenient than JPQL when writing complex conditions and dynamic queries. It can also catch errors at compile time.
 
 #### Using Native Query
 
@@ -133,7 +133,7 @@ spring.jpa.properties.hibernate.generate_statistics=true
 
 #### Checking Query Logs
 
-Activating show_sql and format_sql in application.properties outputs executed SQL to the console for verification. In development environments, it is good to always activate these to monitor what queries are being executed.
+Activating show_sql and format_sql in application.properties outputs executed SQL to the console for verification. In development environments, it is useful to enable these settings to monitor what queries are being executed.
 
 ```properties
 spring.jpa.show-sql=true
@@ -143,12 +143,12 @@ spring.jpa.properties.hibernate.use_sql_comments=true
 
 #### Query Monitoring with p6spy
 
-p6spy is a library that wraps the JDBC driver to log all executed SQL and binding parameters. It can confirm the actual executed SQL with parameters bound, making it very useful for debugging. It also measures query execution time, helping with performance analysis.
+p6spy is a library that wraps the JDBC driver to log all executed SQL and binding parameters. It shows the actual SQL that was executed with bound parameters, making it very useful for debugging. It also measures query execution time, helping with performance analysis.
 
 #### Using Profiling Tools
 
-In production environments, you can use APM (Application Performance Monitoring) tools or database profilers to monitor query performance in real-time. You can identify slow queries for optimization. You can quickly find points where the N+1 problem occurs.
+In production environments, you can use APM (Application Performance Monitoring) tools or database profilers to monitor query performance in real time. These tools help identify slow queries for optimization and quickly reveal where the N+1 problem occurs.
 
 ### Conclusion
 
-The N+1 problem is a performance issue inevitably encountered when using lazy loading and associations in ORM. If developers are not aware of this problem, performance can degrade exponentially as data increases. However, by appropriately utilizing various solutions such as Fetch Join, @BatchSize, and @EntityGraph, the problem can be effectively resolved. By continuously managing performance through query logging and monitoring tools, you can operate stable applications.
+The N+1 problem is a performance issue commonly encountered when using lazy loading and associations in ORM. If developers are not aware of this problem, performance can degrade rapidly as data increases. However, by appropriately utilizing various solutions such as Fetch Join, @BatchSize, and @EntityGraph, the problem can be effectively resolved. By continuously managing performance through query logging and monitoring tools, you can maintain application stability.
